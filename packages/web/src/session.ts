@@ -52,7 +52,10 @@ export type WebMountOptions = {
   commandTitle?: string;
   /** Origin that serves the cross-origin sandbox page (decision 0013). */
   sandboxUrl: string;
-  /** Where `almostnode.mjs`, `esbuild.mjs`, `esbuild.wasm` and `blast-sources.json` are served. */
+  /**
+   * Where the package's `assets/` (`almostnode.mjs`, `esbuild.mjs`, `esbuild.wasm`,
+   * `blast-sources.json`) are served; defaults to `assets/` beside this module.
+   */
   assetsUrl?: string;
   /** Allow `<assetsUrl>/fixtures/<name>` to stand in for GitHub (tests and demos). */
   fixtures?: boolean;

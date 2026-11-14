@@ -19,8 +19,23 @@ export type SandboxOptions = {
 
 let warm: { key: string; runtime: Promise<SandboxRuntime | undefined> } | undefined;
 
+// The published package keeps its page assets in `assets/`: `dist/*.js` sits one
+// level below it, and the bundled `assets/blast-web.js` is built with this as "./".
+declare const BLAST_PACKAGED_ASSETS: string | undefined;
+const packagedAssets = () =>
+  new URL(
+    typeof BLAST_PACKAGED_ASSETS === "string" ? BLAST_PACKAGED_ASSETS : "../assets/",
+    import.meta.url,
+  );
+
+/** `path` under `assetsUrl`, which defaults to the package's own `assets/` directory. */
 export const assetUrl = (options: Pick<SandboxOptions, "assetsUrl">, path: string) =>
-  new URL(path, new URL(options.assetsUrl ?? "./", location.href)).toString();
+  new URL(
+    path,
+    options.assetsUrl
+      ? new URL(options.assetsUrl, (globalThis as { location?: { href: string } }).location?.href)
+      : packagedAssets(),
+  ).toString();
 const keyOf = (options: SandboxOptions) =>
   [options.sandboxUrl, assetUrl(options, "./"), options.bundlesUrl, options.buildUrl].join("\n");
 

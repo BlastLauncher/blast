@@ -1,22 +1,38 @@
 # @blastlauncher/web
 
-Runs Raycast extensions in any web page. Browser-only (decision 0015): the
-package never imports the Node engine, and `packages/web/src` typechecks under
-`tsconfig.browser.json`. The extension runs in a cross-origin almostnode
-sandbox that the embedding application hosts.
+Runs Raycast extensions in any web page. The extension runs in a sandbox on a
+second origin you host, so it cannot reach your page's DOM, cookies or data.
 
-```ts
-import { mount } from "@blastlauncher/web";
+## Quickstart
 
-const session = mount(document.querySelector("#app")!, {
-  extension: "raycast/extensions/hello-list",
-  sandboxUrl: "https://sandbox.example.com/blast-sandbox/",
-  assetsUrl: "/blast/", // almostnode.mjs, esbuild.mjs, esbuild.wasm, blast-sources.json
-});
-session.input({ type: "search", text: "ban" });
-session.close();
+```sh
+npm install @blastlauncher/web@next
 ```
 
+Serve two directories from the package as static files, unchanged:
+
+| Directory                                  | Serve on                                   |
+| ------------------------------------------ | ------------------------------------------ |
+| `node_modules/@blastlauncher/web/assets/`  | your page's origin, e.g. `/blast/`         |
+| `node_modules/@blastlauncher/web/sandbox/` | another origin, e.g. `sandbox.example.com` |
+
+```html
+<div id="app"></div>
+<script type="module">
+  import { mount } from "/blast/blast-web.js";
+  const session = mount(document.querySelector("#app"), {
+    extension: "raycast/extensions/android-versions",
+    sandboxUrl: "https://sandbox.example.com/",
+  });
+</script>
+```
+
+`assets/blast-web.js` finds the other assets beside itself. With a bundler,
+`import { mount } from "@blastlauncher/web"` and pass `assetsUrl: "/blast/"`.
+
+## Options
+
+- `session.input({ type: "search", text: "ban" })` sends input; `session.close()` ends it.
 - `root: true` shows the extension's commands as the engine root view.
 - `handlers` overrides the default `storage`, `clipboard` and `openUrl`;
   `handlers.capability` answers or denies any capability first.
@@ -55,3 +71,12 @@ Hooks for hosts with their own UI (`examples/browser-demo` uses all of them):
   page is idle; the next `mount()` with the same `sandboxUrl`, `assetsUrl`,
   `bundlesUrl` and `buildUrl` adopts it. Its frame has `data-blast="warm"`,
   then `"session"` once adopted.
+
+## In this repository
+
+Browser-only (decision 0015): the package never imports the Node engine, and
+`packages/web/src` typechecks under `tsconfig.browser.json`.
+`packages/web/build/assets.ts` builds `assets/` and `sandbox/` for
+`release:build`, the browser demo and the examples. After `release:build`,
+`bun run release:web:e2e` installs the tarball and runs the quickstart page
+against two loopback origins.

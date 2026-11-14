@@ -42,6 +42,7 @@
     "blast:serve": "node packages/serve/src/main.ts",
     "release:build": "bun scripts/release/build.ts",
     "release:smoke": "bun scripts/release/smoke.ts",
+    "release:web:e2e": "bun scripts/release/web-e2e.ts",
     "example:go": "cd examples/go-embedder && go test ./...",
     "example:python": "bun scripts/example-python.ts",
     "release:bootstrap": "bun scripts/release/prerelease.ts bootstrap",

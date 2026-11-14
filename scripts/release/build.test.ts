@@ -29,5 +29,10 @@ test("release manifests expose JS with declarations and resolve only release wor
       if (name.startsWith("@blastlauncher/")) expect(version).toBe("1.2.3-rc.1");
     if (pkg === "serve") expect(manifest.bin).toEqual({ "blast-serve": "./dist/main.js" });
     if (pkg === "cli") expect(manifest.bin).toEqual({ blast: "./dist/cli.js" });
+    expect(manifest.files).toEqual(
+      pkg === "web"
+        ? ["dist", "schema", "LICENSE", "README.md", "assets", "sandbox"]
+        : ["dist", "schema", "LICENSE", "README.md"],
+    );
   }
 });

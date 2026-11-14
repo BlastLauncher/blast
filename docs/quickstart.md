@@ -44,6 +44,31 @@ controller.subscribe((view) => console.log(view.rows.map((row) => row.text).join
 node index.mjs
 ```
 
+## Embed in a web page
+
+No build step: the package ships the browser bundle and the sandbox page.
+
+```sh
+npm install @blastlauncher/web@next
+```
+
+Serve `node_modules/@blastlauncher/web/assets/` on your page's origin (here at
+`/blast/`) and `node_modules/@blastlauncher/web/sandbox/` on a second origin
+you control. Extensions run in that sandbox origin, away from your page's data.
+
+```html
+<div id="app"></div>
+<script type="module">
+  import { mount } from "/blast/blast-web.js";
+  mount(document.querySelector("#app"), {
+    extension: "raycast/extensions/android-versions",
+    sandboxUrl: "https://sandbox.example.com/",
+  });
+</script>
+```
+
+Options, theming and custom renderers: [`@blastlauncher/web`](../packages/web/README.md).
+
 ## Embed in any language
 
 Start the stdio server and send one JSON object per line:

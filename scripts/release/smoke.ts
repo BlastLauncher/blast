@@ -1,6 +1,7 @@
 // Explicit network-enabled check; never imported by bun test.
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { webAssetFiles } from "../../packages/web/build/assets.ts";
 import { output, packages, root, run } from "./build.ts";
 
 const smoke = join(output, "smoke");
@@ -53,6 +54,13 @@ try {
     ],
     smoke,
   );
+  // The web tarball carries the files an embedder hosts on its two origins.
+  for (const [directory, files] of Object.entries(webAssetFiles))
+    for (const file of files) {
+      const path = join(smoke, "node_modules/@blastlauncher/web", directory, file);
+      if (!(await stat(path).catch(() => undefined))?.size)
+        throw new Error(`Web tarball lacks ${directory}/${file}`);
+    }
   console.log(
     `Slim engine installed: ${run("du", ["-sh", "node_modules"], smoke)} (${run("du", ["-sk", "node_modules"], smoke).split(/\s/)[0]} KiB allocated)`,
   );

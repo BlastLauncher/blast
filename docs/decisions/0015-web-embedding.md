@@ -43,6 +43,6 @@ loads next to its data.
 
 - The demo, `<blast-extension>` and third-party pages share one host
   implementation; the demo moves onto it in task 0163.
-- Embedders build and serve the sandbox assets (`bun run site:build` produces
-  them); there is no CDN-hosted default.
+- Embedders serve the package's prebuilt `assets/` (page origin) and
+  `sandbox/` (sandbox origin) directories; there is no CDN-hosted default.
 - Prebuilt catalog bundles stay a demo feature until 0163.
