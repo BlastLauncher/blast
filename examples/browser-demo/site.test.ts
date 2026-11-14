@@ -5,6 +5,7 @@ import {
   buildSite,
   cnameForOrigin,
   extractStats,
+  landing,
   parseOrigin,
   parseSandboxUrl,
   showcaseDirectory,
@@ -45,6 +46,29 @@ describe("site build helpers", () => {
       rendered: 77,
       commands: 90,
     });
+  });
+  test("landing page renders hero, 5 code tabs, receipts, and demo link", () => {
+    const stats = {
+      coverage: { covered: 180, total: 200, percent: "90.0%" },
+      rendered: 1250,
+      commands: 1500,
+    };
+    const html = landing(stats, "http://127.0.0.1:4173");
+    expect(html).toContain("Raycast extensions, inside your app.");
+    expect(html).toContain('href="http://127.0.0.1:4173/demo/"');
+    expect(html).toContain("JavaScript");
+    expect(html).toContain("Go");
+    expect(html).toContain("Python");
+    expect(html).toContain("Swift");
+    expect(html).toContain("NDJSON");
+    expect(html).toContain("panel-js");
+    expect(html).toContain("panel-go");
+    expect(html).toContain("panel-py");
+    expect(html).toContain("panel-swift");
+    expect(html).toContain("panel-ndjson");
+    expect(html).toContain("90.0%");
+    expect(html).toContain("1,250");
+    expect(html).toContain("1,500");
   });
   test("the production catalog opens with the Showcase section, in manifest order", async () => {
     const catalog = validateCatalog(await siteCatalog());
@@ -101,8 +125,16 @@ describe("site build helpers", () => {
     // The demo says what it is and links home; home links back to the demo.
     expect(demo).toContain('<a class="demo-home" href="http://127.0.0.1:4173/">');
     expect(demo).toContain("Browser demo · alpha");
-    const landing = await readFile(`${result.www}/index.html`, "utf8");
-    expect(landing).toContain('href="http://127.0.0.1:4173/demo/"');
+    const landingHtml = await readFile(`${result.www}/index.html`, "utf8");
+    expect(landingHtml).toContain('href="http://127.0.0.1:4173/demo/"');
+    expect(landingHtml).toContain("Raycast extensions, inside your app.");
+    expect(landingHtml).toContain("panel-js");
+    expect(landingHtml).toContain("panel-go");
+    expect(landingHtml).toContain("panel-py");
+    expect(landingHtml).toContain("panel-swift");
+    expect(landingHtml).toContain("panel-ndjson");
+    expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
+    expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     // The showcase ships prebuilt with every build, fixtures or not.
     const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
