@@ -49,7 +49,7 @@ client and doc shows the smaller API.
 
 ### M10 — Published and measured
 
-- [ ] 0170 Docs and landing install from npm `@next` (alpha.2)
+- [x] 0170 Docs and landing install from npm `@next` (alpha.2)
 - [ ] 0171 Browser sweep: fresh baseline, placeholder preferences, browser limits apart
 - [ ] 0172 Browser runtime fixes: extension assets, forbidden fetch headers, triaged errors
 
