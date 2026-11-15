@@ -1,0 +1,43 @@
+import { expect, test } from "bun:test";
+import { parseCliArgs } from "./cli.ts";
+
+const dirs = new Set(["ext-a", "ext-b", "ext-c"]);
+const parse = (...argv: string[]) => parseCliArgs(argv, (path) => dirs.has(path));
+
+test("several extension dirs open one root, with --popup and --native anywhere", () => {
+  expect(parse("--popup", "ext-a", "ext-b", "--native", "ext-c")).toEqual({
+    kind: "root",
+    extensionDirs: ["ext-a", "ext-b", "ext-c"],
+    popup: true,
+    native: true,
+  });
+  expect(parse("ext-a")).toEqual({
+    kind: "root",
+    extensionDirs: ["ext-a"],
+    popup: false,
+    native: false,
+  });
+});
+
+test("one dir plus a name that is not a directory opens that command", () => {
+  expect(parse("ext-a", "index", "--native")).toEqual({
+    kind: "command",
+    extensionDir: "ext-a",
+    command: "index",
+    native: true,
+  });
+  expect(parse("ext-a", "ext-b")).toMatchObject({
+    kind: "root",
+    extensionDirs: ["ext-a", "ext-b"],
+  });
+});
+
+test("missing dirs, unknown options and --popup with a command print usage", () => {
+  expect(parse()).toEqual({ kind: "usage", error: "Missing <extensionDir>" });
+  expect(parse("--verbose", "ext-a")).toEqual({
+    kind: "usage",
+    error: "Unknown option: --verbose",
+  });
+  expect(parse("--popup", "ext-a", "index")).toMatchObject({ kind: "usage" });
+  expect(parse("--help")).toEqual({ kind: "usage" });
+});

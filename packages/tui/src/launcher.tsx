@@ -50,7 +50,8 @@ export function CommandSession({
   handlers,
   onExit,
 }: {
-  extensionDir: string;
+  /** One extension or several; the root lists every command of each. */
+  extensionDir: string | readonly string[];
   dataDir?: string;
   /** Opens the extension on this engine instead of a new one (left open on unmount). */
   engine?: Engine;
@@ -67,19 +68,21 @@ export function CommandSession({
         ...(dataDir === undefined ? {} : { dataDir }),
         ...(installer ? { installer } : {}),
       });
-    const extension = engine.openExtension({ extensionDir });
+    const dirs = typeof extensionDir === "string" ? [extensionDir] : [...extensionDir];
+    const extensions = dirs.map((dir) => engine.openExtension({ extensionDir: dir }));
     const root = engine.root({
       views,
       configureScope: "extension",
       launch: (target) => launchRef.current(target),
     });
-    return { engine, extension, root };
+    return { engine, dirs, extensions, root };
   });
   const [screen, setScreen] = useState<Screen>({ kind: "root" });
   const [rootView, setRootView] = useState(() => setup.root.view());
   // Tagged with its flow, so a new flow never shows the previous one's view.
   const [flowView, setFlowView] = useState<{ flow: LaunchFlow; view: ControllerView }>();
-  const [manifestError, setManifestError] = useState<string>();
+  // Per extension, in argument order; the first broken manifest is shown.
+  const [manifestErrors, setManifestErrors] = useState<(string | undefined)[]>([]);
   const [launchError, setLaunchError] = useState<string>();
   const crashed = useRef(false);
   const exiting = useRef(false);
@@ -97,27 +100,41 @@ export function CommandSession({
   }, [screen]);
   // The root keeps the last good commands; the broken manifest's reason shows here.
   useEffect(() => {
-    const update = (value: ExtensionManifest | Error) =>
-      setManifestError(value instanceof Error ? value.message : undefined);
-    void setup.extension
-      .manifest()
-      .then(update, (error: unknown) => update(new Error(message(error))));
-    try {
-      return setup.extension.watch(update);
-    } catch {
-      return undefined;
-    }
+    const stops = setup.extensions.map((extension, index) => {
+      const update = (value: ExtensionManifest | Error) =>
+        setManifestErrors((errors) => {
+          const next = [...errors];
+          // Several extensions: say which directory the broken manifest is in.
+          next[index] =
+            value instanceof Error
+              ? setup.dirs.length > 1
+                ? `${setup.dirs[index]}: ${value.message}`
+                : value.message
+              : undefined;
+          return next;
+        });
+      void extension.manifest().then(update, (error: unknown) => update(new Error(message(error))));
+      try {
+        return extension.watch(update);
+      } catch {
+        return undefined;
+      }
+    });
+    return () => {
+      for (const stop of stops) stop?.();
+    };
   }, []);
   useEffect(
     () => () => {
       live.current.flow?.cancel();
       void live.current.stop?.();
       void setup.root.close();
-      void setup.extension.close();
+      for (const extension of setup.extensions) void extension.close();
       if (!suppliedEngine) void setup.engine.close();
     },
     [],
   );
+  const manifestError = manifestErrors.find((error) => error !== undefined);
 
   /** Prompts as needed, then starts the command; `undefined` when the user cancelled. */
   async function run(target: Target, argumentValues?: Record<string, string>) {
