@@ -22,7 +22,7 @@ if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
     new URL("../../extensions/tmux", import.meta.url),
     new URL("../extensions/tmux", import.meta.url),
   ]
-    .map(fileURLToPath)
+    .map((url) => fileURLToPath(url))
     .find((path) => existsSync(path));
   if (!bundled) throw new Error("Bundled tmux extension is missing");
   args.extensionDirs.unshift(bundled);
