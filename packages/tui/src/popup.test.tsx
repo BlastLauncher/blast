@@ -33,7 +33,7 @@ async function session(names: string[], popup: boolean) {
       extensionDir={space.dirs}
       popup={popup}
       dataDir={space.dataDir}
-      hudDurationMs={100}
+      hudDurationMs={1_000}
       onExit={(crashed) => exits.push(crashed)}
     />,
     { width: 100, height: 20, exitOnCtrlC: false },
@@ -98,7 +98,7 @@ test("--popup quits when a view command calls closeMainWindow", async () => {
     await key(terminal, (input) => input.pressEnter());
     await settle(terminal, (current) => current.includes("launch x one"));
     // Esc inside the command still goes back; only the window close quits.
-    await key(terminal, (input) => input.pressKey("k", { ctrl: true }));
+    await key(terminal, (input) => input.pressKey("a", { ctrl: true }));
     await key(terminal, (input) => input.typeText("Close"));
     await settle(terminal, (current) => current.includes("› Close"));
     await key(terminal, (input) => input.pressEnter());

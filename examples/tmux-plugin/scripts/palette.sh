@@ -37,6 +37,9 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 blast_command="$(option @blast-command 'bunx @blastlauncher/tui@next')"
+blast_theme="$(option @blast-theme dark)"
+blast_builtin="$(option @blast-builtin on)"
+blast_config="$(option @blast-config "$HOME/.config/blast/tmux.json")"
 width="$(option @blast-popup-width 90)"
 height="$(option @blast-popup-height 28)"
 if [ "$client_width" -lt 80 ]; then
@@ -59,8 +62,12 @@ done
 
 # tmux 3.2 has no `display-popup -e`, so the environment travels in the
 # command; a failed start would otherwise close the popup without a trace.
-popup="export BLAST_TMUX_TARGET=$(quote "$target") PATH=$(quote "$PATH");"
+# display-popup uses tmux's default shell, which may be fish or another shell
+# with different status-variable syntax. Run this POSIX command explicitly so
+# the fallback does not get parsed by the user's interactive shell.
+popup="export BLAST_TMUX_TARGET=$(quote "$target") BLAST_THEME=$(quote "$blast_theme") BLAST_TMUX_CONFIG=$(quote "$blast_config") BLAST_TMUX_BUILTIN=$(quote "$([ "$blast_builtin" = on ] && printf 1 || printf 0)") PATH=$(quote "$PATH");"
 popup="$popup $blast_command --popup$extensions ||"
 popup="$popup tmux display-message -t $(quote "$pane") \"blast: the palette exited with status \$?\""
+popup="/bin/sh -c $(quote "$popup")"
 
 tmux display-popup -E -c "$client" -t "$pane" -w "$width" -h "$height" "$popup"

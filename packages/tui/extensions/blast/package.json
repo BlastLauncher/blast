@@ -1,0 +1,35 @@
+{
+  "name": "blast",
+  "description": "Manage Blast extensions and builtin integrations.",
+  "license": "MIT",
+  "type": "module",
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "install-extension",
+      "title": "Install Raycast Extension",
+      "description": "Search the official Raycast extension catalog and install an extension",
+      "keywords": [
+        "extension",
+        "install",
+        "raycast",
+        "catalog"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "manage-extensions",
+      "title": "Manage Blast Extensions",
+      "description": "Enable, disable and remove installed extensions and builtin integrations",
+      "keywords": [
+        "extension",
+        "manage",
+        "enable",
+        "disable",
+        "builtin"
+      ],
+      "mode": "view"
+    }
+  ],
+  "title": "Blast"
+}

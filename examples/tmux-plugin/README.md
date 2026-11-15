@@ -49,6 +49,9 @@ Set options before the `@plugin` / `run-shell` line, then reload tmux
 | `@blast-popup-width`  | `90`                           | Popup columns, or a percentage such as `80%`.                              |
 | `@blast-popup-height` | `28`                           | Popup rows, or a percentage.                                               |
 | `@blast-command`      | `bunx @blastlauncher/tui@next` | Command that starts the Blast TUI; `--popup` and the extensions are added. |
+| `@blast-theme`        | `dark`                         | `dark`, `light`, or `mono` palette colours.                                |
+| `@blast-builtin`      | `on`                           | Set to `off` to hide the builtin tmux commands.                            |
+| `@blast-config`       | `~/.config/blast/tmux.json`    | Persistent extension and builtin state.                                    |
 
 Below 80 columns the popup fills the client; a fixed size larger than the
 client does too. `C-Space` in the root table shadows it for programs inside
@@ -58,6 +61,7 @@ tmux (for example Emacs `set-mark`); pick another key or use
 ```tmux
 set -g @blast-key 'M-p'
 set -g @blast-extensions '~/src/my-raycast-extension'
+set -g @blast-theme light
 set -g @plugin 'BlastLauncher/tmux-blast'
 ```
 
@@ -83,6 +87,15 @@ run-shell /path/to/blast/examples/tmux-plugin/blast.tmux
 servers (`tmux -L`) through the key, the popup and a split.
 
 ## Credits
+
+The palette also includes **Install Raycast Extension** and **Manage Blast
+Extensions**. Install searches the official `raycast/extensions` catalog and
+stores sparse checkouts under `~/.local/share/blast/extensions`; enablement,
+removal and the builtin tmux toggle are stored in `@blast-config`.
+
+Use `Ctrl-P`/`Ctrl-K` to move up and `Ctrl-N`/`Ctrl-J` to move down in lists.
+`Ctrl-A` opens the action panel; `Ctrl-P` still opens a dropdown when the
+current command exposes one.
 
 The command list and names follow the built-in commands of
 [Tmux Palette](https://github.com/eduwass/tmux-palette) (MIT); no code is

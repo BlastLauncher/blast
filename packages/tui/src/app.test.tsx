@@ -239,7 +239,7 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
         await waitForFrame(terminal, (frame) =>
           frame.includes(fixture === "host-session" ? "Navigation" : "Everything"),
         );
-        await key("k", true);
+        await key("a", true);
         await waitForFrame(terminal, (frame) => frame.includes("Filter actions"));
         if (fixture === "actions-variants") {
           // Wait for the scene event, not just the frame: pressing Enter again

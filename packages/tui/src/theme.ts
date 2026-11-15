@@ -5,32 +5,36 @@ export const noColor = (process.env.NO_COLOR ?? "").trim() !== "";
 
 // OpenTUI treats an absent colour as the terminal default; the cast keeps the
 // palette's declared type plain `string` for every synchronous caller.
-export function createTheme(colorless = noColor) {
+export type ThemeName = "dark" | "light" | "mono";
+
+export function createTheme(colorless = noColor, name: ThemeName = "dark") {
+  const light = name === "light";
+  const mono = name === "mono";
   const paint = (value: string): string => (colorless ? (undefined as unknown as string) : value);
   return {
     colors: {
-      background: paint("#181825"),
-      panel: paint("#1e1e2e"),
-      border: paint("#45475a"),
-      borderFocused: paint("#89b4fa"),
-      accent: paint("#89b4fa"),
-      selectionBg: paint("#313244"),
-      selectionFg: paint("#cdd6f4"),
-      text: paint("#cdd6f4"),
-      textMuted: paint("#6c7086"),
-      success: paint("#a6e3a1"),
-      warning: paint("#f9e2af"),
-      danger: paint("#f38ba8"),
-      orange: paint("#fab387"),
-      magenta: paint("#f5c2e7"),
-      purple: paint("#cba6f7"),
+      background: paint(light ? "#eff1f5" : mono ? "#111111" : "#181825"),
+      panel: paint(light ? "#e6e9ef" : mono ? "#1b1b1b" : "#1e1e2e"),
+      border: paint(light ? "#9ca0b0" : mono ? "#666666" : "#45475a"),
+      borderFocused: paint(light ? "#1e66f5" : mono ? "#ffffff" : "#89b4fa"),
+      accent: paint(light ? "#1e66f5" : mono ? "#ffffff" : "#89b4fa"),
+      selectionBg: paint(light ? "#ccd0da" : mono ? "#333333" : "#313244"),
+      selectionFg: paint(light ? "#4c4f69" : mono ? "#ffffff" : "#cdd6f4"),
+      text: paint(light ? "#4c4f69" : mono ? "#ffffff" : "#cdd6f4"),
+      textMuted: paint(light ? "#6c6f85" : mono ? "#aaaaaa" : "#6c7086"),
+      success: paint(light ? "#40a02b" : mono ? "#ffffff" : "#a6e3a1"),
+      warning: paint(light ? "#df8e1d" : mono ? "#ffffff" : "#f9e2af"),
+      danger: paint(light ? "#d20f39" : mono ? "#ffffff" : "#f38ba8"),
+      orange: paint(light ? "#fe640b" : mono ? "#ffffff" : "#fab387"),
+      magenta: paint(light ? "#ea76cb" : mono ? "#ffffff" : "#f5c2e7"),
+      purple: paint(light ? "#8839ef" : mono ? "#ffffff" : "#cba6f7"),
     },
     glyphs: {
       search: "⌕",
       pointer: "›",
       dropdown: "▾",
       enter: "↵",
-      actionMod: "^K",
+      actionMod: "^A",
       dropdownMod: "^P",
       rule: "─",
       bullet: "·",
@@ -41,7 +45,11 @@ export function createTheme(colorless = noColor) {
   } as const;
 }
 
-export const theme = createTheme();
+const requestedTheme = (process.env.BLAST_THEME ?? "dark").toLowerCase();
+export const theme = createTheme(
+  noColor,
+  requestedTheme === "light" || requestedTheme === "mono" ? requestedTheme : "dark",
+);
 
 export type Theme = ReturnType<typeof createTheme>;
 

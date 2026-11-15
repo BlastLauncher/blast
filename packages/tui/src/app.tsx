@@ -346,14 +346,19 @@ export function ViewFrame({
       else if (key.name === "return") press({ type: "primary" });
       return;
     }
-    if (key.ctrl && key.name === "k") return press({ type: "openActions" });
-    if (key.ctrl && key.name === "p") return press({ type: "openDropdown" });
+    if (key.ctrl && key.name === "a") return press({ type: "openActions" });
+    if (key.ctrl && key.name === "p" && current.dropdown) return press({ type: "openDropdown" });
     if (key.name === "escape") return void input({ type: "back" });
     const toastIndex = key.ctrl ? ["t", "y"].indexOf(key.name) : -1;
     if (toastIndex >= 0 && current.feedback.toast?.actions[toastIndex])
       return press({ type: "toastAction", index: toastIndex });
     if (dispatchShortcut()) return key.preventDefault();
     if (current.kind === "form") return;
+    if (current.kind === "list" && key.ctrl && ["p", "k", "n", "j"].includes(key.name)) {
+      key.preventDefault();
+      input({ type: "move", direction: key.name === "p" || key.name === "k" ? "up" : "down" });
+      return;
+    }
     if (direction === "up" || direction === "down" || (current.grid && direction)) {
       key.preventDefault();
       input({ type: "move", direction });

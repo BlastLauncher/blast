@@ -102,13 +102,13 @@ test("look: 80x24 renders rounded frame, search bar, list row accessories, foote
       expect(subtitleSpan).toBeDefined();
       expect(subtitleSpan!.fg.toString()).not.toEqual(titleSpan!.fg.toString());
 
-      // Footer contains ↵ and ^K
+      // Footer contains ↵ and ^A
       expect(frame).toContain("↵");
-      expect(frame).toContain("^K");
+      expect(frame).toContain("^A");
 
       // Action panel shows a bordered box with right-aligned shortcut
       await act(async () => {
-        terminal.mockInput.pressKey("k", { ctrl: true });
+        terminal.mockInput.pressKey("a", { ctrl: true });
       });
       await waitForFrame(terminal, (f) => f.includes("Filter actions"));
       const actionFrame = terminal.captureCharFrame();
@@ -420,7 +420,7 @@ test("look: 60x20 renders without line wrapping wider than terminal width", asyn
       // Corner and footer shortcuts still present in compact width
       expect(frame).toContain("╭");
       expect(frame).toContain("↵");
-      expect(frame).toContain("^K");
+      expect(frame).toContain("^A");
     } finally {
       await act(async () => terminal.dispose());
     }

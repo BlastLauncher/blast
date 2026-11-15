@@ -133,7 +133,7 @@ for (const command of ["index", "secret"]) {
           return frame.includes("••••••••");
         });
         expect(JSON.stringify(opened.session.latestScene)).not.toContain(secret);
-        await key("k", true);
+        await key("a", true);
         await waitForFrame(terminal, (frame) => frame.includes("Filter actions"));
         await changed(
           () => key("return"),

@@ -2,6 +2,8 @@
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createNativeHandlers } from "@blastlauncher/native";
 import { App } from "./app.tsx";
@@ -25,7 +27,37 @@ if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
     .map((url) => fileURLToPath(url))
     .find((path) => existsSync(path));
   if (!bundled) throw new Error("Bundled tmux extension is missing");
-  args.extensionDirs.unshift(bundled);
+  const tmuxMode = process.env.BLAST_TMUX_TARGET !== undefined;
+  if (tmuxMode) {
+    const configPath =
+      process.env.BLAST_TMUX_CONFIG ??
+      join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "blast", "tmux.json");
+    let builtinTmux = process.env.BLAST_TMUX_BUILTIN !== "0";
+    let installed: string[] = [];
+    try {
+      const config = JSON.parse(readFileSync(configPath, "utf8")) as {
+        builtinTmux?: boolean;
+        extensions?: { directory?: string; enabled?: boolean }[];
+      };
+      builtinTmux = builtinTmux && config.builtinTmux !== false;
+      installed = (config.extensions ?? [])
+        .filter((extension) => extension.enabled && typeof extension.directory === "string")
+        .map((extension) => extension.directory!);
+    } catch {
+      // A missing or malformed config falls back to builtin tmux only.
+    }
+    const manager = [
+      new URL("../../extensions/blast", import.meta.url),
+      new URL("../extensions/blast", import.meta.url),
+    ]
+      .map((url) => fileURLToPath(url))
+      .find((path) => existsSync(path));
+    if (manager) args.extensionDirs.unshift(manager);
+    args.extensionDirs.unshift(...installed);
+    if (builtinTmux) args.extensionDirs.unshift(bundled);
+  } else {
+    args.extensionDirs.unshift(bundled);
+  }
 }
 const handlers = args.kind !== "usage" && args.native ? createNativeHandlers() : {};
 if (args.kind === "usage") {
