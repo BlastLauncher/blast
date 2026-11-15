@@ -5,9 +5,10 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M11 — tmux palette (issue #90, `docs/decisions/0016`): the TUI becomes a popup
-command palette inside tmux, with a Blast-authored `tmux` extension covering
-Tmux Palette's commands, installed through TPM from `BlastLauncher/tmux-blast`.
+M11 — tmux palette is done (2026-11-15): popup TUI, a 30-command `tmux`
+extension, the TPM plugin (`BlastLauncher/tmux-blast`), docs. Waiting on the
+user: npm bootstrap for `@blastlauncher/tui`, then the `3.0.0-alpha.3`
+prerelease; afterwards drop the "not on npm yet" notes (README, `docs/tui.md`).
 
 ## Milestones
 
