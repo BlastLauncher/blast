@@ -1,6 +1,8 @@
 /** @jsxImportSource @opentui/react */
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
+import { existsSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { createNativeHandlers } from "@blastlauncher/native";
 import { App } from "./app.tsx";
 import { parseCliArgs, USAGE } from "./cli.ts";
@@ -8,6 +10,23 @@ import { CommandSession } from "./launcher.tsx";
 import { openCommand } from "./session.ts";
 
 const args = parseCliArgs(process.argv.slice(2));
+if (args.kind === "version") {
+  const packageJson = JSON.parse(
+    readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+  ) as { version?: string };
+  console.log(packageJson.version ?? "0.0.0-dev");
+  process.exit(0);
+}
+if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
+  const bundled = [
+    new URL("../../extensions/tmux", import.meta.url),
+    new URL("../extensions/tmux", import.meta.url),
+  ]
+    .map((url) => fileURLToPath(url))
+    .find((path) => existsSync(path));
+  if (!bundled) throw new Error("Bundled tmux extension is missing");
+  args.extensionDirs.unshift(bundled);
+}
 const handlers = args.kind !== "usage" && args.native ? createNativeHandlers() : {};
 if (args.kind === "usage") {
   if (args.error) console.error(args.error);

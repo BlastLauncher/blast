@@ -39,8 +39,12 @@ npm install, with the `tmux` extension bundled and opened by default.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/publish-tui-tarball @ 8db155e
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 137.0s
 Done:
-Not done / risks:
+- `blast-tui` defaults to the bundled tmux extension, with `--no-builtin` and `--version` support.
+- Release builds emit `@blastlauncher/tui` with the `blast-tui` bin and bundled `extensions/tmux` sources/assets.
+- Release smoke installs the tarball, runs the installed version command, and checks the bundled tmux manifest.
+- Release manifest tests cover the TUI package files and bin.
+Not done / risks: The smoke check uses a manifest-only tmux validation when tmux is unavailable.
 ```
