@@ -9,7 +9,7 @@ The engine's root view lists the commands of every given extension plus the buil
 
 ## tmux palette
 
-The [tmux-blast](https://github.com/BlastLauncher/tmux-blast) plugin opens `blast-tui --popup` in a `display-popup` on <kbd>Ctrl</kbd>+<kbd>Space</kbd> (tmux 3.2+). It needs `@blastlauncher/tui` `3.0.0-alpha.3` or later, the first release with popup mode, which is not on npm yet. With [TPM](https://github.com/tmux-plugins/tpm), add `set -g @plugin 'BlastLauncher/tmux-blast'` to `~/.tmux.conf` and press <kbd>prefix</kbd> <kbd>I</kbd>. Options (`@blast-key`, `@blast-key-table`, `@blast-extensions`, `@blast-popup-width`, `@blast-popup-height`, `@blast-command`) are in the [plugin README](../examples/tmux-plugin/README.md).
+The [tmux-blast](https://github.com/BlastLauncher/tmux-blast) plugin opens `blast-tui --popup` in a `display-popup` on <kbd>Ctrl</kbd>+<kbd>Space</kbd> (tmux 3.2+). It runs `@blastlauncher/tui@next` from npm (`3.0.0-alpha.3` or later, the first release with popup mode) and needs Bun. With [TPM](https://github.com/tmux-plugins/tpm), add `set -g @plugin 'BlastLauncher/tmux-blast'` to `~/.tmux.conf` and press <kbd>prefix</kbd> <kbd>I</kbd>. Options (`@blast-key`, `@blast-key-table`, `@blast-extensions`, `@blast-popup-width`, `@blast-popup-height`, `@blast-command`) are in the [plugin README](../examples/tmux-plugin/README.md).
 
 The built-in `tmux` extension (`packages/tui/extensions/tmux`) acts on the pane the key was pressed in (`BLAST_TMUX_TARGET`, else tmux's `{last}` pane). Close Other Panes, Close Window and Kill Session confirm first.
 

@@ -5,10 +5,9 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M11 — tmux palette is done (2026-11-15): popup TUI, a 30-command `tmux`
-extension, the TPM plugin (`BlastLauncher/tmux-blast`), docs. Waiting on the
-user: npm bootstrap for `@blastlauncher/tui`, then the `3.0.0-alpha.3`
-prerelease; afterwards drop the "not on npm yet" notes (README, `docs/tui.md`).
+M11 — tmux palette is done and released (2026-11-15): `3.0.0-alpha.3` on npm
+`next` includes `@blastlauncher/tui`; plugin at `BlastLauncher/tmux-blast`.
+Next milestone not chosen yet.
 
 ## Milestones
 
@@ -95,3 +94,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-14: Engine owns the launcher flow; embedders only draw views (`0014`).
   \n- 2026-11-14: `3.0.0-alpha.2` published to npm `next`, including `@blastlauncher/web`.\n
 - 2026-11-15: tmux palette: published TUI, `tmux` extension, plugin in its own repo (`0016`).
+- 2026-11-15: `3.0.0-alpha.3` published to npm `next`, adding `@blastlauncher/tui`.

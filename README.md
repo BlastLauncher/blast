@@ -43,8 +43,8 @@ directory you add. With [TPM](https://github.com/tmux-plugins/tpm), add this to
 set -g @plugin 'BlastLauncher/tmux-blast'
 ```
 
-It needs tmux 3.2+, Bun and `@blastlauncher/tui` `3.0.0-alpha.3` or later,
-which ships in the next prerelease and is not on npm yet. See the
+It needs tmux 3.2+ and Bun; the plugin runs `@blastlauncher/tui@next`
+(`3.0.0-alpha.3` or later) from npm. See the
 [tmux palette](./docs/tui.md#tmux-palette) docs for commands and options.
 
 The [quickstart](./docs/quickstart.md) runs each path. The [embedding
