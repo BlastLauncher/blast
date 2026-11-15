@@ -511,6 +511,19 @@ describe("tmux extension", () => {
     30_000,
   );
 
+  test.skipIf(!available)(
+    "break to new window moves the target pane into a new window",
+    async () => {
+      await withServer(async ({ tmux, extension }) => {
+        tmux(["split-window", "-t", "blast:0"]);
+        await run(extension, "break-pane");
+        expect(lines(tmux(["list-panes", "-t", "blast:0", "-F", "#{pane_id}"]))).toBe(1);
+        expect(lines(tmux(["list-windows", "-t", "blast", "-F", "#{window_index}"]))).toBe(2);
+      });
+    },
+    30_000,
+  );
+
   test.skipIf(!available)("shows a Not inside tmux failure toast without TMUX", async () => {
     // No inheritEnv: TMUX stays withheld even when the tests run inside tmux.
     const extension = openExtension({ extensionDir });
