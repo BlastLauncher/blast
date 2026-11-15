@@ -58,7 +58,7 @@ client and doc shows the smaller API.
 
 - [x] 0174 TUI popup mode: several extension dirs, exit on close, start-up time
 - [x] 0175 `tmux` extension I: one-shot pane, window, session and system commands
-- [ ] 0176 `tmux` extension II: find/move pane, choose session, rename and new forms
+- [x] 0176 `tmux` extension II: find/move pane, choose session, rename and new forms
 - [x] 0177 Publish `@blastlauncher/tui` (bin `blast-tui`, bundled `tmux` extension)
 - [ ] 0178 tmux plugin (`examples/tmux-plugin`) with a real-tmux e2e in CI
 - [ ] 0179 Docs, README and landing for the tmux palette
