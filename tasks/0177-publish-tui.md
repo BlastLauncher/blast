@@ -1,7 +1,7 @@
 ---
 id: "0177"
 title: "Publish @blastlauncher/tui (bin blast-tui, bundled tmux extension)"
-status: todo
+status: doing
 milestone: M11
 depends: ["0174", "0175"]
 ---
