@@ -1,7 +1,7 @@
 ---
 id: "0178"
 title: "tmux plugin (examples/tmux-plugin) with a real-tmux e2e in CI"
-status: todo
+status: doing
 milestone: M11
 depends: ["0174", "0177"]
 ---
