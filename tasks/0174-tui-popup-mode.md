@@ -1,7 +1,7 @@
 ---
 id: "0174"
 title: "TUI popup mode: several extension dirs, exit on close, start-up time"
-status: todo
+status: doing
 milestone: M11
 depends: []
 ---
