@@ -61,8 +61,12 @@ tested against a real, isolated tmux server.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tmux-extension-commands @ 6a7e37037b7576b48037ab66a651b5a833b2067e
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 149.0s
 Done:
-Not done / risks:
+- Added the Blast-authored tmux extension manifest and one-shot command entrypoints for panes, windows, sessions, and config reload.
+- Added shared tmux execution, popup target selection, destructive confirmation, failure toast, and reload HUD behavior.
+- Added isolated real-tmux integration tests and passed TMUX context through the runtime allowlist.
+- Added tmux installation to the CI verify job and excluded extension sources from the workspace typecheck.
+Not done / risks: The extension/plugin is not published; task 0178 owns the plugin integration. `{last}` is the fallback target when the plugin does not provide BLAST_TMUX_TARGET.
 ```
