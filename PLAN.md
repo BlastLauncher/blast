@@ -57,7 +57,7 @@ client and doc shows the smaller API.
 ### M11 — tmux palette
 
 - [x] 0174 TUI popup mode: several extension dirs, exit on close, start-up time
-- [ ] 0175 `tmux` extension I: one-shot pane, window, session and system commands
+- [x] 0175 `tmux` extension I: one-shot pane, window, session and system commands
 - [ ] 0176 `tmux` extension II: find/move pane, choose session, rename and new forms
 - [ ] 0177 Publish `@blastlauncher/tui` (bin `blast-tui`, bundled `tmux` extension)
 - [ ] 0178 tmux plugin (`examples/tmux-plugin`) with a real-tmux e2e in CI
