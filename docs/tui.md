@@ -5,11 +5,7 @@ bun run tui [--popup] [--native] <extensionDir>...
 bun run tui [--native] <extensionDir> <command>
 ```
 
-The engine's root view lists the commands of every given extension. One
-directory plus a `<command>` name (not an existing directory) opens that
-command directly. `--popup` quits once a command is done (see Launcher), for
-`tmux display-popup -E`. `--native` enables system clipboard/paste, URL/file
-opens, file-manager reveal and trash.
+The engine's root view lists the commands of every given extension; one directory plus a `<command>` name (not an existing directory) opens that command directly. `--popup` quits once a command is done (see Launcher), for `tmux display-popup -E`. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 
 ## Keys
 
@@ -37,17 +33,14 @@ opens, file-manager reveal and trash.
 
 ## Launcher
 
-`bun run tui <extensionDir>...` draws the engine's root view (`engine.root`,
-decision 0014) over every directory: commands with `title`, `subtitle` (else
-`description`) and mode. The engine ranks, prompts and installs; the TUI
-draws its views.
+`bun run tui <extensionDir>...` draws the engine's root view (`engine.root`, decision 0014) over every directory:
+commands with `title`, `subtitle` (else `description`) and mode. The engine ranks, prompts and installs; the TUI draws its views.
 
 - Typing searches title, subtitle and name; ↑ / ↓ move; Enter opens; Ctrl-K
   lists Open / Configure Command; Ctrl-E (⌃⇧, / ⌘⇧, where delivered) opens
   **Configure <command>**, saved without launching. Esc / Ctrl-C quit.
-- Manifests are re-read while open (debounced `fs.watch`): edits show up
-  live; a broken manifest shows `Manifest: …` (prefixed with its directory
-  when there are several) and keeps the last good list.
+- Manifests are re-read while open (debounced `fs.watch`): edits show up live; a broken
+  manifest shows `Manifest: …` (prefixed with its directory when there are several) and keeps the last good list.
 - Launching runs `startLaunchFlow`: missing required preferences and arguments
   become one **Set up <command>** form; dependencies install as a progress
   view with Retry on failure (under `<dataDir>/deps/`, decision 0002).
@@ -56,29 +49,9 @@ draws its views.
   with the same arguments. `open*Preferences` returns and opens Configure.
   Ctrl-C quits from anywhere; the process exits 1 only if the last launched
   command crashed. `--native` handlers reach every launched command.
-- `--popup` (decision 0016): `closeMainWindow()` and a no-view command
-  finishing after its HUD quit with exit 0 instead of returning; Esc at a
-  command's root still returns, and Esc at the root quits.
+- `--popup` (decision 0016): `closeMainWindow()` and a no-view command finishing after its HUD quit with exit 0 instead of returning; Esc at a command's root still returns, Esc at the root quits.
 
-Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
-
-## Start-up
-
-The benchmark also starts fresh `--popup` processes over two fixtures and
-reports the median time from process start to the root's first frame and to
-the launched `hello-list` command's, with an empty (cold) and a reused (warm)
-data dir. Warm launches reuse the command's bundle from `<dataDir>/bundles/`
-and the runtime's Node compile cache from `<dataDir>/compile-cache/`; Bun asks
-Node for its builtin list only when it bundles. Measured on a Linux arm64 VM
-(Bun 1.4.2, Node 24.20), task 0174:
-
-| Medians of 5 | Root, before | Root, after | Command, before | Command, after |
-| ------------ | -----------: | ----------: | --------------: | -------------: |
-| Cold         |       274 ms |      225 ms |          580 ms |         582 ms |
-| Warm         |       278 ms |      224 ms |          585 ms |         378 ms |
-
-The root's remaining time is mostly module loading (OpenTUI ~85 ms); a warm
-launch is ~90 ms to spawn the runtime and ~40 ms to its first scene.
+Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing. It also times start-up: fresh `--popup` processes over two fixtures, median of 5 from process start to the root's first frame and to the launched `hello-list` command's, with an empty (cold) or reused (warm) data dir. Warm launches reuse the bundle in `<dataDir>/bundles/` and Node's compile cache in `<dataDir>/compile-cache/`, and Bun asks Node for its builtin list only when it bundles. On a Linux arm64 VM (task 0174), root / command went from cold 274 / 580 ms and warm 278 / 585 ms to cold 225 / 582 ms and warm 224 / 378 ms; the root is mostly module loading (OpenTUI ~85 ms), a warm launch ~90 ms to spawn the runtime plus ~40 ms to its first scene.
 
 ## Rendering
 
@@ -95,8 +68,7 @@ launch is ~90 ms to spawn the runtime and ~40 ms to its first scene.
   (sections included) in a filterable panel, Enter sends `onChange` with the
   chosen value and Esc closes. The runtime owns the dropdown value.
 - Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })`
-  and `clearSearchBar()` clear the input; `closeMainWindow()` leaves the
-  command (back to the root, or quits with `--popup`).
+  and `clearSearchBar()` clear the input; `closeMainWindow()` leaves the command (back to the root, or quits with `--popup`).
 - `menu-bar` commands render their `MenuBarExtra` as a navigable menu:
   `title`/`tooltip` head the window, Sections are headers, and Items (title,
   subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc

@@ -26,9 +26,11 @@ async function fingerprint(path: string): Promise<Fingerprint | undefined> {
   return info?.isFile() ? [path, String(info.size), String(info.mtimeNs)] : undefined;
 }
 
+const escaped = (path: string) => JSON.stringify(path).slice(1, -1);
+const hash = (value: string) => createHash("sha256").update(value).digest("hex").slice(0, 32);
+
 /** Paths in `result` that point into the build directory, rebased on publish. */
 function rebase<Result>(result: Result, from: string, to: string): Result {
-  const escaped = (path: string) => JSON.stringify(path).slice(1, -1);
   return JSON.parse(JSON.stringify(result).replaceAll(escaped(from), escaped(to)));
 }
 
@@ -37,7 +39,6 @@ export function openBundleCache<Result>(
   slotName: string,
   key: unknown,
 ): BundleCache<Result> {
-  const hash = (value: string) => createHash("sha256").update(value).digest("hex").slice(0, 32);
   const slot = join(cacheDir, hash(slotName));
   const keyText = JSON.stringify({ format: FORMAT, key });
   return {
