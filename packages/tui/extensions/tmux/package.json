@@ -314,6 +314,17 @@
         "rename"
       ],
       "mode": "view"
+    },
+    {
+      "name": "new-session",
+      "title": "New Session",
+      "description": "Create a session and switch to it",
+      "keywords": [
+        "session",
+        "new",
+        "create"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"

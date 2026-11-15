@@ -438,6 +438,28 @@ describe("tmux extension", () => {
     30_000,
   );
 
+  test.skipIf(!available)(
+    "new session rejects an existing name, creates one in a directory and switches to it",
+    async () => {
+      await withServer(
+        async ({ tmux, extension }) => {
+          await inView(extension, "new-session", async (opened) => {
+            await submit(opened, { name: "blast" });
+            await fieldError(opened, "name", "Session blast already exists");
+            await submit(opened, { name: "fresh", directory: extensionDir });
+            await closed(opened);
+          });
+          expect(tmux(["display-message", "-p", "-t", "fresh:", "#{session_path}"])).toBe(
+            extensionDir,
+          );
+          expect(tmux(["list-clients", "-F", "#{client_session}"])).toBe("fresh");
+        },
+        { client: true },
+      );
+    },
+    30_000,
+  );
+
   test.skipIf(!available)("shows a Not inside tmux failure toast without TMUX", async () => {
     // No inheritEnv: TMUX stays withheld even when the tests run inside tmux.
     const extension = openExtension({ extensionDir });
