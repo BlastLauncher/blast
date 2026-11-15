@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { execFileSync, spawnSync } from "node:child_process";
+import { rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { openExtension, type ExtensionHandle } from "@blastlauncher/host";
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
@@ -25,10 +26,11 @@ async function withServer(
   const tmux = (args: string[]) =>
     execFileSync("tmux", ["-L", server, "-f", "/dev/null", ...args], { encoding: "utf8" }).trim();
   let extension: ExtensionHandle | undefined;
+  let socket: string | undefined;
   try {
     tmux(["new-session", "-d", "-s", "blast", "-x", "80", "-y", "24"]);
     // Ask tmux rather than assume /tmp/tmux-<uid>: TMUX_TMPDIR moves it.
-    const socket = tmux(["display-message", "-p", "#{socket_path}"]);
+    socket = tmux(["display-message", "-p", "#{socket_path}"]);
     extension = openExtension({
       extensionDir,
       inheritEnv: { TMUX: `${socket},0,0`, BLAST_TMUX_TARGET: "blast:0.0" },
@@ -37,6 +39,8 @@ async function withServer(
   } finally {
     await extension?.close();
     spawnSync("tmux", ["-L", server, "kill-server"], { stdio: "ignore" });
+    // Some tmux versions leave the socket file behind after kill-server.
+    if (socket) rmSync(socket, { force: true });
   }
 }
 
