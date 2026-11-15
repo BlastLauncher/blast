@@ -33,11 +33,11 @@ and the warm path is fast.
 
 ## Acceptance
 
-- [ ] Tests: two fixture extensions in one root; `--popup` exits after a
+- [x] Tests: two fixture extensions in one root; `--popup` exits after a
       `closeMainWindow` command, after a no-view command, and on root Esc;
       without `--popup` Esc still returns to the root.
-- [ ] Handoff: cold and warm start-up numbers, before and after any fix.
-- [ ] `docs/tui.md` documents the new arguments; `bun run verify` passes.
+- [x] Handoff: cold and warm start-up numbers, before and after any fix.
+- [x] `docs/tui.md` documents the new arguments; `bun run verify` passes.
 
 ## Out of scope
 
@@ -46,8 +46,33 @@ and the warm path is fast.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-popup-mode @ ef488db
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 136.2s
 Done:
+- blast-tui [--popup] [--native] <extensionDir>...: one engine root over every
+  dir (cli.ts, tested); <dir> <command> still opens one command when the
+  second argument is not a directory.
+- --popup quits (exit 0) on closeMainWindow(), after a no-view command's HUD,
+  and on Esc at the root; App.onClose takes only scene-driven quits and
+  settled no-view commands, so Esc in a command still returns (popup.test.tsx).
+- Start-up (scripts/tui-benchmark.ts, fresh processes, median of 5, root /
+  launched hello-list command):
+  before: cold 274 / 580 ms, warm 278 / 585 ms (warm rebuilt every bundle)
+  after:  cold 225 / 582 ms, warm 224 / 378 ms
+- Fixes: bundles cached in <dataDir>/bundles/ (bundle-cache.ts: one slot per
+  command, key = manifest, aliases, install status, bundler; inputs checked
+  by size + mtimeNs); runtime child gets NODE_COMPILE_CACHE in
+  <dataDir>/compile-cache/ (~300 -> ~90 ms runtime load); Bun's Node
+  builtin list is computed lazily (a 60 ms node spawn on every import).
+- Docs: tui.md (arguments, popup, numbers), architecture.md (caches).
 Not done / risks:
+- Behaviour change for every engine client: extension launches no longer
+  delete their build on close (extension.test.ts updated). A stale slot is
+  replaced in full, so a session still running an old build of the same
+  command loses its assets link if the source changed and it was relaunched
+  at the same time. Slots are never pruned when an extension goes away.
+- An explicit StartOptions.env opts out of the compile cache.
+- Cold launches are unchanged (the caches are written on the first run);
+  root start-up is now mostly module loading (OpenTUI ~85 ms).
+- Smoke-tested in a real isolated tmux server (tmux -L): popup Esc exits 0.
 ```

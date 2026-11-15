@@ -1,6 +1,6 @@
 import { watch as watchDirectory } from "node:fs";
-import { readFile, rm } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import { bundleCommand, MissingDependencyError, type Preference } from "./bundle.ts";
 import {
   missingPreferences,
@@ -200,6 +200,8 @@ export function createExtensionHandle(
         extensionDir,
         command: name,
         dataDir,
+        // Reused by the next launch, in this process or another (decision 0016).
+        cacheDir: join(dataDir, "bundles"),
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(launchOptions.signal === undefined ? {} : { signal: launchOptions.signal }),
       });
@@ -241,50 +243,44 @@ export function createExtensionHandle(
         throw retryError;
       }
     }
-    const cleanup = () => rm(dirname(bundled.entry), { recursive: true, force: true });
-    try {
+    // The bundle cache owns the build (`<dataDir>/bundles/`); nothing to remove.
+    ensureOpen();
+    const session = await startCommand({
+      ...bundled,
+      preferences: prefs.values,
+      dataDir,
+      ...(launchOptions.argumentValues === undefined
+        ? {}
+        : { argumentValues: launchOptions.argumentValues }),
+      ...(launchOptions.fallbackText === undefined
+        ? {}
+        : { fallbackText: launchOptions.fallbackText }),
+      ...(launchOptions.launchContext === undefined
+        ? {}
+        : { launchContext: launchOptions.launchContext }),
+      broker: createSessionBroker(
+        { extensionName: bundled.extensionName, dataDir },
+        { handlers: { ...engineHandlers(), ...options.handlers, ...launchOptions.handlers } },
+      ),
+    });
+    let stopping: Promise<void> | undefined;
+    const opened = {
+      session,
+      close: () =>
+        (stopping ??= (async () => {
+          try {
+            await session.shutdown({ timeoutMs: 5000 });
+          } finally {
+            sessions.delete(opened);
+          }
+        })()),
+    };
+    sessions.add(opened);
+    if (closed) {
+      await opened.close();
       ensureOpen();
-      const session = await startCommand({
-        ...bundled,
-        preferences: prefs.values,
-        dataDir,
-        ...(launchOptions.argumentValues === undefined
-          ? {}
-          : { argumentValues: launchOptions.argumentValues }),
-        ...(launchOptions.fallbackText === undefined
-          ? {}
-          : { fallbackText: launchOptions.fallbackText }),
-        ...(launchOptions.launchContext === undefined
-          ? {}
-          : { launchContext: launchOptions.launchContext }),
-        broker: createSessionBroker(
-          { extensionName: bundled.extensionName, dataDir },
-          { handlers: { ...engineHandlers(), ...options.handlers, ...launchOptions.handlers } },
-        ),
-      });
-      let stopping: Promise<void> | undefined;
-      const opened = {
-        session,
-        close: () =>
-          (stopping ??= (async () => {
-            try {
-              await session.shutdown({ timeoutMs: 5000 });
-            } finally {
-              await cleanup();
-              sessions.delete(opened);
-            }
-          })()),
-      };
-      sessions.add(opened);
-      if (closed) {
-        await opened.close();
-        ensureOpen();
-      }
-      return opened;
-    } catch (error) {
-      await cleanup();
-      throw error;
     }
+    return opened;
   };
   return {
     manifest,

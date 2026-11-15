@@ -3,18 +3,18 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { createNativeHandlers } from "@blastlauncher/native";
 import { App } from "./app.tsx";
+import { parseCliArgs, USAGE } from "./cli.ts";
 import { CommandSession } from "./launcher.tsx";
 import { openCommand } from "./session.ts";
 
-const args = process.argv.slice(2);
-const native = args.includes("--native");
-const [extensionDir, command, ...rest] = args.filter((arg) => arg !== "--native");
-const handlers = native ? createNativeHandlers() : {};
-if (!extensionDir || rest.length) {
-  console.error("Usage: bun run tui <extensionDir> [command] [--native]");
-  process.exitCode = 2;
-} else if (command) {
-  const opened = await openCommand(extensionDir, command, { handlers });
+const args = parseCliArgs(process.argv.slice(2));
+const handlers = args.kind !== "usage" && args.native ? createNativeHandlers() : {};
+if (args.kind === "usage") {
+  if (args.error) console.error(args.error);
+  console.error(USAGE);
+  process.exitCode = args.error ? 2 : 0;
+} else if (args.kind === "command") {
+  const opened = await openCommand(args.extensionDir, args.command, { handlers });
   // Recorded before the user quits, so our own shutdown does not count as a
   // failure; a runtime crash still exits non-zero after the error is shown.
   let crashed = false;
@@ -47,7 +47,8 @@ if (!extensionDir || rest.length) {
     await opened.close();
   }
 } else {
-  // Launcher mode: the engine root lists the commands; launch one and return.
+  // Launcher mode: the engine root lists every extension's commands; launch
+  // one and return, or quit once it closes the window in popup mode.
   let quit!: () => void;
   const finished = new Promise<void>((resolve) => {
     quit = resolve;
@@ -60,7 +61,8 @@ if (!extensionDir || rest.length) {
   try {
     root.render(
       <CommandSession
-        extensionDir={extensionDir}
+        extensionDir={args.extensionDirs}
+        popup={args.popup}
         handlers={handlers}
         onExit={(crashed) => {
           // Only a crashed last launch makes the whole TUI exit non-zero.

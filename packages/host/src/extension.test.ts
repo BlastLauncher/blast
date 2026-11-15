@@ -380,10 +380,11 @@ test("launch can install through the injected installer and streams progress", a
   }
 });
 
-test("extension launch renders props and preferences, and session/handle close remove bundles", async () => {
+test("extension launch renders props and preferences; closing keeps the cached bundle for the next launch", async () => {
   const f = await fixture();
   try {
     await f.handle.savePreferences("index", { token: "saved" });
+    const bundles: string[] = [];
     for (const closeHandle of [false, true]) {
       const opened = await f.handle.launch("index", {
         argumentValues: { query: "hello" },
@@ -409,12 +410,17 @@ test("extension launch renders props and preferences, and session/handle close r
         preferences: { token: "saved" },
       });
       const bundle = dirname(content.assetsPath);
-      expect((await stat(bundle)).isDirectory()).toBe(true);
+      expect(dirname(bundle)).toBe(join(f.dataDir, "bundles"));
+      bundles.push(bundle);
       if (closeHandle) await f.handle.close();
       else await opened.close();
       await opened.close();
-      await expect(stat(bundle)).rejects.toMatchObject({ code: "ENOENT" });
+      expect((await stat(bundle)).isDirectory()).toBe(true);
     }
+    // The second launch reused the first one's build; the runtime child
+    // keeps Node's compile cache beside it.
+    expect(bundles[1]).toBe(bundles[0]!);
+    expect((await stat(join(f.dataDir, "compile-cache"))).isDirectory()).toBe(true);
   } finally {
     await f.close();
   }
