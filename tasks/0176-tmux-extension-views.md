@@ -1,7 +1,7 @@
 ---
 id: "0176"
 title: "tmux extension II: find/move pane, choose session, rename and new forms"
-status: todo
+status: doing
 milestone: M11
 depends: ["0175"]
 ---
