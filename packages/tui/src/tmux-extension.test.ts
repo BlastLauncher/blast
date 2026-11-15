@@ -417,6 +417,27 @@ describe("tmux extension", () => {
     30_000,
   );
 
+  test.skipIf(!available)(
+    "rename session prefills the session name, rejects an existing one and renames",
+    async () => {
+      await withServer(async ({ tmux, extension }) => {
+        tmux(["new-session", "-d", "-s", "other", "-x", "80", "-y", "24"]);
+        await inView(extension, "rename-session", async (opened) => {
+          await field(opened, "name", "blast");
+          await submit(opened, { name: "other" });
+          await fieldError(opened, "name", "Session other already exists");
+          await submit(opened, { name: "renamed" });
+          await closed(opened);
+        });
+        expect(tmux(["list-sessions", "-F", "#{session_name}"]).split("\n").toSorted()).toEqual([
+          "other",
+          "renamed",
+        ]);
+      });
+    },
+    30_000,
+  );
+
   test.skipIf(!available)("shows a Not inside tmux failure toast without TMUX", async () => {
     // No inheritEnv: TMUX stays withheld even when the tests run inside tmux.
     const extension = openExtension({ extensionDir });

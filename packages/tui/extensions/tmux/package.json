@@ -304,6 +304,16 @@
         "rename"
       ],
       "mode": "view"
+    },
+    {
+      "name": "rename-session",
+      "title": "Rename Session",
+      "description": "Rename the target session",
+      "keywords": [
+        "session",
+        "rename"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"
