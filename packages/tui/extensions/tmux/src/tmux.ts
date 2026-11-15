@@ -27,6 +27,22 @@ export async function targeted(command: string, extra: string[] = []): Promise<v
   await tmux([command, "-t", target(), ...extra]);
 }
 
+export async function targetedWindow(command: string, extra: string[] = []): Promise<void> {
+  await tmux([command, "-t", windowTarget(), ...extra]);
+}
+
+export async function targetedSession(command: string, extra: string[] = []): Promise<void> {
+  await tmux([command, "-t", sessionTarget(), ...extra]);
+}
+
+function windowTarget(): string {
+  return target().replace(/\.[^.]+$/, "");
+}
+
+function sessionTarget(): string {
+  return target().split(":", 1)[0]!;
+}
+
 export async function destructive(command: string): Promise<void> {
   const confirmed = await confirmAlert({
     title: `Confirm ${command.replaceAll("-", " ")}`,
@@ -37,7 +53,9 @@ export async function destructive(command: string): Promise<void> {
     await closeMainWindow();
     return;
   }
-  await targeted(command);
+  if (command === "kill-window") await targetedWindow(command);
+  else if (command === "kill-session") await targetedSession(command);
+  else await targeted(command);
 }
 
 export async function reloadConfig(): Promise<void> {

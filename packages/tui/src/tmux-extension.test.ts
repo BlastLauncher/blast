@@ -26,7 +26,7 @@ describe("tmux extension", () => {
       try {
         for (const command of ["split-horizontal", "zoom-pane", "new-window"]) {
           const launched = await extension.launch(command, { installDependencies: false });
-          await launched.exited;
+          await launched.session.exited;
         }
         expect(
           Number(
@@ -52,9 +52,9 @@ describe("tmux extension", () => {
     const extension = openExtension({ extensionDir });
     try {
       const launched = await extension.launch("next-pane", { installDependencies: false });
-      const exit = await launched.exited;
+      const exit = await launched.session.exited;
       expect(exit.code).toBe(0);
-      expect(launched.logs.some((entry) => entry.message.includes("Not inside tmux"))).toBe(true);
+      expect(tmux(["list-windows", "-t", "blast", "-F", "#{window_index}"]).trim()).toBe("");
     } finally {
       await extension.close();
       if (previous === undefined) delete process.env.TMUX;
