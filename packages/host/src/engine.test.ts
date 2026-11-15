@@ -250,6 +250,15 @@ test("runtimeEnvironment adds opted-in names or values to the allowlist only", (
   });
 });
 
+async function logged(opened: Awaited<ReturnType<ExtensionHandle["launch"]>>) {
+  try {
+    expect(await opened.session.exited).toMatchObject({ code: 0 });
+    return opened.session.logs.map((log) => log.message);
+  } finally {
+    await opened.close();
+  }
+}
+
 test("inheritEnv reaches commands only when the embedder opts in", async () => {
   const root = await mkdtemp(join(tmpdir(), "blast-env-"));
   const extensionDir = join(root, "extension");
@@ -263,14 +272,6 @@ test("inheritEnv reaches commands only when the embedder opts in", async () => {
     join(extensionDir, "src/index.ts"),
     'export default async function Command() { console.log(`tmux=${process.env.TMUX ?? "unset"}`); }',
   );
-  const logged = async (opened: Awaited<ReturnType<ExtensionHandle["launch"]>>) => {
-    try {
-      expect(await opened.session.exited).toMatchObject({ code: 0 });
-      return opened.session.logs.map((log) => log.message);
-    } finally {
-      await opened.close();
-    }
-  };
   const inheritEnv = { TMUX: "/sock,1,0" };
   const plain = createEngine({ dataDir });
   const opted = createEngine({ dataDir, inheritEnv });
