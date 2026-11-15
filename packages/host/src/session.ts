@@ -43,7 +43,20 @@ export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
 
 // Variables a Node program needs to behave normally. Everything else in the
 // host environment (tokens, credentials) is withheld from extension code.
-const INHERITED_ENV = ["PATH", "HOME", "USER", "LANG", "LC_ALL", "TZ", "TMPDIR", "TEMP", "TMP"];
+const INHERITED_ENV = [
+  "PATH",
+  "HOME",
+  "USER",
+  "LANG",
+  "LC_ALL",
+  "TZ",
+  "TMPDIR",
+  "TEMP",
+  "TMP",
+  "TMUX",
+  "BLAST_TMUX_TARGET",
+  "XDG_CONFIG_HOME",
+];
 
 export function runtimeEnvironment(
   source: NodeJS.ProcessEnv = process.env,
