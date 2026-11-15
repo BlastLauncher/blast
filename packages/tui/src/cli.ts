@@ -1,12 +1,14 @@
 import { statSync } from "node:fs";
 
 export const USAGE =
-  "Usage: blast-tui [--popup] [--native] <extensionDir>...\n" +
-  "       blast-tui [--native] <extensionDir> <command>";
+  "Usage: blast-tui [--popup] [--native] [--no-builtin] <extensionDir>...\n" +
+  "       blast-tui [--native] <extensionDir> <command>\n" +
+  "       blast-tui --version";
 
 export type CliArgs =
   | { kind: "root"; extensionDirs: string[]; popup: boolean; native: boolean }
   | { kind: "command"; extensionDir: string; command: string; native: boolean }
+  | { kind: "version" }
   | { kind: "usage"; error?: string };
 
 const isDirectory = (path: string) => {
@@ -28,14 +30,16 @@ export function parseCliArgs(
   const flags = new Set<string>();
   const positional: string[] = [];
   for (const arg of argv) {
-    if (arg === "--popup" || arg === "--native") flags.add(arg);
+    if (arg === "--popup" || arg === "--native" || arg === "--no-builtin") flags.add(arg);
+    else if (arg === "--version") return { kind: "version" };
     else if (arg === "--help" || arg === "-h") return { kind: "usage" };
     else if (arg.startsWith("--")) return { kind: "usage", error: `Unknown option: ${arg}` };
     else positional.push(arg);
   }
   const popup = flags.has("--popup");
   const native = flags.has("--native");
-  if (!positional.length) return { kind: "usage", error: "Missing <extensionDir>" };
+  if (!positional.length && flags.has("--no-builtin"))
+    return { kind: "usage", error: "Missing <extensionDir>" };
   const [extensionDir, command] = positional;
   if (positional.length === 2 && !directory(command!)) {
     if (popup) return { kind: "usage", error: "--popup opens the root, not one command" };
