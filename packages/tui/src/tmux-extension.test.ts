@@ -120,6 +120,24 @@ describe("tmux extension", () => {
   );
 
   test.skipIf(!available)(
+    "next and previous pane count from the target pane, not tmux's active one",
+    async () => {
+      await withServer(async ({ tmux, extension }) => {
+        tmux(["split-window", "-t", "blast:0"]);
+        tmux(["split-window", "-t", "blast:0"]);
+        tmux(["select-pane", "-t", "blast:0.2"]);
+        const active = () => tmux(["display-message", "-p", "-t", "blast:0", "#{pane_index}"]);
+        await run(extension, "next-pane");
+        expect(active()).toBe("1");
+        tmux(["select-pane", "-t", "blast:0.1"]);
+        await run(extension, "previous-pane");
+        expect(active()).toBe("2");
+      });
+    },
+    30_000,
+  );
+
+  test.skipIf(!available)(
     "a destructive command runs only after its alert is confirmed",
     async () => {
       await withServer(async ({ tmux, extension }) => {

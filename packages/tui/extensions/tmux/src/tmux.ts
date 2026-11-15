@@ -27,6 +27,28 @@ export async function targeted(command: string, extra: string[] = []): Promise<v
   await tmux([command, "-t", target(), ...extra]);
 }
 
+/**
+ * Selects the pane `step` positions after the target pane in its window,
+ * wrapping around. tmux's own `-t +1` counts from tmux's current pane, which
+ * inside the palette popup is not the pane that opened it.
+ */
+export async function selectRelativePane(step: number): Promise<void> {
+  if (!process.env.TMUX) return tmux([]);
+  let next: string | undefined;
+  try {
+    const [current, listed] = await Promise.all([
+      run("tmux", ["display-message", "-p", "-t", target(), "#{pane_id}"]),
+      run("tmux", ["list-panes", "-t", windowTarget(), "-F", "#{pane_id}"]),
+    ]);
+    const panes = listed.stdout.trim().split("\n");
+    const index = panes.indexOf(current.stdout.trim());
+    next = panes[(((index + step) % panes.length) + panes.length) % panes.length];
+  } catch {
+    next = undefined;
+  }
+  await tmux(["select-pane", "-t", next ?? target()]);
+}
+
 export async function targetedWindow(command: string, extra: string[] = []): Promise<void> {
   await tmux([command, "-t", windowTarget(), ...extra]);
 }

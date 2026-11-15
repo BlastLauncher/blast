@@ -1,5 +1,5 @@
-import { targeted } from "./tmux.ts";
+import { selectRelativePane } from "./tmux.ts";
 
 export default async function Command() {
-  await targeted("select-pane", ["-t", "-1"]);
+  await selectRelativePane(-1);
 }
