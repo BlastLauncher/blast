@@ -294,6 +294,16 @@
         "title"
       ],
       "mode": "view"
+    },
+    {
+      "name": "rename-window",
+      "title": "Rename Window",
+      "description": "Rename the target window",
+      "keywords": [
+        "window",
+        "rename"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"

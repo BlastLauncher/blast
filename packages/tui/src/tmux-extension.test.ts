@@ -156,6 +156,19 @@ function field(opened: Opened, id: string, value: string): Promise<SceneNode> {
   );
 }
 
+/** Waits for the form's `field` to show `error`. */
+function fieldError(opened: Opened, id: string, error: string): Promise<SceneNode> {
+  return sceneMatching(
+    opened,
+    (root) =>
+      nodes(root).find(
+        (node) =>
+          node.type === "Form.TextField" && node.props.id === id && node.props.error === error,
+      ),
+    `field ${id} error ${JSON.stringify(error)}`,
+  );
+}
+
 /** Types `values` into the form's fields, then submits it. */
 async function submit(opened: Opened, values: Record<string, string>) {
   for (const [id, value] of Object.entries(values)) {
@@ -381,6 +394,24 @@ describe("tmux extension", () => {
           await closed(opened);
         });
         expect(tmux(["display-message", "-p", "-t", "blast:0.0", "#{pane_title}"])).toBe("after");
+      });
+    },
+    30_000,
+  );
+
+  test.skipIf(!available)(
+    "rename window prefills the window name, rejects an empty one and renames",
+    async () => {
+      await withServer(async ({ tmux, extension }) => {
+        tmux(["rename-window", "-t", "blast:0", "before"]);
+        await inView(extension, "rename-window", async (opened) => {
+          await field(opened, "name", "before");
+          await submit(opened, { name: " " });
+          await fieldError(opened, "name", "Enter a name");
+          await submit(opened, { name: "after" });
+          await closed(opened);
+        });
+        expect(tmux(["display-message", "-p", "-t", "blast:0", "#{window_name}"])).toBe("after");
       });
     },
     30_000,
