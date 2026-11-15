@@ -17,6 +17,7 @@ export const packages = [
   "serve",
   "cli",
   "shared-deps",
+  "tui",
 ];
 
 export function run(command: string, args: string[], cwd = root): string {
@@ -56,6 +57,7 @@ export function releaseManifest(source: Record<string, unknown>, version: string
     "README.md",
     // Static files the embedder hosts: assets/ on the page origin, sandbox/ on the sandbox origin.
     ...(source.name === "@blastlauncher/web" ? ["assets", "sandbox"] : []),
+    ...(source.name === "@blastlauncher/tui" ? ["extensions"] : []),
   ];
   manifest.exports =
     typeof source.exports === "string"
@@ -75,6 +77,7 @@ export function releaseManifest(source: Record<string, unknown>, version: string
     );
   if (source.name === "@blastlauncher/serve") manifest.bin = { "blast-serve": "./dist/main.js" };
   if (source.name === "@blastlauncher/cli") manifest.bin = { blast: "./dist/cli.js" };
+  if (source.name === "@blastlauncher/tui") manifest.bin = { "blast-tui": "./dist/main.js" };
   return manifest;
 }
 
@@ -131,6 +134,10 @@ export async function build(version: string) {
     await mkdir(dir, { recursive: true });
     await cp(join(output, "emit", pkg, "src"), join(dir, "dist"), { recursive: true });
     await rewriteImports(join(dir, "dist"));
+    if (pkg === "tui")
+      await cp(join(root, "packages/tui/extensions"), join(dir, "extensions"), {
+        recursive: true,
+      });
     if (pkg === "protocol")
       await cp(join(root, "packages/protocol/schema"), join(dir, "schema"), { recursive: true });
     if (pkg === "web") await writeWebAssets(dir);

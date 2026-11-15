@@ -11,7 +11,7 @@ const tarballs = (await readdir(join(output, "tarballs")))
   .filter((file) => file.endsWith(".tgz"))
   .toSorted();
 if (tarballs.length !== packages.length)
-  throw new Error("Run release:build first (expected 9 tarballs)");
+  throw new Error(`Run release:build first (expected ${packages.length} tarballs)`);
 await rm(smoke, { recursive: true, force: true });
 await mkdir(smoke, { recursive: true });
 try {
@@ -94,6 +94,20 @@ try {
   );
   install(tarballs.filter((file) => !slim.includes(file) && !shared.includes(file)));
   console.log(run("node", ["smoke.mjs"], smoke));
+  const tuiPackage = JSON.parse(
+    await readFile(join(smoke, "node_modules/@blastlauncher/tui/package.json"), "utf8"),
+  ) as { version?: string; bin?: Record<string, string> };
+  if (!tuiPackage.bin?.["blast-tui"])
+    throw new Error("TUI tarball does not expose the blast-tui bin");
+  const version = run("bun", ["node_modules/.bin/blast-tui", "--version"], smoke);
+  if (version !== tuiPackage.version) throw new Error(`TUI version mismatch: ${version}`);
+  const tmux = join(smoke, "node_modules/@blastlauncher/tui/extensions/tmux");
+  const tmuxManifest = JSON.parse(await readFile(join(tmux, "package.json"), "utf8")) as {
+    commands?: unknown[];
+  };
+  if (!tmuxManifest.commands?.length || !(await stat(join(tmux, "src"))))
+    throw new Error("TUI tarball lacks the bundled tmux extension manifest or sources");
+  console.log(`Bundled tmux extension manifest: ${tmuxManifest.commands.length} commands`);
   for (const file of tarballs)
     console.log(`Tarball: ${file} ${(await stat(join(output, "tarballs", file))).size} bytes`);
 } finally {
