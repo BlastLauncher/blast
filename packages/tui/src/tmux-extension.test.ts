@@ -22,7 +22,7 @@ describe("tmux extension", () => {
       const previous = { TMUX: process.env.TMUX, BLAST_TMUX_TARGET: process.env.BLAST_TMUX_TARGET };
       process.env.TMUX = `/tmp/tmux-${process.getuid?.() ?? 0}/${server},0,0`;
       process.env.BLAST_TMUX_TARGET = "blast:0.0";
-      const extension = openExtension({ extensionDir });
+      const extension = openExtension({ extensionDir, inheritEnv: ["TMUX", "BLAST_TMUX_TARGET"] });
       try {
         for (const command of ["split-horizontal", "zoom-pane", "new-window"]) {
           const launched = await extension.launch(command, { installDependencies: false });

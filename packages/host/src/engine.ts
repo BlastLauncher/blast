@@ -18,6 +18,7 @@ export function createEngine(
     debounce?: OpenExtensionOptions["debounce"];
     dependencies?: "manual" | "auto";
     handlers?: Record<string, CapabilityHandler>;
+    inheritEnv?: OpenExtensionOptions["inheritEnv"];
   } = {},
 ) {
   const registrations = new Set<Record<string, CapabilityHandler>>();
@@ -51,6 +52,7 @@ export function createEngine(
           ...(options.installer === undefined ? {} : { installer: options.installer }),
           ...(options.watcher === undefined ? {} : { watcher: options.watcher }),
           ...(options.debounce === undefined ? {} : { debounce: options.debounce }),
+          ...(options.inheritEnv === undefined ? {} : { inheritEnv: options.inheritEnv }),
           ...extensionOptions,
         },
         registeredHandlers,

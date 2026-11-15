@@ -1,6 +1,12 @@
 import { createHeadlessHandlers } from "@blastlauncher/cli";
 import { openExtension, type CapabilityHandler, type ExtensionHandle } from "@blastlauncher/host";
 
+/**
+ * Host variables the TUI passes to extensions on top of the default
+ * allowlist: the bundled tmux extension acts on the client that opened it.
+ */
+export const inheritEnv = ["TMUX", "BLAST_TMUX_TARGET", "XDG_CONFIG_HOME"];
+
 export async function openCommand(
   extensionDir: string,
   command: string,
@@ -16,6 +22,7 @@ export async function openCommand(
     options.extension ??
     openExtension({
       extensionDir,
+      inheritEnv,
       ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
     });
   try {

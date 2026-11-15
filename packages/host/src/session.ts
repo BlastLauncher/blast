@@ -43,30 +43,24 @@ export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
 
 // Variables a Node program needs to behave normally. Everything else in the
 // host environment (tokens, credentials) is withheld from extension code.
-const INHERITED_ENV = [
-  "PATH",
-  "HOME",
-  "USER",
-  "LANG",
-  "LC_ALL",
-  "TZ",
-  "TMPDIR",
-  "TEMP",
-  "TMP",
-  "TMUX",
-  "BLAST_TMUX_TARGET",
-  "XDG_CONFIG_HOME",
-];
+const INHERITED_ENV = ["PATH", "HOME", "USER", "LANG", "LC_ALL", "TZ", "TMPDIR", "TEMP", "TMP"];
+
+/**
+ * Variables an embedder opts in to beyond {@link runtimeEnvironment}'s
+ * allowlist: names copied from the host environment, or explicit values.
+ */
+export type InheritEnv = string[] | Record<string, string>;
 
 export function runtimeEnvironment(
   source: NodeJS.ProcessEnv = process.env,
+  inherit: InheritEnv = [],
 ): Record<string, string> {
   const env: Record<string, string> = {};
-  for (const name of INHERITED_ENV) {
+  for (const name of [...INHERITED_ENV, ...(Array.isArray(inherit) ? inherit : [])]) {
     const value = source[name];
     if (value !== undefined) env[name] = value;
   }
-  return env;
+  return Array.isArray(inherit) ? env : { ...env, ...inherit };
 }
 export type Exit = { code: number | null; signal: NodeJS.Signals | null; error?: Error };
 export type Session = {

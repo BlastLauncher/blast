@@ -6,6 +6,8 @@ import {
   createEngine,
   createSessionBroker,
   openExtension,
+  runtimeEnvironment,
+  startLaunchFlow,
   type CapabilityHandler,
   type ExtensionHandle,
 } from "./index.ts";
@@ -232,5 +234,59 @@ test("engine auto dependency policy installs by default and can be disabled per 
     await engine.close();
   } finally {
     await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("runtimeEnvironment adds opted-in names or values to the allowlist only", () => {
+  const source = { PATH: "/bin", TMUX: "/sock,1,0", SECRET: "hunter2" };
+  expect(runtimeEnvironment(source)).toEqual({ PATH: "/bin" });
+  expect(runtimeEnvironment(source, ["TMUX", "MISSING"])).toEqual({
+    PATH: "/bin",
+    TMUX: "/sock,1,0",
+  });
+  expect(runtimeEnvironment(source, { TMUX: "/other,2,0" })).toEqual({
+    PATH: "/bin",
+    TMUX: "/other,2,0",
+  });
+});
+
+test("inheritEnv reaches commands only when the embedder opts in", async () => {
+  const root = await mkdtemp(join(tmpdir(), "blast-env-"));
+  const extensionDir = join(root, "extension");
+  const dataDir = join(root, "data");
+  await mkdir(join(extensionDir, "src"), { recursive: true });
+  await writeFile(
+    join(extensionDir, "package.json"),
+    JSON.stringify({ name: "env", commands: [{ name: "index", mode: "no-view" }] }),
+  );
+  await writeFile(
+    join(extensionDir, "src/index.ts"),
+    'export default async function Command() { console.log(`tmux=${process.env.TMUX ?? "unset"}`); }',
+  );
+  const logged = async (opened: Awaited<ReturnType<ExtensionHandle["launch"]>>) => {
+    try {
+      expect(await opened.session.exited).toMatchObject({ code: 0 });
+      return opened.session.logs.map((log) => log.message);
+    } finally {
+      await opened.close();
+    }
+  };
+  const inheritEnv = { TMUX: "/sock,1,0" };
+  const plain = createEngine({ dataDir });
+  const opted = createEngine({ dataDir, inheritEnv });
+  const standalone = openExtension({ extensionDir, dataDir, inheritEnv });
+  try {
+    expect(await logged(await plain.openExtension({ extensionDir }).launch("index"))).toEqual([
+      "tmux=unset",
+    ]);
+    const handle = opted.openExtension({ extensionDir });
+    expect(await logged(await handle.launch("index"))).toEqual(["tmux=/sock,1,0"]);
+    expect(await logged(await standalone.launch("index"))).toEqual(["tmux=/sock,1,0"]);
+    // Launch flows (and so `engine.root`) launch through the same handle.
+    const opened = await startLaunchFlow(handle, "index", { views: { platform: "Linux" } }).opened;
+    expect(await logged(opened!)).toEqual(["tmux=/sock,1,0"]);
+  } finally {
+    await Promise.all([plain.close(), opted.close(), standalone.close()]);
+    await rm(root, { recursive: true, force: true });
   }
 });

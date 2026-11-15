@@ -16,7 +16,7 @@ import {
   type DependencyInstaller,
 } from "./install-dependencies.ts";
 import { createPreferenceStore } from "./preferences.ts";
-import { startCommand, type StartOptions } from "./session.ts";
+import { runtimeEnvironment, startCommand, type InheritEnv, type StartOptions } from "./session.ts";
 import { defaultDataDir, type StorageItems } from "./storage.ts";
 import type { CapabilityHandler } from "./broker.ts";
 
@@ -71,6 +71,12 @@ export type OpenExtensionOptions = {
   handlers?: Record<string, CapabilityHandler>;
   watcher?: ExtensionWatcherFactory;
   debounce?: DebounceScheduler;
+  /**
+   * Extra environment for this extension's commands. The default allowlist
+   * withholds the host environment (decision 0001); only an embedder that
+   * trusts its extensions with, e.g., its tmux socket should opt in.
+   */
+  inheritEnv?: InheritEnv;
 };
 
 export type ExtensionWatcher = {
@@ -257,6 +263,9 @@ export function createExtensionHandle(
         ...(launchOptions.launchContext === undefined
           ? {}
           : { launchContext: launchOptions.launchContext }),
+        ...(options.inheritEnv === undefined
+          ? {}
+          : { env: runtimeEnvironment(process.env, options.inheritEnv) }),
         broker: createSessionBroker(
           { extensionName: bundled.extensionName, dataDir },
           { handlers: { ...engineHandlers(), ...options.handlers, ...launchOptions.handlers } },
