@@ -1,7 +1,7 @@
 ---
 id: "0175"
 title: "tmux extension I: one-shot pane, window, session and system commands"
-status: todo
+status: doing
 milestone: M11
 depends: []
 ---
