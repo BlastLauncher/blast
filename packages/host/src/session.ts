@@ -40,6 +40,8 @@ export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
    * not `process.env`) plus Node's compile cache under `<dataDir>/compile-cache/`.
    */
   env?: Record<string, string>;
+  /** Extra variables the embedder opted in to (ignored when `env` is given). */
+  inheritEnv?: InheritEnv;
   /** Oldest log entries are dropped beyond this many. */
   maxLogs?: number;
 };
@@ -48,15 +50,22 @@ export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
 // host environment (tokens, credentials) is withheld from extension code.
 const INHERITED_ENV = ["PATH", "HOME", "USER", "LANG", "LC_ALL", "TZ", "TMPDIR", "TEMP", "TMP"];
 
+/**
+ * Variables an embedder opts in to beyond {@link runtimeEnvironment}'s
+ * allowlist: names copied from the host environment, or explicit values.
+ */
+export type InheritEnv = string[] | Record<string, string>;
+
 export function runtimeEnvironment(
   source: NodeJS.ProcessEnv = process.env,
+  inherit: InheritEnv = [],
 ): Record<string, string> {
   const env: Record<string, string> = {};
-  for (const name of INHERITED_ENV) {
+  for (const name of [...INHERITED_ENV, ...(Array.isArray(inherit) ? inherit : [])]) {
     const value = source[name];
     if (value !== undefined) env[name] = value;
   }
-  return env;
+  return Array.isArray(inherit) ? env : { ...env, ...inherit };
 }
 export type Exit = { code: number | null; signal: NodeJS.Signals | null; error?: Error };
 export type Session = {
@@ -145,7 +154,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       // The runtime is TypeScript Node strips on every start; with its
       // compile cache a warm runtime loads in ~90 ms instead of ~300 ms.
       env: options.env ?? {
-        ...runtimeEnvironment(),
+        ...runtimeEnvironment(process.env, options.inheritEnv),
         NODE_COMPILE_CACHE: join(resolve(options.dataDir ?? defaultDataDir()), "compile-cache"),
       },
     },

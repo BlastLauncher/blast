@@ -1,0 +1,265 @@
+{
+  "name": "tmux",
+  "description": "One-shot tmux commands for Blast's popup palette.",
+  "license": "MIT",
+  "type": "module",
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "split-horizontal",
+      "title": "Split Horizontal",
+      "description": "Split the target pane horizontally",
+      "keywords": [
+        "pane",
+        "split",
+        "horizontal"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "split-vertical",
+      "title": "Split Vertical",
+      "description": "Split the target pane vertically",
+      "keywords": [
+        "pane",
+        "split",
+        "vertical"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "close-pane",
+      "title": "Close Pane",
+      "description": "Close the target pane",
+      "keywords": [
+        "pane",
+        "close",
+        "kill"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "next-pane",
+      "title": "Next Pane",
+      "description": "Select the next pane",
+      "keywords": [
+        "pane",
+        "next",
+        "select"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "previous-pane",
+      "title": "Previous Pane",
+      "description": "Select the previous pane",
+      "keywords": [
+        "pane",
+        "previous",
+        "select"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "display-pane-numbers",
+      "title": "Display Pane Numbers",
+      "description": "Show pane numbers",
+      "keywords": [
+        "pane",
+        "numbers",
+        "display"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "cycle-pane-layout",
+      "title": "Cycle Pane Layout",
+      "description": "Cycle the pane layout",
+      "keywords": [
+        "pane",
+        "layout",
+        "cycle"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "swap-pane-up",
+      "title": "Swap Pane Up",
+      "description": "Swap the target pane up",
+      "keywords": [
+        "pane",
+        "swap",
+        "up"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "swap-pane-down",
+      "title": "Swap Pane Down",
+      "description": "Swap the target pane down",
+      "keywords": [
+        "pane",
+        "swap",
+        "down"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "zoom-pane",
+      "title": "Zoom / Unzoom",
+      "description": "Toggle pane zoom",
+      "keywords": [
+        "pane",
+        "zoom",
+        "unzoom"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "copy-mode",
+      "title": "Enter Copy Mode",
+      "description": "Enter copy mode in the target pane",
+      "keywords": [
+        "pane",
+        "copy",
+        "mode"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "break-pane",
+      "title": "Break to New Window",
+      "description": "Break the target pane into a new window",
+      "keywords": [
+        "pane",
+        "break",
+        "window"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "new-window",
+      "title": "New Window",
+      "description": "Create a new window in the target session",
+      "keywords": [
+        "window",
+        "new",
+        "create"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "next-window",
+      "title": "Next Window",
+      "description": "Select the next window",
+      "keywords": [
+        "window",
+        "next",
+        "select"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "previous-window",
+      "title": "Previous Window",
+      "description": "Select the previous window",
+      "keywords": [
+        "window",
+        "previous",
+        "select"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "last-window",
+      "title": "Last Window",
+      "description": "Select the last window",
+      "keywords": [
+        "window",
+        "last",
+        "select"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "next-session",
+      "title": "Next Session",
+      "description": "Switch to the next session",
+      "keywords": [
+        "session",
+        "next",
+        "switch"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "previous-session",
+      "title": "Previous Session",
+      "description": "Switch to the previous session",
+      "keywords": [
+        "session",
+        "previous",
+        "switch"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "detach",
+      "title": "Detach",
+      "description": "Detach the target client",
+      "keywords": [
+        "session",
+        "detach",
+        "client"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "reload-config",
+      "title": "Reload Config",
+      "description": "Reload the tmux configuration",
+      "keywords": [
+        "system",
+        "config",
+        "reload"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "close-other-panes",
+      "title": "Close Other Panes",
+      "description": "Close every other pane after confirmation",
+      "keywords": [
+        "pane",
+        "close",
+        "others",
+        "destructive"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "close-window",
+      "title": "Close Window",
+      "description": "Close the target window after confirmation",
+      "keywords": [
+        "window",
+        "close",
+        "kill",
+        "destructive"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "kill-session",
+      "title": "Kill Session",
+      "description": "Kill the target session after confirmation",
+      "keywords": [
+        "session",
+        "kill",
+        "destructive"
+      ],
+      "mode": "no-view"
+    }
+  ],
+  "title": "Tmux Palette"
+}

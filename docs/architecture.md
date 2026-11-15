@@ -97,7 +97,7 @@ implemented APIs are accessible and stubs are inaccessible.
 
 Bundling reports `bundleMs`; `timeoutMs` (engine/extension/launch/bundle options, default 60_000; 0 disables) and a bundle/launch `signal` cancel esbuild work.
 
-`createEngine({ dataDir?, installer?, handlers? })` groups extension handles: `register(handlers)` returns unregister (later wins, future launches), and `engine.openExtension` inherits its options; standalone `openExtension` works too.
+`createEngine({ dataDir?, installer?, handlers?, inheritEnv? })` groups extension handles: `register(handlers)` returns unregister (later wins, future launches), and `engine.openExtension` inherits its options; standalone `openExtension` works too. Commands get only an allowlisted host environment (`PATH`, `HOME`, locale, temp dirs); `inheritEnv` (names, or name→value pairs) is the embedder's opt-in for more, e.g. the TUI's tmux variables.
 Handlers resolve engine → extension → launch, then session storage, OAuth tokens and own-provider AI win. Unregistered capabilities are denied (decision 0010).
 
 `openExtension({ extensionDir, dataDir?, installer?, handlers? })` returns a handle:

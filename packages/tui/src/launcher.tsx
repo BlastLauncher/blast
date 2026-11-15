@@ -14,7 +14,7 @@ import {
   type Session,
 } from "@blastlauncher/host";
 import { App, ViewFrame, platform } from "./app.tsx";
-import { createClientHandlers } from "./session.ts";
+import { createClientHandlers, inheritEnv } from "./session.ts";
 import { theme } from "./theme.ts";
 
 type Engine = ReturnType<typeof createEngine>;
@@ -70,6 +70,7 @@ export function CommandSession({
     const engine =
       suppliedEngine ??
       createEngine({
+        inheritEnv,
         ...(dataDir === undefined ? {} : { dataDir }),
         ...(installer ? { installer } : {}),
       });

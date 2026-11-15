@@ -61,8 +61,12 @@ tested against a real, isolated tmux server.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-tmux-env-tests @ 99e3ceb6b98dae420196606706d5493271aef13f (round 2, on top of t3/tmux-extension-commands; Handoff commit follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 150.4s
 Done:
-Not done / risks:
+- Reverted TMUX/BLAST_TMUX_TARGET/XDG_CONFIG_HOME from the global INHERITED_ENV; added embedder opt-in `inheritEnv` (names copied from process.env, or name→value pairs) on createEngine and standalone openExtension, used by every handle launch (so engine.root and startLaunchFlow too). Host tests: absent by default, present only when opted in (engine, standalone, launch flow).
+- TUI opts in with ["TMUX", "BLAST_TMUX_TARGET", "XDG_CONFIG_HOME"], exported as `inheritEnv` from packages/tui/src/session.ts (also used by openCommand). launcher.tsx change is two lines only: `inheritEnv` added to the existing `./session.ts` import and one `inheritEnv,` line in its createEngine({...}) call. Expect a trivial conflict with 0174 there.
+- tmux test: per-test isolated -L server killed (and its socket file removed) in finally; socket read via #{socket_path}; env passed by inheritEnv values, process.env untouched. Covers splits (3 panes), zoom (#{window_zoomed_flag}=1), new window + next window (active index 1→0), close-window cancelled (state unchanged) and confirmed (window killed) by answering the Alert through the scene, and the "Not inside tmux" FAILURE toast in the scene.
+- docs/architecture.md and the extension README document the opt-in.
+Not done / risks: findings 2 and 3 landed in one commit (same test rewrite). Not changed from round 1: next/previous pane passes `-t <target> -t +1`, so the later -t wins and "+1" resolves relative to tmux's current pane, not BLAST_TMUX_TARGET. Not tested in a real display-popup; plugin wiring is 0178.
 ```
