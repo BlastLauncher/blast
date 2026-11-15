@@ -20,14 +20,24 @@ async function catalog(): Promise<CatalogEntry[]> {
   // user has GitHub CLI authentication, use it so the catalog works from a
   // tmux server even after the anonymous quota is exhausted.
   try {
+    const { stdout: rootSha } = await run("gh", [
+      "api",
+      "repos/raycast/extensions/git/trees/main",
+      "--jq",
+      '.tree[] | select(.path == "extensions") | .sha',
+    ]);
     const { stdout } = await run("gh", [
       "api",
-      "--paginate",
-      "--slurp",
-      "repos/raycast/extensions/contents/extensions?per_page=100",
+      `repos/raycast/extensions/git/trees/${rootSha.trim()}`,
+      "--jq",
+      '.tree[] | select(.type == "tree") | @json',
     ]);
-    const pages = JSON.parse(stdout) as CatalogEntry[][];
-    return pages.flat().filter((entry) => entry.type === "dir");
+    return stdout
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as { path: string; type: string })
+      .map((entry) => ({ name: entry.path, type: entry.type }));
   } catch {
     // Fall through for machines that do not have GitHub CLI installed.
   }

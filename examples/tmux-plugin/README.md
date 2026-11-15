@@ -52,6 +52,7 @@ Set options before the `@plugin` / `run-shell` line, then reload tmux
 | `@blast-theme`        | `dark`                         | `dark`, `light`, or `mono` palette colours.                                |
 | `@blast-builtin`      | `on`                           | Set to `off` to hide the builtin tmux commands.                            |
 | `@blast-config`       | `~/.config/blast/tmux.json`    | Persistent extension and builtin state.                                    |
+| `@blast-cache-dir`    | `~/.local/share/blast/tui`     | Local cached TUI install used by the default command.                      |
 
 Below 80 columns the popup fills the client; a fixed size larger than the
 client does too. `C-Space` in the root table shadows it for programs inside

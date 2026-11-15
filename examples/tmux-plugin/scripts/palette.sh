@@ -37,6 +37,7 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 blast_command="$(option @blast-command 'bunx @blastlauncher/tui@next')"
+blast_cache_dir="$(option @blast-cache-dir "$HOME/.local/share/blast/tui")"
 blast_theme="$(option @blast-theme dark)"
 blast_builtin="$(option @blast-builtin on)"
 blast_config="$(option @blast-config "$HOME/.config/blast/tmux.json")"
@@ -49,6 +50,26 @@ fi
 # A popup larger than the client is refused, so clamp fixed sizes.
 if [ "${width%\%}" = "$width" ] && [ "$width" -gt "$client_width" ]; then width=100%; fi
 if [ "${height%\%}" = "$height" ] && [ "$height" -gt "$client_height" ]; then height=100%; fi
+
+# bunx resolves the package metadata on every invocation. Keep the default TUI
+# in a local install so only the first launch needs the network; later popups
+# execute the cached entrypoint directly. Explicit @blast-command values keep
+# their existing behavior.
+if [ "$blast_command" = 'bunx @blastlauncher/tui@next' ]; then
+  tui_entry="$blast_cache_dir/node_modules/@blastlauncher/tui/dist/main.js"
+  tui_spec="$blast_cache_dir/.blast-spec"
+  if [ ! -f "$tui_entry" ] || [ "$(cat "$tui_spec" 2>/dev/null || true)" != "$blast_command" ]; then
+    mkdir -p "$blast_cache_dir"
+    printf '%s\n' '{"name":"blast-tmux-cache","private":true,"type":"module"}' > "$blast_cache_dir/package.json"
+    message "Installing Blast TUI (first launch)…"
+    if ! bun add --cwd "$blast_cache_dir" --exact --no-save '@blastlauncher/tui@next'; then
+      message "Could not install Blast TUI; check your network connection"
+      exit 0
+    fi
+    printf '%s\n' "$blast_command" > "$tui_spec"
+  fi
+  blast_command="bun $(quote "$tui_entry")"
+fi
 
 # The extension splits this into window and session targets; tmux replaces
 # `:` and `.` in session names, so the split is unambiguous.
