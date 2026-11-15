@@ -1,7 +1,7 @@
 ---
 id: "0179"
 title: Docs, README and landing for the tmux palette
-status: todo
+status: doing
 milestone: M11
 depends: ["0176", "0178"]
 ---
