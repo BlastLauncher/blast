@@ -55,8 +55,25 @@ report) is fixed or has a written reason in the report.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-runtime-fixes-1 @ 3f065c3 (plus d8cd781)
+Verify: pending (run after final browser and e2e checks)
 Done:
+- Forbidden XHR headers are dropped, extension assets/package.json are mapped
+  into the sandbox, and browser launch arguments are forwarded; each has unit
+  or fixture coverage from the preceding commits.
+- Added the almostnode stream compatibility shim and flow-mode activation so
+  node-fetch response bodies are recognized as Node streams and async iterables;
+  this addresses UK bank holidays' original `Unexpected end of JSON input`.
+- Refreshed the browser sweep: 134/170 rendered before, 141/168 rendered after
+  (108 rendered plus 33 with placeholder preferences; 2 browser limits).
+- Hyrule's `$and` error, Bookstack 404s, and sqlite are reclassified as network,
+  placeholder-credential, and browser-native-module limits respectively.
 Not done / risks:
+- `sf-symbols-search/index` times out while parsing/rendering its 1.1 MB local
+  JSON asset; this is a performance timeout, not an asset-path failure.
+- `uk-bank-holidays/index` waits on the external gov.uk request with no response;
+  this is live-service/network noise.
+- `convert-px-to-vw-vh/{width,height}` rejects the generic `blast` placeholder as
+  non-numeric input; this is extension validation, not a browser runtime defect.
+- `ring-intercom/unlock` remains authentication-gated.
 ```
