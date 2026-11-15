@@ -271,6 +271,18 @@
         "switch"
       ],
       "mode": "view"
+    },
+    {
+      "name": "move-pane",
+      "title": "Move Pane to…",
+      "description": "Move the target pane into another window or a new one",
+      "keywords": [
+        "pane",
+        "move",
+        "join",
+        "window"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"

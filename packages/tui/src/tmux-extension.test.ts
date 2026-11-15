@@ -118,10 +118,10 @@ async function listItems(opened: Opened): Promise<SceneNode[]> {
   );
 }
 
-/** Runs `item`'s action titled `title`. */
-function act(opened: Opened, item: SceneNode, title: string) {
-  const action = nodes(item).find((node) => node.props.title === title && node.props.onAction);
-  if (!action) throw new Error(`${String(item.props.title)} has no ${title} action`);
+/** Runs `row`'s action titled `title`. */
+function act(opened: Opened, row: SceneNode, title: string) {
+  const action = nodes(row).find((node) => node.props.title === title && node.props.onAction);
+  if (!action) throw new Error(`${String(row.props.title)} has no ${title} action`);
   fire(opened, action, "onAction");
 }
 
@@ -161,7 +161,7 @@ async function submit(opened: Opened, values: Record<string, string>) {
   for (const [id, value] of Object.entries(values)) {
     const node = await sceneMatching(
       opened,
-      (root) => nodes(root).find((node) => node.type === "Form.TextField" && node.props.id === id),
+      (root) => nodes(root).find((text) => text.type === "Form.TextField" && text.props.id === id),
       `field ${id}`,
     );
     fire(opened, node, "onChange", [value]);
@@ -170,8 +170,42 @@ async function submit(opened: Opened, values: Record<string, string>) {
   fire(opened, await sceneWith(opened, "Action.SubmitForm"), "onAction");
 }
 
+function item(items: SceneNode[], title: string): SceneNode {
+  const found = items.find((candidate) => candidate.props.title === title);
+  if (!found) throw new Error(`No list item ${title}`);
+  return found;
+}
+
 async function launch(extension: ExtensionHandle, command: string) {
   return extension.launch(command, { installDependencies: false });
+}
+
+/** Runs a list command and hands `body` its loaded items. */
+async function inList(
+  extension: ExtensionHandle,
+  command: string,
+  body: (opened: Opened, items: SceneNode[]) => Promise<void>,
+) {
+  const opened = await launch(extension, command);
+  try {
+    await body(opened, await listItems(opened));
+  } finally {
+    await opened.close();
+  }
+}
+
+/** Runs a command and hands `body` its session. */
+async function inView(
+  extension: ExtensionHandle,
+  command: string,
+  body: (opened: Opened) => Promise<void>,
+) {
+  const opened = await launch(extension, command);
+  try {
+    await body(opened);
+  } finally {
+    await opened.close();
+  }
 }
 
 async function run(extension: ExtensionHandle, command: string) {
@@ -265,42 +299,32 @@ describe("tmux extension", () => {
             "-F",
             "#{session_name}:#{window_index}.#{pane_index}",
           ]).split("\n");
-          const each = async (body: (opened: Opened, items: SceneNode[]) => Promise<void>) => {
-            const opened = await launch(extension, "find-pane");
-            try {
-              await body(opened, await listItems(opened));
-            } finally {
-              await opened.close();
-            }
-          };
-          const pane = (items: SceneNode[], title: string) =>
-            items.find((item) => item.props.title === title)!;
           const client = (format: string) => tmux(["list-clients", "-F", format]);
 
-          await each(async (opened, items) => {
-            expect(items.map((item) => item.props.title)).toEqual(listed);
-            act(opened, pane(items, "other:1.0"), "Switch to Pane");
+          await inList(extension, "find-pane", async (opened, items) => {
+            expect(items.map((row) => row.props.title)).toEqual(listed);
+            act(opened, item(items, "other:1.0"), "Switch to Pane");
             await closed(opened);
           });
           expect(client("#{session_name}:#{window_index}.#{pane_index}")).toBe("other:1.0");
 
-          await each(async (opened, items) => {
-            act(opened, pane(items, "other:1.1"), "Zoom / Unzoom Pane");
+          await inList(extension, "find-pane", async (opened, items) => {
+            act(opened, item(items, "other:1.1"), "Zoom / Unzoom Pane");
             await closed(opened);
           });
           expect(tmux(["display-message", "-p", "-t", "other:1", "#{window_zoomed_flag}"])).toBe(
             "1",
           );
 
-          await each(async (opened, items) => {
-            act(opened, pane(items, "blast:0.1"), "Kill Pane");
+          await inList(extension, "find-pane", async (opened, items) => {
+            act(opened, item(items, "blast:0.1"), "Kill Pane");
             await answer(opened, false);
             await sceneMatching(
               opened,
               (root) => (find(root, "Alert") ? undefined : true),
               "no alert",
             );
-            act(opened, pane(items, "blast:0.1"), "Kill Pane");
+            act(opened, item(items, "blast:0.1"), "Kill Pane");
             await answer(opened, true);
             await closed(opened);
           });
@@ -308,6 +332,40 @@ describe("tmux extension", () => {
         },
         { client: true },
       );
+    },
+    30_000,
+  );
+
+  test.skipIf(!available)(
+    "move pane lists the other windows and joins or breaks the target pane",
+    async () => {
+      await withServer(async ({ tmux, extension }) => {
+        tmux(["split-window", "-t", "blast:0"]);
+        tmux(["new-window", "-d", "-t", "blast:1"]);
+        tmux(["new-session", "-d", "-s", "other", "-x", "80", "-y", "24"]);
+        const panes = (window: string) =>
+          lines(tmux(["list-panes", "-t", window, "-F", "#{pane_id}"]));
+        const origin = tmux(["display-message", "-p", "-t", "blast:0.0", "#{pane_id}"]);
+        const others = tmux(["list-windows", "-a", "-F", "#{session_name}:#{window_index}"])
+          .split("\n")
+          .filter((window) => window !== "blast:0");
+
+        await inList(extension, "move-pane", async (opened, items) => {
+          expect(items.map((row) => row.props.title)).toEqual(["New Window", ...others]);
+          act(opened, item(items, "other:0"), "Move to Window");
+          await closed(opened);
+        });
+        expect(panes("blast:0")).toBe(1);
+        expect(tmux(["list-panes", "-t", "other:0", "-F", "#{pane_id}"])).toContain(origin);
+
+        tmux(["split-window", "-t", "blast:0"]);
+        await inList(extension, "move-pane", async (opened, items) => {
+          act(opened, item(items, "New Window"), "Move to New Window");
+          await closed(opened);
+        });
+        expect(panes("blast:0")).toBe(1);
+        expect(lines(tmux(["list-windows", "-t", "blast", "-F", "#{window_id}"]))).toBe(3);
+      });
     },
     30_000,
   );
