@@ -35,6 +35,10 @@ export async function targetedSession(command: string, extra: string[] = []): Pr
   await tmux([command, "-t", sessionTarget(), ...extra]);
 }
 
+export async function newWindow(extra: string[] = []): Promise<void> {
+  await tmux(["new-window", "-t", sessionTarget(), ...extra]);
+}
+
 function windowTarget(): string {
   return target().replace(/\.[^.]+$/, "");
 }
