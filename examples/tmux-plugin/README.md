@@ -84,5 +84,6 @@ servers (`tmux -L`) through the key, the popup and a split.
 
 ## Credits
 
-The command list and names follow Tmux Palette's built-in commands (MIT); no
-code is copied. Licensed MIT, see [LICENSE](LICENSE).
+The command list and names follow the built-in commands of
+[Tmux Palette](https://github.com/eduwass/tmux-palette) (MIT); no code is
+copied. Licensed MIT, see [LICENSE](LICENSE).

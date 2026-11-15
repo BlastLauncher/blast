@@ -67,5 +67,4 @@ Not done / risks:
 - tmux 3.2a has no display-popup -e or #{popup_active}, and its display-message
   -c takes no client argument; the binding passes #{client_width/height}, and
   "no popup" is checked as no server child besides pane shells (pgrep, Linux).
-- Tmux Palette is credited by name only; no upstream URL was found in the repo.
 ```
