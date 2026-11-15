@@ -9,6 +9,10 @@ function almostnodeStreams() {
   class Readable extends EventEmitter {
     readableEnded = false;
     destroyed = false;
+    resumed = false;
+    resume() {
+      this.resumed = true;
+    }
     destroy() {
       this.destroyed = true;
     }
@@ -35,6 +39,8 @@ test("a readable is async iterable: data in order, then end; errors throw", asyn
   const streams = almostnodeStreams();
   patchStreams(streams);
   const body = new streams.PassThrough();
+  expect(body.resumed).toBe(false);
+  // The compatibility iterator must put almostnode readables into flow mode.
   setTimeout(() => {
     body.emit("data", '{"a":');
     body.emit("data", "1}");
@@ -43,6 +49,7 @@ test("a readable is async iterable: data in order, then end; errors throw", asyn
   const chunks: unknown[] = [];
   for await (const chunk of body as unknown as AsyncIterable<unknown>) chunks.push(chunk);
   expect(chunks.join("")).toBe('{"a":1}');
+  expect(body.resumed).toBe(true);
   expect(body.listenerCount("data")).toBe(0);
 
   const failing = new streams.PassThrough();

@@ -11,6 +11,7 @@ type Emitter = {
   removeListener(event: string, listener: Listener): unknown;
   readableEnded?: boolean;
   destroy?: () => unknown;
+  resume?: () => unknown;
 };
 type Constructor = { prototype: object };
 export type StreamModule = { Stream: Constructor; Readable: Constructor; Writable: Constructor };
@@ -47,6 +48,9 @@ export function readableAsyncIterator(stream: Emitter): AsyncIterableIterator<un
     },
   };
   for (const [event, listener] of Object.entries(listeners)) stream.on(event, listener);
+  // almostnode keeps a readable paused until resume() is called, even after a
+  // data listener is attached. Node's async iterator starts flowing itself.
+  stream.resume?.();
   const stop = () => {
     for (const [event, listener] of Object.entries(listeners))
       stream.removeListener(event, listener);
