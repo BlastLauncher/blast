@@ -1,6 +1,8 @@
 /** @jsxImportSource @opentui/react */
 import { createHeadlessHandlers } from "@blastlauncher/cli";
 import { useEffect, useRef, useState } from "react";
+import { readFile } from "node:fs/promises";
+import { watch } from "node:fs";
 import type { KeyEvent } from "@opentui/core";
 import type { ControllerView, KeyInput } from "@blastlauncher/client-core";
 import {
@@ -99,6 +101,38 @@ export function CommandSession({
   const live = useRef<{ flow?: LaunchFlow; stop?: () => Promise<void>; leave?: () => void }>({});
 
   useEffect(() => setup.root.subscribe(setRootView), []);
+  // The Blast manager writes the tmux config after installing an extension.
+  // Open newly enabled directories on the live engine so the root catalog
+  // updates without closing the popup or restarting tmux.
+  useEffect(() => {
+    const configPath = process.env.BLAST_TMUX_CONFIG;
+    if (!configPath) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const sync = async () => {
+      try {
+        const config = JSON.parse(await readFile(configPath, "utf8")) as {
+          extensions?: { directory?: string; enabled?: boolean }[];
+        };
+        for (const extension of config.extensions ?? []) {
+          const directory = extension.directory;
+          if (!extension.enabled || !directory || setup.dirs.includes(directory)) continue;
+          setup.dirs.push(directory);
+          setup.extensions.push(setup.engine.openExtension({ extensionDir: directory }));
+        }
+      } catch {
+        // The config may be mid-atomic-write; the next event retries it.
+      }
+    };
+    const listener = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => void sync(), 75);
+    };
+    const watcher = watch(configPath, { persistent: false }, listener);
+    return () => {
+      watcher.close();
+      if (timer) clearTimeout(timer);
+    };
+  }, [setup]);
   useEffect(() => {
     if (screen.kind !== "flow") return;
     const flow = screen.flow;
