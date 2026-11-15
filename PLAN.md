@@ -61,7 +61,7 @@ client and doc shows the smaller API.
 - [x] 0176 `tmux` extension II: find/move pane, choose session, rename and new forms
 - [x] 0177 Publish `@blastlauncher/tui` (bin `blast-tui`, bundled `tmux` extension)
 - [x] 0178 tmux plugin (`examples/tmux-plugin`) with a real-tmux e2e in CI
-- [ ] 0179 Docs, README and landing for the tmux palette
+- [x] 0179 Docs, README and landing for the tmux palette
 
 ## Later (not scheduled)
 
