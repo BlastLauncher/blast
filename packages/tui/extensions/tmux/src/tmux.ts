@@ -1,26 +1,67 @@
 import { execFile } from "node:child_process";
 import { access } from "node:fs/promises";
 import { promisify } from "node:util";
+import { useEffect, useState } from "react";
 import { Alert, Toast, closeMainWindow, confirmAlert, showHUD, showToast } from "@raycast/api";
 
 const run = promisify(execFile);
-const target = () => process.env.BLAST_TMUX_TARGET || "{last}";
+export const target = () => process.env.BLAST_TMUX_TARGET || "{last}";
 
-export async function tmux(args: string[]): Promise<void> {
+/** Shows why tmux could not run and closes the palette. */
+export async function fail(error: unknown): Promise<void> {
   if (!process.env.TMUX) {
     await showToast({ style: Toast.Style.Failure, title: "Not inside tmux" });
-    await closeMainWindow();
-    return;
-  }
-  try {
-    await run("tmux", ["-u", ...args]);
-  } catch (error) {
+  } else {
     const message =
       error instanceof Error ? error.message.split("\n", 1)[0] : "tmux command failed";
     await showToast({ style: Toast.Style.Failure, title: "Tmux command failed", message });
-  } finally {
-    await closeMainWindow();
   }
+  await closeMainWindow();
+}
+
+/** Runs tmux (`;` separates several commands) and closes the palette. */
+export async function tmux(args: string[]): Promise<void> {
+  if (!process.env.TMUX) return fail(undefined);
+  try {
+    await run("tmux", ["-u", ...args]);
+  } catch (error) {
+    return fail(error);
+  }
+  await closeMainWindow();
+}
+
+/** tmux output for a view to render; rejects outside tmux or on failure. */
+export async function query(args: string[]): Promise<string> {
+  if (!process.env.TMUX) throw new Error("Not inside tmux");
+  const { stdout } = await run("tmux", ["-u", ...args]);
+  return stdout.replace(/\n$/, "");
+}
+
+/** `list-*` rows for `fields` formats, which must not contain tabs. */
+export async function rows<Field extends string>(
+  args: string[],
+  fields: Record<Field, string>,
+): Promise<Record<Field, string>[]> {
+  const names = Object.keys(fields) as Field[];
+  const output = await query([...args, "-F", names.map((name) => fields[name]).join("\t")]);
+  if (!output) return [];
+  return output.split("\n").map((line) => {
+    const values = line.split("\t");
+    return Object.fromEntries(names.map((name, index) => [name, values[index] ?? ""])) as Record<
+      Field,
+      string
+    >;
+  });
+}
+
+/** Loads view data once; a failure shows a toast and closes the palette. */
+export function useLoad<T>(load: () => Promise<T>): T | undefined {
+  const [value, setValue] = useState<T>();
+  useEffect(() => {
+    load().then(setValue, (error: unknown) => void fail(error));
+    // Loaded once per mount: `load` is a fresh closure every render.
+  }, []);
+  return value;
 }
 
 export async function targeted(command: string, extra: string[] = []): Promise<void> {
@@ -61,21 +102,24 @@ export async function newWindow(extra: string[] = []): Promise<void> {
   await tmux(["new-window", "-t", sessionTarget(), ...extra]);
 }
 
-function windowTarget(): string {
+export function windowTarget(): string {
   return target().replace(/\.[^.]+$/, "");
 }
 
-function sessionTarget(): string {
+export function sessionTarget(): string {
   return target().split(":", 1)[0]!;
 }
 
-export async function destructive(command: string): Promise<void> {
-  const confirmed = await confirmAlert({
+export async function confirmDestructive(command: string): Promise<boolean> {
+  return confirmAlert({
     title: `Confirm ${command.replaceAll("-", " ")}`,
     message: "This action cannot be undone.",
     primaryAction: { title: "Confirm", style: Alert.ActionStyle.Destructive },
   });
-  if (!confirmed) {
+}
+
+export async function destructive(command: string): Promise<void> {
+  if (!(await confirmDestructive(command))) {
     await closeMainWindow();
     return;
   }

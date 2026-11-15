@@ -259,6 +259,18 @@
         "destructive"
       ],
       "mode": "no-view"
+    },
+    {
+      "name": "find-pane",
+      "title": "Find Pane",
+      "description": "Search every pane and switch to, zoom or kill it",
+      "keywords": [
+        "pane",
+        "find",
+        "search",
+        "switch"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"
