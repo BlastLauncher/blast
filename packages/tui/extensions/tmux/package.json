@@ -2,6 +2,7 @@
   "name": "tmux",
   "description": "One-shot tmux commands for Blast's popup palette.",
   "license": "MIT",
+  "type": "module",
   "icon": "icon.png",
   "commands": [
     {
