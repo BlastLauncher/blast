@@ -5,11 +5,24 @@ export const noColor = (process.env.NO_COLOR ?? "").trim() !== "";
 
 // OpenTUI treats an absent colour as the terminal default; the cast keeps the
 // palette's declared type plain `string` for every synchronous caller.
-export type ThemeName = "dark" | "light" | "mono";
+import { execFileSync } from "node:child_process";
+
+export type ThemeName = "system" | "dark" | "light" | "mono";
+
+function systemTheme(): Exclude<ThemeName, "system"> {
+  if (process.platform !== "darwin") return "dark";
+  try {
+    execFileSync("defaults", ["read", "-g", "AppleInterfaceStyle"], { stdio: "ignore" });
+    return "dark";
+  } catch {
+    return "light";
+  }
+}
 
 export function createTheme(colorless = noColor, name: ThemeName = "dark") {
-  const light = name === "light";
-  const mono = name === "mono";
+  const resolvedName = name === "system" ? systemTheme() : name;
+  const light = resolvedName === "light";
+  const mono = resolvedName === "mono";
   const paint = (value: string): string => (colorless ? (undefined as unknown as string) : value);
   return {
     colors: {
@@ -48,7 +61,9 @@ export function createTheme(colorless = noColor, name: ThemeName = "dark") {
 const requestedTheme = (process.env.BLAST_THEME ?? "dark").toLowerCase();
 export const theme = createTheme(
   noColor,
-  requestedTheme === "light" || requestedTheme === "mono" ? requestedTheme : "dark",
+  requestedTheme === "system" || requestedTheme === "light" || requestedTheme === "mono"
+    ? requestedTheme
+    : "dark",
 );
 
 export type Theme = ReturnType<typeof createTheme>;

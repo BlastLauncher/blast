@@ -49,7 +49,7 @@ Set options before the `@plugin` / `run-shell` line, then reload tmux
 | `@blast-popup-width`  | `90`                           | Popup columns, or a percentage such as `80%`.                              |
 | `@blast-popup-height` | `28`                           | Popup rows, or a percentage.                                               |
 | `@blast-command`      | `bunx @blastlauncher/tui@next` | Command that starts the Blast TUI; `--popup` and the extensions are added. |
-| `@blast-theme`        | `dark`                         | `dark`, `light`, or `mono` palette colours.                                |
+| `@blast-theme`        | `system`                       | `system`, `dark`, `light`, or `mono` palette colours.                      |
 | `@blast-builtin`      | `on`                           | Set to `off` to hide the builtin tmux commands.                            |
 | `@blast-config`       | `~/.config/blast/tmux.json`    | Persistent extension and builtin state.                                    |
 | `@blast-cache-dir`    | `~/.local/share/blast/tui`     | Local cached TUI install used by the default command.                      |
@@ -93,6 +93,10 @@ The palette also includes **Install Raycast Extension** and **Manage Blast
 Extensions**. Install searches the official `raycast/extensions` catalog and
 stores sparse checkouts under `~/.local/share/blast/extensions`; enablement,
 removal and the builtin tmux toggle are stored in `@blast-config`.
+
+Choose **Configure Blast** in the palette to change the theme at runtime. The
+`system` theme follows macOS appearance; other platforms use the dark palette
+for `system`.
 
 Use `Ctrl-P`/`Ctrl-K` to move up and `Ctrl-N`/`Ctrl-J` to move down in lists.
 `Ctrl-A` opens the action panel; `Ctrl-P` still opens a dropdown when the

@@ -38,7 +38,7 @@ fi
 
 blast_command="$(option @blast-command 'bunx @blastlauncher/tui@next')"
 blast_cache_dir="$(option @blast-cache-dir "$HOME/.local/share/blast/tui")"
-blast_theme="$(option @blast-theme dark)"
+blast_theme="$(option @blast-theme system)"
 blast_builtin="$(option @blast-builtin on)"
 blast_config="$(option @blast-config "$HOME/.config/blast/tmux.json")"
 width="$(option @blast-popup-width 90)"

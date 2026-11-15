@@ -29,6 +29,18 @@
         "builtin"
       ],
       "mode": "view"
+    },
+    {
+      "name": "configure",
+      "title": "Configure Blast",
+      "description": "Change the Blast theme and startup behavior",
+      "keywords": [
+        "theme",
+        "appearance",
+        "settings",
+        "configure"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Blast"
