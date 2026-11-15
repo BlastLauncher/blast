@@ -62,6 +62,24 @@ draws its views.
 
 Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
 
+## Start-up
+
+The benchmark also starts fresh `--popup` processes over two fixtures and
+reports the median time from process start to the root's first frame and to
+the launched `hello-list` command's, with an empty (cold) and a reused (warm)
+data dir. Warm launches reuse the command's bundle from `<dataDir>/bundles/`
+and the runtime's Node compile cache from `<dataDir>/compile-cache/`; Bun asks
+Node for its builtin list only when it bundles. Measured on a Linux arm64 VM
+(Bun 1.4.2, Node 24.20), task 0174:
+
+| Medians of 5 | Root, before | Root, after | Command, before | Command, after |
+| ------------ | -----------: | ----------: | --------------: | -------------: |
+| Cold         |       274 ms |      225 ms |          580 ms |         582 ms |
+| Warm         |       278 ms |      224 ms |          585 ms |         378 ms |
+
+The root's remaining time is mostly module loading (OpenTUI ~85 ms); a warm
+launch is ~90 ms to spawn the runtime and ~40 ms to its first scene.
+
 ## Rendering
 
 - Client filtering ranks matches (title, keywords, subtitle) and orders sections
