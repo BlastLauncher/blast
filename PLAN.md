@@ -5,10 +5,9 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M10 — Published and measured is done (2026-11-15): docs install from npm
-`@next` (`3.0.0-alpha.2`); browser demo renders 141/168 browser-runnable
-commands (`compat/BROWSER-SWEEP.md`); coverage against `@raycast/api` 2.11.1.
-Next milestone not chosen yet.
+M11 — tmux palette (issue #90, `docs/decisions/0016`): the TUI becomes a popup
+command palette inside tmux, with a Blast-authored `tmux` extension covering
+Tmux Palette's commands, installed through TPM from `BlastLauncher/tmux-blast`.
 
 ## Milestones
 
@@ -55,6 +54,15 @@ client and doc shows the smaller API.
 - [x] 0172 Browser runtime fixes: extension assets, forbidden fetch headers, triaged errors
 - [x] 0173 Coverage measured against `@raycast/api` 2.11.1 (#89)
 
+### M11 — tmux palette
+
+- [ ] 0174 TUI popup mode: several extension dirs, exit on close, start-up time
+- [ ] 0175 `tmux` extension I: one-shot pane, window, session and system commands
+- [ ] 0176 `tmux` extension II: find/move pane, choose session, rename and new forms
+- [ ] 0177 Publish `@blastlauncher/tui` (bin `blast-tui`, bundled `tmux` extension)
+- [ ] 0178 tmux plugin (`examples/tmux-plugin`) with a real-tmux e2e in CI
+- [ ] 0179 Docs, README and landing for the tmux palette
+
 ## Later (not scheduled)
 
 - Browser sweep: numeric placeholders for number-typed arguments (convert-px-to-vw-vh).
@@ -85,3 +93,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-05: Browser runtime runs extensions only in almostnode's cross-origin sandbox (`0013`).
 - 2026-11-14: Engine owns the launcher flow; embedders only draw views (`0014`).
   \n- 2026-11-14: `3.0.0-alpha.2` published to npm `next`, including `@blastlauncher/web`.\n
+- 2026-11-15: tmux palette: published TUI, `tmux` extension, plugin in its own repo (`0016`).
