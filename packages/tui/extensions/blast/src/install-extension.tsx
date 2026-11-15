@@ -16,6 +16,21 @@ const dataRoot = () => {
 type CatalogEntry = { name: string; type: string };
 
 async function catalog(): Promise<CatalogEntry[]> {
+  // GitHub rate-limits anonymous contents requests aggressively. When the
+  // user has GitHub CLI authentication, use it so the catalog works from a
+  // tmux server even after the anonymous quota is exhausted.
+  try {
+    const { stdout } = await run("gh", [
+      "api",
+      "--paginate",
+      "--slurp",
+      "repos/raycast/extensions/contents/extensions?per_page=100",
+    ]);
+    const pages = JSON.parse(stdout) as CatalogEntry[][];
+    return pages.flat().filter((entry) => entry.type === "dir");
+  } catch {
+    // Fall through for machines that do not have GitHub CLI installed.
+  }
   const entries: CatalogEntry[] = [];
   for (let page = 1; page <= 50; page += 1) {
     const response = await fetch(`${catalogUrl}?per_page=100&page=${page}`, {
