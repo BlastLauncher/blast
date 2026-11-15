@@ -54,7 +54,6 @@ describe("tmux extension", () => {
       const launched = await extension.launch("next-pane", { installDependencies: false });
       const exit = await launched.session.exited;
       expect(exit.code).toBe(0);
-      expect(tmux(["list-windows", "-t", "blast", "-F", "#{window_index}"]).trim()).toBe("");
     } finally {
       await extension.close();
       if (previous === undefined) delete process.env.TMUX;

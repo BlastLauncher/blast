@@ -1,5 +1,5 @@
-import { targeted } from "./tmux.ts";
+import { targetedWindow } from "./tmux.ts";
 
 export default async function Command() {
-  await targeted("new-window", ["-c", "#{pane_current_path}"]);
+  await targetedWindow("new-window", ["-c", "#{pane_current_path}"]);
 }
