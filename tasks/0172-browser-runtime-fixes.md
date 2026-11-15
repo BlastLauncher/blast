@@ -56,7 +56,7 @@ report) is fixed or has a written reason in the report.
 
 ```
 Branch/commit: t3/browser-runtime-fixes-1 @ 3f065c3 (plus d8cd781)
-Verify: pending (run after final browser and e2e checks)
+Verify: `bun run verify` passed (format, lint, typecheck, compat, protocol, fixtures, workflow, tests)
 Done:
 - Forbidden XHR headers are dropped, extension assets/package.json are mapped
   into the sandbox, and browser launch arguments are forwarded; each has unit
