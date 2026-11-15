@@ -1,5 +1,5 @@
 import type { CommandMode } from "@blastlauncher/protocol";
-import { context, transform, type Plugin } from "esbuild";
+import { context, transform, version as esbuildVersion, type Plugin } from "esbuild";
 import { execFileSync } from "node:child_process";
 import {
   access,
@@ -19,6 +19,7 @@ import { builtinModules } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 
+import { openBundleCache } from "./bundle-cache.ts";
 import { checkExtensionDependencies } from "./install-dependencies.ts";
 import {
   loadSharedDependencies,
@@ -39,21 +40,23 @@ export {
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
 // includes npm packages such as undici and ws, which must be bundled for Node.
-const nodeBuiltins = new Set<string>(
-  process.versions.bun
-    ? JSON.parse(
-        execFileSync("node", ["-p", "JSON.stringify(require('node:module').builtinModules)"], {
-          encoding: "utf8",
-        }),
-      )
-    : builtinModules,
-);
+// Asked on first use: spawning Node costs ~60 ms, and a cached launch never bundles.
+let builtins: Set<string> | undefined;
+function nodeBuiltins(): Set<string> {
+  return (builtins ??= new Set<string>(
+    process.versions.bun
+      ? JSON.parse(
+          execFileSync("node", ["-p", "JSON.stringify(require('node:module').builtinModules)"], {
+            encoding: "utf8",
+          }),
+        )
+      : builtinModules,
+  ));
+}
 
 function isNodeBuiltin(specifier: string): boolean {
-  return (
-    nodeBuiltins.has(specifier) ||
-    (specifier.startsWith("node:") && nodeBuiltins.has(specifier.slice(5)))
-  );
+  const names = nodeBuiltins();
+  return names.has(specifier) || (specifier.startsWith("node:") && names.has(specifier.slice(5)));
 }
 
 export class MissingDependencyError extends Error {
@@ -360,6 +363,12 @@ export type BundleOptions = {
   sharedDependencies?: SharedDependencyLoader;
   outDir?: string;
   dataDir?: string;
+  /**
+   * Reuse builds across processes from this directory (one slot per command,
+   * rebuilt when an input changes). The cache owns the output: callers never
+   * remove it. Ignored with `outDir` or custom `sharedDependencies`.
+   */
+  cacheDir?: string;
   /** `false` keeps resolution allowlist-only, as corpus reports need (decision 0002). */
   installedDependencies?: boolean;
 };
@@ -578,9 +587,30 @@ async function bundleEntryWithSignal(
   for (const warning of aliases?.warnings ?? []) console.warn(warning);
   const install =
     options.installedDependencies === false ? undefined : await checkExtensionDependencies(options);
+  const cache =
+    options.cacheDir && !options.outDir && !options.sharedDependencies
+      ? openBundleCache<Omit<BundledCommand, "bundleMs">>(
+          resolve(options.cacheDir),
+          `${await realpath(extensionDir)}\0${entryName}`,
+          {
+            bundler: await bundlerFingerprint(),
+            source,
+            manifest: await readFile(join(extensionDir, "package.json"), "utf8"),
+            aliases: aliases ?? null,
+            install: install ?? null,
+          },
+        )
+      : undefined;
+  const cached = await cache?.read();
+  if (cached) return cached;
   const base = join(tmpdir(), "blast", "builds");
-  if (!options.outDir) await mkdir(base, { recursive: true });
-  const outDir = options.outDir ? resolve(options.outDir) : await mkdtemp(join(base, "command-"));
+  if (!options.outDir && !cache) await mkdir(base, { recursive: true });
+  const outDir = options.outDir
+    ? resolve(options.outDir)
+    : cache
+      ? await cache.stage()
+      : await mkdtemp(join(base, "command-"));
+  const inputs: string[] = [];
   const entry = join(outDir, `${entryName}.mjs`);
   const missing = new Set<string>();
   const nativeModules = new Set<string>();
@@ -647,6 +677,8 @@ async function bundleEntryWithSignal(
     }
     if (nativeModules.size) throw new NativeModuleError(nativeModules);
     if (missing.size) throw new MissingDependencyError(missing);
+    for (const input of Object.keys(bundled.metafile.inputs))
+      inputs.push(resolve(extensionDir, input));
     // After tree shaking utils' monolithic entry, remove unused named imports
     // so Node does not try to link shim symbols the command never uses.
     const output = await transform(bundled.outputFiles[0]!.text, {
@@ -666,7 +698,7 @@ async function bundleEntryWithSignal(
     if (missing.size) throw new MissingDependencyError(missing);
     throw error;
   }
-  return {
+  const result = {
     entry,
     dependencyWarnings:
       shared?.dependencyWarnings(
@@ -697,6 +729,24 @@ async function bundleEntryWithSignal(
       ? { modelProviderDir: extensionDir }
       : {}),
   };
+  if (!cache) return result;
+  try {
+    return await cache.publish(outDir, inputs, result);
+  } catch (error) {
+    await rm(outDir, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+let bundlerPrint: Promise<string> | undefined;
+/** Changes when the bundler or this host's bundling code does (dev edits included). */
+function bundlerFingerprint(): Promise<string> {
+  return (bundlerPrint ??= Promise.all(
+    ["./bundle.ts", "./dependencies.ts", "./tsconfig-paths.ts"].map(async (file) => {
+      const info = await stat(new URL(file, import.meta.url), { bigint: true });
+      return `${file}:${info.size}:${info.mtimeMs}`;
+    }),
+  ).then((files) => [`esbuild ${esbuildVersion}`, ...files].join(" ")));
 }
 
 export function bundleModelProvider(

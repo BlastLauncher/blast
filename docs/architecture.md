@@ -114,7 +114,7 @@ prompts as views (form, install toast, Retry); `close()` ends sessions.
 Bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
 inside the extension directory), then matching installs, then the optional `@blastlauncher/shared-deps` allowlist.
 
-`bundleCommand({ extensionDir, command, outDir?, dataDir? })` returns the entry path,
+`bundleCommand({ extensionDir, command, outDir?, dataDir?, cacheDir? })` returns the entry path,
 extension/command names, manifest mode and argument declarations. Pass those to
 `startCommand({ ...bundled, argumentValues, launchContext, broker })`; the values
 reach the command as its launch props. The host resolves
@@ -151,8 +151,8 @@ same data root as local storage; `--data-dir` applies to both. Callers can also
 supply explicit environment paths. Synchronous `Cache` stores strings under
 `<supportPath>/cache/<namespace?>` with atomic replacement and byte-based LRU
 eviction. Subscriptions notify matching cache instances within the process.
-Callers own bundle output directories (default: a unique directory below
-`os.tmpdir()/blast/builds`) and remove them after sessions exit.
+Callers own bundle output directories (default: a unique directory below `os.tmpdir()/blast/builds`) and remove them after sessions exit.
+With `cacheDir` (extension launches use `<dataDir>/bundles/`) the cache owns the build: one slot per command, reused across processes until the manifest, tsconfig aliases, dependency install, bundler, or a file esbuild read changes. Without an explicit `env`, the runtime child uses Node's compile cache in `<dataDir>/compile-cache/`.
 
 ## Local storage
 
