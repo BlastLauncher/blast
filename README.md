@@ -33,6 +33,20 @@ capability.request → answer capability.result
 **Embed in a web page** with `@blastlauncher/web@next`: one `mount()` call runs
 an extension in a sandbox on a second origin you host.
 
+**Use it in tmux** with the [tmux-blast](https://github.com/BlastLauncher/tmux-blast)
+plugin: <kbd>Ctrl</kbd>+<kbd>Space</kbd> opens a Raycast-style palette in a tmux
+popup with pane, window and session commands, plus any Raycast extension
+directory you add. With [TPM](https://github.com/tmux-plugins/tpm), add this to
+`~/.tmux.conf` and press <kbd>prefix</kbd> <kbd>I</kbd>:
+
+```tmux
+set -g @plugin 'BlastLauncher/tmux-blast'
+```
+
+It needs tmux 3.2+, Bun and `@blastlauncher/tui` `3.0.0-alpha.3` or later,
+which ships in the next prerelease and is not on npm yet. See the
+[tmux palette](./docs/tui.md#tmux-palette) docs for commands and options.
+
 The [quickstart](./docs/quickstart.md) runs each path. The [embedding
 guide](./docs/embedding.md) has the complete API and transcript.
 
@@ -74,7 +88,7 @@ smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
 | `web`                            | Browser runtime for any web page, via `mount()`        |
 | `native`                         | Optional macOS, Windows and Linux handlers             |
 | `cli`                            | `blast run`, a headless debug client                   |
-| `tui`                            | OpenTUI terminal reference client (Bun)                |
+| `tui`                            | OpenTUI terminal client and tmux palette (Bun)         |
 
 ## Development
 

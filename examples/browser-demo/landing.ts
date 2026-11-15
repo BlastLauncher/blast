@@ -882,12 +882,12 @@ try await blast.sendInput(.primary, root: root)`);
             <span class="card-link">Explore web package &rarr;</span>
           </a>
 
-          <a href="https://github.com/blastlauncher/blast/tree/main/packages/tui" class="card">
+          <a href="https://github.com/BlastLauncher/tmux-blast" class="card">
             <div>
-              <h3>Terminal (TUI)</h3>
-              <p>Full keyboard-driven terminal user interface rendering lists, grids, forms, and markdown details.</p>
+              <h3>Terminal and tmux</h3>
+              <p>A keyboard-driven terminal client for lists, grids, forms and markdown details. In tmux it opens as a command palette in a popup, with pane, window and session commands.</p>
             </div>
-            <span class="card-link">Explore TUI &rarr;</span>
+            <span class="card-link">Get the tmux palette &rarr;</span>
           </a>
         </div>
       </div>
