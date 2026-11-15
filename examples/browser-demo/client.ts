@@ -589,6 +589,27 @@ function drawPreferences() {
   preferenceFormVisible = true;
   document.querySelector<HTMLInputElement | HTMLSelectElement>("[data-preference]")?.focus();
 }
+/**
+ * Placeholder launch arguments for the command the page opened with. Only the
+ * browser sweep defines `blastSweepArguments` (like `blastSweepPlaceholders`):
+ * the corpus smoke's values for required arguments. A demo user's launch has
+ * none, and a command launched from it later gets none either.
+ */
+function sweepArguments(source: string, command: string) {
+  const sweep = globalThis as {
+    blastSweepArguments?: { source: string; command: string; values: Record<string, string> };
+  };
+  const placeholder = sweep.blastSweepArguments;
+  if (
+    !placeholder ||
+    placeholder.source !== source ||
+    placeholder.command !== command ||
+    Object.keys(placeholder.values).length === 0
+  )
+    return;
+  document.body.dataset.sweepPlaceholders = "true";
+  return placeholder.values;
+}
 /** The session's `preferenceForm`: show the form; the submit or Back handler answers it. */
 function askPreferences(request: WebPreferenceRequest) {
   // Only the browser sweep defines this (Playwright `addInitScript`); it holds
@@ -733,11 +754,13 @@ function launch(source: string, command: string, row?: RootRow) {
   if (menuLaunching && row) rememberMenuItem(source, command, row);
   const commandTitle =
     extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, command);
+  const args = sweepArguments(source, command);
   // The session draws the stage in this task, before any fetch.
   session = mount(app, {
     ...sandboxOptions,
     source,
     command,
+    ...(args ? { arguments: args } : {}),
     ...(commandTitle ? { commandTitle } : {}),
     fixtures: Object.getOwnPropertyDescriptor(globalThis, "__BLAST_FIXTURES__")?.value === true,
     esbuild: loadEsbuild,

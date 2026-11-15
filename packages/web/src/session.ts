@@ -25,7 +25,13 @@ import {
   type WebStatus,
   type WebView,
 } from "./default-renderer.ts";
-import { commandEntry, fetchExtensionFiles, manifestCommands } from "./extension-files.ts";
+import {
+  commandEntry,
+  extensionAssets,
+  fetchExtensionFiles,
+  manifestCommands,
+  sandboxFiles,
+} from "./extension-files.ts";
 import { createDefaultHandlers, type WebHandlers } from "./handlers.ts";
 import { createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
 import {
@@ -37,7 +43,13 @@ import {
 } from "@blastlauncher/protocol/preference-fields";
 import { loadPrebuiltCommand } from "./prebuilt.ts";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
-import { acquireSandbox, assetUrl, disposeSandbox, type SandboxRuntime } from "./sandbox.ts";
+import {
+  acquireSandbox,
+  assetUrl,
+  disposeSandbox,
+  writeSandboxFiles,
+  type SandboxRuntime,
+} from "./sandbox.ts";
 
 export type { WebHandlers, WebStatus, WebView };
 type PreferenceValues = Record<string, string | number | boolean>;
@@ -61,6 +73,8 @@ export type WebMountOptions = {
   fixtures?: boolean;
   /** Show the extension's commands as the engine root view instead of running one. */
   root?: boolean;
+  /** Manifest argument values for `command` (`LaunchProps.arguments`). */
+  arguments?: Record<string, string>;
   /** Preference values, applied over the manifest defaults and saved values. */
   preferences?: PreferenceValues;
   /** Prebuilt bundle index (usually `/bundles.json`) used before fetching GitHub sources. */
@@ -195,7 +209,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
     }
     if (!root) return undefined;
     const result = root.input(value);
-    for (const effect of result.effects) if (effect.type === "launch") void run(effect.command);
+    for (const effect of result.effects) if (effect.type === "launch") void run(effect.command, {});
     return { events: [], effects: [] };
   };
   const renderer = options.render
@@ -324,7 +338,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
     return supplied;
   }
 
-  async function run(commandName: string) {
+  async function run(commandName: string, args: Record<string, string>) {
     // A command launched from the running one (`launchCommand`) replaces it.
     stopCommand();
     const generation = launches.current();
@@ -340,19 +354,20 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
           )
         : undefined;
       if (!current()) return;
-      let files: Map<string, BrowserBundleFile>;
+      /** The extension's files by `assetRelativePath`, for the sandbox. */
+      let assets: Array<[string, BrowserBundleFile]>;
       let declared: Declared;
       let entry: string;
       let code: string;
       if (built) {
-        files = built.files;
+        assets = [...built.files].map(([path, value]) => [path.replace(/^\//u, ""), value]);
         declared = fromCatalog(built.manifest, commandName);
         entry = `/src/${commandName}.tsx`;
         code = built.code;
       } else {
         const extension = await fetchExtension();
         if (!current()) return;
-        files = extension.files;
+        assets = extensionAssets(extension.files);
         declared = fromManifest(extension.manifest, commandName, source);
         entry = commandEntry(extension.files, commandName);
         setStatus("Installing…", false, true);
@@ -418,27 +433,8 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       const pathSegment = extensionName.replace(/[^A-Za-z0-9._-]/gu, "_") || "extension";
       const supportPath = `/blast/support/${pathSegment}`;
       const assetsPath = `/blast/assets/${pathSegment}`;
-      const vfs = active.getVFS();
-      vfs.mkdirSync(supportPath, { recursive: true });
-      vfs.mkdirSync(assetsPath, { recursive: true });
-      // A marker syncs directories created after the sandbox was initialised.
-      vfs.writeFileSync(`${supportPath}/.keep`, "");
-      vfs.writeFileSync(`${assetsPath}/.keep`, "");
-      for (const [path, value] of files) {
-        if (path.includes("/node_modules/")) continue;
-        const relative = path.startsWith("/assets/")
-          ? path.slice("/assets/".length)
-          : path.startsWith("/src/")
-            ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(path)
-              ? undefined
-              : path.slice("/src/".length)
-            : path.replace(/^\//u, "");
-        if (!relative) continue;
-        const target = `${assetsPath}/${relative}`;
-        vfs.mkdirSync(target.slice(0, target.lastIndexOf("/")), { recursive: true });
-        vfs.writeFileSync(target, value);
-        if (path === "/package.json") vfs.writeFileSync("/blast/assets/package.json", value);
-      }
+      await writeSandboxFiles(active, sandboxFiles(assets, assetsPath, supportPath));
+      if (!current()) return;
 
       const context: CapabilityContext = { extensionName, commandName, source };
       const capabilities = createBrowserCapabilities({
@@ -451,8 +447,8 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         ...(handlers.clipboard ? { clipboard: handlers.clipboard } : {}),
         ...(handlers.openUrl ? { openUrl: handlers.openUrl } : {}),
         status: (text, error) => setStatus(text, error === true),
-        launchCommand: async (_source, command) => {
-          void run(command);
+        launchCommand: async (_source, command, launchArgs) => {
+          void run(command, launchArgs);
         },
         openPreferences: (scope) => {
           if (!options.preferenceForm) {
@@ -461,7 +457,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
           }
           // Saved preferences reach a command when it launches, so it runs again.
           void askPreferences(declared, commandName, scope, { ...values }).then((supplied) => {
-            if (supplied && current()) void run(commandName);
+            if (supplied && current()) void run(commandName, args);
           });
         },
       });
@@ -541,7 +537,13 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       port.postMessage({
         type: "init",
         protocol: 1,
-        command: { extension: extensionName, name: commandName, entry, mode },
+        command: {
+          extension: extensionName,
+          name: commandName,
+          entry,
+          mode,
+          ...(Object.keys(args).length ? { arguments: { ...args } } : {}),
+        },
         preferences: { ...values },
         environment: {
           extensionName,
@@ -570,7 +572,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       });
       if (!options.root) {
         const command = options.command ?? manifestCommands((await fetchExtension()).manifest)[0];
-        if (!closed) await run(command ?? "index");
+        if (!closed) await run(command ?? "index", { ...options.arguments });
         return;
       }
       const manifest = (await fetchExtension()).manifest;

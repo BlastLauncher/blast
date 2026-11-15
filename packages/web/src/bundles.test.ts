@@ -80,8 +80,9 @@ test("prebuilt manifests preserve declared launch arguments", () => {
           commands: { "custom-rectangle": [] },
           arguments: {
             "custom-rectangle": [
-              { name: "width", required: true },
+              { name: "width", required: true, type: "text" },
               { name: "height", required: true },
+              { name: "unit", required: false, type: "dropdown", values: ["px", 1, "em"] },
             ],
           },
         },
@@ -91,8 +92,9 @@ test("prebuilt manifests preserve declared launch arguments", () => {
   expect(
     index.bundles["pinch-svg/custom-rectangle"]?.manifest?.arguments?.["custom-rectangle"],
   ).toEqual([
-    { name: "width", required: true },
+    { name: "width", required: true, type: "text" },
     { name: "height", required: true },
+    { name: "unit", required: false, type: "dropdown", values: ["px", "em"] },
   ]);
   expect(() =>
     parseBundleIndex({

@@ -91,6 +91,56 @@ export async function fetchExtensionFiles(
   return { files, manifest, root, ...(typeof lockfile === "string" ? { lockfile } : {}) };
 }
 
+/**
+ * Where an extension file lives under the command's assets directory, or
+ * undefined when the bundle already holds it: `assets/*` sit at its top,
+ * `src/` data files (not code) keep their place below it, and other files
+ * (`package.json`) keep their path.
+ */
+export function assetRelativePath(path: string): string | undefined {
+  if (path.includes("/node_modules/")) return undefined;
+  if (path.startsWith("/assets/")) return path.slice("/assets/".length) || undefined;
+  if (path.startsWith("/src/"))
+    return /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(path)
+      ? undefined
+      : path.slice("/src/".length);
+  return path.replace(/^\//u, "") || undefined;
+}
+
+/** An extension's files keyed by `assetRelativePath`, as prebuilt bundles list them. */
+export function extensionAssets(
+  files: ReadonlyMap<string, BrowserFile>,
+): Array<[string, BrowserFile]> {
+  return [...files].flatMap(([path, value]): Array<[string, BrowserFile]> => {
+    const relative = assetRelativePath(path);
+    return relative ? [[relative, value]] : [];
+  });
+}
+
+/**
+ * The files a command's sandbox needs before it runs: the extension's assets
+ * (keyed by `assetRelativePath`) under `assetsPath` (decision 0013), its
+ * `package.json` also one level up (bundled code reads
+ * `__dirname/../package.json`), and markers that create the assets and support
+ * directories.
+ */
+export function sandboxFiles(
+  assets: Iterable<readonly [string, BrowserFile]>,
+  assetsPath: string,
+  supportPath: string,
+): Array<[string, BrowserFile]> {
+  const result: Array<[string, BrowserFile]> = [
+    [`${supportPath}/.keep`, ""],
+    [`${assetsPath}/.keep`, ""],
+  ];
+  for (const [relative, value] of assets) {
+    result.push([`${assetsPath}/${relative}`, value]);
+    if (relative === "package.json")
+      result.push([`${assetsPath.slice(0, assetsPath.lastIndexOf("/"))}/package.json`, value]);
+  }
+  return result;
+}
+
 /** The source file a command's bundle starts from. */
 export function commandEntry(files: Map<string, BrowserFile>, name: string): string {
   for (const extension of ["tsx", "ts", "jsx", "js"]) {

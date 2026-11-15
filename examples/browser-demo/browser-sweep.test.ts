@@ -5,7 +5,10 @@ import {
   contentSelector,
   credentialFailure,
   formFieldSelector,
+  missingBuiltin,
+  placeholderArguments,
   placeholderPreferences,
+  unsuppliedArguments,
   recordCapabilities,
   type CapabilityCall,
 } from "./browser-sweep.ts";
@@ -321,6 +324,14 @@ describe("browserLimitCapability", () => {
   });
 });
 
+describe("missingBuiltin", () => {
+  test("names a Node built-in the sandbox cannot load, not a missing package", () => {
+    expect(missingBuiltin(["Ready", "Cannot find module 'sqlite'"])).toBe("node:sqlite");
+    expect(missingBuiltin(["Cannot find module 'node:sqlite'"])).toBe("node:sqlite");
+    expect(missingBuiltin(["Cannot find module 'left-pad'"])).toBeUndefined();
+  });
+});
+
 describe("credentialFailure", () => {
   test("reports the first remote 401/403/404", () => {
     expect(
@@ -331,6 +342,12 @@ describe("credentialFailure", () => {
       ]),
     ).toBe("HTTP 403 api.example.com");
     expect(credentialFailure([{ status: 404, url: "http://localhost/x" }])).toBeUndefined();
+    // A placeholder base URL is relative and lands on the sweep's sandbox server.
+    expect(
+      credentialFailure([
+        { status: 404, url: "http://127.0.0.1:4178/blast-sandbox/blast-smoke/api/books" },
+      ]),
+    ).toBe("HTTP 404 placeholder URL");
   });
 });
 
@@ -359,6 +376,29 @@ describe("placeholderPreferences", () => {
       ),
     ).toEqual({ limit: "5", token: "blast-smoke", unit: "celsius", verbose: false });
     expect(placeholderPreferences(undefined, "index")).toEqual({});
+  });
+});
+
+describe("placeholderArguments", () => {
+  test("required arguments get the corpus smoke placeholders", () => {
+    const manifest = {
+      arguments: {
+        "custom-rectangle": [
+          { name: "width", required: true, type: "text" },
+          { name: "unit", required: true, type: "dropdown", values: ["px", "em"] },
+          { name: "note", required: false, type: "text" },
+          { name: "mode", required: true, type: "dropdown" },
+        ],
+      },
+    };
+    expect(placeholderArguments(manifest, "custom-rectangle")).toEqual({
+      unit: "px",
+      width: "blast",
+    });
+    // A dropdown without options has no placeholder; it stays a missing argument.
+    expect(unsuppliedArguments(manifest, "custom-rectangle")).toEqual(["mode"]);
+    expect(placeholderArguments(undefined, "index")).toEqual({});
+    expect(unsuppliedArguments(manifest, "index")).toEqual([]);
   });
 });
 

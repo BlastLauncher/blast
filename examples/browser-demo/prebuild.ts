@@ -5,9 +5,11 @@ import * as esbuild from "esbuild";
 import { bundleForBrowser } from "../../packages/web/src/browser-bundle.ts";
 import { installForBrowser, type BrowserFetch } from "../../packages/web/src/browser-install.ts";
 import { aliases, sharedModules } from "../../packages/web/src/bundle-config.ts";
+import { assetRelativePath } from "../../packages/web/src/extension-files.ts";
 import {
   bundleKey,
   type BundleIndex,
+  type CatalogArgument,
   type CatalogManifest,
 } from "../../packages/web/src/bundles.ts";
 import { parsePreferences } from "@blastlauncher/protocol/preference-fields";
@@ -179,7 +181,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
         `${extension.name} preferences`,
       );
       const manifestCommands: Record<string, ReturnType<typeof parsePreferences>> = {};
-      const manifestArguments: Record<string, Array<{ name: string; required: boolean }>> = {};
+      const manifestArguments: Record<string, CatalogArgument[]> = {};
       const manifestModes: Record<
         string,
         import("../../packages/protocol/src/index.ts").CommandMode
@@ -197,9 +199,20 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
           const argumentsForCommand = declaredArguments.flatMap((argument) => {
             if (!argument || typeof argument !== "object") return [];
             const entry = argument as Record<string, unknown>;
-            return typeof entry.name === "string"
-              ? [{ name: entry.name, required: entry.required === true }]
+            if (typeof entry.name !== "string") return [];
+            const values = Array.isArray(entry.data)
+              ? entry.data.flatMap((option: { value?: unknown } | null) =>
+                  typeof option?.value === "string" ? [option.value] : [],
+                )
               : [];
+            return [
+              {
+                name: entry.name,
+                required: entry.required === true,
+                ...(typeof entry.type === "string" ? { type: entry.type } : {}),
+                ...(values.length ? { values } : {}),
+              },
+            ];
           });
           if (argumentsForCommand.length) manifestArguments[declaration.name] = argumentsForCommand;
           const mode = declaration.mode;
@@ -241,14 +254,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
           await writeFile(join(output, relativePath), bytes);
           const assetEntries: Record<string, { path: string; bytes: number; sha256: string }> = {};
           for (const [sourcePath, sourceValue] of files) {
-            if (sourcePath.includes("/node_modules/")) continue;
-            const assetPath = sourcePath.startsWith("/assets/")
-              ? sourcePath.slice("/assets/".length)
-              : sourcePath.startsWith("/src/")
-                ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(sourcePath)
-                  ? undefined
-                  : sourcePath.slice("/src/".length)
-                : sourcePath.replace(/^\//u, "");
+            const assetPath = assetRelativePath(sourcePath);
             if (!assetPath) continue;
             const relativeAssetPath = `bundles/${extension.name}/files/${assetPath}`;
             const assetBytes = Buffer.from(sourceValue);

@@ -56,6 +56,9 @@ Hooks for hosts with their own UI (`examples/browser-demo` uses all of them):
   with code 0 (`exit`); `view` is its last view (HUD, toast). No-view commands
   report `exit` only. Without it the session returns to its root.
 - `commandTitle`: navigation title until the command sets one.
+- `arguments`: manifest argument values for `command` (`LaunchProps.arguments`).
+  The session does not ask for missing required arguments. A command launched
+  with `launchCommand({ arguments })` gets the values it was given.
 - `esbuild` may be a loader (`() => Promise<esbuild>`) so the wasm loads only
   when a command needs bundling.
 - `bundlesUrl`: a prebuilt `bundles.json` (see `examples/browser-demo/prebuild.ts`).

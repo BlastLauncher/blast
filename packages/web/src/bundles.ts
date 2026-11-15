@@ -1,7 +1,14 @@
 import { parsePreferences, type Preference } from "@blastlauncher/protocol/preference-fields";
 import type { CommandMode } from "@blastlauncher/protocol";
 
-export type CatalogArgument = { name: string; required: boolean };
+export type CatalogArgument = {
+  name: string;
+  required: boolean;
+  /** The manifest argument type (`text`, `password`, `dropdown`). */
+  type?: string;
+  /** A dropdown argument's option values, in order. */
+  values?: string[];
+};
 export type CatalogManifest = {
   name: string;
   preferences: Preference[];
@@ -130,7 +137,15 @@ export function parseBundleIndex(value: unknown): BundleIndex {
           const entry = argument as Record<string, unknown> | null;
           if (!entry || typeof entry.name !== "string" || typeof entry.required !== "boolean")
             throw new Error(`Invalid bundle manifest argument: ${key}/${name}`);
-          return { name: entry.name, required: entry.required };
+          const values = Array.isArray(entry.values)
+            ? entry.values.filter((option): option is string => typeof option === "string")
+            : [];
+          return {
+            name: entry.name,
+            required: entry.required,
+            ...(typeof entry.type === "string" ? { type: entry.type } : {}),
+            ...(values.length ? { values } : {}),
+          };
         });
       }
       manifest = {

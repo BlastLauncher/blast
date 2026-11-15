@@ -1,69 +1,52 @@
 # Browser catalog sweep
 
-Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-14; 237 command records; wall time 176.0 s.
+Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-15; 170 command records; wall time 118.6 s.
 
-Rendered: **134 / 170** (104 rendered + 30 rendered with placeholder preferences) of 237 commands − 67 browser-limit.
-Not rendered: 15 Blast failure(s), 16 needing real credentials.
+Rendered: **141 / 168** (108 rendered + 33 rendered with placeholder preferences) of 170 commands − 2 browser-limit.
+Not rendered: 5 Blast failure(s), 16 needing real credentials.
 
 ## Totals
 
-- browser-limit: 67 command(s)
+- browser-limit: 2 command(s)
 - completed: 4 command(s)
-- empty: 1 command(s)
-- missing-arguments: 1 command(s)
+- empty: 2 command(s)
 - needs-credentials: 16 command(s)
-- rendered: 104 command(s)
-- rendered-with-placeholders: 30 command(s)
-- runtime-error:Cannot find module 'sqlite': 1 command(s)
-- runtime-error:Cannot read properties of undefined (reading '$and'): 1 command(s)
-- runtime-error:ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json': 1 command(s)
-- runtime-error:ENOENT: no such file or directory, open '/blast/assets/package.json': 1 command(s)
-- runtime-error:ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json': 1 command(s)
+- rendered: 108 command(s)
+- rendered-with-placeholders: 33 command(s)
 - runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command.: 1 command(s)
-- runtime-error:Failed to load resource: the server responded with a status of 404 (Not Found): 2 command(s)
 - runtime-error:Height must be an integer: 1 command(s)
-- runtime-error:Refused to set unsafe header "user-agent": 3 command(s)
-- runtime-error:Unexpected end of JSON input: 1 command(s)
 - runtime-error:Width must be an integer: 1 command(s)
+- timeout: 2 command(s)
 
 ## Blast failures
 
-| Signature                                                                                                   | Commands | Examples                                                                           |
-| ----------------------------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------------------------------- |
-| runtime-error:Refused to set unsafe header "user-agent"                                                     |        3 | `humaans/people`, `splatoon/splatoon-2-schedules`, `splatoon/splatoon-3-schedules` |
-| runtime-error:Failed to load resource: the server responded with a status of 404 (Not Found)                |        2 | `bookstack/show-all-books`, `bookstack/show-all-shelves`                           |
-| missing-arguments                                                                                           |        1 | `pinch-svg/custom-rectangle`                                                       |
-| runtime-error:Cannot find module 'sqlite'                                                                   |        1 | `ego-lite/search-bookmarks`                                                        |
-| runtime-error:Cannot read properties of undefined (reading '$and')                                          |        1 | `hyrule-compendium-search/getEntry`                                                |
-| runtime-error:ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json'                  |        1 | `dot-new/index`                                                                    |
-| runtime-error:ENOENT: no such file or directory, open '/blast/assets/package.json'                          |        1 | `trenit/departures-and-arrivals`                                                   |
-| runtime-error:ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json'   |        1 | `sf-symbols-search/index`                                                          |
-| runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command. |        1 | `ring-intercom/unlock`                                                             |
-| runtime-error:Height must be an integer                                                                     |        1 | `convert-px-to-vw-vh/height`                                                       |
-| runtime-error:Unexpected end of JSON input                                                                  |        1 | `uk-bank-holidays/index`                                                           |
-| runtime-error:Width must be an integer                                                                      |        1 | `convert-px-to-vw-vh/width`                                                        |
+| Signature                                                                                                   | Commands | Examples                                            |
+| ----------------------------------------------------------------------------------------------------------- | -------: | --------------------------------------------------- |
+| timeout                                                                                                     |        2 | `sf-symbols-search/index`, `uk-bank-holidays/index` |
+| runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command. |        1 | `ring-intercom/unlock`                              |
+| runtime-error:Height must be an integer                                                                     |        1 | `convert-px-to-vw-vh/height`                        |
+| runtime-error:Width must be an integer                                                                      |        1 | `convert-px-to-vw-vh/width`                         |
 
 ## Needs credentials
 
 Ran with placeholder preferences, then the service refused them.
 
-| Response                 | Commands | Examples                                                                                                           |
-| ------------------------ | -------: | ------------------------------------------------------------------------------------------------------------------ |
-| HTTP 404 api.keygen.sh   |        7 | `keygen/api-tokens`, `keygen/api-usage`, `keygen/environments`, `keygen/licenses`, `keygen/policies`               |
-| HTTP 401 api.v0.dev      |        4 | `v0-by-vercel/manage-profiles`, `v0-by-vercel/new-chat`, `v0-by-vercel/view-billing`, `v0-by-vercel/view-projects` |
-| HTTP 401 app.humaans.io  |        3 | `humaans/clock-in`, `humaans/clock-out`, `humaans/holidays`                                                        |
-| HTTP 401 api.hevyapp.com |        2 | `hevy/search-routines`, `hevy/search-workouts`                                                                     |
+| Response                 | Commands | Examples                                                                                             |
+| ------------------------ | -------: | ---------------------------------------------------------------------------------------------------- |
+| HTTP 404 api.keygen.sh   |        7 | `keygen/api-tokens`, `keygen/api-usage`, `keygen/environments`, `keygen/licenses`, `keygen/policies` |
+| HTTP 401 api.v0.dev      |        3 | `v0-by-vercel/new-chat`, `v0-by-vercel/view-billing`, `v0-by-vercel/view-projects`                   |
+| HTTP 401 api.hevyapp.com |        2 | `hevy/search-routines`, `hevy/search-workouts`                                                       |
+| HTTP 401 app.humaans.io  |        2 | `humaans/clock-in`, `humaans/clock-out`                                                              |
+| HTTP 404 placeholder URL |        2 | `bookstack/show-all-books`, `bookstack/show-all-shelves`                                             |
 
 ## Browser limits
 
 Denied by the browser host (capability log), not by Blast's runtime.
 
-| Capability             | Commands | Examples                                                                                                                                                          |
-| ---------------------- | -------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| applications.list      |       53 | `appgrid/index`, `ego-lite/new-tab`, `flighty/view-flights`, `menucloak/open-settings`, `menucloak/toggle`                                                        |
-| selection.text         |        8 | `8-divide/divide-by-8`, `cangjie/cangjie`, `color-studio-picker/index`, `fix-helper/fix-parser`, `invisible-text-detector/analyze-clipboard-invisible-characters` |
-| network                |        5 | `gradle-plugins/index`, `jisho/search`, `leetcode/daily-challenge`, `scrapbook/view-recent-posts`, `workflowy-inbox/view`                                         |
-| applications.frontmost |        1 | `input-source-switcher/form`                                                                                                                                      |
+| Capability  | Commands | Examples                            |
+| ----------- | -------: | ----------------------------------- |
+| network     |        1 | `hyrule-compendium-search/getEntry` |
+| node:sqlite |        1 | `ego-lite/search-bookmarks`         |
 
 ## Excluded from the demo
 
