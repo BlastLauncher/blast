@@ -39,12 +39,18 @@ function lastLogLine(logs: readonly { message: string }[]): string | undefined {
 export function App({
   session,
   onQuit,
+  onClose,
   onExit,
   onRelaunch,
   hudDurationMs,
 }: {
   session: Session;
   onQuit: () => void;
+  /**
+   * The command closed the window: `closeMainWindow()`, or a no-view command
+   * done after its HUD. Defaults to `onQuit`; a popup quits the whole TUI.
+   */
+  onClose?: () => void;
   /** Ctrl-C, which quits the whole TUI even when a picker owns the session. */
   onExit?: () => void;
   /** Recover a crashed command without leaving the picker. */
@@ -69,6 +75,8 @@ export function App({
   const settled = useRef(false);
   const onQuitRef = useRef(onQuit);
   onQuitRef.current = onQuit;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const onExitRef = useRef(onExit);
   onExitRef.current = onExit;
   const onRelaunchRef = useRef(onRelaunch);
@@ -78,16 +86,26 @@ export function App({
     quitRequested.current = true;
     onQuitRef.current();
   };
+  const requestClose = () => {
+    if (!onCloseRef.current) return requestQuit();
+    if (quitRequested.current) return;
+    quitRequested.current = true;
+    onCloseRef.current();
+  };
   // A runtime that exits on its own is a no-view command: quit once its HUD
   // (if any) has gone. A failed runtime stays actionable until back/relaunch.
   const quitIfSettled = () => {
-    if (settled.current && !controller.view().feedback.hud) requestQuit();
+    if (settled.current && !controller.view().feedback.hud) requestClose();
   };
-  const dispatch = (result: ControllerResult) => {
+  // A scene only quits through `Navigation.props.closeMainWindow`; inputs
+  // quit by going back from the command's root.
+  const dispatch = (result: ControllerResult, fromScene = false) => {
     for (const out of result.events) session.sendEvent(out.node, out.handler, out.args);
     for (const effect of result.effects) {
-      if (effect.type === "quit") requestQuit();
-      else {
+      if (effect.type === "quit") {
+        if (fromScene) requestClose();
+        else requestQuit();
+      } else {
         const timer = setTimeout(() => {
           timers.current.delete(timer);
           dispatch(controller.tick(effect.token));
@@ -118,7 +136,7 @@ export function App({
       if (next === applied) return;
       applied = next;
       setScene(next);
-      dispatch(controller.scene(next));
+      dispatch(controller.scene(next), true);
     };
     if (session.latestScene) apply(session.latestScene);
     const stopScenes = session.scenes(apply);

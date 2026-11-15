@@ -48,7 +48,7 @@ if (args.kind === "usage") {
   }
 } else {
   // Launcher mode: the engine root lists every extension's commands; launch
-  // one and return.
+  // one and return, or quit once it closes the window in popup mode.
   let quit!: () => void;
   const finished = new Promise<void>((resolve) => {
     quit = resolve;
@@ -62,6 +62,7 @@ if (args.kind === "usage") {
     root.render(
       <CommandSession
         extensionDir={args.extensionDirs}
+        popup={args.popup}
         handlers={handlers}
         onExit={(crashed) => {
           // Only a crashed last launch makes the whole TUI exit non-zero.

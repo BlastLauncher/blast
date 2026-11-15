@@ -1,10 +1,15 @@
 # Terminal client (`packages/tui`)
 
 ```bash
-bun run tui <extensionDir> [command] [--native]
+bun run tui [--popup] [--native] <extensionDir>...
+bun run tui [--native] <extensionDir> <command>
 ```
 
-A `[command]` opens it directly; otherwise the engine's root view lists commands. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
+The engine's root view lists the commands of every given extension. One
+directory plus a `<command>` name (not an existing directory) opens that
+command directly. `--popup` quits once a command is done (see Launcher), for
+`tmux display-popup -E`. `--native` enables system clipboard/paste, URL/file
+opens, file-manager reveal and trash.
 
 ## Keys
 
@@ -32,15 +37,17 @@ A `[command]` opens it directly; otherwise the engine's root view lists commands
 
 ## Launcher
 
-`bun run tui <extensionDir>` draws the engine's root view (`engine.root`,
-decision 0014): commands with `title`, `subtitle` (else `description`) and
-mode. The engine ranks, prompts and installs; the TUI draws its views.
+`bun run tui <extensionDir>...` draws the engine's root view (`engine.root`,
+decision 0014) over every directory: commands with `title`, `subtitle` (else
+`description`) and mode. The engine ranks, prompts and installs; the TUI
+draws its views.
 
 - Typing searches title, subtitle and name; ↑ / ↓ move; Enter opens; Ctrl-K
   lists Open / Configure Command; Ctrl-E (⌃⇧, / ⌘⇧, where delivered) opens
   **Configure <command>**, saved without launching. Esc / Ctrl-C quit.
-- The manifest is re-read while open (debounced `fs.watch`): edits show up
-  live; a broken manifest shows `Manifest: …` and keeps the last good list.
+- Manifests are re-read while open (debounced `fs.watch`): edits show up
+  live; a broken manifest shows `Manifest: …` (prefixed with its directory
+  when there are several) and keeps the last good list.
 - Launching runs `startLaunchFlow`: missing required preferences and arguments
   become one **Set up <command>** form; dependencies install as a progress
   view with Retry on failure (under `<dataDir>/deps/`, decision 0002).
@@ -49,6 +56,9 @@ mode. The engine ranks, prompts and installs; the TUI draws its views.
   with the same arguments. `open*Preferences` returns and opens Configure.
   Ctrl-C quits from anywhere; the process exits 1 only if the last launched
   command crashed. `--native` handlers reach every launched command.
+- `--popup` (decision 0016): `closeMainWindow()` and a no-view command
+  finishing after its HUD quit with exit 0 instead of returning; Esc at a
+  command's root still returns, and Esc at the root quits.
 
 Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
 
@@ -67,7 +77,8 @@ Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/p
   (sections included) in a filterable panel, Enter sends `onChange` with the
   chosen value and Esc closes. The runtime owns the dropdown value.
 - Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })`
-  and `clearSearchBar()` clear the input; `closeMainWindow()` quits.
+  and `clearSearchBar()` clear the input; `closeMainWindow()` leaves the
+  command (back to the root, or quits with `--popup`).
 - `menu-bar` commands render their `MenuBarExtra` as a navigable menu:
   `title`/`tooltip` head the window, Sections are headers, and Items (title,
   subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc

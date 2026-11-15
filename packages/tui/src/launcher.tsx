@@ -40,9 +40,12 @@ const message = (error: unknown) => (error instanceof Error ? error.message : St
  * Esc at a command's root, a no-view command finishing and the crash screen
  * return to the root (selection kept); Ctrl-C quits from anywhere. The process
  * exits 1 only when the last launched command crashed and the user then quits.
+ * In `popup` mode (decision 0016) a command closing the window
+ * (`closeMainWindow()`, or a no-view command done after its HUD) quits too.
  */
 export function CommandSession({
   extensionDir,
+  popup = false,
   dataDir,
   engine: suppliedEngine,
   hudDurationMs,
@@ -52,6 +55,8 @@ export function CommandSession({
 }: {
   /** One extension or several; the root lists every command of each. */
   extensionDir: string | readonly string[];
+  /** Quit once a command closes the window, for `tmux display-popup -E`. */
+  popup?: boolean;
   dataDir?: string;
   /** Opens the extension on this engine instead of a new one (left open on unmount). */
   engine?: Engine;
@@ -271,6 +276,7 @@ export function CommandSession({
         key={screen.id}
         session={screen.session}
         onQuit={screen.leave}
+        {...(popup ? { onClose: quit } : {})}
         onExit={quit}
         onRelaunch={screen.relaunch}
         {...(hudDurationMs === undefined ? {} : { hudDurationMs })}
