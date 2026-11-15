@@ -1,6 +1,6 @@
 {
   "name": "tmux",
-  "description": "One-shot tmux commands for Blast's popup palette.",
+  "description": "tmux commands and views for Blast's popup palette.",
   "license": "MIT",
   "type": "module",
   "icon": "icon.png",
@@ -259,6 +259,83 @@
         "destructive"
       ],
       "mode": "no-view"
+    },
+    {
+      "name": "find-pane",
+      "title": "Find Pane",
+      "description": "Search every pane and switch to, zoom or kill it",
+      "keywords": [
+        "pane",
+        "find",
+        "search",
+        "switch"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "move-pane",
+      "title": "Move Pane to…",
+      "description": "Move the target pane into another window or a new one",
+      "keywords": [
+        "pane",
+        "move",
+        "join",
+        "window"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "rename-pane",
+      "title": "Rename Pane",
+      "description": "Set the target pane's title",
+      "keywords": [
+        "pane",
+        "rename",
+        "title"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "rename-window",
+      "title": "Rename Window",
+      "description": "Rename the target window",
+      "keywords": [
+        "window",
+        "rename"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "rename-session",
+      "title": "Rename Session",
+      "description": "Rename the target session",
+      "keywords": [
+        "session",
+        "rename"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "new-session",
+      "title": "New Session",
+      "description": "Create a session and switch to it",
+      "keywords": [
+        "session",
+        "new",
+        "create"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "choose-session",
+      "title": "Choose Session",
+      "description": "Switch to, rename, kill or create a session",
+      "keywords": [
+        "session",
+        "choose",
+        "switch"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"
