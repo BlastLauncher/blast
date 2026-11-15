@@ -460,6 +460,57 @@ describe("tmux extension", () => {
     30_000,
   );
 
+  test.skipIf(!available)(
+    "choose session lists sessions, switches, renames, kills after confirmation and creates",
+    async () => {
+      await withServer(
+        async ({ tmux, extension }) => {
+          tmux(["new-session", "-d", "-s", "other", "-x", "80", "-y", "24"]);
+          tmux(["new-window", "-t", "other:"]);
+          const sessions = () => tmux(["list-sessions", "-F", "#{session_name}"]).split("\n");
+          const client = () => tmux(["list-clients", "-F", "#{client_session}"]);
+
+          await inList(extension, "choose-session", async (opened, items) => {
+            expect(items.map((row) => row.props.title)).toEqual(sessions());
+            expect(item(items, "blast").props.accessories).toEqual([
+              { text: "1 window" },
+              { tag: "attached" },
+            ]);
+            expect(item(items, "other").props.accessories).toEqual([{ text: "2 windows" }]);
+            act(opened, item(items, "other"), "Switch to Session");
+            await closed(opened);
+          });
+          expect(client()).toBe("other");
+
+          await inList(extension, "choose-session", async (opened, items) => {
+            act(opened, item(items, "blast"), "Rename Session");
+            await field(opened, "name", "blast");
+            await submit(opened, { name: "renamed" });
+            await closed(opened);
+          });
+          expect(sessions().toSorted()).toEqual(["other", "renamed"]);
+
+          await inList(extension, "choose-session", async (opened, items) => {
+            act(opened, item(items, "renamed"), "Kill Session");
+            await answer(opened, true);
+            await closed(opened);
+          });
+          expect(sessions()).toEqual(["other"]);
+
+          await inList(extension, "choose-session", async (opened, items) => {
+            act(opened, item(items, "other"), "New Session");
+            await submit(opened, { name: "made" });
+            await closed(opened);
+          });
+          expect(sessions().toSorted()).toEqual(["made", "other"]);
+          expect(client()).toBe("made");
+        },
+        { client: true },
+      );
+    },
+    30_000,
+  );
+
   test.skipIf(!available)("shows a Not inside tmux failure toast without TMUX", async () => {
     // No inheritEnv: TMUX stays withheld even when the tests run inside tmux.
     const extension = openExtension({ extensionDir });

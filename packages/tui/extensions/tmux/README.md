@@ -1,7 +1,9 @@
 # Tmux Palette
 
-This Blast-authored extension provides one-shot tmux commands for a popup
-palette. The plugin should pass the pane that opened the popup as
+This Blast-authored extension provides tmux commands for a popup palette:
+one-shot pane, window, session and system commands, plus Raycast views (lists
+and forms) to find, move and rename panes, choose sessions and create one, so
+nothing depends on tmux's own prompts. The plugin should pass the pane that opened the popup as
 `BLAST_TMUX_TARGET` (for example, `TMUX_PANE` captured before `display-popup`).
 Commands use that target so they operate on the invoking pane, window, client,
 or session instead of the popup pane. When the variable is absent, tmux's

@@ -1,6 +1,6 @@
 {
   "name": "tmux",
-  "description": "One-shot tmux commands for Blast's popup palette.",
+  "description": "tmux commands and views for Blast's popup palette.",
   "license": "MIT",
   "type": "module",
   "icon": "icon.png",
@@ -323,6 +323,17 @@
         "session",
         "new",
         "create"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "choose-session",
+      "title": "Choose Session",
+      "description": "Switch to, rename, kill or create a session",
+      "keywords": [
+        "session",
+        "choose",
+        "switch"
       ],
       "mode": "view"
     }
