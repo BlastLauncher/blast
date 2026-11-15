@@ -17,7 +17,7 @@ import {
 } from "node:fs/promises";
 import { builtinModules } from "node:module";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
 
 import { openBundleCache } from "./bundle-cache.ts";
 import { checkExtensionDependencies } from "./install-dependencies.ts";
@@ -741,10 +741,14 @@ async function bundleEntryWithSignal(
 let bundlerPrint: Promise<string> | undefined;
 /** Changes when the bundler or this host's bundling code does (dev edits included). */
 function bundlerFingerprint(): Promise<string> {
+  // Source in development, `dist/*.js` in a release build.
+  const suffix = extname(new URL(import.meta.url).pathname);
   return (bundlerPrint ??= Promise.all(
-    ["./bundle.ts", "./dependencies.ts", "./tsconfig-paths.ts"].map(async (file) => {
-      const info = await stat(new URL(file, import.meta.url), { bigint: true });
-      return `${file}:${info.size}:${info.mtimeMs}`;
+    ["bundle", "dependencies", "tsconfig-paths"].map(async (name) => {
+      const info = await stat(new URL(`./${name}${suffix}`, import.meta.url), {
+        bigint: true,
+      }).catch(() => undefined);
+      return `${name}:${info?.size}:${info?.mtimeNs}`;
     }),
   ).then((files) => [`esbuild ${esbuildVersion}`, ...files].join(" ")));
 }
