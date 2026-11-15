@@ -1,7 +1,7 @@
 ---
 id: "0178"
 title: "tmux plugin (examples/tmux-plugin) with a real-tmux e2e in CI"
-status: doing
+status: review
 milestone: M11
 depends: ["0174", "0177"]
 ---
@@ -35,10 +35,10 @@ opened it and the popup closes.
 
 ## Acceptance
 
-- [ ] `bun run example:tmux:e2e` passes locally; CI job runs it.
-- [ ] Plugin README: install via TPM and manually, options table,
+- [x] `bun run example:tmux:e2e` passes locally; CI job runs it.
+- [x] Plugin README: install via TPM and manually, options table,
       requirements (tmux 3.2+, Bun), credit to Tmux Palette for the command list.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -47,8 +47,25 @@ opened it and the popup closes.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/add-tmux-plugin-e2e @ d99e763 (plus this handoff commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 117.5s
 Done:
+- examples/tmux-plugin: blast.tmux (TPM entry, all six options) binds
+  run-shell -b scripts/palette.sh, which checks Bun (PATH, then ~/.bun/bin;
+  otherwise a tmux message), sizes the popup and opens display-popup -E with
+  BLAST_TMUX_TARGET=session:window.pane exported in the command string.
+- scripts/tmux-plugin-e2e.ts (bun run example:tmux:e2e): isolated -L servers,
+  a client attached from a pane on a second server; checks C-Space -> "split h"
+  -> Enter splits the opening pane and leaves no popup process or palette text,
+  @blast-key off binds nothing, @blast-key-table prefix binds there, and
+  missing Bun shows the message. Passed 4/4 locally on tmux 3.2a; a broken
+  target makes it fail at the split wait.
+- CI: new tmux-plugin job in ci.yml (installs tmux, runs the e2e).
+- README (TPM + manual install, options table, requirements, credit) and LICENSE (MIT).
 Not done / risks:
+- CI job not yet run (workers do not push); runners get a newer tmux than 3.2a.
+- tmux 3.2a has no display-popup -e or #{popup_active}, and its display-message
+  -c takes no client argument; the binding passes #{client_width/height}, and
+  "no popup" is checked as no server child besides pane shells (pgrep, Linux).
+- Tmux Palette is credited by name only; no upstream URL was found in the repo.
 ```
