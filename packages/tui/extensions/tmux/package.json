@@ -283,6 +283,17 @@
         "window"
       ],
       "mode": "view"
+    },
+    {
+      "name": "rename-pane",
+      "title": "Rename Pane",
+      "description": "Set the target pane's title",
+      "keywords": [
+        "pane",
+        "rename",
+        "title"
+      ],
+      "mode": "view"
     }
   ],
   "title": "Tmux Palette"

@@ -370,6 +370,22 @@ describe("tmux extension", () => {
     30_000,
   );
 
+  test.skipIf(!available)(
+    "rename pane prefills the target pane's title and sets it",
+    async () => {
+      await withServer(async ({ tmux, extension }) => {
+        tmux(["select-pane", "-t", "blast:0.0", "-T", "before"]);
+        await inView(extension, "rename-pane", async (opened) => {
+          await field(opened, "name", "before");
+          await submit(opened, { name: "after" });
+          await closed(opened);
+        });
+        expect(tmux(["display-message", "-p", "-t", "blast:0.0", "#{pane_title}"])).toBe("after");
+      });
+    },
+    30_000,
+  );
+
   test.skipIf(!available)("shows a Not inside tmux failure toast without TMUX", async () => {
     // No inheritEnv: TMUX stays withheld even when the tests run inside tmux.
     const extension = openExtension({ extensionDir });
