@@ -5,9 +5,10 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M10 — Published and measured. `3.0.0-alpha.2` is on npm `next` (2026-11-14):
-docs install from npm, and the browser demo's coverage is measured honestly,
-then raised by fixing what Blast gets wrong.
+M10 — Published and measured is done (2026-11-15): docs install from npm
+`@next` (`3.0.0-alpha.2`); browser demo renders 141/168 browser-runnable
+commands (`compat/BROWSER-SWEEP.md`); coverage against `@raycast/api` 2.11.1.
+Next milestone not chosen yet.
 
 ## Milestones
 
@@ -55,6 +56,9 @@ client and doc shows the smaller API.
 - [x] 0173 Coverage measured against `@raycast/api` 2.11.1 (#89)
 
 ## Later (not scheduled)
+
+- Browser sweep: numeric placeholders for number-typed arguments (convert-px-to-vw-vh).
+- Browser: `sf-symbols-search` times out parsing its 1.1 MB asset.
 
 Out of scope (0009): MyGo, TUI launcher features.
 
