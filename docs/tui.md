@@ -1,11 +1,22 @@
 # Terminal client (`packages/tui`)
 
 ```bash
-bun run tui [--popup] [--native] <extensionDir>...
+bun run tui [--popup] [--native] [--no-builtin] <extensionDir>...
 bun run tui [--native] <extensionDir> <command>
 ```
 
-The engine's root view lists the commands of every given extension; one directory plus a `<command>` name (not an existing directory) opens that command directly. `--popup` quits once a command is done (see Launcher), for `tmux display-popup -E`. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
+The engine's root view lists the commands of every given extension plus the built-in `tmux` extension (see tmux palette; `--no-builtin` leaves it out); one directory plus a `<command>` name (not an existing directory) opens that command directly. `--popup` quits once a command is done (see Launcher), for `tmux display-popup -E`. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash. The npm package `@blastlauncher/tui` installs the same client as `blast-tui` (Bun required).
+
+## tmux palette
+
+The [tmux-blast](https://github.com/BlastLauncher/tmux-blast) plugin opens `blast-tui --popup` in a `display-popup` on <kbd>Ctrl</kbd>+<kbd>Space</kbd> (tmux 3.2+). It needs `@blastlauncher/tui` `3.0.0-alpha.3` or later, the first release with popup mode, which is not on npm yet. With [TPM](https://github.com/tmux-plugins/tpm), add `set -g @plugin 'BlastLauncher/tmux-blast'` to `~/.tmux.conf` and press <kbd>prefix</kbd> <kbd>I</kbd>. Options (`@blast-key`, `@blast-key-table`, `@blast-extensions`, `@blast-popup-width`, `@blast-popup-height`, `@blast-command`) are in the [plugin README](../examples/tmux-plugin/README.md).
+
+The built-in `tmux` extension (`packages/tui/extensions/tmux`) acts on the pane the key was pressed in (`BLAST_TMUX_TARGET`, else tmux's `{last}` pane). Close Other Panes, Close Window and Kill Session confirm first.
+
+- **Panes:** Split Horizontal, Split Vertical, Close Pane, Close Other Panes, Next / Previous Pane, Display Pane Numbers, Cycle Pane Layout, Swap Pane Up / Down, Zoom / Unzoom, Enter Copy Mode, Break to New Window, Find Pane (switch, zoom or kill), Move Pane to…, Rename Pane.
+- **Windows:** New Window, Next / Previous / Last Window, Close Window, Rename Window.
+- **Sessions:** Next / Previous Session, Detach, Kill Session, Rename Session, New Session, Choose Session (switch, rename, kill or create).
+- **System:** Reload Config.
 
 ## Keys
 
@@ -55,26 +66,11 @@ Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/p
 
 ## Rendering
 
-- Client filtering ranks matches (title, keywords, subtitle) and orders sections
-  by best item unless `keepSectionOrder`; `filtering: false` disables it, a
-  search handler owns filtering, and `throttle` delays the event by 200 ms.
-- `List` and `Grid` share selection, filtering and primary-action handling;
-  the active view's root type picks the renderer. Grid lays items out in rows
-  of `columns` (default 5; a section's `columns` overrides it) with a header
-  line per section; a cell shows its `content` as short text above
-  title/subtitle, and `aspectRatio`, `fit` and `inset` are ignored.
-- A `searchBarAccessory` dropdown (`List.Dropdown` / `Grid.Dropdown`) shows the
-  current value's title next to the search bar; Ctrl-P opens its options
-  (sections included) in a filterable panel, Enter sends `onChange` with the
-  chosen value and Esc closes. The runtime owns the dropdown value.
-- Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })`
-  and `clearSearchBar()` clear the input; `closeMainWindow()` leaves the command (back to the root, or quits with `--popup`).
-- `menu-bar` commands render their `MenuBarExtra` as a navigable menu:
-  `title`/`tooltip` head the window, Sections are headers, and Items (title,
-  subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc
-  closes it; Enter on an Item runs `onAction` with a `left-click` event, and
-  Items without one render dimmed. Toasts and the HUD share the footer, and
-  alerts open over the menu.
+- Client filtering ranks matches (title, keywords, subtitle) and orders sections by best item unless `keepSectionOrder`; `filtering: false` disables it, a search handler owns filtering, and `throttle` delays the event by 200 ms.
+- `List` and `Grid` share selection, filtering and primary-action handling; the active view's root type picks the renderer. Grid lays items out in rows of `columns` (default 5; a section's `columns` overrides it) with a header line per section; a cell shows its `content` as short text above title/subtitle, and `aspectRatio`, `fit` and `inset` are ignored.
+- A `searchBarAccessory` dropdown (`List.Dropdown` / `Grid.Dropdown`) shows the current value's title next to the search bar; Ctrl-P opens its options (sections included) in a filterable panel, Enter sends `onChange` with the chosen value and Esc closes. The runtime owns the dropdown value.
+- Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })` and `clearSearchBar()` clear the input; `closeMainWindow()` leaves the command (back to the root, or quits with `--popup`).
+- `menu-bar` commands render their `MenuBarExtra` as a navigable menu: `title`/`tooltip` head the window, Sections are headers, and Items (title, subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc closes it; Enter on an Item runs `onAction` with a `left-click` event, and Items without one render dimmed. Toasts and the HUD share the footer, and alerts open over the menu.
 - `no-view` commands render only feedback (alert, toast, HUD). When runtime
   exits 0, client quits after HUD (2.5 s). Errors offer relaunch or back;
   direct exits 1.

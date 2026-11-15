@@ -60,6 +60,9 @@ function expectLandingSnippets(html: string) {
   expect(html).toContain("<code>3.0.0-alpha.2</code>");
   for (const stale of ["alpha.1", "From Source", "release:build"])
     expect(html).not.toContain(stale);
+  // Runs everywhere: the Terminal card links to the tmux plugin.
+  expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast" class="card">');
+  expect(html).toContain("command palette in a popup");
 }
 
 describe("site build helpers", () => {
