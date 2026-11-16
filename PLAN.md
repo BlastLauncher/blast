@@ -68,6 +68,11 @@ client and doc shows the smaller API.
 - [x] 0181 Landing redesign: reference-book look, engine hero animation
 - [x] 0182 Landing craft pass: book typography, fewer boxes, hero tells the flow
 
+### M13 — Product landing
+
+- [x] 0183 Centered product hero with the live demo, technical section below
+- [x] 0184 Real blast-tui recording played with ghostty-web
+
 ### M14 — Work through PRs
 
 - [x] 0185 Task scripts work through one pull request per task
