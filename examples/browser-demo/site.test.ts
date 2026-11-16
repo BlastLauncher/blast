@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readdir, readFile, stat } from "node:fs/promises";
+import { landingSnippets } from "./landing.ts";
 import { rootModel, rootSections, validateCatalog } from "./root.ts";
 import {
   buildSite,
@@ -24,29 +25,57 @@ const showcaseCommands = [
   "menu",
 ];
 
+function stripTagsAndUnescape(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&");
+}
+
+function panelCodeHtml(html: string, id: keyof typeof landingSnippets): string {
+  const match = html.match(
+    new RegExp(
+      `<div class="tab-panel" id="panel-${id}"[^>]*>\\s*<pre><code>([\\s\\S]*?)</code></pre>`,
+    ),
+  );
+  if (!match) throw new Error(`Missing code panel ${id}`);
+  return match[1]!;
+}
+
 /** Every tab shows the engine-owned flow, copied from the client it names. */
 function expectLandingSnippets(html: string) {
   // Bun escapes non-ASCII inside String.raw; the page must show →, ← and … as characters.
   expect(html).not.toMatch(/\\u[0-9a-f]{4}/i);
-  expect(html).toContain('<span class="t-in">→ {"type":"hello"');
-  for (const panel of ["js", "web", "go", "py", "swift", "ndjson"])
+  for (const panel of ["js", "web", "go", "py", "swift", "ndjson"] as const) {
     expect(html).toContain(`id="panel-${panel}"`);
+    const codeHtml = panelCodeHtml(html, panel);
+    expect(codeHtml).toContain('<span style="color:#');
+    expect(stripTagsAndUnescape(codeHtml)).toBe(landingSnippets[panel]);
+  }
+  const ndjsonPanel = panelCodeHtml(html, "ndjson");
+  expect(ndjsonPanel).toContain('<span class="t-in">→</span>');
+  expect(ndjsonPanel).toContain('<span class="t-out">←</span>');
+
+  const text = stripTagsAndUnescape(html);
   // JavaScript: the in-process root view.
-  expect(html).toContain("createEngine");
-  expect(html).toContain('engine.root({ views: { platform: "macOS" } })');
+  expect(text).toContain("createEngine");
+  expect(text).toContain('engine.root({ views: { platform: "macOS" } })');
   // Web page: one mount() from @blastlauncher/web.
-  expect(html).toContain('import { mount } from "/blast/blast-web.js"');
-  expect(html).toContain("sandboxUrl");
+  expect(text).toContain('import { mount } from "/blast/blast-web.js"');
+  expect(text).toContain("sandboxUrl");
   // Go, Python, Swift and NDJSON: hello with views, then the root.
-  expect(html).toContain("client.OpenRoot()");
-  expect(html).toContain("Client from examples/go-embedder");
-  expect(html).toContain('client.request("root.open", {})');
-  expect(html).toContain("Standard library only, from examples/python-embedder");
-  expect(html).toContain("blast.openRoot(views: .macOS)");
-  expect(html).toContain("BlastKit from examples/macos-launcher");
-  expect(html).toContain('"views":{"platform":"macOS"}');
-  expect(html).toContain('"method":"root.open"');
-  expect(html).toContain('"event":"root.launched"');
+  expect(text).toContain("client.OpenRoot()");
+  expect(text).toContain("Client from examples/go-embedder");
+  expect(text).toContain('client.request("root.open", {})');
+  expect(text).toContain("Standard library only, from examples/python-embedder");
+  expect(text).toContain("blast.openRoot(views: .macOS)");
+  expect(text).toContain("BlastKit from examples/macos-launcher");
+  expect(text).toContain('"views":{"platform":"macOS"}');
+  expect(text).toContain('"method":"root.open"');
+  expect(text).toContain('"event":"root.launched"');
   // Pre-M9 APIs are gone.
   for (const stale of [
     "launchExtension",
@@ -54,9 +83,9 @@ function expectLandingSnippets(html: string) {
     "client.Launch(",
     '"method":"extension.launch"',
   ])
-    expect(html).not.toContain(stale);
-  expect(html).not.toContain('"type":"init"');
-  expect(html).not.toContain("new Engine");
+    expect(text).not.toContain(stale);
+  expect(text).not.toContain('"type":"init"');
+  expect(text).not.toContain("new Engine");
   // Install: the published packages from npm `next`, nothing from source.
   expect(html).toContain("npm install @blastlauncher/engine@next");
   expect(html).toContain("npx -p @blastlauncher/serve@next blast-serve");

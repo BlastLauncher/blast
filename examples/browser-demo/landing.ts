@@ -1,18 +1,72 @@
 // Landing page for Blast: centered product hero with live Browser demo and Terminal switch,
 // plus one technical section below. Zero external requests, responsive at 360px, dark mode.
 
+import { escapeHtml, highlightCode, highlightNdjson } from "./highlight.ts";
+
 export interface SiteStats {
   coverage: { covered: number; total: number; percent: string };
   rendered: number;
   commands: number;
 }
 
-function escapeHtml(text: string): string {
-  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+export const landingSnippets = {
+  js: String.raw`import { createEngine } from "@blastlauncher/engine";
+
+const engine = createEngine({ handlers: { "clipboard.copy": (params) => copy(params) } });
+engine.openExtension({ extensionDir: "./my-extension" });
+const root = engine.root({ views: { platform: "macOS" } });
+root.subscribe((view) => draw(view)); // the command list, prompts, then the command
+root.input({ type: "search", text: "ap" });
+root.input({ type: "primary" });`,
+  web: String.raw`<div id="app"></div>
+<script type="module">
+  import { mount } from "/blast/blast-web.js";
+  mount(document.querySelector("#app"), {
+    extension: "raycast/extensions/android-versions",
+    sandboxUrl: "https://sandbox.example.com/",
+  });
+</script>`,
+  go: String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve, views on
+defer client.Close()
+client.Open("./my-extension")
+client.OpenRoot() // root.view events: the command list, drawn as they arrive
+client.Input(controllerInput{Type: "search", Text: textPointer("ap")})
+client.Input(controllerInput{Type: "primary"}) // root.launched: input goes to the session`,
+  py: String.raw`from embedder import Client  # spawns blast serve; views on in the hello
+
+client = Client()
+client.request("extension.open", {"dir": "./my-extension"})
+client.root = client.request("root.open", {})["root"]  # root.view events are drawn
+client.input({"type": "search", "text": "ap"})
+client.input({"type": "primary"})  # root.launched: input goes to the session
+client.shutdown()`,
+  swift: String.raw`let blast = BlastClient(transport: ProcessTransport(
+    servePath: ProcessTransport.defaultServePath, workingDirectory: root))
+blast.onEvent = { event in
+    if case let .rootView(_, view) = event { draw(view) }
+    if case let .view(_, view) = event { draw(view) }
 }
+_ = try await blast.start(capabilities: ["clipboard.copy"])
+_ = try await blast.openExtension(dir: "./my-extension")
+let root = try await blast.openRoot(views: .macOS)
+try await blast.sendInput(.search("ap"), root: root)
+try await blast.sendInput(.primary, root: root)`,
+  ndjson: `→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
+← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
+→ {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
+← {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}
+→ {"type":"request","id":"2","method":"root.open","params":{}}
+← {"type":"event","event":"root.view","root":"1","view":{"kind":"list","rows":[…]}}
+← {"type":"response","id":"2","ok":true,"result":{"root":"1"}}
+→ {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}
+← {"type":"event","event":"root.launched","root":"1","session":"3"}
+← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}
+← {"type":"capability.request","id":"4","session":"3","name":"clipboard.copy","params":{…}}
+→ {"type":"capability.result","id":"4","ok":true,"value":null}`,
+} as const;
 
 function escapeAttribute(value: string): string {
-  return escapeHtml(value).replaceAll('"', "&quot;");
+  return escapeHtml(value);
 }
 
 export function landing(stats: SiteStats, siteOrigin = ""): string {
@@ -28,76 +82,12 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
   const repoUrl = "https://github.com/blastlauncher/blast";
   const tmuxRepoUrl = "https://github.com/BlastLauncher/tmux-blast";
 
-  const jsSnippet = escapeHtml(String.raw`import { createEngine } from "@blastlauncher/engine";
-
-const engine = createEngine({ handlers: { "clipboard.copy": (params) => copy(params) } });
-engine.openExtension({ extensionDir: "./my-extension" });
-const root = engine.root({ views: { platform: "macOS" } });
-root.subscribe((view) => draw(view)); // the command list, prompts, then the command
-root.input({ type: "search", text: "ap" });
-root.input({ type: "primary" });`);
-
-  const webSnippet = escapeHtml(String.raw`<div id="app"></div>
-<script type="module">
-  import { mount } from "/blast/blast-web.js";
-  mount(document.querySelector("#app"), {
-    extension: "raycast/extensions/android-versions",
-    sandboxUrl: "https://sandbox.example.com/",
-  });
-</script>`);
-
-  const goSnippet =
-    escapeHtml(String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve, views on
-defer client.Close()
-client.Open("./my-extension")
-client.OpenRoot() // root.view events: the command list, drawn as they arrive
-client.Input(controllerInput{Type: "search", Text: textPointer("ap")})
-client.Input(controllerInput{Type: "primary"}) // root.launched: input goes to the session`);
-
-  const pySnippet =
-    escapeHtml(String.raw`from embedder import Client  # spawns blast serve; views on in the hello
-
-client = Client()
-client.request("extension.open", {"dir": "./my-extension"})
-client.root = client.request("root.open", {})["root"]  # root.view events are drawn
-client.input({"type": "search", "text": "ap"})
-client.input({"type": "primary"})  # root.launched: input goes to the session
-client.shutdown()`);
-
-  const swiftSnippet = escapeHtml(String.raw`let blast = BlastClient(transport: ProcessTransport(
-    servePath: ProcessTransport.defaultServePath, workingDirectory: root))
-blast.onEvent = { event in
-    if case let .rootView(_, view) = event { draw(view) }
-    if case let .view(_, view) = event { draw(view) }
-}
-_ = try await blast.start(capabilities: ["clipboard.copy"])
-_ = try await blast.openExtension(dir: "./my-extension")
-let root = try await blast.openRoot(views: .macOS)
-try await blast.sendInput(.search("ap"), root: root)
-try await blast.sendInput(.primary, root: root)`);
-
-  const ndjsonSnippet =
-    escapeHtml(`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
-← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
-→ {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
-← {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}
-→ {"type":"request","id":"2","method":"root.open","params":{}}
-← {"type":"event","event":"root.view","root":"1","view":{"kind":"list","rows":[…]}}
-← {"type":"response","id":"2","ok":true,"result":{"root":"1"}}
-→ {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}
-← {"type":"event","event":"root.launched","root":"1","session":"3"}
-← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}
-← {"type":"capability.request","id":"4","session":"3","name":"clipboard.copy","params":{…}}
-→ {"type":"capability.result","id":"4","ok":true,"value":null}`);
-
-  const ndjsonHtml = ndjsonSnippet
-    .split("\n")
-    .map((line) =>
-      line.startsWith("→")
-        ? `<span class="t-in">${line}</span>`
-        : `<span class="t-out">${line}</span>`,
-    )
-    .join("\n");
+  const jsSnippet = highlightCode(landingSnippets.js, "js");
+  const webSnippet = highlightCode(landingSnippets.web, "html");
+  const goSnippet = highlightCode(landingSnippets.go, "go");
+  const pySnippet = highlightCode(landingSnippets.py, "python");
+  const swiftSnippet = highlightCode(landingSnippets.swift, "swift");
+  const ndjsonHtml = highlightNdjson(landingSnippets.ndjson);
 
   return `<!doctype html>
 <html lang="en">
