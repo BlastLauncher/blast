@@ -49,15 +49,15 @@ pushed to `main` directly.
 
 ## Acceptance
 
-- [ ] Tests for start: creates the branch from `origin/main`, refuses when not on
+- [x] Tests for start: creates the branch from `origin/main`, refuses when not on
       main, refuses an existing branch.
-- [ ] Tests for merge: refuses on `main`; picks the worker branch relative to the task
+- [x] Tests for merge: refuses on `main`; picks the worker branch relative to the task
       branch; existing PLAN tick and verify behaviour unchanged.
-- [ ] Tests for land: merges `origin/main` and aborts on conflict; pushes the task branch;
+- [x] Tests for land: merges `origin/main` and aborts on conflict; pushes the task branch;
       creates or reuses the PR with the template body; waits for checks; fails on a
       failed or timed-out check; merges with `--merge --delete-branch`; cleans up.
-- [ ] Test: no code path runs `git push origin main` (assert on recorded runner calls).
-- [ ] `bun run verify` passes.
+- [x] Test: no code path runs `git push origin main` (assert on recorded runner calls).
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -66,11 +66,27 @@ pushed to `main` directly.
 ## Handoff
 
 ```
-Branch/commit: task/0185-pr-workflow @ 43a7e87
-Verify: `bun test scripts/tasks.test.ts` currently reflects pre-0185 main-branch behavior; legacy tests fail against the new task-branch/PR contract. Typecheck could not run because dependencies are not installed.
+Branch/commit: t3/062b3be0 (round 2, from task/0185-pr-workflow) @ dc1da66
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 138.1s; 1168 pass, 0 fail
 Done:
-- Updated start to fetch origin, create task branch, and commit the status transition.
-- Updated merge to require the task branch and compare worker branches against it.
-- Updated land to merge origin/main, push the task branch, create/reuse a PR, poll checks, merge, and clean up.
-Not done / risks: Existing tests need migration to the new contract; no network or remote was used.
+- start: branch is task/NNNN-<slug> (round 1 dropped the id), from origin/main after
+  fetch; an uncommitted or local-only committed task file is carried over; other
+  dirty paths, non-main and an existing branch are refused before any fetch.
+- merge: runs only on a clean task branch; worker detection skips main and the task
+  branch and uses `<task>...<worker>` (three dots: two dots listed other tasks'
+  workers, which lack the file, as candidates); fixed round 1's undefined `task`.
+- land: done commit must be in HEAD (round 1 searched --all); title and Handoff
+  come from the task file in the done commit's parent; merge origin/main, abort and
+  name conflicts; push -u the task branch; reuse an open PR (`gh pr list`) or create
+  one with the filled template; poll `gh pr checks --json name,state,bucket`
+  tolerating its exit 8/1; merge `--merge --delete-branch`; switch main, ff pull;
+  remove only worktrees merged via this task; return/print the PR URL.
+- tests: 26 in scripts/tasks.test.ts on temp local repos; fetch/push/pull/gh are
+  simulated by the injected runner (origin/main is a local ref). Mutations
+  (two-dot diff, branch from main, squash, push main, cleanup all) each fail tests.
+Not done / risks:
+- Diff is ~1000 lines, over the 600 guideline; most is the test rewrite.
+- gh pr checks bucket names and exit codes follow gh 2.x docs; not run against GitHub.
+- A task file committed on local main stays there; `git pull --ff-only` at the
+  end of land then fails until main is reset. Commit task files on the task branch.
 ```
