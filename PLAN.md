@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M12 — Site as a library: docs rendered on the site, landing page redesigned
-as a reference-book look with an animated engine hero (user's choice 2026-11-16).
+M12 — Site as a library is done (2026-11-16): docs under `/docs/`, landing in a
+reference-book look with an animated engine hero. Next milestone not chosen yet.
 
 ## Milestones
 
