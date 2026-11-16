@@ -1,70 +1,57 @@
 // Landing page for Blast: centered product hero with live Browser demo and Terminal switch,
 // plus one technical section below. Zero external requests, responsive at 360px, dark mode.
 
+import { escapeHtml, highlightCode, highlightNdjson } from "./highlight.ts";
+import {
+  coverageUrl,
+  fontFacesCss,
+  fontPreloadHtml,
+  repoUrl,
+  siteHeaderCss,
+  siteHeaderHtml,
+  sweepUrl,
+  themeTokensCss,
+  tmuxRepoUrl,
+} from "./site-chrome.ts";
+
 export interface SiteStats {
   coverage: { covered: number; total: number; percent: string };
   rendered: number;
   commands: number;
 }
 
-function escapeHtml(text: string): string {
-  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-}
-
-function escapeAttribute(value: string): string {
-  return escapeHtml(value).replaceAll('"', "&quot;");
-}
-
-export function landing(stats: SiteStats, siteOrigin = ""): string {
-  const origin = siteOrigin.replace(/\/$/, "");
-  const homeUrl = `${origin}/`;
-  const demoUrl = `${origin}/demo/`;
-  const embedDemoUrl = `${origin}/demo/?embed=1`;
-  const displayDemoUrl = origin ? `${origin.replace(/^https?:\/\//, "")}/demo` : "/demo/";
-  const docsUrl = `${origin}/docs/`;
-  const quickstartUrl = `${origin}/docs/quickstart/`;
-  const coverageUrl = "https://github.com/blastlauncher/blast/blob/main/compat/COVERAGE.md";
-  const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/SWEEP.md";
-  const repoUrl = "https://github.com/blastlauncher/blast";
-  const tmuxRepoUrl = "https://github.com/BlastLauncher/tmux-blast";
-
-  const jsSnippet = escapeHtml(String.raw`import { createEngine } from "@blastlauncher/engine";
+export const landingSnippets = {
+  js: String.raw`import { createEngine } from "@blastlauncher/engine";
 
 const engine = createEngine({ handlers: { "clipboard.copy": (params) => copy(params) } });
 engine.openExtension({ extensionDir: "./my-extension" });
 const root = engine.root({ views: { platform: "macOS" } });
 root.subscribe((view) => draw(view)); // the command list, prompts, then the command
 root.input({ type: "search", text: "ap" });
-root.input({ type: "primary" });`);
-
-  const webSnippet = escapeHtml(String.raw`<div id="app"></div>
+root.input({ type: "primary" });`,
+  web: String.raw`<div id="app"></div>
 <script type="module">
   import { mount } from "/blast/blast-web.js";
   mount(document.querySelector("#app"), {
     extension: "raycast/extensions/android-versions",
     sandboxUrl: "https://sandbox.example.com/",
   });
-</script>`);
-
-  const goSnippet =
-    escapeHtml(String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve, views on
+</script>`,
+  go: String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve, views on
 defer client.Close()
 client.Open("./my-extension")
 client.OpenRoot() // root.view events: the command list, drawn as they arrive
 client.Input(controllerInput{Type: "search", Text: textPointer("ap")})
-client.Input(controllerInput{Type: "primary"}) // root.launched: input goes to the session`);
-
-  const pySnippet =
-    escapeHtml(String.raw`from embedder import Client  # spawns blast serve; views on in the hello
+client.Input(controllerInput{Type: "primary"}) // root.launched: input goes to the session`,
+  py: String.raw`from embedder import Client  # spawns blast serve; views on in the hello
 
 client = Client()
 client.request("extension.open", {"dir": "./my-extension"})
 client.root = client.request("root.open", {})["root"]  # root.view events are drawn
 client.input({"type": "search", "text": "ap"})
 client.input({"type": "primary"})  # root.launched: input goes to the session
-client.shutdown()`);
-
-  const swiftSnippet = escapeHtml(String.raw`let blast = BlastClient(transport: ProcessTransport(
+client.shutdown()`,
+  swift: String.raw`let blast = BlastClient(transport: ProcessTransport(
     servePath: ProcessTransport.defaultServePath, workingDirectory: root))
 blast.onEvent = { event in
     if case let .rootView(_, view) = event { draw(view) }
@@ -74,10 +61,8 @@ _ = try await blast.start(capabilities: ["clipboard.copy"])
 _ = try await blast.openExtension(dir: "./my-extension")
 let root = try await blast.openRoot(views: .macOS)
 try await blast.sendInput(.search("ap"), root: root)
-try await blast.sendInput(.primary, root: root)`);
-
-  const ndjsonSnippet =
-    escapeHtml(`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
+try await blast.sendInput(.primary, root: root)`,
+  ndjson: `→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
 ← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
 → {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
 ← {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}
@@ -88,16 +73,28 @@ try await blast.sendInput(.primary, root: root)`);
 ← {"type":"event","event":"root.launched","root":"1","session":"3"}
 ← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}
 ← {"type":"capability.request","id":"4","session":"3","name":"clipboard.copy","params":{…}}
-→ {"type":"capability.result","id":"4","ok":true,"value":null}`);
+→ {"type":"capability.result","id":"4","ok":true,"value":null}`,
+} as const;
 
-  const ndjsonHtml = ndjsonSnippet
-    .split("\n")
-    .map((line) =>
-      line.startsWith("→")
-        ? `<span class="t-in">${line}</span>`
-        : `<span class="t-out">${line}</span>`,
-    )
-    .join("\n");
+function escapeAttribute(value: string): string {
+  return escapeHtml(value);
+}
+
+export function landing(stats: SiteStats, siteOrigin = ""): string {
+  const origin = siteOrigin.replace(/\/$/, "");
+  const homeUrl = `${origin}/`;
+  const demoUrl = `${origin}/demo/`;
+  const embedDemoUrl = `${origin}/demo/?embed=1`;
+  const displayDemoUrl = origin ? `${origin.replace(/^https?:\/\//, "")}/demo` : "/demo/";
+  const docsUrl = `${origin}/docs/`;
+  const quickstartUrl = `${origin}/docs/quickstart/`;
+
+  const jsSnippet = highlightCode(landingSnippets.js, "js");
+  const webSnippet = highlightCode(landingSnippets.web, "html");
+  const goSnippet = highlightCode(landingSnippets.go, "go");
+  const pySnippet = highlightCode(landingSnippets.py, "python");
+  const swiftSnippet = highlightCode(landingSnippets.swift, "swift");
+  const ndjsonHtml = highlightNdjson(landingSnippets.ndjson);
 
   return `<!doctype html>
 <html lang="en">
@@ -106,63 +103,11 @@ try await blast.sendInput(.primary, root: root)`);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blast — Raycast extensions, inside your app</title>
   <meta name="description" content="Embed unmodified Raycast extensions inside your application in any language.">
-  <link rel="preload" href="/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  ${fontPreloadHtml}
   <script>document.documentElement.classList.add("js");</script>
   <style>
-    @font-face {
-      font-family: "Geist";
-      font-style: normal;
-      font-weight: 100 900;
-      font-display: swap;
-      src: url(/fonts/geist-latin-wght-normal.woff2) format("woff2-variations");
-      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-    }
-    @font-face {
-      font-family: "Geist Mono";
-      font-style: normal;
-      font-weight: 100 900;
-      font-display: swap;
-      src: url(/fonts/geist-mono-latin-wght-normal.woff2) format("woff2-variations");
-      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-    }
-
-    :root {
-      --ground: #f4f5f6;
-      --dot: rgb(20 22 26 / 8%);
-      --surface: #ffffff;
-      --raise: #eef0f2;
-      --ink: #121316;
-      --muted: #5b5f66;
-      --line: #dcdee2;
-      --accent: #ff6338;
-      --accent-ink: #b23c1b;
-      --code-bg: #121316;
-      --code-ink: #e8e9eb;
-      --code-dim: #8e939b;
-      /* The terminal keeps blast-tui's own dark palette in both page themes. */
-      --t-bg: #181825;
-      --t-muted: #6c7086;
-      --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --ground: #0d0e10;
-        --dot: rgb(255 255 255 / 5%);
-        --surface: #16171a;
-        --raise: #1d1f22;
-        --ink: #ececee;
-        --muted: #9a9ea6;
-        --line: #2a2c30;
-        --accent: #ff7a55;
-        --accent-ink: #ff9373;
-        --code-bg: #08090a;
-        --code-ink: #e3e4e6;
-        --code-dim: #7d828a;
-        color-scheme: dark;
-      }
-    }
+    ${fontFacesCss}
+    ${themeTokensCss}
 
     * { box-sizing: border-box; }
     body {
@@ -172,52 +117,11 @@ try await blast.sendInput(.primary, root: root)`);
       font: 15px/1.55 var(--sans);
       -webkit-font-smoothing: antialiased;
     }
-    .wrap {
-      max-width: 1160px;
-      margin: 0 auto;
-      padding-left: max(16px, env(safe-area-inset-left, 0px));
-      padding-right: max(16px, env(safe-area-inset-right, 0px));
-    }
     a { color: inherit; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     code { font-family: var(--mono); font-size: .9em; }
 
-    header .wrap {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-block: 18px;
-      gap: 16px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 16px;
-      letter-spacing: -0.01em;
-    }
-    .mark {
-      width: 20px;
-      height: 20px;
-      border-radius: 5px;
-      background: var(--accent);
-      display: grid;
-      place-items: center;
-      flex: none;
-    }
-    .mark::after {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 1px;
-      background: #fff;
-      transform: rotate(45deg);
-    }
-    nav { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
-    nav a { text-decoration: none; }
-    nav a:hover { color: var(--ink); }
+    ${siteHeaderCss}
 
     /* Hero */
     .hero {
@@ -570,7 +474,6 @@ try await blast.sendInput(.primary, root: root)`);
       .split, .flow { grid-template-columns: minmax(0, 1fr); }
       .flow > div + div { border-left: 0; border-top: 1px solid var(--line); }
       .browser iframe { height: 560px; }
-      nav a.opt { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -578,17 +481,7 @@ try await blast.sendInput(.primary, root: root)`);
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <a class="brand" href="${escapeAttribute(homeUrl)}"><span class="mark" aria-hidden="true"></span>Blast</a>
-      <nav aria-label="Main">
-        <a href="${escapeAttribute(docsUrl)}">Docs</a>
-        <a href="${escapeAttribute(demoUrl)}" class="opt">Demo</a>
-        <a href="${escapeAttribute(coverageUrl)}" class="opt">Coverage</a>
-        <a href="${escapeAttribute(repoUrl)}">GitHub</a>
-      </nav>
-    </div>
-  </header>
+  ${siteHeaderHtml({ homeUrl, docsUrl, demoUrl })}
 
   <main>
     <section class="hero">
