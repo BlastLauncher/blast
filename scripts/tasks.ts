@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { TASK_FILE, parseFrontmatter } from "./check-workflow.ts";
 
@@ -157,6 +157,7 @@ export function startTask(
   runOrFail(runner, root, "git", ["fetch", "origin"]);
   runOrFail(runner, root, "git", ["switch", "-c", taskBranch, "origin/main"]);
   // Written after the switch: a file committed only on local main is absent on origin/main.
+  mkdirSync(join(root, "tasks"), { recursive: true });
   writeFileSync(join(root, taskPath), updated);
   runOrFail(runner, root, "git", ["add", taskPath]);
   const commitArgs = ["commit", "-m", `chore: start ${id} (${task.title})`];
@@ -195,9 +196,11 @@ function candidateBranches(
       candidates.push(worktree.branch);
       continue;
     }
+    // Three dots: only changes made on the worker since it forked. Another task's
+    // worker lacks this task file, and a two-dot diff would report it as deleted.
     const touched = runner(
       "git",
-      ["diff", "--name-only", `${taskBranch}..${worktree.branch}`, "--", `tasks/${task.file}`],
+      ["diff", "--name-only", `${taskBranch}...${worktree.branch}`, "--", `tasks/${task.file}`],
       root,
     );
     if (touched.status === 0 && touched.stdout.split("\n").includes(`tasks/${task.file}`))
