@@ -1,5 +1,5 @@
-// Landing page for Blast: reference-library aesthetic, CSS-animated engine diagram, pure HTML/CSS.
-// Zero external requests, accessible, responsive at 360px, honours dark mode and reduced motion.
+// Landing page for Blast: centered product hero with live Browser demo and Terminal switch,
+// plus one technical section below. Zero external requests, responsive at 360px, dark mode.
 
 export interface SiteStats {
   coverage: { covered: number; total: number; percent: string };
@@ -11,14 +11,22 @@ function escapeHtml(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
+function escapeAttribute(value: string): string {
+  return escapeHtml(value).replaceAll('"', "&quot;");
+}
+
 export function landing(stats: SiteStats, siteOrigin = ""): string {
   const origin = siteOrigin.replace(/\/$/, "");
+  const homeUrl = `${origin}/`;
   const demoUrl = `${origin}/demo/`;
+  const embedDemoUrl = `${origin}/demo/?embed=1`;
+  const displayDemoUrl = origin ? `${origin.replace(/^https?:\/\//, "")}/demo` : "/demo/";
   const docsUrl = `${origin}/docs/`;
   const quickstartUrl = `${origin}/docs/quickstart/`;
   const coverageUrl = "https://github.com/blastlauncher/blast/blob/main/compat/COVERAGE.md";
   const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/SWEEP.md";
   const repoUrl = "https://github.com/blastlauncher/blast";
+  const tmuxRepoUrl = "https://github.com/BlastLauncher/tmux-blast";
 
   const jsSnippet = escapeHtml(String.raw`import { createEngine } from "@blastlauncher/engine";
 
@@ -82,6 +90,15 @@ try await blast.sendInput(.primary, root: root)`);
 ← {"type":"capability.request","id":"4","session":"3","name":"clipboard.copy","params":{…}}
 → {"type":"capability.result","id":"4","ok":true,"value":null}`);
 
+  const ndjsonHtml = ndjsonSnippet
+    .split("\n")
+    .map((line) =>
+      line.startsWith("→")
+        ? `<span class="t-in">${line}</span>`
+        : `<span class="t-out">${line}</span>`,
+    )
+    .join("\n");
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -89,1753 +106,688 @@ try await blast.sendInput(.primary, root: root)`);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blast — Raycast extensions, inside your app</title>
   <meta name="description" content="Embed unmodified Raycast extensions inside your application in any language.">
-  <link rel="preload" href="/fonts/newsreader-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <script>document.documentElement.classList.add("js");</script>
   <style>
     @font-face {
-      font-family: "Newsreader";
+      font-family: "Geist";
       font-style: normal;
-      font-weight: 200 800;
+      font-weight: 100 900;
       font-display: swap;
-      src: url(/fonts/newsreader-latin-opsz-normal.woff2) format("woff2-variations");
+      src: url(/fonts/geist-latin-wght-normal.woff2) format("woff2-variations");
       unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
     }
     @font-face {
-      font-family: "Newsreader";
-      font-style: italic;
-      font-weight: 200 800;
-      font-display: swap;
-      src: url(/fonts/newsreader-latin-opsz-italic.woff2) format("woff2-variations");
-      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-    }
-    @font-face {
-      font-family: "IBM Plex Mono";
+      font-family: "Geist Mono";
       font-style: normal;
-      font-weight: 400;
+      font-weight: 100 900;
       font-display: swap;
-      src: url(/fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2");
-      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-    }
-    @font-face {
-      font-family: "IBM Plex Mono";
-      font-style: normal;
-      font-weight: 500;
-      font-display: swap;
-      src: url(/fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2");
+      src: url(/fonts/geist-mono-latin-wght-normal.woff2) format("woff2-variations");
       unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
     }
 
     :root {
-      /* Reference Library: warm rag paper & iron-gall ink */
-      --bg: #f7f4ec;
-      --paper: #fcfbf7;
-      --paper-tinted: #efeae0;
-      --ink: #1b1917;
-      --ink-muted: #524b44;
-      --rule: #d7cfc2;
-      --rule-strong: #b6ab99;
-      --accent: #8c2318;
-      --accent-hover: #6e1a11;
-      --accent-soft: #f3e4e1;
-      --accent-ink: #fcfbf7;
-      --forest: #1f4d3a;
-      --brass: #7a5718;
-      --code-bg: #1a1816;
-      --code-text: #f4efe6;
-      --code-muted: #b7aea0;
-      --code-border: #36302a;
-      --focus-ring: #8c2318;
-      --radius: 3px;
-      --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-      --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --ground: #f4f5f6;
+      --dot: rgb(20 22 26 / 8%);
+      --surface: #ffffff;
+      --raise: #eef0f2;
+      --ink: #121316;
+      --muted: #5b5f66;
+      --line: #dcdee2;
+      --accent: #ff6338;
+      --accent-ink: #b23c1b;
+      --code-bg: #121316;
+      --code-ink: #e8e9eb;
+      --code-dim: #8e939b;
+      /* The terminal keeps blast-tui's own dark palette in both page themes. */
+      --t-bg: #181825;
+      --t-muted: #6c7086;
+      --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        /* Night Reading Room: warm lamp-lit charcoal & parchment */
-        --bg: #12110f;
-        --paper: #1a1815;
-        --paper-tinted: #221f1b;
-        --ink: #ede7db;
-        --ink-muted: #b4aba0;
-        --rule: #2f2a24;
-        --rule-strong: #4a4238;
-        --accent: #e47b5e;
-        --accent-hover: #ee947b;
-        --accent-soft: #2c1e1a;
-        --accent-ink: #12110f;
-        --forest: #74c69d;
-        --brass: #d4a955;
-        --code-bg: #0c0b0a;
-        --code-text: #ede7db;
-        --code-muted: #aca294;
-        --code-border: #2c2823;
-        --focus-ring: #e47b5e;
+        --ground: #0d0e10;
+        --dot: rgb(255 255 255 / 5%);
+        --surface: #16171a;
+        --raise: #1d1f22;
+        --ink: #ececee;
+        --muted: #9a9ea6;
+        --line: #2a2c30;
+        --accent: #ff7a55;
+        --accent-ink: #ff9373;
+        --code-bg: #08090a;
+        --code-ink: #e3e4e6;
+        --code-dim: #7d828a;
+        color-scheme: dark;
       }
     }
 
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      font-family: var(--font-serif);
-      font-size: 17px;
-      font-optical-sizing: auto;
-      font-variant-numeric: oldstyle-nums;
-      hanging-punctuation: first allow-end last;
-      background-color: var(--bg);
-      color: var(--ink);
-      line-height: 1.62;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-      max-width: 100vw;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      min-height: 100vh;
-      overflow-x: hidden;
-      max-width: 100vw;
-      display: flex;
-      flex-direction: column;
-    }
-
-    a {
-      color: var(--accent);
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 0.18em;
-    }
-    a:hover {
-      color: var(--accent-hover);
-      text-decoration-thickness: 2px;
-    }
-    a:focus-visible,
-    button:focus-visible {
-      outline: 2px solid var(--focus-ring);
-      outline-offset: 3px;
-      border-radius: 2px;
-    }
-
-    code, pre {
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-    }
-    p code, li code, td code {
-      background: var(--paper-tinted);
-      border: 1px solid var(--rule);
-      padding: 0.08em 0.32em;
-      border-radius: 2px;
-      font-size: 0.84em;
+      margin: 0;
+      background: var(--ground);
       color: var(--ink);
+      font: 15px/1.55 var(--sans);
+      -webkit-font-smoothing: antialiased;
     }
-    pre {
-      max-width: 100%;
-      overflow-x: auto;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1080px;
+    .wrap {
+      max-width: 1160px;
       margin: 0 auto;
-      padding: 0 1.25rem;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
     }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    code { font-family: var(--mono); font-size: .9em; }
 
-    main {
-      flex: 1 1 auto;
-      min-width: 0;
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-
-    .hero-grid > *,
-    .manual-grid > *,
-    .diagram-canvas > *,
-    .tab-group,
-    .tab-panels,
-    .plate {
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    /* Header / Masthead */
-    header {
-      background: var(--bg);
-      border-bottom: 1px solid var(--rule-strong);
-      padding: 1rem 0;
-    }
-    .header-inner {
+    header .wrap {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.65rem 1.5rem;
+      padding-block: 18px;
+      gap: 16px;
     }
     .brand {
-      font-family: var(--font-serif);
-      font-weight: 600;
-      font-size: 1.5rem;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      text-decoration: none;
-    }
-    .brand:hover {
-      color: var(--ink);
-      text-decoration: none;
-    }
-    .nav-links {
       display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 0.5rem 1.35rem;
-      font-size: 0.92rem;
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.06em;
-    }
-    .nav-links a {
-      color: var(--ink-muted);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      padding: 0.1rem 0;
-    }
-    .nav-links a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    /* Restrained Actions */
-    .btn {
-      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      padding: 0.55rem 1.15rem;
-      border-radius: 2px;
-      font-family: var(--font-serif);
+      gap: 10px;
       font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
       text-decoration: none;
-      white-space: nowrap;
+      font-size: 16px;
+      letter-spacing: -0.01em;
     }
-    .btn-primary {
-      background-color: var(--accent);
-      color: var(--accent-ink);
-      border: 1px solid var(--accent);
+    .mark {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      flex: none;
     }
-    .btn-primary:hover {
-      background-color: var(--accent-hover);
-      border-color: var(--accent-hover);
-      color: var(--accent-ink);
-      text-decoration: none;
+    .mark::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 1px;
+      background: #fff;
+      transform: rotate(45deg);
     }
-    .link-ruled {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-family: var(--font-serif);
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px solid var(--accent);
-      padding: 0.2rem 0;
-    }
-    .link-ruled:hover {
-      color: var(--accent-hover);
-      border-bottom-width: 2px;
-      text-decoration: none;
-    }
+    nav { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+    nav a { text-decoration: none; }
+    nav a:hover { color: var(--ink); }
 
     /* Hero */
     .hero {
-      padding: 2.5rem 0 3rem;
-      border-bottom: 3px double var(--rule-strong);
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 2.25rem;
-      align-items: center;
-    }
-    @media (min-width: 920px) {
-      .hero {
-        padding: 3.25rem 0 3.75rem;
-      }
-      .hero-grid {
-        grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
-        gap: 2.75rem;
-      }
-    }
-    .hero-content h1 {
-      font-family: var(--font-serif);
-      font-size: clamp(2.1rem, 4.6vw, 3.1rem);
-      line-height: 1.08;
-      font-weight: 600;
-      letter-spacing: -0.025em;
-      margin-bottom: 1.15rem;
-      color: var(--ink);
-    }
-    .hero-content p {
-      font-size: 1.05rem;
-      color: var(--ink-muted);
-      line-height: 1.65;
-      margin-bottom: 1.75rem;
-      max-width: 48ch;
-    }
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.85rem 1.5rem;
-    }
-
-    /* Plate I: Animated Engine -> Hosts Diagram */
-    .plate {
-      background: var(--paper);
-      border: 1px solid var(--rule-strong);
-      border-radius: var(--radius);
-      padding: 0.9rem;
-    }
-    .plate-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.4rem 0.75rem;
-      padding-bottom: 0.55rem;
-      margin-bottom: 0.85rem;
-      border-bottom: 1px solid var(--rule);
-    }
-    .plate-num {
-      font-family: var(--font-serif);
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.08em;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    .plate-title {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--ink-muted);
-    }
-
-    .diagram-canvas {
       position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.65rem;
-      padding-left: 1.5rem;
-    }
-    /* Mobile vertical rail connecting macOS -> Engine -> 3 other hosts */
-    .mobile-rail {
-      position: absolute;
-      left: 0.5rem;
-      top: 5.45rem;
-      bottom: 5.45rem;
-      width: 1px;
-      background: var(--rule-strong);
-      pointer-events: none;
-    }
-    .mobile-rail-packet {
-      position: absolute;
-      left: -3.5px;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      border: 1px solid var(--paper);
-      transform: translateY(-50%);
-      pointer-events: none;
-      opacity: 0;
-    }
-    .mobile-packet-in {
-      background: var(--ink);
-      animation: mobile-in 9s ease-in-out infinite;
-    }
-    .mobile-packet-out {
-      background: var(--accent);
-      animation: mobile-out 9s ease-in-out infinite;
-    }
-
-    .engine-hub {
-      order: 2;
-      position: relative;
-      background: var(--code-bg);
-      color: var(--code-text);
-      border: 1px solid var(--code-border);
-      border-radius: 3px;
-      padding: 0.58rem 0.9rem;
       text-align: center;
-      animation: engine-react 9s linear infinite;
+      padding-block: 56px 72px;
+      background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+      background-size: 18px 18px;
     }
-    .engine-hub::before {
-      content: "";
-      position: absolute;
-      left: -1rem;
-      top: 50%;
-      width: 1rem;
-      height: 1px;
-      background: var(--accent);
-    }
-    .engine-hub-title {
+    .pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-      font-family: var(--font-serif);
-      font-weight: 600;
-      font-size: 0.92rem;
-      letter-spacing: 0.01em;
+      gap: 8px;
+      max-width: 100%;
+      font: 12px var(--mono);
+      color: var(--muted);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 4px 12px 4px 6px;
+      text-decoration: none;
     }
-    .engine-stamp {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.1rem;
-      height: 1.1rem;
-      border: 1px solid var(--code-muted);
-      border-radius: 2px;
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
+    .pill:hover { color: var(--ink); }
+    .pill b {
+      font-weight: 500;
+      color: var(--surface);
+      background: var(--ink);
+      border-radius: 999px;
+      padding: 1px 8px;
+    }
+    h1 {
+      font-size: clamp(38px, 6.4vw, 72px);
       line-height: 1;
-      color: var(--code-muted);
-      animation: stamp-tick 9s linear infinite;
-    }
-    .engine-hub-sub {
-      margin-top: 0.15rem;
-      font-family: var(--font-mono);
-      font-size: 0.66rem;
-      color: var(--code-muted);
-    }
-
-    .bus-svg {
-      display: none;
-    }
-
-    .host-shell {
-      position: relative;
-      background: var(--bg);
-      border: 1px solid var(--rule-strong);
-      border-radius: 3px;
-      padding: 0.52rem 0.6rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.36rem;
-    }
-    .host-shell::before {
-      content: "";
-      position: absolute;
-      left: -1rem;
-      top: 50%;
-      width: 1rem;
-      height: 1px;
-      background: var(--rule-strong);
-    }
-    .host-macos { order: 1; }
-    .host-tmux { order: 3; }
-    .host-web { order: 4; }
-    .host-stdio { order: 5; }
-
-    .host-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.4rem;
-      border-bottom: 1px solid var(--rule);
-      padding-bottom: 0.25rem;
-    }
-    .host-name {
-      font-family: var(--font-serif);
+      letter-spacing: -0.045em;
       font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--ink);
+      margin: 22px auto 18px;
+      max-width: 14ch;
+      text-wrap: balance;
     }
-    .host-kind {
-      font-family: var(--font-mono);
-      font-size: 0.66rem;
-      color: var(--accent);
-      white-space: nowrap;
+    .lede {
+      color: var(--muted);
+      max-width: 58ch;
+      margin: 0 auto 28px;
+      font-size: 17px;
+      text-wrap: pretty;
     }
-    .host-sub {
-      font-family: var(--font-mono);
-      font-size: 0.66rem;
-      color: var(--ink-muted);
-      line-height: 1.3;
-      overflow-wrap: anywhere;
-    }
-    .host-sub code {
-      font-size: 0.66rem;
-      padding: 0 0.2em;
-    }
-
-    /* Host 1: macOS native rounded idiom */
-    .idiom-macos {
-      background: var(--paper);
-      border: 1px solid var(--rule-strong);
-      border-radius: 6px;
-      padding: 0.35rem;
-      height: 6.45rem;
-      overflow: hidden;
-    }
-    .macos-search {
-      position: relative;
+    .ctas {
       display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .btn {
+      display: inline-flex;
       align-items: center;
-      height: 1.45rem;
-      padding: 0 0.4rem;
-      margin-bottom: 0.28rem;
-      border: 1px solid var(--rule);
-      border-radius: 4px;
-      background: var(--bg);
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--ink);
-    }
-    .macos-placeholder {
-      position: absolute;
-      left: 0.62rem;
-      color: var(--ink-muted);
-      animation: macos-placeholder 9s linear infinite;
-    }
-    .macos-typed {
-      display: inline-block;
-      overflow: hidden;
-      white-space: nowrap;
-      width: 0ch;
-      animation: macos-type 9s steps(2, end) infinite;
-    }
-    .macos-caret {
-      display: inline-block;
-      width: 1.5px;
-      height: 0.85em;
-      background: var(--accent);
-      margin-left: 1px;
-      animation: caret-blink 0.9s steps(1, end) infinite;
-    }
-    .macos-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.12rem;
-    }
-    .macos-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 0.7rem;
-      line-height: 1.25;
-      padding: 0.18rem 0.38rem;
-      border-radius: 4px;
-      color: var(--ink-muted);
-      overflow: hidden;
-      max-height: 1.7rem;
-    }
-    .macos-row.row-apple {
-      animation: row-select-pill-1 9s linear infinite;
-    }
-    .macos-row .row-return {
-      opacity: 0;
-      font-size: 0.64rem;
-      animation: row-return-1 9s linear infinite;
-    }
-    .macos-row.row-collapse {
-      animation: row-collapse-1 9s linear infinite;
-    }
-
-    /* Host 2: Terminal / tmux monospace box-drawing idiom */
-    .idiom-tui {
-      background: var(--paper);
-      border: 1px solid var(--ink);
-      border-radius: 0;
-      padding: 0.3rem 0.36rem;
-      font-family: var(--font-mono);
-      font-size: 0.67rem;
-      line-height: 1.32;
-      height: 6.45rem;
-      overflow: hidden;
-    }
-    .tui-bar {
-      color: var(--ink-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      margin-bottom: 0.16rem;
-    }
-    .tui-rows {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-    }
-    .tui-row {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.08rem 0.2rem;
-      color: var(--ink-muted);
-      overflow: hidden;
-      max-height: 1.5rem;
-    }
-    .tui-marker {
-      visibility: hidden;
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .tui-row.row-apple {
-      animation: row-select-tui-2 9s linear infinite;
-    }
-    .tui-row.row-apple .tui-marker {
-      animation: marker-show-2 9s linear infinite;
-    }
-    .tui-row.row-collapse {
-      animation: row-collapse-2 9s linear infinite;
-    }
-
-    /* Host 3: Web page plain DOM list idiom */
-    .idiom-web {
-      background: var(--paper);
-      border: 1px solid var(--rule);
-      border-radius: 0;
-      padding: 0.32rem 0.4rem;
-      height: 6.45rem;
-      overflow: hidden;
-    }
-    .web-dom-tag {
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      color: var(--ink-muted);
-      border-bottom: 1px solid var(--rule);
-      padding-bottom: 0.14rem;
-      margin-bottom: 0.2rem;
-    }
-    .web-list {
-      list-style: disc inside;
-      display: flex;
-      flex-direction: column;
-      gap: 0.08rem;
-      font-family: var(--font-serif);
-      font-size: 0.74rem;
-      line-height: 1.3;
-    }
-    .web-row {
-      padding: 0.06rem 0.22rem;
-      color: var(--ink-muted);
-      overflow: hidden;
-      max-height: 1.5rem;
-    }
-    .web-row.row-apple {
-      animation: row-select-web-3 9s linear infinite;
-    }
-    .web-row.row-collapse {
-      animation: row-collapse-3 9s linear infinite;
-    }
-
-    /* Host 4: Go / Python raw NDJSON line typing out */
-    .idiom-ndjson {
-      background: var(--code-bg);
-      color: var(--code-text);
-      border: 1px solid var(--code-border);
-      border-radius: 2px;
-      padding: 0.36rem 0.42rem;
-      font-family: var(--font-mono);
-      font-size: 0.54rem;
-      line-height: 1.48;
-      overflow: hidden;
-      height: 6.45rem;
-    }
-    .ndjson-prompt {
-      font-size: 0.56rem;
-      color: var(--code-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      margin-bottom: 0.14rem;
-    }
-    .idiom-ndjson .ndjson-line {
-      display: block;
-      font-size: 0.53rem;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      color: var(--code-text);
-    }
-    .ndjson-line-1 {
-      animation: ndjson-type-1 9s steps(28, end) infinite;
-    }
-    .ndjson-line-2 {
-      animation: ndjson-type-2 9s steps(33, end) infinite;
-    }
-
-    @media (min-width: 520px) {
-      .diagram-canvas {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 0 0.85rem;
-        padding-left: 0;
-      }
-      .mobile-rail,
-      .mobile-rail-packet,
-      .engine-hub::before,
-      .host-shell::before {
-        display: none;
-      }
-      .host-macos { order: 1; }
-      .host-tmux { order: 2; }
-      .bus-top {
-        display: block;
-        order: 3;
-        grid-column: 1 / -1;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 520 / 52;
-        overflow: visible;
-      }
-      .engine-hub {
-        order: 4;
-        grid-column: 1 / -1;
-        justify-self: center;
-        min-width: 235px;
-      }
-      .bus-bottom {
-        display: block;
-        order: 5;
-        grid-column: 1 / -1;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 520 / 52;
-        overflow: visible;
-      }
-      .host-web { order: 6; }
-      .host-stdio { order: 7; }
-    }
-
-    .bus-track {
-      fill: none;
-      stroke: var(--rule-strong);
-      stroke-width: 1.25;
-    }
-    .bus-wire-active {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 1.5;
-      opacity: 0;
-    }
-    .wire-in {
-      animation: wire-in-glow 9s linear infinite;
-    }
-    .wire-out {
-      animation: wire-out-glow 9s linear infinite;
-    }
-    .bus-arrow {
-      fill: var(--rule-strong);
-    }
-    .packet-pill-in rect {
-      fill: var(--paper);
-      stroke: var(--ink);
-      stroke-width: 1;
-    }
-    .packet-pill-in text {
-      fill: var(--ink);
-      font-family: var(--font-mono);
-      font-size: 8.5px;
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 9px;
       font-weight: 500;
-      text-anchor: middle;
+      font-size: 14px;
+      text-decoration: none;
     }
-    .packet-pill-view rect {
-      fill: var(--accent);
-    }
-    .packet-pill-view text {
-      fill: var(--accent-ink);
-      font-family: var(--font-mono);
-      font-size: 8.5px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-    .packet-input {
-      opacity: 0;
-      animation: send-input 9s linear infinite;
-    }
-    .packet-v-tl {
-      opacity: 0;
-      animation: fan-tl 9s linear infinite;
-    }
-    .packet-v-tr {
-      opacity: 0;
-      animation: fan-tr 9s linear infinite;
-    }
-    .packet-v-bl {
-      opacity: 0;
-      animation: fan-bl 9s linear infinite;
-    }
-    .packet-v-br {
-      opacity: 0;
-      animation: fan-br 9s linear infinite;
-    }
-
-    /* Keyframes: 9s loop telling input -> reconcile -> fan-out -> native redraw */
-    @keyframes macos-placeholder {
-      0%, 5% { opacity: 1; }
-      7%, 91% { opacity: 0; }
-      95%, 100% { opacity: 1; }
-    }
-    @keyframes macos-type {
-      0%, 6% { width: 0ch; }
-      17%, 90% { width: 2ch; }
-      94%, 100% { width: 0ch; }
-    }
-    @keyframes caret-blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
-    }
-
-    @keyframes wire-in-glow {
-      0%, 16% { opacity: 0; }
-      20%, 31% { opacity: 0.9; }
-      35%, 100% { opacity: 0; }
-    }
-    @keyframes wire-out-glow {
-      0%, 37% { opacity: 0; }
-      40%, 60% { opacity: 0.9; }
-      65%, 100% { opacity: 0; }
-    }
-
-    @keyframes send-input {
-      0%, 17% { transform: translate(126px, 5px); opacity: 0; }
-      19% { transform: translate(126px, 5px); opacity: 1; }
-      23% { transform: translate(126px, 26px); opacity: 1; }
-      28% { transform: translate(260px, 26px); opacity: 1; }
-      32% { transform: translate(260px, 47px); opacity: 0; }
-      100% { transform: translate(260px, 47px); opacity: 0; }
-    }
-
-    @keyframes engine-react {
-      0%, 30% { border-color: var(--code-border); }
-      32%, 41% { border-color: var(--accent); }
-      45%, 100% { border-color: var(--code-border); }
-    }
-    @keyframes stamp-tick {
-      0%, 30% {
-        color: var(--code-muted);
-        border-color: var(--code-muted);
-        transform: scale(1);
-      }
-      33% {
-        color: var(--accent);
-        border-color: var(--accent);
-        transform: scale(1.22) rotate(-6deg);
-      }
-      36%, 89% {
-        color: var(--accent);
-        border-color: var(--accent);
-        transform: scale(1) rotate(0deg);
-      }
-      94%, 100% {
-        color: var(--code-muted);
-        border-color: var(--code-muted);
-        transform: scale(1);
-      }
-    }
-
-    @keyframes fan-tl {
-      0%, 37% { transform: translate(260px, 47px); opacity: 0; }
-      39% { transform: translate(260px, 47px); opacity: 1; }
-      43% { transform: translate(260px, 26px); opacity: 1; }
-      47% { transform: translate(126px, 26px); opacity: 1; }
-      50% { transform: translate(126px, 5px); opacity: 0; }
-      100% { transform: translate(126px, 5px); opacity: 0; }
-    }
-    @keyframes fan-tr {
-      0%, 40% { transform: translate(260px, 47px); opacity: 0; }
-      42% { transform: translate(260px, 47px); opacity: 1; }
-      46% { transform: translate(260px, 26px); opacity: 1; }
-      50% { transform: translate(394px, 26px); opacity: 1; }
-      53% { transform: translate(394px, 5px); opacity: 0; }
-      100% { transform: translate(394px, 5px); opacity: 0; }
-    }
-    @keyframes fan-bl {
-      0%, 43% { transform: translate(260px, 5px); opacity: 0; }
-      45% { transform: translate(260px, 5px); opacity: 1; }
-      49% { transform: translate(260px, 26px); opacity: 1; }
-      53% { transform: translate(126px, 26px); opacity: 1; }
-      56% { transform: translate(126px, 47px); opacity: 0; }
-      100% { transform: translate(126px, 47px); opacity: 0; }
-    }
-    @keyframes fan-br {
-      0%, 46% { transform: translate(260px, 5px); opacity: 0; }
-      48% { transform: translate(260px, 5px); opacity: 1; }
-      52% { transform: translate(260px, 26px); opacity: 1; }
-      56% { transform: translate(394px, 26px); opacity: 1; }
-      59% { transform: translate(394px, 47px); opacity: 0; }
-      100% { transform: translate(394px, 47px); opacity: 0; }
-    }
-
-    @keyframes mobile-in {
-      0%, 17% { top: 0%; opacity: 0; }
-      19% { top: 0%; opacity: 1; }
-      31% { top: 22%; opacity: 1; }
-      33%, 100% { top: 22%; opacity: 0; }
-    }
-    @keyframes mobile-out {
-      0%, 38% { top: 22%; opacity: 0; }
-      40% { top: 22%; opacity: 1; }
-      58% { top: 100%; opacity: 1; }
-      60%, 100% { top: 100%; opacity: 0; }
-    }
-
-    /* Host redraw keyframes (staggered at 49%, 52%, 55%, 58%) */
-    @keyframes row-collapse-1 {
-      0%, 48% { max-height: 1.7rem; opacity: 1; padding-top: 0.18rem; padding-bottom: 0.18rem; }
-      52%, 89% { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
-      95%, 100% { max-height: 1.7rem; opacity: 1; padding-top: 0.18rem; padding-bottom: 0.18rem; }
-    }
-    @keyframes row-select-pill-1 {
-      0%, 48% { background: transparent; color: var(--ink-muted); font-weight: 400; }
-      51%, 89% { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-      95%, 100% { background: transparent; color: var(--ink-muted); font-weight: 400; }
-    }
-    @keyframes row-return-1 {
-      0%, 48% { opacity: 0; }
-      51%, 89% { opacity: 1; }
-      95%, 100% { opacity: 0; }
-    }
-
-    @keyframes row-collapse-2 {
-      0%, 51% { max-height: 1.5rem; opacity: 1; padding-top: 0.08rem; padding-bottom: 0.08rem; }
-      55%, 89% { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
-      95%, 100% { max-height: 1.5rem; opacity: 1; padding-top: 0.08rem; padding-bottom: 0.08rem; }
-    }
-    @keyframes row-select-tui-2 {
-      0%, 51% { background: transparent; color: var(--ink-muted); font-weight: 400; }
-      54%, 89% { background: var(--paper-tinted); color: var(--ink); font-weight: 600; }
-      95%, 100% { background: transparent; color: var(--ink-muted); font-weight: 400; }
-    }
-    @keyframes marker-show-2 {
-      0%, 51% { visibility: hidden; }
-      54%, 89% { visibility: visible; }
-      95%, 100% { visibility: hidden; }
-    }
-
-    @keyframes row-collapse-3 {
-      0%, 54% { max-height: 1.5rem; opacity: 1; padding-top: 0.06rem; padding-bottom: 0.06rem; }
-      58%, 89% { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
-      95%, 100% { max-height: 1.5rem; opacity: 1; padding-top: 0.06rem; padding-bottom: 0.06rem; }
-    }
-    @keyframes row-select-web-3 {
-      0%, 54% { color: var(--ink-muted); font-weight: 400; text-decoration: none; }
-      57%, 89% { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-      95%, 100% { color: var(--ink-muted); font-weight: 400; text-decoration: none; }
-    }
-
-    @keyframes ndjson-type-1 {
-      0%, 57% { width: 0ch; }
-      62%, 89% { width: 28ch; }
-      95%, 100% { width: 0ch; }
-    }
-    @keyframes ndjson-type-2 {
-      0%, 62% { width: 0ch; }
-      68%, 89% { width: 33ch; }
-      95%, 100% { width: 0ch; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .macos-placeholder,
-      .macos-typed,
-      .macos-caret,
-      .wire-in,
-      .wire-out,
-      .packet-input,
-      .packet-v-tl,
-      .packet-v-tr,
-      .packet-v-bl,
-      .packet-v-br,
-      .engine-hub,
-      .engine-stamp,
-      .macos-row,
-      .macos-row .row-return,
-      .tui-row,
-      .tui-marker,
-      .web-row,
-      .ndjson-line-1,
-      .ndjson-line-2,
-      .mobile-rail-packet {
-        animation: none;
-      }
-      .packet-input,
-      .packet-v-tl,
-      .packet-v-tr,
-      .packet-v-bl,
-      .packet-v-br,
-      .mobile-rail-packet {
-        display: none;
-      }
-      .macos-placeholder {
-        display: none;
-      }
-      .macos-typed {
-        width: 2ch;
-      }
-      .engine-stamp {
-        color: var(--accent);
-        border-color: var(--accent);
-      }
-      .macos-row.row-collapse,
-      .tui-row.row-collapse,
-      .web-row.row-collapse {
-        max-height: 0;
-        opacity: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-      }
-      .macos-row.row-apple {
-        background: var(--accent);
-        color: var(--accent-ink);
-        font-weight: 600;
-      }
-      .macos-row .row-return {
-        opacity: 1;
-      }
-      .tui-row.row-apple {
-        background: var(--paper-tinted);
-        color: var(--ink);
-        font-weight: 600;
-      }
-      .tui-row.row-apple .tui-marker {
-        visibility: visible;
-      }
-      .web-row.row-apple {
-        color: var(--ink);
-        font-weight: 600;
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
-      .idiom-ndjson .ndjson-line-1 {
-        width: 28ch;
-      }
-      .idiom-ndjson .ndjson-line-2 {
-        width: 33ch;
-      }
-    }
-
-    /* Manual Layout: Single 66ch column + sparse margin column */
-    section.manual-section {
-      padding: 2.75rem 0;
-      border-bottom: 1px solid var(--rule);
-      min-width: 0;
+    .btn-primary { background: var(--ink); color: var(--surface); }
+    .btn-ghost { border: 1px solid var(--line); background: var(--surface); }
+    .install {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font: 13px var(--mono);
+      color: var(--muted);
       max-width: 100%;
     }
-    .manual-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 66ch);
-      gap: 1.35rem 2.75rem;
-    }
-    @media (min-width: 960px) {
-      section.manual-section {
-        padding: 3.1rem 0;
-      }
-      .manual-grid {
-        grid-template-columns: minmax(0, 66ch) minmax(13rem, 1fr);
-        align-items: start;
-      }
-      .manual-main {
-        grid-column: 1;
-      }
-      .marginalia {
-        grid-column: 2;
-        margin-top: 0.45rem;
-      }
-    }
-    .section-title {
-      font-family: var(--font-serif);
-      font-size: clamp(1.42rem, 2.7vw, 1.8rem);
-      font-weight: 600;
-      letter-spacing: -0.015em;
-      line-height: 1.2;
-      margin-bottom: 0.6rem;
+    .install code {
       color: var(--ink);
-    }
-    .section-num {
-      font-variant-numeric: lining-nums tabular-nums;
-      font-weight: 400;
-      color: var(--ink-muted);
-      margin-right: 0.35rem;
-    }
-    .section-desc {
-      font-size: 1rem;
-      color: var(--ink-muted);
-      max-width: 64ch;
-      margin-bottom: 1.45rem;
-    }
-    .marginalia {
-      border-left: 1px solid var(--rule-strong);
-      padding-left: 0.9rem;
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      color: var(--ink-muted);
-      max-width: 28ch;
-    }
-
-    /* Tabs (Pure CSS, neutral ink active rule) */
-    .tab-group {
-      border: 1px solid var(--rule-strong);
-      border-radius: 2px;
-      background: var(--paper);
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
-    .tab-radio {
+    .copy {
+      font: 12px var(--sans);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 2px 8px;
+      cursor: pointer;
+      flex: none;
+    }
+    html:not(.js) .copy,
+    html:not(.js) .switch { display: none; }
+
+    /* Player */
+    .player { max-width: 980px; margin: 48px auto 0; position: relative; }
+    .glow {
       position: absolute;
-      opacity: 0;
-      width: 1px;
-      height: 1px;
+      inset: 10% 6% -4%;
+      background: radial-gradient(60% 60% at 50% 40%, rgb(255 99 56 / 22%), transparent 70%);
+      filter: blur(40px);
       pointer-events: none;
     }
-    .tab-nav {
-      display: flex;
-      background: var(--paper-tinted);
-      border-bottom: 1px solid var(--rule-strong);
-      overflow-x: auto;
-      scrollbar-width: thin;
+    .switch {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 10px;
+      position: relative;
+      z-index: 1;
     }
-    .tab-nav label {
-      display: inline-block;
-      padding: 0.62rem 1rem;
-      font-family: var(--font-serif);
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: var(--ink-muted);
+    .switch button {
+      font: 500 13px var(--sans);
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 7px;
+      padding: 6px 16px;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      border-right: 1px solid var(--rule);
-      white-space: nowrap;
     }
-    .tab-nav label:hover {
-      color: var(--ink);
-      background: var(--paper);
+    .switch button[aria-selected="true"] {
+      background: var(--ink);
+      color: var(--surface);
     }
 
-    #tab-js:checked ~ .tab-nav label[for="tab-js"],
-    #tab-web:checked ~ .tab-nav label[for="tab-web"],
-    #tab-go:checked ~ .tab-nav label[for="tab-go"],
-    #tab-py:checked ~ .tab-nav label[for="tab-py"],
-    #tab-swift:checked ~ .tab-nav label[for="tab-swift"],
-    #tab-ndjson:checked ~ .tab-nav label[for="tab-ndjson"] {
-      color: var(--ink);
-      font-weight: 600;
-      border-bottom-color: var(--ink);
-      background: var(--paper);
-    }
-
-    #tab-js:focus-visible ~ .tab-nav label[for="tab-js"],
-    #tab-web:focus-visible ~ .tab-nav label[for="tab-web"],
-    #tab-go:focus-visible ~ .tab-nav label[for="tab-go"],
-    #tab-py:focus-visible ~ .tab-nav label[for="tab-py"],
-    #tab-swift:focus-visible ~ .tab-nav label[for="tab-swift"],
-    #tab-ndjson:focus-visible ~ .tab-nav label[for="tab-ndjson"] {
-      outline: 2px solid var(--focus-ring);
-      outline-offset: -2px;
-    }
-
-    .tab-panels .tab-panel {
-      display: none;
-      padding: 1.15rem 1.25rem;
-      background: var(--code-bg);
-      color: var(--code-text);
-      overflow-x: auto;
-    }
-    .tab-panels pre {
-      line-height: 1.56;
-      font-size: 0.81rem;
-    }
-    .tab-panels .tab-caption {
-      margin-top: 0.9rem;
-      padding-top: 0.7rem;
-      border-top: 1px solid var(--code-border);
-      font-size: 0.82rem;
-      color: var(--code-muted);
-    }
-
-    #tab-js:checked ~ .tab-panels .panel-js,
-    #tab-web:checked ~ .tab-panels .panel-web,
-    #tab-go:checked ~ .tab-panels .panel-go,
-    #tab-py:checked ~ .tab-panels .panel-py,
-    #tab-swift:checked ~ .tab-panels .panel-swift,
-    #tab-ndjson:checked ~ .tab-panels .panel-ndjson {
-      display: block;
-    }
-
-    /* Ruled Tables */
-    .ruled-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-variant-numeric: lining-nums tabular-nums;
-      margin-top: 0.95rem;
-    }
-    .ruled-table th {
+    .browser {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 12%), 0 40px 80px -20px rgb(10 10 20 / 35%);
       text-align: left;
-      font-family: var(--font-serif);
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.06em;
-      font-weight: 600;
-      font-size: 0.88rem;
-      color: var(--ink-muted);
-      padding: 0.45rem 0.9rem 0.5rem 0;
-      border-top: 1px solid var(--rule-strong);
-      border-bottom: 1px solid var(--rule-strong);
-      vertical-align: bottom;
     }
-    .ruled-table td {
-      padding: 0.75rem 0.9rem 0.75rem 0;
-      border-bottom: 1px solid var(--rule);
-      vertical-align: top;
-      font-size: 0.94rem;
-      line-height: 1.52;
-      color: var(--ink-muted);
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 14px;
+      background: #11111b;
+      color: var(--t-muted);
+      font: 12px var(--mono);
     }
-    .ruled-table th:last-child,
-    .ruled-table td:last-child {
-      padding-right: 0;
+    .chrome i {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #45475a;
+      display: block;
+      flex: none;
     }
-    .ruled-table tbody tr:last-child td {
-      border-bottom-color: var(--rule-strong);
-    }
-    .ruled-table td strong,
-    .ruled-table .col-host {
-      color: var(--ink);
-      font-weight: 600;
-    }
-    .ruled-table .col-transport {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      color: var(--ink);
+    .chrome span {
+      flex: 1;
+      text-align: center;
+      margin-right: 50px;
       white-space: nowrap;
-    }
-    .ruled-table .col-link {
-      white-space: nowrap;
-    }
-
-    @media (max-width: 639px) {
-      .ruled-table thead {
-        display: none;
-      }
-      .ruled-table,
-      .ruled-table tbody,
-      .ruled-table tr,
-      .ruled-table td {
-        display: block;
-        width: 100%;
-      }
-      .ruled-table tr {
-        padding: 0.7rem 0;
-        border-top: 1px solid var(--rule);
-      }
-      .ruled-table tr:first-child {
-        border-top: 1px solid var(--rule-strong);
-      }
-      .ruled-table tr:last-child {
-        border-bottom: 1px solid var(--rule-strong);
-      }
-      .ruled-table td {
-        border-bottom: none;
-        padding: 0.18rem 0;
-      }
-      .ruled-table.boundary-table td[data-label]::before {
-        content: attr(data-label) ": ";
-        font-variant-caps: all-small-caps;
-        letter-spacing: 0.05em;
-        font-weight: 600;
-        color: var(--ink);
-      }
-    }
-
-    /* Receipts / Ledger Row */
-    .ledger-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      border-top: 1px solid var(--rule-strong);
-      border-bottom: 1px solid var(--rule-strong);
-      margin-top: 0.95rem;
-      margin-bottom: 0.85rem;
-    }
-    .ledger-cell {
-      padding: 0.9rem 0;
-      border-bottom: 1px solid var(--rule);
-    }
-    .ledger-cell:last-child {
-      border-bottom: none;
-    }
-    @media (min-width: 600px) {
-      .ledger-row {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-      .ledger-cell {
-        padding: 0.95rem 1rem 0.95rem 0;
-        border-bottom: none;
-        border-right: 1px solid var(--rule);
-      }
-      .ledger-cell + .ledger-cell {
-        padding-left: 1rem;
-      }
-      .ledger-cell:last-child {
-        border-right: none;
-        padding-right: 0;
-      }
-    }
-    .ledger-num {
-      font-family: var(--font-serif);
-      font-variant-numeric: lining-nums tabular-nums;
-      font-size: 1.75rem;
-      font-weight: 600;
-      line-height: 1.12;
-      color: var(--ink);
-      margin-bottom: 0.25rem;
-    }
-    .ledger-label {
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-      line-height: 1.4;
-    }
-    .ledger-note {
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-      font-style: italic;
-    }
-
-    /* Install: plain code lines */
-    .install-list {
-      margin-top: 1.25rem;
-      border-top: 1px solid var(--rule-strong);
-    }
-    .install-item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.25rem 1.25rem;
-      padding: 0.72rem 0;
-      border-bottom: 1px solid var(--rule);
-      align-items: baseline;
-    }
-    .install-item:last-child {
-      border-bottom-color: var(--rule-strong);
-    }
-    @media (min-width: 600px) {
-      .install-item {
-        grid-template-columns: 12rem minmax(0, 1fr);
-      }
-    }
-    .install-item dt {
-      font-family: var(--font-serif);
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.06em;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--ink-muted);
-    }
-    .install-item dd {
+      overflow: hidden;
+      text-overflow: ellipsis;
       min-width: 0;
     }
-    .install-code {
-      display: inline-block;
-      max-width: 100%;
-      font-family: var(--font-mono);
-      font-size: 0.84rem;
-      color: var(--ink);
-      user-select: all;
-      overflow-wrap: anywhere;
+    .browser .chrome {
+      background: var(--raise);
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+    .browser .chrome i { background: var(--line); }
+    .browser .chrome span { margin-right: 0; }
+    .pop {
+      font: 12px var(--sans);
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+      flex: none;
+    }
+    .pop:hover { color: var(--ink); }
+    .browser iframe {
+      display: block;
+      width: 100%;
+      height: 620px;
+      border: 0;
+      background: var(--ground);
     }
 
-    /* Footer */
-    footer {
-      padding: 2rem 0;
-      background: var(--bg);
-      border-top: 3px double var(--rule-strong);
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-      margin-top: auto;
+    .term {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--t-bg);
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 30%), 0 40px 80px -20px rgb(10 10 20 / 45%);
+      text-align: left;
     }
-    .footer-inner {
+    .screen {
+      position: relative;
+      height: 620px;
+      font: clamp(10.5px, 1.45vw, 13.5px)/1.6 var(--mono);
+      color: #cdd6f4;
       display: flex;
       flex-direction: column;
-      gap: 0.9rem;
-      align-items: flex-start;
+    }
+    #tui-player {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .tui-fallback {
+      margin: auto;
+      padding: 24px;
+      color: var(--t-muted);
+      font: 13px var(--mono);
+      text-align: center;
+    }
+
+    .under {
+      display: flex;
       justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 2px 0;
+      font: 12px var(--mono);
+      color: var(--muted);
+      flex-wrap: wrap;
+      text-align: left;
     }
-    .footer-colophon {
-      font-family: var(--font-serif);
-      font-style: italic;
+    .under code { font-size: 12px; }
+
+    /* Technical section */
+    .tech { background: var(--surface); border-top: 1px solid var(--line); }
+    .tech > .wrap { padding-block: 80px; display: grid; gap: 64px; }
+    .kicker { font: 12px var(--mono); color: var(--accent-ink); margin: 0 0 10px; }
+    h2 {
+      font-size: clamp(26px, 3.2vw, 36px);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      font-weight: 600;
+      margin: 0 0 12px;
+      text-wrap: balance;
     }
-    @media (min-width: 680px) {
-      .footer-inner {
-        flex-direction: row;
-        align-items: baseline;
-      }
+    .tech p { color: var(--muted); max-width: 60ch; margin: 0; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .flow > div { padding: 20px 22px; min-width: 0; }
+    .flow > div + div { border-left: 1px solid var(--line); }
+    .flow h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+    .flow p { font-size: 14px; }
+    .flow .who {
+      font: 11px var(--mono);
+      color: var(--muted);
+      display: block;
+      margin-bottom: 10px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+      gap: 48px;
+      align-items: start;
+    }
+    .split > * { min-width: 0; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+    .tabs button {
+      font: 500 13px var(--sans);
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 5px 11px;
+      cursor: pointer;
+    }
+    .tabs button[aria-selected="true"] {
+      color: var(--ink);
+      background: var(--raise);
+      border-color: var(--line);
+    }
+    html:not(.js) .tabs { display: none; }
+    html:not(.js) .tab-panel[hidden] { display: block; margin-top: 20px; }
+    pre {
+      margin: 0;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: 10px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font: 13px/1.65 var(--mono);
+    }
+    .t-in { color: #89b4fa; }
+    .t-out { color: #a6e3a1; }
+    .tab-caption {
+      margin: 8px 2px 0;
+      font: 12px var(--mono);
+      color: var(--muted);
+    }
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-top: 28px;
+    }
+    .facts div { padding: 14px 8px 14px 0; min-width: 0; }
+    .facts dt { font: 12px var(--mono); color: var(--muted); }
+    .facts dd {
+      margin: 2px 0 0;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .inst { display: grid; gap: 8px; margin-top: 24px; }
+    .inst div {
+      display: flex;
+      gap: 16px;
+      font: 13px var(--mono);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+    .inst span { color: var(--muted); width: 13ch; flex: none; }
+    .inst-note { margin-top: 14px !important; font-size: 13px; }
+    .inst-note a { text-underline-offset: 3px; }
+
+    footer .wrap {
+      padding-block: 28px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .footer-links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .footer-links a { text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); }
+
+    @media (max-width: 820px) {
+      .split, .flow { grid-template-columns: minmax(0, 1fr); }
+      .flow > div + div { border-left: 0; border-top: 1px solid var(--line); }
+      .browser iframe { height: 560px; }
+      .screen { height: 420px; }
+      nav a.opt { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="container header-inner">
-      <a href="${origin}/" class="brand">Blast</a>
-      <nav class="nav-links" aria-label="Main Navigation">
-        <a href="${docsUrl}">Docs</a>
-        <a href="${quickstartUrl}">Quickstart</a>
-        <a href="${demoUrl}">Live Demo</a>
-        <a href="${repoUrl}">GitHub</a>
+    <div class="wrap">
+      <a class="brand" href="${escapeAttribute(homeUrl)}"><span class="mark" aria-hidden="true"></span>Blast</a>
+      <nav aria-label="Main">
+        <a href="${escapeAttribute(docsUrl)}">Docs</a>
+        <a href="${escapeAttribute(demoUrl)}" class="opt">Demo</a>
+        <a href="${escapeAttribute(coverageUrl)}" class="opt">Coverage</a>
+        <a href="${escapeAttribute(repoUrl)}">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- Hero -->
     <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-content">
-          <h1>Raycast extensions, inside your app.</h1>
-          <p>The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
-          <div class="hero-actions">
-            <a href="${demoUrl}" class="btn btn-primary">Try the live demo</a>
-            <a href="${quickstartUrl}" class="link-ruled">Quickstart &rarr;</a>
+      <div class="wrap">
+        <a class="pill" href="${escapeAttribute(tmuxRepoUrl)}"><b>3.0.0-alpha.3</b> The tmux palette is out →</a>
+        <h1>Raycast extensions, inside your app.</h1>
+        <p class="lede">The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="${escapeAttribute(quickstartUrl)}">Read the quickstart</a>
+          <a class="btn btn-ghost" href="${escapeAttribute(demoUrl)}">Try it in the browser</a>
+        </div>
+        <div class="install"><code id="cmd">set -g @plugin 'BlastLauncher/tmux-blast'</code><button class="copy" id="copy" type="button">Copy</button></div>
+
+        <div class="player">
+          <div class="switch" role="tablist" aria-label="Client">
+            <button role="tab" id="sw-web" aria-selected="true" aria-controls="view-web" tabindex="0">Browser</button>
+            <button role="tab" id="sw-tui" aria-selected="false" aria-controls="view-tui" tabindex="-1">Terminal</button>
+          </div>
+          <div class="glow" aria-hidden="true"></div>
+          <div id="view-web" role="tabpanel" aria-labelledby="sw-web">
+            <div class="browser">
+              <div class="chrome"><i></i><i></i><i></i><span>${escapeHtml(displayDemoUrl)}</span><a href="${escapeAttribute(demoUrl)}" class="pop">Open full screen ↗</a></div>
+              <iframe src="${escapeAttribute(embedDemoUrl)}" title="Blast browser demo: run Raycast extensions from raycast/extensions in this page" allow="clipboard-read; clipboard-write"></iframe>
+            </div>
+            <div class="under"><span>Live: unmodified extensions from raycast/extensions, run in a sandboxed iframe in your browser.</span><code>@blastlauncher/web</code></div>
+          </div>
+          <div id="view-tui" role="tabpanel" aria-labelledby="sw-tui" hidden>
+            <div class="term">
+              <div class="chrome"><i></i><i></i><i></i><span>tmux · ~/projects/blast</span></div>
+              <div class="screen"><div id="tui-player" data-cast="/tui.cast"></div></div>
+            </div>
+            <div class="under"><span>blast-tui in a tmux popup</span><code>blast-tui</code></div>
           </div>
         </div>
-        <div class="hero-media">
-          <figure class="plate" aria-label="Diagram showing a user typing ap in the macOS host, sending root.input to Blast's engine, which stamps and fans root.view out to all four host shells — macOS app, Terminal / tmux, Web page, and Go / Python — each redrawing the filtered result in its own idiom.">
-            <figcaption class="plate-header">
-              <span class="plate-num">Plate I &middot; Architecture</span>
-              <span class="plate-title">root.input &rarr; Engine &rarr; root.view</span>
-            </figcaption>
-            <div class="diagram-canvas">
-              <div class="mobile-rail" aria-hidden="true">
-                <span class="mobile-rail-packet mobile-packet-in"></span>
-                <span class="mobile-rail-packet mobile-packet-out"></span>
-              </div>
-
-              <div class="host-shell host-macos">
-                <div class="host-head">
-                  <span class="host-name">macOS app</span>
-                  <span class="host-kind">Swift</span>
-                </div>
-                <div class="host-sub"><code>examples/macos-launcher</code>, BlastKit</div>
-                <div class="idiom-macos" aria-hidden="true">
-                  <div class="macos-search">
-                    <span class="macos-placeholder">Search&hellip;</span>
-                    <span class="macos-typed">ap</span><span class="macos-caret"></span>
-                  </div>
-                  <ul class="macos-list">
-                    <li class="macos-row row-apple"><span>Apple</span><span class="row-return">&crarr;</span></li>
-                    <li class="macos-row row-collapse"><span>Banana</span></li>
-                    <li class="macos-row row-collapse"><span>Cherry</span></li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="host-shell host-tmux">
-                <div class="host-head">
-                  <span class="host-name">Terminal / tmux</span>
-                  <span class="host-kind">TUI</span>
-                </div>
-                <div class="host-sub"><code>blast-tui</code></div>
-                <div class="idiom-tui" aria-hidden="true">
-                  <div class="tui-bar">&#9484;&#9472; root.view &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</div>
-                  <ul class="tui-rows">
-                    <li class="tui-row row-apple"><span class="tui-marker">&rsaquo;</span><span>Apple</span></li>
-                    <li class="tui-row row-collapse"><span class="tui-marker">&nbsp;</span><span>Banana</span></li>
-                    <li class="tui-row row-collapse"><span class="tui-marker">&nbsp;</span><span>Cherry</span></li>
-                  </ul>
-                </div>
-              </div>
-
-              <svg class="bus-svg bus-top" viewBox="0 0 520 52" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                <path class="bus-track" d="M 260 52 L 260 26 L 126 26 L 126 4" vector-effect="non-scaling-stroke" />
-                <path class="bus-track" d="M 260 52 L 260 26 L 394 26 L 394 4" vector-effect="non-scaling-stroke" />
-                <path class="bus-wire-active wire-in" d="M 126 4 L 126 26 L 260 26 L 260 52" vector-effect="non-scaling-stroke" />
-                <path class="bus-wire-active wire-out" d="M 260 52 L 260 26 L 126 26 L 126 4" vector-effect="non-scaling-stroke" />
-                <path class="bus-wire-active wire-out" d="M 260 52 L 260 26 L 394 26 L 394 4" vector-effect="non-scaling-stroke" />
-                <polygon class="bus-arrow" points="126,0 122,6 130,6" />
-                <polygon class="bus-arrow" points="394,0 390,6 398,6" />
-                <g class="packet-pill-in packet-input">
-                  <rect x="-32" y="-9" width="64" height="17" rx="2" />
-                  <text x="0" y="3">root.input</text>
-                </g>
-                <g class="packet-pill-view packet-v-tl">
-                  <rect x="-29" y="-9" width="58" height="17" rx="2" />
-                  <text x="0" y="3">root.view</text>
-                </g>
-                <g class="packet-pill-view packet-v-tr">
-                  <rect x="-29" y="-9" width="58" height="17" rx="2" />
-                  <text x="0" y="3">root.view</text>
-                </g>
-              </svg>
-
-              <div class="engine-hub">
-                <div class="engine-hub-title">
-                  <span class="engine-stamp" aria-hidden="true">&check;</span>
-                  <span>Blast Engine</span>
-                </div>
-                <div class="engine-hub-sub">root.input &rarr; reconcile &rarr; root.view</div>
-              </div>
-
-              <svg class="bus-svg bus-bottom" viewBox="0 0 520 52" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                <path class="bus-track" d="M 260 0 L 260 26 L 126 26 L 126 48" vector-effect="non-scaling-stroke" />
-                <path class="bus-track" d="M 260 0 L 260 26 L 394 26 L 394 48" vector-effect="non-scaling-stroke" />
-                <path class="bus-wire-active wire-out" d="M 260 0 L 260 26 L 126 26 L 126 48" vector-effect="non-scaling-stroke" />
-                <path class="bus-wire-active wire-out" d="M 260 0 L 260 26 L 394 26 L 394 48" vector-effect="non-scaling-stroke" />
-                <polygon class="bus-arrow" points="126,52 122,46 130,46" />
-                <polygon class="bus-arrow" points="394,52 390,46 398,46" />
-                <g class="packet-pill-view packet-v-bl">
-                  <rect x="-29" y="-9" width="58" height="17" rx="2" />
-                  <text x="0" y="3">root.view</text>
-                </g>
-                <g class="packet-pill-view packet-v-br">
-                  <rect x="-29" y="-9" width="58" height="17" rx="2" />
-                  <text x="0" y="3">root.view</text>
-                </g>
-              </svg>
-
-              <div class="host-shell host-web">
-                <div class="host-head">
-                  <span class="host-name">Web page</span>
-                  <span class="host-kind">DOM</span>
-                </div>
-                <div class="host-sub"><code>@blastlauncher/web</code> <code>mount()</code></div>
-                <div class="idiom-web" aria-hidden="true">
-                  <div class="web-dom-tag">&lt;ul role=&quot;listbox&quot;&gt;</div>
-                  <ul class="web-list">
-                    <li class="web-row row-apple">Apple</li>
-                    <li class="web-row row-collapse">Banana</li>
-                    <li class="web-row row-collapse">Cherry</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="host-shell host-stdio">
-                <div class="host-head">
-                  <span class="host-name">Go / Python</span>
-                  <span class="host-kind">Stdio</span>
-                </div>
-                <div class="host-sub"><code>blast serve</code>, NDJSON</div>
-                <div class="idiom-ndjson" aria-hidden="true">
-                  <div class="ndjson-prompt">$ blast serve &larr; stdout</div>
-                  <code class="ndjson-line ndjson-line-1">{&quot;event&quot;:&quot;root.view&quot;,&quot;view&quot;:</code>
-                  <code class="ndjson-line ndjson-line-2">{&quot;kind&quot;:&quot;list&quot;,&quot;rows&quot;:[…]}}</code>
-                </div>
-              </div>
-            </div>
-          </figure>
-        </div>
       </div>
     </section>
 
-    <!-- 1. The whole integration -->
-    <section class="manual-section" id="integration">
-      <div class="container manual-grid">
-        <div class="manual-main">
-          <h2 class="section-title"><span class="section-num">1.</span>The whole integration</h2>
-          <p class="section-desc">Open extensions, draw the engine's views, and forward input in a few lines of your language of choice, or one <code>mount()</code> call in a web page.</p>
+    <section class="tech">
+      <div class="wrap">
+        <div>
+          <p class="kicker">How it works</p>
+          <h2>One engine. Your client draws the views.</h2>
+          <p>Each command runs unmodified in its own process. The engine turns its React tree into a serializable view, sends it to your client, and routes input back. Privileged operations reach your app only as capabilities you grant.</p>
+        </div>
 
-          <div class="tab-group">
-            <!-- Radio inputs for CSS-only tab switching -->
-            <input type="radio" id="tab-js" name="tab-lang" class="tab-radio" checked aria-controls="panel-js">
-            <input type="radio" id="tab-web" name="tab-lang" class="tab-radio" aria-controls="panel-web">
-            <input type="radio" id="tab-go" name="tab-lang" class="tab-radio" aria-controls="panel-go">
-            <input type="radio" id="tab-py" name="tab-lang" class="tab-radio" aria-controls="panel-py">
-            <input type="radio" id="tab-swift" name="tab-lang" class="tab-radio" aria-controls="panel-swift">
-            <input type="radio" id="tab-ndjson" name="tab-lang" class="tab-radio" aria-controls="panel-ndjson">
+        <div class="flow">
+          <div><span class="who">raycast/extensions</span><h3>Extension</h3><p>An unmodified command, bundled with esbuild, in its own Node.js process.</p></div>
+          <div><span class="who">@blastlauncher/engine</span><h3>Engine</h3><p>Root command search, preference and argument prompts, dependency installs, then the command.</p></div>
+          <div><span class="who">your app</span><h3>Client</h3><p>Draws <code>root.view</code> and <code>session.view</code>, forwards input, answers capability requests.</p></div>
+        </div>
 
-            <div class="tab-nav" role="tablist" aria-label="Integration code examples">
-              <label for="tab-js" id="label-js" role="tab">JavaScript</label>
-              <label for="tab-web" id="label-web" role="tab">Web page</label>
-              <label for="tab-go" id="label-go" role="tab">Go</label>
-              <label for="tab-py" id="label-py" role="tab">Python</label>
-              <label for="tab-swift" id="label-swift" role="tab">Swift</label>
-              <label for="tab-ndjson" id="label-ndjson" role="tab">NDJSON</label>
+        <div class="split">
+          <div>
+            <h2>Any language, one protocol.</h2>
+            <p>In-process from JavaScript, <code>mount()</code> in a web page, or spawn <code>blast serve</code> and speak NDJSON over stdio from Go, Python or Swift.</p>
+            <dl class="facts">
+              <div><dt>@raycast/api</dt><dd>${escapeHtml(stats.coverage.percent)}</dd></div>
+              <div><dt>rendered</dt><dd>${escapeHtml(stats.rendered.toLocaleString())}</dd></div>
+              <div><dt>commands tested</dt><dd>${escapeHtml(stats.commands.toLocaleString())}</dd></div>
+            </dl>
+            <div class="inst">
+              <div><span>JS/TS engine</span>npm install @blastlauncher/engine@next</div>
+              <div><span>Any language</span>npx -p @blastlauncher/serve@next blast-serve</div>
+              <div><span>Web page</span>npm install @blastlauncher/web@next</div>
             </div>
-
-            <div class="tab-panels">
-              <div class="tab-panel panel-js" id="panel-js" role="tabpanel" aria-labelledby="label-js">
-                <pre><code>${jsSnippet}</code></pre>
-                <p class="tab-caption">The in-process engine: Node.js, Bun or Electron</p>
-              </div>
-
-              <div class="tab-panel panel-web" id="panel-web" role="tabpanel" aria-labelledby="label-web">
-                <pre><code>${webSnippet}</code></pre>
-                <p class="tab-caption">@blastlauncher/web: the extension runs in a sandbox on a second origin you host</p>
-              </div>
-
-              <div class="tab-panel panel-go" id="panel-go" role="tabpanel" aria-labelledby="label-go">
-                <pre><code>${goSnippet}</code></pre>
-                <p class="tab-caption">Client from examples/go-embedder</p>
-              </div>
-
-              <div class="tab-panel panel-py" id="panel-py" role="tabpanel" aria-labelledby="label-py">
-                <pre><code>${pySnippet}</code></pre>
-                <p class="tab-caption">Standard library only, from examples/python-embedder</p>
-              </div>
-
-              <div class="tab-panel panel-swift" id="panel-swift" role="tabpanel" aria-labelledby="label-swift">
-                <pre><code>${swiftSnippet}</code></pre>
-                <p class="tab-caption">BlastKit from examples/macos-launcher</p>
-              </div>
-
-              <div class="tab-panel panel-ndjson" id="panel-ndjson" role="tabpanel" aria-labelledby="label-ndjson">
-                <pre><code>${ndjsonSnippet}</code></pre>
-                <p class="tab-caption">Lines starting with → are what you send, ← what you receive.</p>
-              </div>
+            <p class="inst-note">Prereleases (<code>3.0.0-alpha.3</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a>.</p>
+          </div>
+          <div>
+            <div class="tabs" role="tablist" aria-label="Integration code examples">
+              <button role="tab" aria-selected="true" aria-controls="panel-ndjson" data-tab="ndjson" id="tab-ndjson" tabindex="0">NDJSON</button>
+              <button role="tab" aria-selected="false" aria-controls="panel-js" data-tab="js" id="tab-js" tabindex="-1">JavaScript</button>
+              <button role="tab" aria-selected="false" aria-controls="panel-web" data-tab="web" id="tab-web" tabindex="-1">Web page</button>
+              <button role="tab" aria-selected="false" aria-controls="panel-go" data-tab="go" id="tab-go" tabindex="-1">Go</button>
+              <button role="tab" aria-selected="false" aria-controls="panel-py" data-tab="py" id="tab-py" tabindex="-1">Python</button>
+              <button role="tab" aria-selected="false" aria-controls="panel-swift" data-tab="swift" id="tab-swift" tabindex="-1">Swift</button>
+            </div>
+            <div class="tab-panel" id="panel-ndjson" role="tabpanel" aria-labelledby="tab-ndjson">
+              <pre><code>${ndjsonHtml}</code></pre>
+              <p class="tab-caption">Lines starting with → are what you send, ← what you receive.</p>
+            </div>
+            <div class="tab-panel" id="panel-js" role="tabpanel" aria-labelledby="tab-js" hidden>
+              <pre><code>${jsSnippet}</code></pre>
+              <p class="tab-caption">The in-process engine: Node.js, Bun or Electron</p>
+            </div>
+            <div class="tab-panel" id="panel-web" role="tabpanel" aria-labelledby="tab-web" hidden>
+              <pre><code>${webSnippet}</code></pre>
+              <p class="tab-caption">@blastlauncher/web: the extension runs in a sandbox on a second origin you host</p>
+            </div>
+            <div class="tab-panel" id="panel-go" role="tabpanel" aria-labelledby="tab-go" hidden>
+              <pre><code>${goSnippet}</code></pre>
+              <p class="tab-caption">Client from examples/go-embedder</p>
+            </div>
+            <div class="tab-panel" id="panel-py" role="tabpanel" aria-labelledby="tab-py" hidden>
+              <pre><code>${pySnippet}</code></pre>
+              <p class="tab-caption">Standard library only, from examples/python-embedder</p>
+            </div>
+            <div class="tab-panel" id="panel-swift" role="tabpanel" aria-labelledby="tab-swift" hidden>
+              <pre><code>${swiftSnippet}</code></pre>
+              <p class="tab-caption">BlastKit from examples/macos-launcher</p>
             </div>
           </div>
-        </div>
-        <aside class="marginalia">
-          Read the <a href="${quickstartUrl}">quickstart</a> or browse the <a href="${docsUrl}">full docs</a> for transport and protocol details.
-        </aside>
-      </div>
-    </section>
-
-    <!-- 2. What Blast does / what you do -->
-    <section class="manual-section responsibilities">
-      <div class="container manual-grid">
-        <div class="manual-main">
-          <h2 class="section-title"><span class="section-num">2.</span>What Blast does / what you do</h2>
-          <table class="ruled-table boundary-table">
-            <thead>
-              <tr>
-                <th>What Blast does</th>
-                <th>What you do</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td data-label="Blast"><strong>Launcher flow.</strong> Lists every extension's commands as a root view, asks for missing preferences and arguments, and installs dependencies.</td>
-                <td data-label="You"><strong>Render views.</strong> Draw the view nodes (List, Detail, Form, Grid) in your app's native UI toolkit.</td>
-              </tr>
-              <tr>
-                <td data-label="Blast"><strong>Bundling &amp; runtime.</strong> Bundles each extension with esbuild and runs each command in its own Node.js process.</td>
-                <td data-label="You"><strong>Forward input.</strong> Send search keystrokes, item selections, and button clicks back to the session.</td>
-              </tr>
-              <tr>
-                <td data-label="Blast"><strong>Raycast compatibility.</strong> Provides <code>@raycast/api</code> (and ships <code>@raycast/utils</code>), with coverage measured against the latest release.</td>
-                <td data-label="You"><strong>Answer capabilities.</strong> Choose which capabilities to grant (clipboard, storage, OAuth) per your security policy.</td>
-              </tr>
-              <tr>
-                <td data-label="Blast"><strong>UI reconciliation.</strong> Reconciles React trees into serializable views with search, selection and actions applied.</td>
-                <td data-label="You"><strong>Pick your transport.</strong> Embed in-process via TypeScript, across processes via standard I/O, or in a web page with <code>@blastlauncher/web</code>.</td>
-              </tr>
-              <tr>
-                <td data-label="Blast"><strong>Capability brokering.</strong> Mediates storage, clipboard, OAuth and AI access, through explicit grants.</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <aside class="marginalia">
-          The engine reconciles views; your host owns pixels and capability policy.
-        </aside>
-      </div>
-    </section>
-
-    <!-- 3. Runs everywhere -->
-    <section class="manual-section platforms">
-      <div class="container manual-grid">
-        <div class="manual-main">
-          <h2 class="section-title"><span class="section-num">3.</span>Runs everywhere</h2>
-          <table class="ruled-table runs-table">
-            <thead>
-              <tr>
-                <th>Host</th>
-                <th>Transport</th>
-                <th>Details</th>
-                <th>Source</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="col-host">Node / Bun / Electron</td>
-                <td class="col-transport">In-process</td>
-                <td>Engine integration for JavaScript and TypeScript hosts with no separate process for the engine.</td>
-                <td class="col-link"><a href="https://github.com/blastlauncher/blast/tree/main/packages/host">packages/host</a></td>
-              </tr>
-              <tr>
-                <td class="col-host">Any language via serve</td>
-                <td class="col-transport">Stdio NDJSON</td>
-                <td>Simple NDJSON protocol over standard I/O for Go, Python, Swift, or Rust.</td>
-                <td class="col-link"><a href="https://github.com/blastlauncher/blast/tree/main/packages/serve">packages/serve</a></td>
-              </tr>
-              <tr>
-                <td class="col-host">Any web page</td>
-                <td class="col-transport">Browser</td>
-                <td>One <code>mount()</code> runs extensions by URL in a cross-origin sandboxed iframe (almostnode), with nothing installed.</td>
-                <td class="col-link"><a href="https://github.com/blastlauncher/blast/tree/main/packages/web">packages/web</a></td>
-              </tr>
-              <tr>
-                <td class="col-host">Terminal and tmux</td>
-                <td class="col-transport">Terminal</td>
-                <td>A keyboard-driven terminal client for lists, grids, forms and markdown details. In tmux it opens as a command palette in a popup, with pane, window and session commands.</td>
-                <td class="col-link"><a href="https://github.com/BlastLauncher/tmux-blast">tmux-blast</a></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Receipts -->
-    <section class="manual-section receipts">
-      <div class="container manual-grid">
-        <div class="manual-main">
-          <h2 class="section-title"><span class="section-num">4.</span>Receipts</h2>
-          <div class="ledger-row">
-            <div class="ledger-cell">
-              <div class="ledger-num">${stats.coverage.percent}</div>
-              <div class="ledger-label">Raycast API covered (${stats.coverage.covered} of ${stats.coverage.total})</div>
-            </div>
-            <div class="ledger-cell">
-              <div class="ledger-num">${stats.rendered.toLocaleString()}</div>
-              <div class="ledger-label">Catalog commands rendered</div>
-            </div>
-            <div class="ledger-cell">
-              <div class="ledger-num">${stats.commands.toLocaleString()}</div>
-              <div class="ledger-label">Total catalog commands tested</div>
-            </div>
-          </div>
-          <p class="ledger-note">Measured compatibility against real extensions from the public catalog: <a href="${coverageUrl}" target="_blank" rel="noopener">API Coverage Report</a> and <a href="${sweepUrl}" target="_blank" rel="noopener">Full Sweep Results</a>.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Install -->
-    <section class="manual-section install">
-      <div class="container manual-grid">
-        <div class="manual-main">
-          <h2 class="section-title"><span class="section-num">5.</span>Install</h2>
-          <p class="section-desc">Prereleases (<code>3.0.0-alpha.3</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
-
-          <dl class="install-list">
-            <div class="install-item">
-              <dt>JS/TS Engine</dt>
-              <dd><code class="install-code">npm install @blastlauncher/engine@next</code></dd>
-            </div>
-            <div class="install-item">
-              <dt>Any Language (stdio)</dt>
-              <dd><code class="install-code">npx -p @blastlauncher/serve@next blast-serve</code></dd>
-            </div>
-            <div class="install-item">
-              <dt>Web Page</dt>
-              <dd><code class="install-code">npm install @blastlauncher/web@next</code></dd>
-            </div>
-          </dl>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="container footer-inner">
-      <p class="footer-colophon">Blast is open source (MIT) and in alpha.</p>
-      <nav class="nav-links" aria-label="Footer Navigation">
-        <a href="${demoUrl}">Demo</a>
-        <a href="${docsUrl}">Docs</a>
-        <a href="${quickstartUrl}">Quickstart</a>
-        <a href="${coverageUrl}">Coverage</a>
-        <a href="${sweepUrl}">Sweep</a>
-        <a href="${repoUrl}">GitHub</a>
+    <div class="wrap">
+      <span>Blast is open source (MIT) and in alpha.</span>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="${escapeAttribute(docsUrl)}">Docs</a>
+        <a href="${escapeAttribute(demoUrl)}">Demo</a>
+        <a href="${escapeAttribute(coverageUrl)}">Coverage</a>
+        <a href="${escapeAttribute(sweepUrl)}">Sweep</a>
+        <a href="${escapeAttribute(repoUrl)}">GitHub</a>
       </nav>
     </div>
   </footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let tuiMod = null;
+    let tuiHandle = null;
+    function unmountTui() {
+      if (tuiHandle && typeof tuiHandle.dispose === "function") tuiHandle.dispose();
+      tuiHandle = null;
+    }
+    async function mountTui() {
+      const el = $("tui-player");
+      if (!el || tuiHandle) return;
+      try {
+        if (!tuiMod) tuiMod = await import("/tui-player.js");
+        if (!$("view-tui").hidden && !tuiHandle) {
+          el.textContent = "";
+          tuiHandle = tuiMod.mountTuiPlayer(el, el.dataset.cast || "/tui.cast");
+        }
+      } catch {
+        el.innerHTML = '<div class="tui-fallback">Recording unavailable</div>';
+      }
+    }
+    function showView(which) {
+      const tui = which === "tui";
+      $("sw-web").setAttribute("aria-selected", String(!tui));
+      $("sw-web").tabIndex = tui ? -1 : 0;
+      $("sw-tui").setAttribute("aria-selected", String(tui));
+      $("sw-tui").tabIndex = tui ? 0 : -1;
+      $("view-web").hidden = tui;
+      $("view-tui").hidden = !tui;
+      if (tui) mountTui();
+      else unmountTui();
+    }
+    function bindTablist(tabs, onSelect) {
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => onSelect(tab));
+        tab.addEventListener("keydown", (event) => {
+          let next = -1;
+          if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+          else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+          else if (event.key === "Home") next = 0;
+          else if (event.key === "End") next = tabs.length - 1;
+          if (next < 0) return;
+          event.preventDefault();
+          tabs[next].focus();
+          onSelect(tabs[next]);
+        });
+      });
+    }
+    bindTablist([$("sw-web"), $("sw-tui")], (tab) => showView(tab.id === "sw-tui" ? "tui" : "web"));
+
+    const codeTabs = [...document.querySelectorAll(".tabs [role=tab]")];
+    function showTab(id) {
+      codeTabs.forEach((b) => {
+        const active = b.dataset.tab === id;
+        b.setAttribute("aria-selected", String(active));
+        b.tabIndex = active ? 0 : -1;
+        const panel = $("panel-" + b.dataset.tab);
+        if (panel) panel.hidden = !active;
+      });
+    }
+    bindTablist(codeTabs, (tab) => showTab(tab.dataset.tab));
+
+    $("copy").addEventListener("click", async () => {
+      const cmd = $("cmd");
+      try {
+        await navigator.clipboard.writeText(cmd.textContent || "");
+        $("copy").textContent = "Copied";
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(cmd);
+        const sel = getSelection();
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        $("copy").textContent = "Selected";
+      }
+      setTimeout(() => ($("copy").textContent = "Copy"), 1500);
+    });
+  </script>
 </body>
-</html>`;
+</html>
+`;
 }
