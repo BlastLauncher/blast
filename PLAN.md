@@ -66,7 +66,7 @@ client and doc shows the smaller API.
 
 - [x] 0180 User-facing docs rendered on the site under `/docs/`
 - [x] 0181 Landing redesign: reference-book look, engine hero animation
-- [ ] 0182 Landing craft pass: book typography, fewer boxes, hero tells the flow
+- [x] 0182 Landing craft pass: book typography, fewer boxes, hero tells the flow
 
 ## Later (not scheduled)
 
