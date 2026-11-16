@@ -1613,7 +1613,7 @@ try await blast.sendInput(.primary, root: root)`);
                 <div class="idiom-ndjson" aria-hidden="true">
                   <div class="ndjson-prompt">$ blast serve &larr; stdout</div>
                   <code class="ndjson-line ndjson-line-1">{&quot;event&quot;:&quot;root.view&quot;,&quot;view&quot;:</code>
-                  <code class="ndjson-line ndjson-line-2">{&quot;kind&quot;:&quot;list&quot;,&quot;rows&quot;:[&quot;Apple&quot;]}}</code>
+                  <code class="ndjson-line ndjson-line-2">{&quot;kind&quot;:&quot;list&quot;,&quot;rows&quot;:[…]}}</code>
                 </div>
               </div>
             </div>
