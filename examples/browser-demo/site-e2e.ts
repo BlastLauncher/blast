@@ -167,6 +167,36 @@ try {
       );
     }
 
+    // 0180: a docs chapter loads with its stylesheet, from this site only,
+    // and fits a 360px phone.
+    const docsPage = await browser.newPage({ viewport: { width: 360, height: 740 } });
+    try {
+      const docsRequests: string[] = [];
+      docsPage.on("request", (request) => docsRequests.push(request.url()));
+      const docsResponse = await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/quickstart/`, {
+        waitUntil: "load",
+      });
+      if (docsResponse?.status() !== 200)
+        throw new Error(`/docs/quickstart/ returned ${docsResponse?.status()}`);
+      await docsPage.getByRole("heading", { level: 1, name: "Quickstart" }).waitFor();
+      const docsLayout = await docsPage.evaluate(() => ({
+        doc: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth,
+        current: document.querySelector('.sidebar a[aria-current="page"]')?.textContent,
+      }));
+      if (docsLayout.doc > 360 || docsLayout.body > 360 || docsLayout.current !== "Quickstart")
+        throw new Error(`/docs/quickstart/ at 360px: ${JSON.stringify(docsLayout)}`);
+      const foreign = docsRequests.filter((url) => !url.startsWith(`http://127.0.0.1:${wwwPort}/`));
+      if (foreign.length || !docsRequests.some((url) => url.endsWith("/docs/docs.css")))
+        throw new Error(`/docs/quickstart/ requests: ${JSON.stringify(docsRequests)}`);
+      if (screenshots) {
+        await mkdir(screenshots, { recursive: true });
+        await docsPage.screenshot({ path: join(screenshots, "docs-360.png"), fullPage: true });
+      }
+    } finally {
+      await docsPage.close();
+    }
+
     if (screenshots) {
       await mkdir(screenshots, { recursive: true });
       await page.emulateMedia({ colorScheme: "light" });
