@@ -1,7 +1,7 @@
 ---
 id: "0182"
 title: Landing craft pass — real book typography, fewer boxes, a hero that tells the flow
-status: todo
+status: doing
 milestone: M12
 depends: ["0181"]
 ---
