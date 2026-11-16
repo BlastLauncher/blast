@@ -65,7 +65,7 @@ client and doc shows the smaller API.
 ### M12 — Site as a library
 
 - [ ] 0180 User-facing docs rendered on the site under `/docs/`
-- [ ] 0181 Landing redesign: reference-book look, engine hero animation
+- [x] 0181 Landing redesign: reference-book look, engine hero animation
 
 ## Later (not scheduled)
 
