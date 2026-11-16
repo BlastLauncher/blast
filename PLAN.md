@@ -76,7 +76,7 @@ client and doc shows the smaller API.
 ### M14 — Work through PRs
 
 - [x] 0185 Task scripts work through one pull request per task
-- [ ] 0186 Build-time syntax highlighting; docs pages in the landing design
+- [x] 0186 Build-time syntax highlighting; docs pages in the landing design
 
 ## Later (not scheduled)
 
