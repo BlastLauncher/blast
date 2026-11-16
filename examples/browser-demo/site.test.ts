@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { rootModel, rootSections, validateCatalog } from "./root.ts";
 import {
   buildSite,
@@ -60,8 +60,8 @@ function expectLandingSnippets(html: string) {
   expect(html).toContain("<code>3.0.0-alpha.3</code>");
   for (const stale of ["alpha.1", "alpha.2", "From Source", "release:build"])
     expect(html).not.toContain(stale);
-  // Runs everywhere: the Terminal card links to the tmux plugin.
-  expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast" class="card">');
+  // Runs everywhere: the Terminal row links to the tmux plugin.
+  expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast">');
   expect(html).toContain("command palette in a popup");
   // Docs and quickstart live on the site now, not on GitHub blob URLs.
   expect(html).not.toContain("blob/main/docs/quickstart.md");
@@ -84,10 +84,24 @@ function expectLandingSnippets(html: string) {
   expect(html).toMatch(
     /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*animation:\s*none/,
   );
-  // Pure self-contained page: no external requests in src=, @import, or url(.
+  // Craft pass: no box-shadows, no eyebrow/brand tags, and at most two margin notes.
+  expect(html).not.toMatch(/\bbox-shadow\s*:/i);
+  expect(html).not.toContain("brand-mark");
+  expect(html).not.toContain("brand-folio");
+  expect(html).not.toContain("catalogue-tag");
+  expect(html).not.toContain("section-kicker");
+  expect([...html.matchAll(/<aside\b/gi)].length).toBeLessThanOrEqual(2);
+  // Pure self-contained page: no external requests in src=, @import, or non-font url(.
   expect(html).not.toMatch(/\bsrc\s*=/i);
   expect(html).not.toMatch(/@import/i);
-  expect(html).not.toMatch(/\burl\(/i);
+  const urls = [...html.matchAll(/\burl\(\s*([^)]+?)\s*\)/gi)].map((match) =>
+    match[1]!.replace(/^["']|["']$/g, ""),
+  );
+  expect(urls.length).toBeGreaterThan(0);
+  for (const target of urls) expect(target).toMatch(/^\/fonts\/[^/]+\.woff2$/);
+  const preloads = [...html.matchAll(/<link\b[^>]*rel=["']preload["'][^>]*>/gi)].map((m) => m[0]);
+  expect(preloads).toHaveLength(1);
+  expect(preloads[0]).toContain('href="/fonts/newsreader-latin-opsz-normal.woff2"');
 }
 
 describe("site build helpers", () => {
@@ -193,6 +207,20 @@ describe("site build helpers", () => {
     expectLandingSnippets(landingHtml);
     expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
     expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);
+    await expect(readFile(`${result.www}/fonts/OFL.txt`, "utf8")).resolves.toContain(
+      "SIL OPEN FONT LICENSE",
+    );
+    await expect(
+      readFile(`${result.www}/fonts/newsreader-latin-opsz-normal.woff2`),
+    ).resolves.toBeDefined();
+    const fontFiles = (await readdir(`${result.www}/fonts`)).filter((f) => f.endsWith(".woff2"));
+    expect(fontFiles.length).toBe(4);
+    const fontSizes = await Promise.all(
+      fontFiles.map(async (f) => (await stat(`${result.www}/fonts/${f}`)).size),
+    );
+    const totalFontBytes = fontSizes.reduce((sum, n) => sum + n, 0);
+    expect(totalFontBytes).toBeGreaterThan(0);
+    expect(totalFontBytes).toBeLessThanOrEqual(320 * 1024);
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     // The showcase ships prebuilt with every build, fixtures or not.
     const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {

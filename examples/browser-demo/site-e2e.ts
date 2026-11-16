@@ -11,6 +11,7 @@ type BrowserElement = {
   value?: string;
   textContent: string | null;
   matches?(selector: string): boolean;
+  closest?(selector: string): BrowserElement | null;
   getAttribute?(name: string): string | null;
   getBoundingClientRect(): { top: number; bottom: number; height: number; width: number };
 };
@@ -19,12 +20,21 @@ type BrowserDocument = {
   body: { scrollWidth: number; clientWidth: number };
   scrollingElement?: { scrollHeight: number };
   documentElement: { scrollWidth: number; clientHeight: number; clientWidth: number };
+  fonts?: { ready: Promise<unknown> };
+  getAnimations(): Array<{ pause(): void; play(): void; currentTime: number | null }>;
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
-  querySelectorAll(selector: string): { length: number };
+  querySelectorAll(selector: string): ArrayLike<BrowserElement>;
 };
 type BrowserScroller = BrowserElement & { scrollTop: number };
 declare const document: BrowserDocument;
-declare const getComputedStyle: (element: BrowserElement) => { outlineStyle: string };
+declare const getComputedStyle: (element: BrowserElement) => {
+  outlineStyle: string;
+  boxShadow: string;
+  borderTopLeftRadius: string;
+  borderTopRightRadius: string;
+  borderBottomRightRadius: string;
+  borderBottomLeftRadius: string;
+};
 
 const browsers =
   process.env.PLAYWRIGHT_BROWSERS_PATH ??
@@ -147,6 +157,41 @@ try {
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
     await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
 
+    // Verify manual craft-pass constraints on the rendered DOM
+    const craftCheck = await page.evaluate(() => {
+      const marginNotes = document.querySelectorAll("aside, .marginalia").length;
+      const shadowViolations: string[] = [];
+      const radiusViolations: string[] = [];
+      const all = Array.from(document.querySelectorAll("*"));
+      for (const el of all) {
+        const style = getComputedStyle(el);
+        if (style.boxShadow && style.boxShadow !== "none") {
+          shadowViolations.push(`${el.tagName}: ${style.boxShadow}`);
+        }
+        if (!el.closest?.(".hero")) {
+          for (const radius of [
+            style.borderTopLeftRadius,
+            style.borderTopRightRadius,
+            style.borderBottomRightRadius,
+            style.borderBottomLeftRadius,
+          ]) {
+            const px = Number.parseFloat(radius);
+            if (Number.isFinite(px) && px > 4) {
+              radiusViolations.push(`${el.tagName}: ${radius}`);
+            }
+          }
+        }
+      }
+      return { marginNotes, shadowViolations, radiusViolations };
+    });
+    if (
+      craftCheck.marginNotes > 2 ||
+      craftCheck.shadowViolations.length > 0 ||
+      craftCheck.radiusViolations.length > 0
+    ) {
+      throw new Error(`landing craft-pass failed: ${JSON.stringify(craftCheck)}`);
+    }
+
     // Verify pure CSS tab switching
     await page.locator('label[for="tab-go"]').click();
     await page.locator("#panel-go").waitFor({ state: "visible" });
@@ -212,6 +257,37 @@ try {
 
       await page.emulateMedia({ colorScheme: "light" });
       await page.screenshot({ path: join(screenshots, "desktop-light.png"), fullPage: true });
+
+      const heroPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      try {
+        await heroPage.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
+        await heroPage.evaluate(() => document.fonts?.ready);
+        const hero = heroPage.locator(".hero");
+        const heroFrames = [
+          ["01-type", 1200],
+          ["02-input", 2250],
+          ["03-engine", 2970],
+          ["04-fanout", 4320],
+          ["05-redraw", 5580],
+          ["06-hold", 7200],
+        ] as const;
+        for (const scheme of ["light", "dark"] as const) {
+          await heroPage.emulateMedia({ colorScheme: scheme, reducedMotion: "no-preference" });
+          for (const [label, ms] of heroFrames) {
+            await heroPage.evaluate((timeMs) => {
+              for (const anim of document.getAnimations()) {
+                anim.pause();
+                anim.currentTime = timeMs;
+              }
+            }, ms);
+            await hero.screenshot({ path: join(screenshots, `hero-${label}-${scheme}.png`) });
+          }
+        }
+        await heroPage.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+        await hero.screenshot({ path: join(screenshots, "hero-reduced-motion.png") });
+      } finally {
+        await heroPage.close();
+      }
     }
 
     await page.setViewportSize({ width: 1280, height: 800 });

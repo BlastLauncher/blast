@@ -43,6 +43,7 @@ declare module "playwright" {
     textContent(): Promise<string | null>;
     click(): Promise<void>;
     getAttribute(name: string): Promise<string | null>;
+    screenshot(options: { path: string }): Promise<unknown>;
   };
   export const chromium: {
     launch(options: { headless: boolean }): Promise<Browser>;
@@ -63,7 +64,10 @@ declare module "playwright" {
     goto(url: string, options?: { waitUntil?: "load" }): Promise<unknown>;
     close(): Promise<void>;
     screenshot(options: { path: string; fullPage?: boolean }): Promise<unknown>;
-    emulateMedia(options: { colorScheme: "dark" | "light" }): Promise<void>;
+    emulateMedia(options: {
+      colorScheme?: "dark" | "light";
+      reducedMotion?: "reduce" | "no-preference";
+    }): Promise<void>;
     evaluate<T>(pageFunction: () => T): Promise<T>;
     evaluate<T, A>(pageFunction: (arg: A) => T, arg: A): Promise<T>;
     waitForFunction<T>(pageFunction: () => T, options?: { timeout?: number }): Promise<unknown>;
