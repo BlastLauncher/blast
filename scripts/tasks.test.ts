@@ -96,13 +96,14 @@ const checks = (...items: Array<[string, string]>): Reply => ({
 });
 const NO_CHECKS: Reply = { status: 1, stderr: "no checks reported on the 'task' branch" };
 
+const ok = (stdout = "") => ({ status: 0, stdout, stderr: "" });
+
 /** Real local git, with the network edges (fetch, push, pull, gh) simulated. */
 function simulated(options: { prs?: string[]; checks?: Reply[] } = {}) {
   const calls: string[][] = [];
   let checkPolls = 0;
   const runner: CommandRunner = (command, args, cwd) => {
     calls.push([command, ...args]);
-    const ok = (stdout = "") => ({ status: 0, stdout, stderr: "" });
     if (command === "bun") return ok();
     if (command === "git" && (args[0] === "fetch" || args[0] === "push")) return ok();
     if (command === "git" && args[0] === "pull")
