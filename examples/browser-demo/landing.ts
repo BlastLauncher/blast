@@ -1506,7 +1506,7 @@ try await blast.sendInput(.primary, root: root)`);
           <div>
             <div class="section-kicker">&sect; 5 &middot; Packages</div>
             <h2 class="section-title">Install</h2>
-            <p class="section-desc">Prereleases (<code>3.0.0-alpha.2</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
+            <p class="section-desc">Prereleases (<code>3.0.0-alpha.3</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
           </div>
           <aside class="marginalia">
             <strong>Distribution</strong>
