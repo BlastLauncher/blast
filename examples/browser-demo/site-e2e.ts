@@ -11,6 +11,7 @@ type BrowserElement = {
   value?: string;
   textContent: string | null;
   matches?(selector: string): boolean;
+  closest?(selector: string): BrowserElement | null;
   getAttribute?(name: string): string | null;
   getBoundingClientRect(): { top: number; bottom: number; height: number; width: number };
 };
@@ -20,11 +21,18 @@ type BrowserDocument = {
   scrollingElement?: { scrollHeight: number };
   documentElement: { scrollWidth: number; clientHeight: number; clientWidth: number };
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
-  querySelectorAll(selector: string): { length: number };
+  querySelectorAll(selector: string): ArrayLike<BrowserElement>;
 };
 type BrowserScroller = BrowserElement & { scrollTop: number };
 declare const document: BrowserDocument;
-declare const getComputedStyle: (element: BrowserElement) => { outlineStyle: string };
+declare const getComputedStyle: (element: BrowserElement) => {
+  outlineStyle: string;
+  boxShadow: string;
+  borderTopLeftRadius: string;
+  borderTopRightRadius: string;
+  borderBottomRightRadius: string;
+  borderBottomLeftRadius: string;
+};
 
 const browsers =
   process.env.PLAYWRIGHT_BROWSERS_PATH ??
@@ -146,6 +154,41 @@ try {
     });
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
     await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
+
+    // Verify manual craft-pass constraints on the rendered DOM
+    const craftCheck = await page.evaluate(() => {
+      const marginNotes = document.querySelectorAll("aside, .marginalia").length;
+      const shadowViolations: string[] = [];
+      const radiusViolations: string[] = [];
+      const all = Array.from(document.querySelectorAll("*"));
+      for (const el of all) {
+        const style = getComputedStyle(el);
+        if (style.boxShadow && style.boxShadow !== "none") {
+          shadowViolations.push(`${el.tagName}: ${style.boxShadow}`);
+        }
+        if (!el.closest?.(".hero")) {
+          for (const radius of [
+            style.borderTopLeftRadius,
+            style.borderTopRightRadius,
+            style.borderBottomRightRadius,
+            style.borderBottomLeftRadius,
+          ]) {
+            const px = Number.parseFloat(radius);
+            if (Number.isFinite(px) && px > 4) {
+              radiusViolations.push(`${el.tagName}: ${radius}`);
+            }
+          }
+        }
+      }
+      return { marginNotes, shadowViolations, radiusViolations };
+    });
+    if (
+      craftCheck.marginNotes > 2 ||
+      craftCheck.shadowViolations.length > 0 ||
+      craftCheck.radiusViolations.length > 0
+    ) {
+      throw new Error(`landing craft-pass failed: ${JSON.stringify(craftCheck)}`);
+    }
 
     // Verify pure CSS tab switching
     await page.locator('label[for="tab-go"]').click();

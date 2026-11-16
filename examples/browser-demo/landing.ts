@@ -221,12 +221,12 @@ try await blast.sendInput(.primary, root: root)`);
 
     code, pre {
       font-family: var(--font-mono);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
-    p code, li code {
+    p code, li code, td code {
       background: var(--paper-tinted);
       border: 1px solid var(--rule);
-      padding: 0.1em 0.35em;
+      padding: 0.08em 0.32em;
       border-radius: 2px;
       font-size: 0.84em;
       color: var(--ink);
@@ -238,7 +238,7 @@ try await blast.sendInput(.primary, root: root)`);
 
     .container {
       width: 100%;
-      max-width: 1140px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 0 1.25rem;
     }
@@ -251,11 +251,7 @@ try await blast.sendInput(.primary, root: root)`);
     }
 
     .hero-grid > *,
-    .section-head > *,
-    .compare-grid > *,
-    .cards-grid > *,
-    .stats-row > *,
-    .install-boxes > *,
+    .manual-grid > *,
     .diagram-canvas > *,
     .tab-group,
     .tab-panels,
@@ -267,24 +263,21 @@ try await blast.sendInput(.primary, root: root)`);
     /* Header / Masthead */
     header {
       background: var(--bg);
-      border-bottom: 3px double var(--rule-strong);
-      padding: 0.95rem 0;
+      border-bottom: 1px solid var(--rule-strong);
+      padding: 1rem 0;
     }
     .header-inner {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 0.75rem 1.25rem;
+      gap: 0.65rem 1.5rem;
     }
     .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
       font-family: var(--font-serif);
-      font-weight: 700;
-      font-size: 1.3rem;
-      letter-spacing: -0.01em;
+      font-weight: 600;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
       color: var(--ink);
       text-decoration: none;
     }
@@ -292,62 +285,38 @@ try await blast.sendInput(.primary, root: root)`);
       color: var(--ink);
       text-decoration: none;
     }
-    .brand-mark {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.65rem;
-      height: 1.65rem;
-      border: 1px solid var(--rule-strong);
-      outline: 1px solid var(--accent);
-      outline-offset: -3px;
-      font-family: var(--font-serif);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--accent);
-      background: var(--paper);
-    }
-    .brand-folio {
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      border-left: 1px solid var(--rule-strong);
-      padding-left: 0.6rem;
-    }
     .nav-links {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5rem 1.25rem;
-      font-size: 0.875rem;
+      align-items: baseline;
+      gap: 0.5rem 1.35rem;
+      font-size: 0.92rem;
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.06em;
     }
     .nav-links a {
-      color: var(--ink);
+      color: var(--ink-muted);
       text-decoration: none;
-      font-weight: 500;
-      letter-spacing: 0.03em;
       border-bottom: 1px solid transparent;
-      padding: 0.15rem 0;
+      padding: 0.1rem 0;
     }
     .nav-links a:hover {
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
 
-    /* Buttons */
+    /* Restrained Actions */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0.65rem 1.3rem;
-      border-radius: var(--radius);
+      padding: 0.55rem 1.15rem;
+      border-radius: 2px;
+      font-family: var(--font-serif);
       font-weight: 600;
-      font-size: 0.9375rem;
+      font-size: 0.95rem;
       cursor: pointer;
       text-decoration: none;
-      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
       white-space: nowrap;
     }
     .btn-primary {
@@ -361,21 +330,28 @@ try await blast.sendInput(.primary, root: root)`);
       color: var(--accent-ink);
       text-decoration: none;
     }
-    .btn-secondary {
-      background-color: var(--paper);
-      color: var(--ink);
-      border: 1px solid var(--rule-strong);
-    }
-    .btn-secondary:hover {
-      border-color: var(--accent);
+    .link-ruled {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 500;
       color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent);
+      padding: 0.2rem 0;
+    }
+    .link-ruled:hover {
+      color: var(--accent-hover);
+      border-bottom-width: 2px;
       text-decoration: none;
     }
 
     /* Hero */
     .hero {
-      padding: 2.75rem 0 3.25rem;
-      border-bottom: 1px solid var(--rule-strong);
+      padding: 2.5rem 0 3rem;
+      border-bottom: 3px double var(--rule-strong);
     }
     .hero-grid {
       display: grid;
@@ -385,61 +361,40 @@ try await blast.sendInput(.primary, root: root)`);
     }
     @media (min-width: 920px) {
       .hero {
-        padding: 3.5rem 0 3.75rem;
+        padding: 3.25rem 0 3.75rem;
       }
       .hero-grid {
-        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
         gap: 2.75rem;
       }
     }
-    .catalogue-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--font-serif);
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.1em;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-    }
-    .catalogue-tag::before {
-      content: "";
-      display: inline-block;
-      width: 1.5rem;
-      height: 1px;
-      background: var(--accent);
-    }
     .hero-content h1 {
       font-family: var(--font-serif);
-      font-size: clamp(2rem, 4.8vw, 3rem);
-      line-height: 1.12;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-size: clamp(2.1rem, 4.6vw, 3.1rem);
+      line-height: 1.08;
+      font-weight: 600;
+      letter-spacing: -0.025em;
       margin-bottom: 1.15rem;
       color: var(--ink);
     }
     .hero-content p {
-      font-size: 1.0625rem;
+      font-size: 1.05rem;
       color: var(--ink-muted);
       line-height: 1.65;
       margin-bottom: 1.75rem;
-      max-width: 52ch;
+      max-width: 48ch;
     }
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem 1.5rem;
     }
 
     /* Plate I: Animated Engine -> Hosts Diagram */
     .plate {
       background: var(--paper);
       border: 1px solid var(--rule-strong);
-      outline: 1px solid var(--rule);
-      outline-offset: 3px;
       border-radius: var(--radius);
       padding: 0.9rem;
     }
@@ -449,21 +404,21 @@ try await blast.sendInput(.primary, root: root)`);
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 0.4rem 0.75rem;
-      padding-bottom: 0.6rem;
+      padding-bottom: 0.55rem;
       margin-bottom: 0.85rem;
       border-bottom: 1px solid var(--rule);
     }
     .plate-num {
       font-family: var(--font-serif);
       font-variant-caps: all-small-caps;
-      letter-spacing: 0.09em;
-      font-size: 0.875rem;
-      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.9rem;
+      font-weight: 600;
       color: var(--accent);
     }
     .plate-title {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--ink-muted);
     }
 
@@ -497,7 +452,6 @@ try await blast.sendInput(.primary, root: root)`);
       border-radius: 50%;
       transform: translateY(-50%);
       background: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-soft);
       animation: rail-travel 3.2s linear infinite;
       pointer-events: none;
     }
@@ -793,79 +747,72 @@ try await blast.sendInput(.primary, root: root)`);
       .mobile-rail-packet {
         display: none;
       }
-      .card {
-        transition: none;
-      }
-      .card:hover {
-        transform: none;
-      }
     }
 
-    /* Sections & Marginalia */
-    section {
-      padding: 3.25rem 0;
+    /* Manual Layout: Single 66ch column + sparse margin column */
+    section.manual-section {
+      padding: 2.75rem 0;
       border-bottom: 1px solid var(--rule);
       min-width: 0;
       max-width: 100%;
-      overflow-x: hidden;
     }
-    .section-head {
+    .manual-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem 2rem;
-      margin-bottom: 1.75rem;
-      align-items: end;
+      grid-template-columns: minmax(0, 66ch);
+      gap: 1.35rem 2.75rem;
     }
-    @media (min-width: 820px) {
-      .section-head {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+    @media (min-width: 960px) {
+      section.manual-section {
+        padding: 3.1rem 0;
       }
-    }
-    .section-kicker {
-      font-family: var(--font-serif);
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.1em;
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 0.25rem;
+      .manual-grid {
+        grid-template-columns: minmax(0, 66ch) minmax(13rem, 1fr);
+        align-items: start;
+      }
+      .manual-main {
+        grid-column: 1;
+      }
+      .marginalia {
+        grid-column: 2;
+        margin-top: 0.45rem;
+      }
     }
     .section-title {
       font-family: var(--font-serif);
-      font-size: clamp(1.5rem, 3vw, 1.95rem);
-      font-weight: 700;
+      font-size: clamp(1.42rem, 2.7vw, 1.8rem);
+      font-weight: 600;
       letter-spacing: -0.015em;
       line-height: 1.2;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.6rem;
       color: var(--ink);
+    }
+    .section-num {
+      font-variant-numeric: lining-nums tabular-nums;
+      font-weight: 400;
+      color: var(--ink-muted);
+      margin-right: 0.35rem;
     }
     .section-desc {
       font-size: 1rem;
       color: var(--ink-muted);
-      max-width: 62ch;
+      max-width: 64ch;
+      margin-bottom: 1.45rem;
     }
     .marginalia {
-      border-left: 2px solid var(--rule-strong);
-      padding-left: 0.85rem;
+      border-left: 1px solid var(--rule-strong);
+      padding-left: 0.9rem;
       font-family: var(--font-serif);
       font-style: italic;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       line-height: 1.5;
       color: var(--ink-muted);
-    }
-    .marginalia strong {
-      font-style: normal;
-      font-variant-caps: all-small-caps;
-      letter-spacing: 0.06em;
-      color: var(--ink);
-      display: block;
-      margin-bottom: 0.15rem;
+      max-width: 28ch;
     }
 
-    /* Tabs (Pure CSS) */
+    /* Tabs (Pure CSS, neutral ink active rule) */
     .tab-group {
       border: 1px solid var(--rule-strong);
-      border-radius: var(--radius);
+      border-radius: 2px;
       background: var(--paper);
       overflow: hidden;
     }
@@ -885,16 +832,15 @@ try await blast.sendInput(.primary, root: root)`);
     }
     .tab-nav label {
       display: inline-block;
-      padding: 0.72rem 1.15rem;
+      padding: 0.62rem 1rem;
       font-family: var(--font-serif);
-      font-size: 0.9375rem;
-      font-weight: 600;
+      font-size: 0.92rem;
+      font-weight: 500;
       color: var(--ink-muted);
       cursor: pointer;
       border-bottom: 2px solid transparent;
       border-right: 1px solid var(--rule);
       white-space: nowrap;
-      transition: color 0.15s, border-color 0.15s, background-color 0.15s;
     }
     .tab-nav label:hover {
       color: var(--ink);
@@ -907,8 +853,9 @@ try await blast.sendInput(.primary, root: root)`);
     #tab-py:checked ~ .tab-nav label[for="tab-py"],
     #tab-swift:checked ~ .tab-nav label[for="tab-swift"],
     #tab-ndjson:checked ~ .tab-nav label[for="tab-ndjson"] {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
+      color: var(--ink);
+      font-weight: 600;
+      border-bottom-color: var(--ink);
       background: var(--paper);
     }
 
@@ -924,20 +871,20 @@ try await blast.sendInput(.primary, root: root)`);
 
     .tab-panels .tab-panel {
       display: none;
-      padding: 1.25rem;
+      padding: 1.15rem 1.25rem;
       background: var(--code-bg);
       color: var(--code-text);
       overflow-x: auto;
     }
     .tab-panels pre {
-      line-height: 1.58;
-      font-size: 0.84rem;
+      line-height: 1.56;
+      font-size: 0.81rem;
     }
     .tab-panels .tab-caption {
-      margin-top: 0.95rem;
-      padding-top: 0.75rem;
+      margin-top: 0.9rem;
+      padding-top: 0.7rem;
       border-top: 1px solid var(--code-border);
-      font-size: 0.8125rem;
+      font-size: 0.82rem;
       color: var(--code-muted);
     }
 
@@ -950,213 +897,188 @@ try await blast.sendInput(.primary, root: root)`);
       display: block;
     }
 
-    /* Two-column comparison */
-    .compare-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1.5rem;
+    /* Ruled Tables */
+    .ruled-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: lining-nums tabular-nums;
+      margin-top: 0.95rem;
     }
-    @media (min-width: 720px) {
-      .compare-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      }
-    }
-    .compare-col {
-      background: var(--paper);
-      border: 1px solid var(--rule-strong);
-      border-top: 3px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 1.35rem 1.45rem;
-    }
-    .compare-col:first-child {
-      border-top-color: var(--forest);
-    }
-    .compare-col h3 {
-      font-family: var(--font-serif);
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 0.9rem;
-      padding-bottom: 0.6rem;
-      border-bottom: 1px solid var(--rule);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .compare-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-    }
-    .compare-list li {
-      display: block;
-      font-size: 0.9375rem;
-      color: var(--ink-muted);
-      line-height: 1.55;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid var(--rule);
-    }
-    .compare-list li:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-    .compare-list li strong {
-      color: var(--ink);
-    }
-    .bullet-blast { color: var(--forest); font-weight: bold; }
-    .bullet-you { color: var(--accent); font-weight: bold; }
-
-    /* Catalogue Index Cards */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1.25rem;
-    }
-    @media (min-width: 600px) {
-      .cards-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-    @media (min-width: 980px) {
-      .cards-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-    .card {
-      background: var(--paper);
-      border: 1px solid var(--rule-strong);
-      border-radius: var(--radius);
-      padding: 0.95rem 1.15rem 1.15rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      text-decoration: none;
-      box-shadow: inset 0 1px 0 var(--bg), 0 1px 0 var(--rule);
-      transition: transform 0.15s ease, border-color 0.15s ease;
-    }
-    .card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      text-decoration: none;
-    }
-    .card-index-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      padding-bottom: 0.45rem;
-      margin-bottom: 0.75rem;
-      border-bottom: 1px solid var(--accent);
-    }
-    .card-call {
-      color: var(--accent);
-      font-weight: 600;
-    }
-    .card h3 {
-      font-family: var(--font-serif);
-      font-size: 1.075rem;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
-    }
-    .card p {
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-      line-height: 1.55;
-      margin-bottom: 1rem;
-      flex-grow: 1;
-    }
-    .card .card-link {
-      font-family: var(--font-serif);
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--accent);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      border-top: 1px solid var(--rule);
-      padding-top: 0.6rem;
-    }
-
-    /* Receipts / Ledger */
-    .stats-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    @media (min-width: 600px) {
-      .stats-row {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-    .stat-card {
-      background: var(--paper);
-      border: 1px solid var(--rule-strong);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      text-align: center;
-    }
-    .stat-value {
-      font-family: var(--font-serif);
-      font-variant-numeric: tabular-nums;
-      font-size: 2.15rem;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.1;
-      margin-bottom: 0.35rem;
-    }
-    .stat-label {
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-    }
-    .receipts-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem 1.5rem;
-      font-size: 0.9375rem;
-    }
-
-    /* Install */
-    .install-boxes {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
-    }
-    @media (min-width: 900px) {
-      .install-boxes {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-    .install-box {
-      background: var(--code-bg);
-      border: 1px solid var(--code-border);
-      border-radius: var(--radius);
-      padding: 1rem 1.2rem;
-    }
-    .install-label {
+    .ruled-table th {
+      text-align: left;
       font-family: var(--font-serif);
       font-variant-caps: all-small-caps;
-      font-size: 0.85rem;
+      letter-spacing: 0.06em;
       font-weight: 600;
-      letter-spacing: 0.08em;
-      color: var(--code-muted);
-      margin-bottom: 0.45rem;
+      font-size: 0.88rem;
+      color: var(--ink-muted);
+      padding: 0.45rem 0.9rem 0.5rem 0;
+      border-top: 1px solid var(--rule-strong);
+      border-bottom: 1px solid var(--rule-strong);
+      vertical-align: bottom;
+    }
+    .ruled-table td {
+      padding: 0.75rem 0.9rem 0.75rem 0;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 0.94rem;
+      line-height: 1.52;
+      color: var(--ink-muted);
+    }
+    .ruled-table th:last-child,
+    .ruled-table td:last-child {
+      padding-right: 0;
+    }
+    .ruled-table tbody tr:last-child td {
+      border-bottom-color: var(--rule-strong);
+    }
+    .ruled-table td strong,
+    .ruled-table .col-host {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .ruled-table .col-transport {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .ruled-table .col-link {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 639px) {
+      .ruled-table thead {
+        display: none;
+      }
+      .ruled-table,
+      .ruled-table tbody,
+      .ruled-table tr,
+      .ruled-table td {
+        display: block;
+        width: 100%;
+      }
+      .ruled-table tr {
+        padding: 0.7rem 0;
+        border-top: 1px solid var(--rule);
+      }
+      .ruled-table tr:first-child {
+        border-top: 1px solid var(--rule-strong);
+      }
+      .ruled-table tr:last-child {
+        border-bottom: 1px solid var(--rule-strong);
+      }
+      .ruled-table td {
+        border-bottom: none;
+        padding: 0.18rem 0;
+      }
+      .ruled-table.boundary-table td[data-label]::before {
+        content: attr(data-label) ": ";
+        font-variant-caps: all-small-caps;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        color: var(--ink);
+      }
+    }
+
+    /* Receipts / Ledger Row */
+    .ledger-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      border-top: 1px solid var(--rule-strong);
+      border-bottom: 1px solid var(--rule-strong);
+      margin-top: 0.95rem;
+      margin-bottom: 0.85rem;
+    }
+    .ledger-cell {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .ledger-cell:last-child {
+      border-bottom: none;
+    }
+    @media (min-width: 600px) {
+      .ledger-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .ledger-cell {
+        padding: 0.95rem 1rem 0.95rem 0;
+        border-bottom: none;
+        border-right: 1px solid var(--rule);
+      }
+      .ledger-cell + .ledger-cell {
+        padding-left: 1rem;
+      }
+      .ledger-cell:last-child {
+        border-right: none;
+        padding-right: 0;
+      }
+    }
+    .ledger-num {
+      font-family: var(--font-serif);
+      font-variant-numeric: lining-nums tabular-nums;
+      font-size: 1.75rem;
+      font-weight: 600;
+      line-height: 1.12;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+    .ledger-label {
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+    .ledger-note {
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+      font-style: italic;
+    }
+
+    /* Install: plain code lines */
+    .install-list {
+      margin-top: 1.25rem;
+      border-top: 1px solid var(--rule-strong);
+    }
+    .install-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.25rem 1.25rem;
+      padding: 0.72rem 0;
+      border-bottom: 1px solid var(--rule);
+      align-items: baseline;
+    }
+    .install-item:last-child {
+      border-bottom-color: var(--rule-strong);
+    }
+    @media (min-width: 600px) {
+      .install-item {
+        grid-template-columns: 12rem minmax(0, 1fr);
+      }
+    }
+    .install-item dt {
+      font-family: var(--font-serif);
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.06em;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+    .install-item dd {
+      min-width: 0;
     }
     .install-code {
-      color: var(--code-text);
+      display: inline-block;
+      max-width: 100%;
       font-family: var(--font-mono);
-      font-size: 0.85rem;
+      font-size: 0.84rem;
+      color: var(--ink);
       user-select: all;
-      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     /* Footer */
     footer {
-      padding: 2.25rem 0;
+      padding: 2rem 0;
       background: var(--bg);
       border-top: 3px double var(--rule-strong);
       font-size: 0.875rem;
@@ -1166,10 +1088,9 @@ try await blast.sendInput(.primary, root: root)`);
     .footer-inner {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      align-items: center;
+      gap: 0.9rem;
+      align-items: flex-start;
       justify-content: space-between;
-      text-align: center;
     }
     .footer-colophon {
       font-family: var(--font-serif);
@@ -1178,7 +1099,7 @@ try await blast.sendInput(.primary, root: root)`);
     @media (min-width: 680px) {
       .footer-inner {
         flex-direction: row;
-        text-align: left;
+        align-items: baseline;
       }
     }
   </style>
@@ -1186,11 +1107,7 @@ try await blast.sendInput(.primary, root: root)`);
 <body>
   <header>
     <div class="container header-inner">
-      <a href="${origin}/" class="brand">
-        <span class="brand-mark" aria-hidden="true">B</span>
-        <span>Blast</span>
-        <span class="brand-folio">Reference</span>
-      </a>
+      <a href="${origin}/" class="brand">Blast</a>
       <nav class="nav-links" aria-label="Main Navigation">
         <a href="${docsUrl}">Docs</a>
         <a href="${quickstartUrl}">Quickstart</a>
@@ -1205,12 +1122,11 @@ try await blast.sendInput(.primary, root: root)`);
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-content">
-          <div class="catalogue-tag">Folio I &middot; Embeddable Runtime</div>
           <h1>Raycast extensions, inside your app.</h1>
           <p>The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
           <div class="hero-actions">
             <a href="${demoUrl}" class="btn btn-primary">Try the live demo</a>
-            <a href="${quickstartUrl}" class="btn btn-secondary">Quickstart</a>
+            <a href="${quickstartUrl}" class="link-ruled">Quickstart &rarr;</a>
           </div>
         </div>
         <div class="hero-media">
@@ -1325,246 +1241,202 @@ try await blast.sendInput(.primary, root: root)`);
       </div>
     </section>
 
-    <!-- § 1: The whole integration -->
-    <section class="integration" id="integration">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">&sect; 1 &middot; Language Bindings</div>
-            <h2 class="section-title">The whole integration</h2>
-            <p class="section-desc">Open extensions, draw the engine's views, and forward input in a few lines of your language of choice, or one <code>mount()</code> call in a web page.</p>
+    <!-- 1. The whole integration -->
+    <section class="manual-section" id="integration">
+      <div class="container manual-grid">
+        <div class="manual-main">
+          <h2 class="section-title"><span class="section-num">1.</span>The whole integration</h2>
+          <p class="section-desc">Open extensions, draw the engine's views, and forward input in a few lines of your language of choice, or one <code>mount()</code> call in a web page.</p>
+
+          <div class="tab-group">
+            <!-- Radio inputs for CSS-only tab switching -->
+            <input type="radio" id="tab-js" name="tab-lang" class="tab-radio" checked aria-controls="panel-js">
+            <input type="radio" id="tab-web" name="tab-lang" class="tab-radio" aria-controls="panel-web">
+            <input type="radio" id="tab-go" name="tab-lang" class="tab-radio" aria-controls="panel-go">
+            <input type="radio" id="tab-py" name="tab-lang" class="tab-radio" aria-controls="panel-py">
+            <input type="radio" id="tab-swift" name="tab-lang" class="tab-radio" aria-controls="panel-swift">
+            <input type="radio" id="tab-ndjson" name="tab-lang" class="tab-radio" aria-controls="panel-ndjson">
+
+            <div class="tab-nav" role="tablist" aria-label="Integration code examples">
+              <label for="tab-js" id="label-js" role="tab">JavaScript</label>
+              <label for="tab-web" id="label-web" role="tab">Web page</label>
+              <label for="tab-go" id="label-go" role="tab">Go</label>
+              <label for="tab-py" id="label-py" role="tab">Python</label>
+              <label for="tab-swift" id="label-swift" role="tab">Swift</label>
+              <label for="tab-ndjson" id="label-ndjson" role="tab">NDJSON</label>
+            </div>
+
+            <div class="tab-panels">
+              <div class="tab-panel panel-js" id="panel-js" role="tabpanel" aria-labelledby="label-js">
+                <pre><code>${jsSnippet}</code></pre>
+                <p class="tab-caption">The in-process engine: Node.js, Bun or Electron</p>
+              </div>
+
+              <div class="tab-panel panel-web" id="panel-web" role="tabpanel" aria-labelledby="label-web">
+                <pre><code>${webSnippet}</code></pre>
+                <p class="tab-caption">@blastlauncher/web: the extension runs in a sandbox on a second origin you host</p>
+              </div>
+
+              <div class="tab-panel panel-go" id="panel-go" role="tabpanel" aria-labelledby="label-go">
+                <pre><code>${goSnippet}</code></pre>
+                <p class="tab-caption">Client from examples/go-embedder</p>
+              </div>
+
+              <div class="tab-panel panel-py" id="panel-py" role="tabpanel" aria-labelledby="label-py">
+                <pre><code>${pySnippet}</code></pre>
+                <p class="tab-caption">Standard library only, from examples/python-embedder</p>
+              </div>
+
+              <div class="tab-panel panel-swift" id="panel-swift" role="tabpanel" aria-labelledby="label-swift">
+                <pre><code>${swiftSnippet}</code></pre>
+                <p class="tab-caption">BlastKit from examples/macos-launcher</p>
+              </div>
+
+              <div class="tab-panel panel-ndjson" id="panel-ndjson" role="tabpanel" aria-labelledby="label-ndjson">
+                <pre><code>${ndjsonSnippet}</code></pre>
+                <p class="tab-caption">Lines starting with → are what you send, ← what you receive.</p>
+              </div>
+            </div>
           </div>
-          <aside class="marginalia">
-            <strong>Margin Note</strong>
-            Read the <a href="${quickstartUrl}">quickstart</a> or browse the <a href="${docsUrl}">full docs</a> for transport and protocol details.
-          </aside>
         </div>
+        <aside class="marginalia">
+          Read the <a href="${quickstartUrl}">quickstart</a> or browse the <a href="${docsUrl}">full docs</a> for transport and protocol details.
+        </aside>
+      </div>
+    </section>
 
-        <div class="tab-group">
-          <!-- Radio inputs for CSS-only tab switching -->
-          <input type="radio" id="tab-js" name="tab-lang" class="tab-radio" checked aria-controls="panel-js">
-          <input type="radio" id="tab-web" name="tab-lang" class="tab-radio" aria-controls="panel-web">
-          <input type="radio" id="tab-go" name="tab-lang" class="tab-radio" aria-controls="panel-go">
-          <input type="radio" id="tab-py" name="tab-lang" class="tab-radio" aria-controls="panel-py">
-          <input type="radio" id="tab-swift" name="tab-lang" class="tab-radio" aria-controls="panel-swift">
-          <input type="radio" id="tab-ndjson" name="tab-lang" class="tab-radio" aria-controls="panel-ndjson">
+    <!-- 2. What Blast does / what you do -->
+    <section class="manual-section responsibilities">
+      <div class="container manual-grid">
+        <div class="manual-main">
+          <h2 class="section-title"><span class="section-num">2.</span>What Blast does / what you do</h2>
+          <table class="ruled-table boundary-table">
+            <thead>
+              <tr>
+                <th>What Blast does</th>
+                <th>What you do</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Blast"><strong>Launcher flow.</strong> Lists every extension's commands as a root view, asks for missing preferences and arguments, and installs dependencies.</td>
+                <td data-label="You"><strong>Render views.</strong> Draw the view nodes (List, Detail, Form, Grid) in your app's native UI toolkit.</td>
+              </tr>
+              <tr>
+                <td data-label="Blast"><strong>Bundling &amp; runtime.</strong> Bundles each extension with esbuild and runs each command in its own Node.js process.</td>
+                <td data-label="You"><strong>Forward input.</strong> Send search keystrokes, item selections, and button clicks back to the session.</td>
+              </tr>
+              <tr>
+                <td data-label="Blast"><strong>Raycast compatibility.</strong> Provides <code>@raycast/api</code> (and ships <code>@raycast/utils</code>), with coverage measured against the latest release.</td>
+                <td data-label="You"><strong>Answer capabilities.</strong> Choose which capabilities to grant (clipboard, storage, OAuth) per your security policy.</td>
+              </tr>
+              <tr>
+                <td data-label="Blast"><strong>UI reconciliation.</strong> Reconciles React trees into serializable views with search, selection and actions applied.</td>
+                <td data-label="You"><strong>Pick your transport.</strong> Embed in-process via TypeScript, across processes via standard I/O, or in a web page with <code>@blastlauncher/web</code>.</td>
+              </tr>
+              <tr>
+                <td data-label="Blast"><strong>Capability brokering.</strong> Mediates storage, clipboard, OAuth and AI access, through explicit grants.</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <aside class="marginalia">
+          The engine reconciles views; your host owns pixels and capability policy.
+        </aside>
+      </div>
+    </section>
 
-          <div class="tab-nav" role="tablist" aria-label="Integration code examples">
-            <label for="tab-js" id="label-js" role="tab">JavaScript</label>
-            <label for="tab-web" id="label-web" role="tab">Web page</label>
-            <label for="tab-go" id="label-go" role="tab">Go</label>
-            <label for="tab-py" id="label-py" role="tab">Python</label>
-            <label for="tab-swift" id="label-swift" role="tab">Swift</label>
-            <label for="tab-ndjson" id="label-ndjson" role="tab">NDJSON</label>
-          </div>
-
-          <div class="tab-panels">
-            <div class="tab-panel panel-js" id="panel-js" role="tabpanel" aria-labelledby="label-js">
-              <pre><code>${jsSnippet}</code></pre>
-              <p class="tab-caption">The in-process engine: Node.js, Bun or Electron</p>
-            </div>
-
-            <div class="tab-panel panel-web" id="panel-web" role="tabpanel" aria-labelledby="label-web">
-              <pre><code>${webSnippet}</code></pre>
-              <p class="tab-caption">@blastlauncher/web: the extension runs in a sandbox on a second origin you host</p>
-            </div>
-
-            <div class="tab-panel panel-go" id="panel-go" role="tabpanel" aria-labelledby="label-go">
-              <pre><code>${goSnippet}</code></pre>
-              <p class="tab-caption">Client from examples/go-embedder</p>
-            </div>
-
-            <div class="tab-panel panel-py" id="panel-py" role="tabpanel" aria-labelledby="label-py">
-              <pre><code>${pySnippet}</code></pre>
-              <p class="tab-caption">Standard library only, from examples/python-embedder</p>
-            </div>
-
-            <div class="tab-panel panel-swift" id="panel-swift" role="tabpanel" aria-labelledby="label-swift">
-              <pre><code>${swiftSnippet}</code></pre>
-              <p class="tab-caption">BlastKit from examples/macos-launcher</p>
-            </div>
-
-            <div class="tab-panel panel-ndjson" id="panel-ndjson" role="tabpanel" aria-labelledby="label-ndjson">
-              <pre><code>${ndjsonSnippet}</code></pre>
-              <p class="tab-caption">Lines starting with → are what you send, ← what you receive.</p>
-            </div>
-          </div>
+    <!-- 3. Runs everywhere -->
+    <section class="manual-section platforms">
+      <div class="container manual-grid">
+        <div class="manual-main">
+          <h2 class="section-title"><span class="section-num">3.</span>Runs everywhere</h2>
+          <table class="ruled-table runs-table">
+            <thead>
+              <tr>
+                <th>Host</th>
+                <th>Transport</th>
+                <th>Details</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-host">Node / Bun / Electron</td>
+                <td class="col-transport">In-process</td>
+                <td>Engine integration for JavaScript and TypeScript hosts with no separate process for the engine.</td>
+                <td class="col-link"><a href="https://github.com/blastlauncher/blast/tree/main/packages/host">packages/host</a></td>
+              </tr>
+              <tr>
+                <td class="col-host">Any language via serve</td>
+                <td class="col-transport">Stdio NDJSON</td>
+                <td>Simple NDJSON protocol over standard I/O for Go, Python, Swift, or Rust.</td>
+                <td class="col-link"><a href="https://github.com/blastlauncher/blast/tree/main/packages/serve">packages/serve</a></td>
+              </tr>
+              <tr>
+                <td class="col-host">Any web page</td>
+                <td class="col-transport">Browser</td>
+                <td>One <code>mount()</code> runs extensions by URL in a cross-origin sandboxed iframe (almostnode), with nothing installed.</td>
+                <td class="col-link"><a href="https://github.com/blastlauncher/blast/tree/main/packages/web">packages/web</a></td>
+              </tr>
+              <tr>
+                <td class="col-host">Terminal and tmux</td>
+                <td class="col-transport">Terminal</td>
+                <td>A keyboard-driven terminal client for lists, grids, forms and markdown details. In tmux it opens as a command palette in a popup, with pane, window and session commands.</td>
+                <td class="col-link"><a href="https://github.com/BlastLauncher/tmux-blast">tmux-blast</a></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
 
-    <!-- § 2: What Blast does / what you do -->
-    <section class="responsibilities">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">&sect; 2 &middot; Responsibilities</div>
-            <h2 class="section-title">What Blast does / what you do</h2>
-            <p class="section-desc">A clean boundary between extension execution and your host application.</p>
+    <!-- 4. Receipts -->
+    <section class="manual-section receipts">
+      <div class="container manual-grid">
+        <div class="manual-main">
+          <h2 class="section-title"><span class="section-num">4.</span>Receipts</h2>
+          <div class="ledger-row">
+            <div class="ledger-cell">
+              <div class="ledger-num">${stats.coverage.percent}</div>
+              <div class="ledger-label">Raycast API covered (${stats.coverage.covered} of ${stats.coverage.total})</div>
+            </div>
+            <div class="ledger-cell">
+              <div class="ledger-num">${stats.rendered.toLocaleString()}</div>
+              <div class="ledger-label">Catalog commands rendered</div>
+            </div>
+            <div class="ledger-cell">
+              <div class="ledger-num">${stats.commands.toLocaleString()}</div>
+              <div class="ledger-label">Total catalog commands tested</div>
+            </div>
           </div>
-          <aside class="marginalia">
-            <strong>Boundary</strong>
-            The engine reconciles views; your host owns pixels and capability policy.
-          </aside>
-        </div>
-
-        <div class="compare-grid">
-          <div class="compare-col">
-            <h3><span class="bullet-blast">&check;</span> What Blast does</h3>
-            <ul class="compare-list">
-              <li><strong>Launcher flow:</strong> Lists every extension's commands as a root view, asks for missing preferences and arguments, and installs dependencies.</li>
-              <li><strong>Bundling &amp; runtime:</strong> Bundles each extension with esbuild and runs each command in its own Node.js process.</li>
-              <li><strong>Raycast compatibility:</strong> Provides <code>@raycast/api</code> (and ships <code>@raycast/utils</code>), with coverage measured against the latest release (see Receipts).</li>
-              <li><strong>UI reconciliation:</strong> Reconciles React trees into serializable views with search, selection and actions applied.</li>
-              <li><strong>Capability brokering:</strong> Mediates storage, clipboard, OAuth and AI access, through explicit grants.</li>
-            </ul>
-          </div>
-
-          <div class="compare-col">
-            <h3><span class="bullet-you">&rarr;</span> What you do</h3>
-            <ul class="compare-list">
-              <li><strong>Render views:</strong> Draw the view nodes (List, Detail, Form, Grid) in your app's native UI toolkit.</li>
-              <li><strong>Forward input:</strong> Send search keystrokes, item selections, and button clicks back to the session.</li>
-              <li><strong>Answer capabilities:</strong> Choose which capabilities to grant (clipboard, storage, OAuth) per your security policy.</li>
-              <li><strong>Pick your transport:</strong> Embed in-process via TypeScript, across processes via standard I/O, or in a web page with <code>@blastlauncher/web</code>.</li>
-            </ul>
-          </div>
+          <p class="ledger-note">Measured compatibility against real extensions from the public catalog: <a href="${coverageUrl}" target="_blank" rel="noopener">API Coverage Report</a> and <a href="${sweepUrl}" target="_blank" rel="noopener">Full Sweep Results</a>.</p>
         </div>
       </div>
     </section>
 
-    <!-- § 3: Runs everywhere -->
-    <section class="platforms">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">&sect; 3 &middot; Host Catalogue</div>
-            <h2 class="section-title">Runs everywhere</h2>
-            <p class="section-desc">Integrate Raycast extensions into any architecture, runtime environment, or platform.</p>
-          </div>
-          <aside class="marginalia">
-            <strong>Index Cards</strong>
-            Four embedder paths, from in-process JavaScript to a standalone terminal client.
-          </aside>
-        </div>
+    <!-- 5. Install -->
+    <section class="manual-section install">
+      <div class="container manual-grid">
+        <div class="manual-main">
+          <h2 class="section-title"><span class="section-num">5.</span>Install</h2>
+          <p class="section-desc">Prereleases (<code>3.0.0-alpha.3</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
 
-        <div class="cards-grid">
-          <a href="https://github.com/blastlauncher/blast/tree/main/packages/host" class="card">
-            <div>
-              <div class="card-index-bar">
-                <span class="card-call">No. 01</span>
-                <span>In-process</span>
-              </div>
-              <h3>Node / Bun / Electron</h3>
-              <p>In-process engine integration for JavaScript and TypeScript hosts with no separate process for the engine.</p>
+          <dl class="install-list">
+            <div class="install-item">
+              <dt>JS/TS Engine</dt>
+              <dd><code class="install-code">npm install @blastlauncher/engine@next</code></dd>
             </div>
-            <span class="card-link">Explore package &rarr;</span>
-          </a>
-
-          <a href="https://github.com/blastlauncher/blast/tree/main/packages/serve" class="card">
-            <div>
-              <div class="card-index-bar">
-                <span class="card-call">No. 02</span>
-                <span>Stdio NDJSON</span>
-              </div>
-              <h3>Any language via serve</h3>
-              <p>Simple NDJSON protocol over standard I/O for Go, Python, Swift, or Rust.</p>
+            <div class="install-item">
+              <dt>Any Language (stdio)</dt>
+              <dd><code class="install-code">npx -p @blastlauncher/serve@next blast-serve</code></dd>
             </div>
-            <span class="card-link">Explore serve &rarr;</span>
-          </a>
-
-          <a href="https://github.com/blastlauncher/blast/tree/main/packages/web" class="card">
-            <div>
-              <div class="card-index-bar">
-                <span class="card-call">No. 03</span>
-                <span>Browser</span>
-              </div>
-              <h3>Any web page</h3>
-              <p>One <code>mount()</code> runs extensions by URL in a cross-origin sandboxed iframe (almostnode), with nothing installed.</p>
+            <div class="install-item">
+              <dt>Web Page</dt>
+              <dd><code class="install-code">npm install @blastlauncher/web@next</code></dd>
             </div>
-            <span class="card-link">Explore web package &rarr;</span>
-          </a>
-
-          <a href="https://github.com/BlastLauncher/tmux-blast" class="card">
-            <div>
-              <div class="card-index-bar">
-                <span class="card-call">No. 04</span>
-                <span>Terminal</span>
-              </div>
-              <h3>Terminal and tmux</h3>
-              <p>A keyboard-driven terminal client for lists, grids, forms and markdown details. In tmux it opens as a command palette in a popup, with pane, window and session commands.</p>
-            </div>
-            <span class="card-link">Get the tmux palette &rarr;</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- § 4: Receipts -->
-    <section class="receipts">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">&sect; 4 &middot; Measured Evidence</div>
-            <h2 class="section-title">Receipts</h2>
-            <p class="section-desc">Measured compatibility against real extensions from the public catalog.</p>
-          </div>
-          <aside class="marginalia">
-            <strong>Ledger</strong>
-            Figures generated from the API coverage report and catalog sweep.
-          </aside>
-        </div>
-
-        <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-value">${stats.coverage.percent}</div>
-            <div class="stat-label">Raycast API covered (${stats.coverage.covered} of ${stats.coverage.total})</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${stats.rendered.toLocaleString()}</div>
-            <div class="stat-label">Catalog commands rendered</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${stats.commands.toLocaleString()}</div>
-            <div class="stat-label">Total catalog commands tested</div>
-          </div>
-        </div>
-
-        <div class="receipts-links">
-          <a href="${coverageUrl}" target="_blank" rel="noopener">Read the API Coverage Report &rarr;</a>
-          <a href="${sweepUrl}" target="_blank" rel="noopener">Read the Full Sweep Results &rarr;</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- § 5: Install -->
-    <section class="install">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">&sect; 5 &middot; Packages</div>
-            <h2 class="section-title">Install</h2>
-            <p class="section-desc">Prereleases (<code>3.0.0-alpha.3</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
-          </div>
-          <aside class="marginalia">
-            <strong>Distribution</strong>
-            Published under the <code>next</code> tag on npm.
-          </aside>
-        </div>
-
-        <div class="install-boxes">
-          <div class="install-box">
-            <div class="install-label">JS/TS Engine</div>
-            <div class="install-code">npm install @blastlauncher/engine@next</div>
-          </div>
-          <div class="install-box">
-            <div class="install-label">Any Language (stdio)</div>
-            <div class="install-code">npx -p @blastlauncher/serve@next blast-serve</div>
-          </div>
-          <div class="install-box">
-            <div class="install-label">Web Page</div>
-            <div class="install-code">npm install @blastlauncher/web@next</div>
-          </div>
+          </dl>
         </div>
       </div>
     </section>

@@ -60,8 +60,8 @@ function expectLandingSnippets(html: string) {
   expect(html).toContain("<code>3.0.0-alpha.3</code>");
   for (const stale of ["alpha.1", "alpha.2", "From Source", "release:build"])
     expect(html).not.toContain(stale);
-  // Runs everywhere: the Terminal card links to the tmux plugin.
-  expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast" class="card">');
+  // Runs everywhere: the Terminal row links to the tmux plugin.
+  expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast">');
   expect(html).toContain("command palette in a popup");
   // Docs and quickstart live on the site now, not on GitHub blob URLs.
   expect(html).not.toContain("blob/main/docs/quickstart.md");
@@ -84,6 +84,13 @@ function expectLandingSnippets(html: string) {
   expect(html).toMatch(
     /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*animation:\s*none/,
   );
+  // Craft pass: no box-shadows, no eyebrow/brand tags, and at most two margin notes.
+  expect(html).not.toMatch(/\bbox-shadow\s*:/i);
+  expect(html).not.toContain("brand-mark");
+  expect(html).not.toContain("brand-folio");
+  expect(html).not.toContain("catalogue-tag");
+  expect(html).not.toContain("section-kicker");
+  expect([...html.matchAll(/<aside\b/gi)].length).toBeLessThanOrEqual(2);
   // Pure self-contained page: no external requests in src=, @import, or non-font url(.
   expect(html).not.toMatch(/\bsrc\s*=/i);
   expect(html).not.toMatch(/@import/i);
