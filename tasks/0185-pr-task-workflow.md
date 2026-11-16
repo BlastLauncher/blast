@@ -66,8 +66,11 @@ pushed to `main` directly.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: task/0185-pr-workflow @ 43a7e87
+Verify: `bun test scripts/tasks.test.ts` currently reflects pre-0185 main-branch behavior; legacy tests fail against the new task-branch/PR contract. Typecheck could not run because dependencies are not installed.
 Done:
-Not done / risks:
+- Updated start to fetch origin, create task branch, and commit the status transition.
+- Updated merge to require the task branch and compare worker branches against it.
+- Updated land to merge origin/main, push the task branch, create/reuse a PR, poll checks, merge, and clean up.
+Not done / risks: Existing tests need migration to the new contract; no network or remote was used.
 ```
