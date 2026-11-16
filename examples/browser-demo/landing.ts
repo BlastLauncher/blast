@@ -1,5 +1,5 @@
-// Landing page for Blast: simple API, any language, demo front and centre.
-// Pure HTML/CSS, zero dependencies, accessible, responsive at 360px, honours dark mode.
+// Landing page for Blast: reference-library aesthetic, CSS-animated engine diagram, pure HTML/CSS.
+// Zero external requests, accessible, responsive at 360px, honours dark mode and reduced motion.
 
 export interface SiteStats {
   coverage: { covered: number; total: number; percent: string };
@@ -14,7 +14,8 @@ function escapeHtml(text: string): string {
 export function landing(stats: SiteStats, siteOrigin = ""): string {
   const origin = siteOrigin.replace(/\/$/, "");
   const demoUrl = `${origin}/demo/`;
-  const quickstartUrl = "https://github.com/blastlauncher/blast/blob/main/docs/quickstart.md";
+  const docsUrl = `${origin}/docs/`;
+  const quickstartUrl = `${origin}/docs/quickstart/`;
   const coverageUrl = "https://github.com/blastlauncher/blast/blob/main/compat/COVERAGE.md";
   const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/SWEEP.md";
   const repoUrl = "https://github.com/blastlauncher/blast";
@@ -90,43 +91,52 @@ try await blast.sendInput(.primary, root: root)`);
   <meta name="description" content="Embed unmodified Raycast extensions inside your application in any language.">
   <style>
     :root {
-      --bg: #ffffff;
-      --bg-alt: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #e2e8f0;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --accent-light: #eff6ff;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --code-border: #1e293b;
-      --tag-bg: #e0f2fe;
-      --tag-text: #0369a1;
-      --focus-ring: #3b82f6;
-      --radius: 8px;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      /* Reference Library: warm rag paper & iron-gall ink */
+      --bg: #f7f4ec;
+      --paper: #fcfbf7;
+      --paper-tinted: #efeae0;
+      --ink: #1b1917;
+      --ink-muted: #524b44;
+      --rule: #d7cfc2;
+      --rule-strong: #b6ab99;
+      --accent: #8c2318;
+      --accent-hover: #6e1a11;
+      --accent-soft: #f3e4e1;
+      --accent-ink: #fcfbf7;
+      --forest: #1f4d3a;
+      --brass: #7a5718;
+      --code-bg: #1a1816;
+      --code-text: #f4efe6;
+      --code-muted: #b7aea0;
+      --code-border: #36302a;
+      --focus-ring: #8c2318;
+      --radius: 3px;
+      --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #0b0f17;
-        --bg-alt: #111827;
-        --card-bg: #151d2c;
-        --text: #f1f5f9;
-        --text-muted: #94a3b8;
-        --border: #1e293b;
-        --accent: #3b82f6;
-        --accent-hover: #60a5fa;
-        --accent-light: #1e293b;
-        --code-bg: #030712;
-        --code-text: #f9fafb;
-        --code-border: #1f2937;
-        --tag-bg: #1e293b;
-        --tag-text: #38bdf8;
-        --focus-ring: #60a5fa;
+        /* Night Reading Room: warm lamp-lit charcoal & parchment */
+        --bg: #12110f;
+        --paper: #1a1815;
+        --paper-tinted: #221f1b;
+        --ink: #ede7db;
+        --ink-muted: #b4aba0;
+        --rule: #2f2a24;
+        --rule-strong: #4a4238;
+        --accent: #e47b5e;
+        --accent-hover: #ee947b;
+        --accent-soft: #2c1e1a;
+        --accent-ink: #12110f;
+        --forest: #74c69d;
+        --brass: #d4a955;
+        --code-bg: #0c0b0a;
+        --code-text: #ede7db;
+        --code-muted: #aca294;
+        --code-border: #2c2823;
+        --focus-ring: #e47b5e;
       }
     }
 
@@ -139,8 +149,8 @@ try await blast.sendInput(.primary, root: root)`);
     html {
       font-family: var(--font-sans);
       background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+      color: var(--ink);
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
       max-width: 100vw;
@@ -156,15 +166,32 @@ try await blast.sendInput(.primary, root: root)`);
 
     a {
       color: var(--accent);
-      text-decoration: none;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
     }
     a:hover {
-      text-decoration: underline;
+      color: var(--accent-hover);
+      text-decoration-thickness: 2px;
+    }
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 3px;
+      border-radius: 2px;
     }
 
     code, pre {
       font-family: var(--font-mono);
-      font-size: 0.875rem;
+      font-size: 0.85rem;
+    }
+    p code, li code {
+      background: var(--paper-tinted);
+      border: 1px solid var(--rule);
+      padding: 0.1em 0.35em;
+      border-radius: 2px;
+      font-size: 0.84em;
+      color: var(--ink);
     }
     pre {
       max-width: 100%;
@@ -173,13 +200,11 @@ try await blast.sendInput(.primary, root: root)`);
 
     .container {
       width: 100%;
-      max-width: 1120px;
+      max-width: 1140px;
       margin: 0 auto;
       padding: 0 1.25rem;
-      box-sizing: border-box;
     }
 
-    /* Main & Section containment */
     main {
       flex: 1 1 auto;
       min-width: 0;
@@ -187,52 +212,90 @@ try await blast.sendInput(.primary, root: root)`);
       overflow-x: hidden;
     }
 
-    /* Grid and flex item containment */
     .hero-grid > *,
-    .wire-mock-split > *,
+    .section-head > *,
     .compare-grid > *,
     .cards-grid > *,
     .stats-row > *,
     .install-boxes > *,
+    .diagram-canvas > *,
     .tab-group,
     .tab-panels,
-    .wire-mock-card {
+    .plate {
       min-width: 0;
       max-width: 100%;
     }
 
-    /* Header */
+    /* Header / Masthead */
     header {
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 0;
       background: var(--bg);
+      border-bottom: 3px double var(--rule-strong);
+      padding: 0.95rem 0;
     }
     .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.75rem 1.25rem;
     }
     .brand {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      font-family: var(--font-serif);
       font-weight: 700;
-      font-size: 1.125rem;
-      color: var(--text);
+      font-size: 1.3rem;
+      letter-spacing: -0.01em;
+      color: var(--ink);
       text-decoration: none;
     }
     .brand:hover {
+      color: var(--ink);
       text-decoration: none;
+    }
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.65rem;
+      height: 1.65rem;
+      border: 1px solid var(--rule-strong);
+      outline: 1px solid var(--accent);
+      outline-offset: -3px;
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--paper);
+    }
+    .brand-folio {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      border-left: 1px solid var(--rule-strong);
+      padding-left: 0.6rem;
     }
     .nav-links {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       align-items: center;
-      gap: 1rem;
-      font-size: 0.9375rem;
+      gap: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+    }
+    .nav-links a {
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      border-bottom: 1px solid transparent;
+      padding: 0.15rem 0;
+    }
+    .nav-links a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
 
     /* Buttons */
@@ -240,196 +303,533 @@ try await blast.sendInput(.primary, root: root)`);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0.625rem 1.25rem;
+      padding: 0.65rem 1.3rem;
       border-radius: var(--radius);
       font-weight: 600;
       font-size: 0.9375rem;
       cursor: pointer;
       text-decoration: none;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
       white-space: nowrap;
     }
     .btn-primary {
       background-color: var(--accent);
-      color: #ffffff;
+      color: var(--accent-ink);
       border: 1px solid var(--accent);
     }
     .btn-primary:hover {
       background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: var(--accent-ink);
       text-decoration: none;
     }
     .btn-secondary {
-      background-color: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
+      background-color: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--rule-strong);
     }
     .btn-secondary:hover {
-      background-color: var(--bg-alt);
+      border-color: var(--accent);
+      color: var(--accent);
       text-decoration: none;
     }
 
     /* Hero */
     .hero {
-      padding: 3.5rem 0 3rem;
-      border-bottom: 1px solid var(--border);
+      padding: 2.75rem 0 3.25rem;
+      border-bottom: 1px solid var(--rule-strong);
     }
     .hero-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 2.5rem;
+      gap: 2.25rem;
       align-items: center;
     }
-    @media (min-width: 840px) {
+    @media (min-width: 920px) {
+      .hero {
+        padding: 3.5rem 0 3.75rem;
+      }
       .hero-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 2.75rem;
       }
     }
+    .catalogue-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-serif);
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.1em;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .catalogue-tag::before {
+      content: "";
+      display: inline-block;
+      width: 1.5rem;
+      height: 1px;
+      background: var(--accent);
+    }
     .hero-content h1 {
-      font-size: clamp(1.75rem, 5vw, 2.75rem);
-      line-height: 1.15;
-      font-weight: 800;
-      letter-spacing: -0.025em;
-      margin-bottom: 1rem;
-      word-break: break-word;
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 4.8vw, 3rem);
+      line-height: 1.12;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.15rem;
+      color: var(--ink);
     }
     .hero-content p {
-      font-size: 1.125rem;
-      color: var(--text-muted);
-      line-height: 1.6;
+      font-size: 1.0625rem;
+      color: var(--ink-muted);
+      line-height: 1.65;
       margin-bottom: 1.75rem;
+      max-width: 52ch;
     }
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 0.75rem;
     }
 
-    /* Wire & Mock Display */
-    .wire-mock-card {
+    /* Plate I: Animated Engine -> Hosts Diagram */
+    .plate {
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      outline: 1px solid var(--rule);
+      outline-offset: 3px;
+      border-radius: var(--radius);
+      padding: 0.9rem;
+    }
+    .plate-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.75rem;
+      padding-bottom: 0.6rem;
+      margin-bottom: 0.85rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .plate-num {
+      font-family: var(--font-serif);
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.09em;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .plate-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+    }
+
+    .diagram-canvas {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.65rem;
+      padding-left: 1.35rem;
+    }
+    /* Mobile vertical bus trunk connecting engine at top to 4 stacked hosts */
+    .mobile-rail {
+      position: absolute;
+      left: 0.45rem;
+      top: 2.75rem;
+      bottom: 5.5rem;
+      width: 1px;
+      background: repeating-linear-gradient(
+        to bottom,
+        var(--accent) 0 4px,
+        transparent 4px 8px
+      );
+      pointer-events: none;
+    }
+    .mobile-rail-packet {
+      position: absolute;
+      left: -4px;
+      top: 0%;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      animation: rail-travel 3.2s linear infinite;
+      pointer-events: none;
+    }
+    .engine-hub {
+      order: 0;
+      position: relative;
       background: var(--code-bg);
       color: var(--code-text);
       border: 1px solid var(--code-border);
+      outline: 1px solid var(--accent);
+      outline-offset: -4px;
       border-radius: var(--radius);
-      overflow: hidden;
+      padding: 0.7rem 1rem;
+      text-align: center;
+    }
+    .engine-hub::before {
+      content: "";
+      position: absolute;
+      left: -0.95rem;
+      top: 50%;
+      width: 0.95rem;
+      height: 1px;
+      background: var(--accent);
+    }
+    .engine-hub-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .engine-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      animation: engine-beat 2s ease-in-out infinite;
+    }
+    .engine-hub-sub {
+      margin-top: 0.15rem;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--code-muted);
+    }
+
+    .bus-svg {
+      display: none;
+    }
+
+    .host-shell {
+      position: relative;
+      background: var(--bg);
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius);
+      padding: 0.55rem 0.65rem;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      gap: 0.4rem;
     }
-    .wire-mock-header {
-      background: rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid var(--code-border);
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
+    .host-shell::before {
+      content: "";
+      position: absolute;
+      left: -0.9rem;
+      top: 50%;
+      width: 0.9rem;
+      height: 1px;
+      background: var(--rule-strong);
+    }
+    .host-macos { order: 1; }
+    .host-tmux { order: 2; }
+    .host-web { order: 3; }
+    .host-stdio { order: 4; }
+
+    .host-head {
       display: flex;
+      align-items: baseline;
       justify-content: space-between;
-      align-items: center;
+      gap: 0.4rem;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.3rem;
     }
-    .wire-mock-split {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
+    .host-name {
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--ink);
     }
-    @media (min-width: 580px) {
-      .wire-mock-split {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      }
+    .host-kind {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--accent);
+      white-space: nowrap;
     }
-    .mock-view {
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.2);
-      border-bottom: 1px solid var(--code-border);
+    .host-sub {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--ink-muted);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
     }
-    @media (min-width: 580px) {
-      .mock-view {
-        border-bottom: none;
-        border-right: 1px solid var(--code-border);
-      }
+    .host-sub code {
+      font-size: 0.6875rem;
+      padding: 0 0.2em;
     }
-    .mock-search-bar {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      padding: 0.375rem 0.5rem;
-      font-size: 0.8125rem;
-      color: var(--code-text);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.375rem;
+
+    .mini-cmd {
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      border-radius: 2px;
+      padding: 0.35rem;
     }
-    .mock-list {
+    .mini-search {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--ink-muted);
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.2rem;
+      margin-bottom: 0.25rem;
+    }
+    .mini-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 0.375rem;
+      gap: 0.15rem;
     }
-    .mock-item {
-      padding: 0.375rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
+    .mini-row {
+      font-size: 0.72rem;
+      line-height: 1.3;
+      padding: 0.14rem 0.35rem;
+      border-radius: 2px;
+      color: var(--ink-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .mock-item.active {
+    .mini-row.active {
       background: var(--accent);
-      color: #ffffff;
+      color: var(--accent-ink);
+      font-weight: 600;
+      animation: row-receive 2.8s ease-in-out infinite;
     }
-    .mock-item:not(.active) {
-      background: rgba(255, 255, 255, 0.04);
-      color: #94a3b8;
-    }
-    .mock-item-sub {
-      font-size: 0.6875rem;
-      opacity: 0.75;
-    }
-    .mock-wire {
-      padding: 1rem;
-      overflow-x: auto;
-      font-size: 0.75rem;
-      line-height: 1.6;
-      min-width: 0;
-      max-width: 100%;
-    }
-    .mock-wire pre {
-      white-space: pre;
-      color: #cbd5e1;
-      min-width: 0;
-      max-width: 100%;
-    }
-    .wire-in { color: #38bdf8; }
-    .wire-out { color: #a7f3d0; }
+    .host-tmux .mini-row.active { animation-delay: 0.35s; }
+    .host-web .mini-row.active { animation-delay: 0.7s; }
+    .host-stdio .mini-row.active { animation-delay: 1.05s; }
 
-    /* Section base */
+    @media (min-width: 520px) {
+      .diagram-canvas {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0 0.85rem;
+        padding-left: 0;
+      }
+      .mobile-rail,
+      .mobile-rail-packet,
+      .engine-hub::before,
+      .host-shell::before {
+        display: none;
+      }
+      .host-macos { order: 1; }
+      .host-tmux { order: 2; }
+      .bus-top {
+        display: block;
+        order: 3;
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 48px;
+        overflow: visible;
+      }
+      .engine-hub {
+        order: 4;
+        grid-column: 1 / -1;
+        justify-self: center;
+        min-width: 230px;
+      }
+      .bus-bottom {
+        display: block;
+        order: 5;
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 48px;
+        overflow: visible;
+      }
+      .host-web { order: 6; }
+      .host-stdio { order: 7; }
+    }
+
+    .bus-track {
+      fill: none;
+      stroke: var(--rule-strong);
+      stroke-width: 1.25;
+    }
+    .bus-flow {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 6;
+      animation: bus-dash 1.2s linear infinite;
+    }
+    .bus-arrow {
+      fill: var(--accent);
+    }
+    .bus-tag-bg {
+      fill: var(--paper);
+      stroke: var(--rule-strong);
+      stroke-width: 1;
+    }
+    .bus-tag-text {
+      fill: var(--ink-muted);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-anchor: middle;
+    }
+    .bus-packet {
+      fill: var(--accent);
+      stroke: var(--paper);
+      stroke-width: 1.5;
+    }
+    .packet-tl {
+      animation: send-tl 2.6s ease-in-out infinite;
+    }
+    .packet-tr {
+      animation: send-tr 2.6s ease-in-out infinite -0.65s;
+    }
+    .packet-bl {
+      animation: send-bl 2.6s ease-in-out infinite -1.3s;
+    }
+    .packet-br {
+      animation: send-br 2.6s ease-in-out infinite -1.95s;
+    }
+
+    @keyframes bus-dash {
+      from { stroke-dashoffset: 20; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes engine-beat {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.82); }
+    }
+    @keyframes row-receive {
+      0%, 60%, 100% { filter: brightness(1); }
+      30% { filter: brightness(1.12); }
+    }
+    @keyframes rail-travel {
+      0% { top: 0%; opacity: 0; }
+      8% { opacity: 1; }
+      92% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    @keyframes send-tl {
+      0% { transform: translate(260px, 46px); opacity: 0; }
+      10% { opacity: 1; }
+      45% { transform: translate(260px, 24px); opacity: 1; }
+      78% { transform: translate(126px, 24px); opacity: 1; }
+      94% { transform: translate(126px, 6px); opacity: 1; }
+      100% { transform: translate(126px, 3px); opacity: 0; }
+    }
+    @keyframes send-tr {
+      0% { transform: translate(260px, 46px); opacity: 0; }
+      10% { opacity: 1; }
+      45% { transform: translate(260px, 24px); opacity: 1; }
+      78% { transform: translate(394px, 24px); opacity: 1; }
+      94% { transform: translate(394px, 6px); opacity: 1; }
+      100% { transform: translate(394px, 3px); opacity: 0; }
+    }
+    @keyframes send-bl {
+      0% { transform: translate(260px, 2px); opacity: 0; }
+      10% { opacity: 1; }
+      45% { transform: translate(260px, 24px); opacity: 1; }
+      78% { transform: translate(126px, 24px); opacity: 1; }
+      94% { transform: translate(126px, 42px); opacity: 1; }
+      100% { transform: translate(126px, 45px); opacity: 0; }
+    }
+    @keyframes send-br {
+      0% { transform: translate(260px, 2px); opacity: 0; }
+      10% { opacity: 1; }
+      45% { transform: translate(260px, 24px); opacity: 1; }
+      78% { transform: translate(394px, 24px); opacity: 1; }
+      94% { transform: translate(394px, 42px); opacity: 1; }
+      100% { transform: translate(394px, 45px); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bus-flow,
+      .bus-packet,
+      .engine-pulse,
+      .mini-row.active,
+      .mobile-rail-packet {
+        animation: none;
+      }
+      .bus-packet,
+      .mobile-rail-packet {
+        display: none;
+      }
+      .card {
+        transition: none;
+      }
+      .card:hover {
+        transform: none;
+      }
+    }
+
+    /* Sections & Marginalia */
     section {
-      padding: 3.5rem 0;
-      border-bottom: 1px solid var(--border);
+      padding: 3.25rem 0;
+      border-bottom: 1px solid var(--rule);
       min-width: 0;
       max-width: 100%;
       overflow-x: hidden;
     }
-    .section-title {
-      font-size: 1.75rem;
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem 2rem;
+      margin-bottom: 1.75rem;
+      align-items: end;
+    }
+    @media (min-width: 820px) {
+      .section-head {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+      }
+    }
+    .section-kicker {
+      font-family: var(--font-serif);
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.1em;
+      font-size: 0.875rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 3vw, 1.95rem);
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      line-height: 1.2;
       margin-bottom: 0.5rem;
+      color: var(--ink);
     }
     .section-desc {
       font-size: 1rem;
-      color: var(--text-muted);
-      margin-bottom: 2rem;
-      max-width: 680px;
+      color: var(--ink-muted);
+      max-width: 62ch;
+    }
+    .marginalia {
+      border-left: 2px solid var(--rule-strong);
+      padding-left: 0.85rem;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--ink-muted);
+    }
+    .marginalia strong {
+      font-style: normal;
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 0.15rem;
     }
 
     /* Tabs (Pure CSS) */
     .tab-group {
-      border: 1px solid var(--border);
+      border: 1px solid var(--rule-strong);
       border-radius: var(--radius);
-      background: var(--card-bg);
+      background: var(--paper);
       overflow: hidden;
-      min-width: 0;
-      max-width: 100%;
     }
     .tab-radio {
       position: absolute;
@@ -440,29 +840,29 @@ try await blast.sendInput(.primary, root: root)`);
     }
     .tab-nav {
       display: flex;
-      background: var(--bg-alt);
-      border-bottom: 1px solid var(--border);
+      background: var(--paper-tinted);
+      border-bottom: 1px solid var(--rule-strong);
       overflow-x: auto;
       scrollbar-width: thin;
-      min-width: 0;
-      max-width: 100%;
     }
     .tab-nav label {
       display: inline-block;
-      padding: 0.75rem 1.25rem;
-      font-size: 0.875rem;
+      padding: 0.72rem 1.15rem;
+      font-family: var(--font-serif);
+      font-size: 0.9375rem;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--ink-muted);
       cursor: pointer;
       border-bottom: 2px solid transparent;
+      border-right: 1px solid var(--rule);
       white-space: nowrap;
-      transition: color 0.15s, border-color 0.15s;
+      transition: color 0.15s, border-color 0.15s, background-color 0.15s;
     }
     .tab-nav label:hover {
-      color: var(--text);
+      color: var(--ink);
+      background: var(--paper);
     }
 
-    /* Radio checked selectors */
     #tab-js:checked ~ .tab-nav label[for="tab-js"],
     #tab-web:checked ~ .tab-nav label[for="tab-web"],
     #tab-go:checked ~ .tab-nav label[for="tab-go"],
@@ -471,7 +871,7 @@ try await blast.sendInput(.primary, root: root)`);
     #tab-ndjson:checked ~ .tab-nav label[for="tab-ndjson"] {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: var(--card-bg);
+      background: var(--paper);
     }
 
     #tab-js:focus-visible ~ .tab-nav label[for="tab-js"],
@@ -492,15 +892,15 @@ try await blast.sendInput(.primary, root: root)`);
       overflow-x: auto;
     }
     .tab-panels pre {
-      line-height: 1.55;
+      line-height: 1.58;
       font-size: 0.84rem;
     }
     .tab-panels .tab-caption {
-      margin-top: 0.875rem;
+      margin-top: 0.95rem;
       padding-top: 0.75rem;
       border-top: 1px solid var(--code-border);
       font-size: 0.8125rem;
-      color: #94a3b8;
+      color: var(--code-muted);
     }
 
     #tab-js:checked ~ .tab-panels .panel-js,
@@ -518,21 +918,28 @@ try await blast.sendInput(.primary, root: root)`);
       grid-template-columns: minmax(0, 1fr);
       gap: 1.5rem;
     }
-    @media (min-width: 680px) {
+    @media (min-width: 720px) {
       .compare-grid {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       }
     }
     .compare-col {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      border-top: 3px solid var(--accent);
       border-radius: var(--radius);
-      padding: 1.5rem;
+      padding: 1.35rem 1.45rem;
+    }
+    .compare-col:first-child {
+      border-top-color: var(--forest);
     }
     .compare-col h3 {
-      font-size: 1.125rem;
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--rule);
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -541,21 +948,26 @@ try await blast.sendInput(.primary, root: root)`);
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
     }
     .compare-list li {
       display: block;
       font-size: 0.9375rem;
-      color: var(--text-muted);
-      line-height: 1.45;
+      color: var(--ink-muted);
+      line-height: 1.55;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .compare-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
     }
     .compare-list li strong {
-      color: var(--text);
+      color: var(--ink);
     }
-    .bullet-blast { color: #10b981; font-weight: bold; }
+    .bullet-blast { color: var(--forest); font-weight: bold; }
     .bullet-you { color: var(--accent); font-weight: bold; }
 
-    /* Cards Grid */
+    /* Catalogue Index Cards */
     .cards-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
@@ -566,19 +978,21 @@ try await blast.sendInput(.primary, root: root)`);
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
-    @media (min-width: 960px) {
+    @media (min-width: 980px) {
       .cards-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
       border-radius: var(--radius);
-      padding: 1.25rem;
+      padding: 0.95rem 1.15rem 1.15rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      text-decoration: none;
+      box-shadow: inset 0 1px 0 var(--bg), 0 1px 0 var(--rule);
       transition: transform 0.15s ease, border-color 0.15s ease;
     }
     .card:hover {
@@ -586,29 +1000,50 @@ try await blast.sendInput(.primary, root: root)`);
       transform: translateY(-2px);
       text-decoration: none;
     }
+    .card-index-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      padding-bottom: 0.45rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--accent);
+    }
+    .card-call {
+      color: var(--accent);
+      font-weight: 600;
+    }
     .card h3 {
-      font-size: 1rem;
+      font-family: var(--font-serif);
+      font-size: 1.075rem;
       font-weight: 700;
-      color: var(--text);
+      color: var(--ink);
       margin-bottom: 0.5rem;
     }
     .card p {
       font-size: 0.875rem;
-      color: var(--text-muted);
-      line-height: 1.5;
+      color: var(--ink-muted);
+      line-height: 1.55;
       margin-bottom: 1rem;
       flex-grow: 1;
     }
     .card .card-link {
-      font-size: 0.8125rem;
+      font-family: var(--font-serif);
+      font-size: 0.875rem;
       font-weight: 600;
       color: var(--accent);
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
+      border-top: 1px solid var(--rule);
+      padding-top: 0.6rem;
     }
 
-    /* Receipts / Stats */
+    /* Receipts / Ledger */
     .stats-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
@@ -621,27 +1056,29 @@ try await blast.sendInput(.primary, root: root)`);
       }
     }
     .stat-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
       border-radius: var(--radius);
       padding: 1.25rem;
       text-align: center;
     }
     .stat-value {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
+      font-family: var(--font-serif);
+      font-variant-numeric: tabular-nums;
+      font-size: 2.15rem;
+      font-weight: 700;
+      color: var(--ink);
       line-height: 1.1;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.35rem;
     }
     .stat-label {
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: var(--ink-muted);
     }
     .receipts-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.75rem 1.5rem;
       font-size: 0.9375rem;
     }
 
@@ -660,30 +1097,32 @@ try await blast.sendInput(.primary, root: root)`);
       background: var(--code-bg);
       border: 1px solid var(--code-border);
       border-radius: var(--radius);
-      padding: 1rem 1.25rem;
+      padding: 1rem 1.2rem;
     }
     .install-label {
-      font-size: 0.75rem;
+      font-family: var(--font-serif);
+      font-variant-caps: all-small-caps;
+      font-size: 0.85rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.08em;
+      color: var(--code-muted);
+      margin-bottom: 0.45rem;
     }
     .install-code {
       color: var(--code-text);
       font-family: var(--font-mono);
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       user-select: all;
       word-break: break-all;
     }
 
     /* Footer */
     footer {
-      padding: 2.5rem 0;
+      padding: 2.25rem 0;
       background: var(--bg);
+      border-top: 3px double var(--rule-strong);
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: var(--ink-muted);
       margin-top: auto;
     }
     .footer-inner {
@@ -694,7 +1133,11 @@ try await blast.sendInput(.primary, root: root)`);
       justify-content: space-between;
       text-align: center;
     }
-    @media (min-width: 600px) {
+    .footer-colophon {
+      font-family: var(--font-serif);
+      font-style: italic;
+    }
+    @media (min-width: 680px) {
       .footer-inner {
         flex-direction: row;
         text-align: left;
@@ -706,21 +1149,25 @@ try await blast.sendInput(.primary, root: root)`);
   <header>
     <div class="container header-inner">
       <a href="${origin}/" class="brand">
+        <span class="brand-mark" aria-hidden="true">B</span>
         <span>Blast</span>
+        <span class="brand-folio">Reference</span>
       </a>
       <nav class="nav-links" aria-label="Main Navigation">
-        <a href="${demoUrl}">Live Demo</a>
+        <a href="${docsUrl}">Docs</a>
         <a href="${quickstartUrl}">Quickstart</a>
+        <a href="${demoUrl}">Live Demo</a>
         <a href="${repoUrl}">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- Section 1: Hero -->
+    <!-- Hero -->
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-content">
+          <div class="catalogue-tag">Folio I &middot; Embeddable Runtime</div>
           <h1>Raycast extensions, inside your app.</h1>
           <p>The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
           <div class="hero-actions">
@@ -729,43 +1176,131 @@ try await blast.sendInput(.primary, root: root)`);
           </div>
         </div>
         <div class="hero-media">
-          <div class="wire-mock-card" aria-label="Mock list view next to protocol wire exchange">
-            <div class="wire-mock-header">
-              <span>View</span>
-              <span>Wire Exchange (NDJSON)</span>
-            </div>
-            <div class="wire-mock-split">
-              <div class="mock-view">
-                <div class="mock-search-bar">Search&hellip;</div>
-                <ul class="mock-list">
-                  <li class="mock-item active">
-                    <span>Apple</span>
-                  </li>
-                  <li class="mock-item">
-                    <span>Banana</span>
-                  </li>
-                  <li class="mock-item">
-                    <span>Cherry</span>
-                  </li>
-                </ul>
+          <figure class="plate" aria-label="Diagram showing Blast's engine in the centre sending animated view messages out to four host shells — macOS app, Terminal / tmux, Web page, and Go / Python — each drawing the same small command list.">
+            <figcaption class="plate-header">
+              <span class="plate-num">Plate I &middot; Architecture</span>
+              <span class="plate-title">Engine &rarr; Host Shells</span>
+            </figcaption>
+            <div class="diagram-canvas">
+              <div class="mobile-rail" aria-hidden="true"><span class="mobile-rail-packet"></span></div>
+
+              <div class="host-shell host-macos">
+                <div class="host-head">
+                  <span class="host-name">macOS app</span>
+                  <span class="host-kind">Swift</span>
+                </div>
+                <div class="host-sub"><code>examples/macos-launcher</code>, BlastKit</div>
+                <div class="mini-cmd" aria-hidden="true">
+                  <div class="mini-search">Search&hellip;</div>
+                  <ul class="mini-list">
+                    <li class="mini-row active"><span>Apple</span><span>&crarr;</span></li>
+                    <li class="mini-row"><span>Banana</span></li>
+                    <li class="mini-row"><span>Cherry</span></li>
+                  </ul>
+                </div>
               </div>
-              <div class="mock-wire">
-                <pre><span class="wire-in">→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}</span>
-<span class="wire-in">→ {"type":"request","id":"2","method":"root.open","params":{}}</span>
-<span class="wire-in">→ {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}</span>
-<span class="wire-out">← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}</span></pre>
+
+              <div class="host-shell host-tmux">
+                <div class="host-head">
+                  <span class="host-name">Terminal / tmux</span>
+                  <span class="host-kind">TUI</span>
+                </div>
+                <div class="host-sub"><code>blast-tui</code></div>
+                <div class="mini-cmd" aria-hidden="true">
+                  <div class="mini-search">Search&hellip;</div>
+                  <ul class="mini-list">
+                    <li class="mini-row active"><span>Apple</span><span>&crarr;</span></li>
+                    <li class="mini-row"><span>Banana</span></li>
+                    <li class="mini-row"><span>Cherry</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <svg class="bus-svg bus-top" viewBox="0 0 520 48" preserveAspectRatio="none" aria-hidden="true">
+                <path class="bus-track" d="M 260 48 L 260 24 L 126 24 L 126 5" vector-effect="non-scaling-stroke" />
+                <path class="bus-track" d="M 260 48 L 260 24 L 394 24 L 394 5" vector-effect="non-scaling-stroke" />
+                <path class="bus-flow" d="M 260 48 L 260 24 L 126 24 L 126 5" vector-effect="non-scaling-stroke" />
+                <path class="bus-flow" d="M 260 48 L 260 24 L 394 24 L 394 5" vector-effect="non-scaling-stroke" />
+                <polygon class="bus-arrow" points="126,0 121,7 131,7" />
+                <polygon class="bus-arrow" points="394,0 389,7 399,7" />
+                <rect class="bus-tag-bg" x="228" y="15" width="64" height="17" rx="2" />
+                <text class="bus-tag-text" x="260" y="27">root.view</text>
+                <circle class="bus-packet packet-tl" cx="0" cy="0" r="4" />
+                <circle class="bus-packet packet-tr" cx="0" cy="0" r="4" />
+              </svg>
+
+              <div class="engine-hub">
+                <div class="engine-hub-title">
+                  <span class="engine-pulse" aria-hidden="true"></span>
+                  <span>Blast Engine</span>
+                </div>
+                <div class="engine-hub-sub">root.view &middot; session.view &middot; capability.request</div>
+              </div>
+
+              <svg class="bus-svg bus-bottom" viewBox="0 0 520 48" preserveAspectRatio="none" aria-hidden="true">
+                <path class="bus-track" d="M 260 0 L 260 24 L 126 24 L 126 43" vector-effect="non-scaling-stroke" />
+                <path class="bus-track" d="M 260 0 L 260 24 L 394 24 L 394 43" vector-effect="non-scaling-stroke" />
+                <path class="bus-flow" d="M 260 0 L 260 24 L 126 24 L 126 43" vector-effect="non-scaling-stroke" />
+                <path class="bus-flow" d="M 260 0 L 260 24 L 394 24 L 394 43" vector-effect="non-scaling-stroke" />
+                <polygon class="bus-arrow" points="126,48 121,41 131,41" />
+                <polygon class="bus-arrow" points="394,48 389,41 399,41" />
+                <rect class="bus-tag-bg" x="220" y="15" width="80" height="17" rx="2" />
+                <text class="bus-tag-text" x="260" y="27">session.view</text>
+                <circle class="bus-packet packet-bl" cx="0" cy="0" r="4" />
+                <circle class="bus-packet packet-br" cx="0" cy="0" r="4" />
+              </svg>
+
+              <div class="host-shell host-web">
+                <div class="host-head">
+                  <span class="host-name">Web page</span>
+                  <span class="host-kind">DOM</span>
+                </div>
+                <div class="host-sub"><code>@blastlauncher/web</code> <code>mount()</code></div>
+                <div class="mini-cmd" aria-hidden="true">
+                  <div class="mini-search">Search&hellip;</div>
+                  <ul class="mini-list">
+                    <li class="mini-row active"><span>Apple</span><span>&crarr;</span></li>
+                    <li class="mini-row"><span>Banana</span></li>
+                    <li class="mini-row"><span>Cherry</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="host-shell host-stdio">
+                <div class="host-head">
+                  <span class="host-name">Go / Python</span>
+                  <span class="host-kind">Stdio</span>
+                </div>
+                <div class="host-sub"><code>blast serve</code>, NDJSON</div>
+                <div class="mini-cmd" aria-hidden="true">
+                  <div class="mini-search">Search&hellip;</div>
+                  <ul class="mini-list">
+                    <li class="mini-row active"><span>Apple</span><span>&crarr;</span></li>
+                    <li class="mini-row"><span>Banana</span></li>
+                    <li class="mini-row"><span>Cherry</span></li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
+          </figure>
         </div>
       </div>
     </section>
 
-    <!-- Section 2: The whole integration -->
+    <!-- § 1: The whole integration -->
     <section class="integration" id="integration">
       <div class="container">
-        <h2 class="section-title">The whole integration</h2>
-        <p class="section-desc">Open extensions, draw the engine's views, and forward input in a few lines of your language of choice, or one <code>mount()</code> call in a web page.</p>
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">&sect; 1 &middot; Language Bindings</div>
+            <h2 class="section-title">The whole integration</h2>
+            <p class="section-desc">Open extensions, draw the engine's views, and forward input in a few lines of your language of choice, or one <code>mount()</code> call in a web page.</p>
+          </div>
+          <aside class="marginalia">
+            <strong>Margin Note</strong>
+            Read the <a href="${quickstartUrl}">quickstart</a> or browse the <a href="${docsUrl}">full docs</a> for transport and protocol details.
+          </aside>
+        </div>
 
         <div class="tab-group">
           <!-- Radio inputs for CSS-only tab switching -->
@@ -820,11 +1355,20 @@ try await blast.sendInput(.primary, root: root)`);
       </div>
     </section>
 
-    <!-- Section 3: What Blast does / what you do -->
+    <!-- § 2: What Blast does / what you do -->
     <section class="responsibilities">
       <div class="container">
-        <h2 class="section-title">What Blast does / what you do</h2>
-        <p class="section-desc">A clean boundary between extension execution and your host application.</p>
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">&sect; 2 &middot; Responsibilities</div>
+            <h2 class="section-title">What Blast does / what you do</h2>
+            <p class="section-desc">A clean boundary between extension execution and your host application.</p>
+          </div>
+          <aside class="marginalia">
+            <strong>Boundary</strong>
+            The engine reconciles views; your host owns pixels and capability policy.
+          </aside>
+        </div>
 
         <div class="compare-grid">
           <div class="compare-col">
@@ -851,15 +1395,28 @@ try await blast.sendInput(.primary, root: root)`);
       </div>
     </section>
 
-    <!-- Section 4: Runs everywhere -->
+    <!-- § 3: Runs everywhere -->
     <section class="platforms">
       <div class="container">
-        <h2 class="section-title">Runs everywhere</h2>
-        <p class="section-desc">Integrate Raycast extensions into any architecture, runtime environment, or platform.</p>
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">&sect; 3 &middot; Host Catalogue</div>
+            <h2 class="section-title">Runs everywhere</h2>
+            <p class="section-desc">Integrate Raycast extensions into any architecture, runtime environment, or platform.</p>
+          </div>
+          <aside class="marginalia">
+            <strong>Index Cards</strong>
+            Four embedder paths, from in-process JavaScript to a standalone terminal client.
+          </aside>
+        </div>
 
         <div class="cards-grid">
           <a href="https://github.com/blastlauncher/blast/tree/main/packages/host" class="card">
             <div>
+              <div class="card-index-bar">
+                <span class="card-call">No. 01</span>
+                <span>In-process</span>
+              </div>
               <h3>Node / Bun / Electron</h3>
               <p>In-process engine integration for JavaScript and TypeScript hosts with no separate process for the engine.</p>
             </div>
@@ -868,6 +1425,10 @@ try await blast.sendInput(.primary, root: root)`);
 
           <a href="https://github.com/blastlauncher/blast/tree/main/packages/serve" class="card">
             <div>
+              <div class="card-index-bar">
+                <span class="card-call">No. 02</span>
+                <span>Stdio NDJSON</span>
+              </div>
               <h3>Any language via serve</h3>
               <p>Simple NDJSON protocol over standard I/O for Go, Python, Swift, or Rust.</p>
             </div>
@@ -876,6 +1437,10 @@ try await blast.sendInput(.primary, root: root)`);
 
           <a href="https://github.com/blastlauncher/blast/tree/main/packages/web" class="card">
             <div>
+              <div class="card-index-bar">
+                <span class="card-call">No. 03</span>
+                <span>Browser</span>
+              </div>
               <h3>Any web page</h3>
               <p>One <code>mount()</code> runs extensions by URL in a cross-origin sandboxed iframe (almostnode), with nothing installed.</p>
             </div>
@@ -884,6 +1449,10 @@ try await blast.sendInput(.primary, root: root)`);
 
           <a href="https://github.com/BlastLauncher/tmux-blast" class="card">
             <div>
+              <div class="card-index-bar">
+                <span class="card-call">No. 04</span>
+                <span>Terminal</span>
+              </div>
               <h3>Terminal and tmux</h3>
               <p>A keyboard-driven terminal client for lists, grids, forms and markdown details. In tmux it opens as a command palette in a popup, with pane, window and session commands.</p>
             </div>
@@ -893,11 +1462,20 @@ try await blast.sendInput(.primary, root: root)`);
       </div>
     </section>
 
-    <!-- Section 5: Receipts -->
+    <!-- § 4: Receipts -->
     <section class="receipts">
       <div class="container">
-        <h2 class="section-title">Receipts</h2>
-        <p class="section-desc">Measured compatibility against real extensions from the public catalog.</p>
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">&sect; 4 &middot; Measured Evidence</div>
+            <h2 class="section-title">Receipts</h2>
+            <p class="section-desc">Measured compatibility against real extensions from the public catalog.</p>
+          </div>
+          <aside class="marginalia">
+            <strong>Ledger</strong>
+            Figures generated from the API coverage report and catalog sweep.
+          </aside>
+        </div>
 
         <div class="stats-row">
           <div class="stat-card">
@@ -921,11 +1499,20 @@ try await blast.sendInput(.primary, root: root)`);
       </div>
     </section>
 
-    <!-- Section 6: Install -->
+    <!-- § 5: Install -->
     <section class="install">
       <div class="container">
-        <h2 class="section-title">Install</h2>
-        <p class="section-desc">Prereleases (<code>3.0.0-alpha.2</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">&sect; 5 &middot; Packages</div>
+            <h2 class="section-title">Install</h2>
+            <p class="section-desc">Prereleases (<code>3.0.0-alpha.2</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
+          </div>
+          <aside class="marginalia">
+            <strong>Distribution</strong>
+            Published under the <code>next</code> tag on npm.
+          </aside>
+        </div>
 
         <div class="install-boxes">
           <div class="install-box">
@@ -947,9 +1534,10 @@ try await blast.sendInput(.primary, root: root)`);
 
   <footer>
     <div class="container footer-inner">
-      <p>Blast is open source (MIT) and in alpha.</p>
+      <p class="footer-colophon">Blast is open source (MIT) and in alpha.</p>
       <nav class="nav-links" aria-label="Footer Navigation">
         <a href="${demoUrl}">Demo</a>
+        <a href="${docsUrl}">Docs</a>
         <a href="${quickstartUrl}">Quickstart</a>
         <a href="${coverageUrl}">Coverage</a>
         <a href="${sweepUrl}">Sweep</a>

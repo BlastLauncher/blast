@@ -63,6 +63,31 @@ function expectLandingSnippets(html: string) {
   // Runs everywhere: the Terminal card links to the tmux plugin.
   expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast" class="card">');
   expect(html).toContain("command palette in a popup");
+  // Docs and quickstart live on the site now, not on GitHub blob URLs.
+  expect(html).not.toContain("blob/main/docs/quickstart.md");
+  // Hero diagram: Blast's engine dispatching to the four host shells.
+  for (const label of [
+    "macOS app",
+    "examples/macos-launcher",
+    "BlastKit",
+    "Terminal / tmux",
+    "blast-tui",
+    "Web page",
+    "@blastlauncher/web",
+    "mount()",
+    "Go / Python",
+    "blast serve",
+    "NDJSON",
+  ])
+    expect(html).toContain(label);
+  // Reduced-motion media query disables CSS animations cleanly.
+  expect(html).toMatch(
+    /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*animation:\s*none/,
+  );
+  // Pure self-contained page: no external requests in src=, @import, or url(.
+  expect(html).not.toMatch(/\bsrc\s*=/i);
+  expect(html).not.toMatch(/@import/i);
+  expect(html).not.toMatch(/\burl\(/i);
 }
 
 describe("site build helpers", () => {
@@ -98,6 +123,8 @@ describe("site build helpers", () => {
     const html = landing(stats, "http://127.0.0.1:4173");
     expect(html).toContain("Raycast extensions, inside your app.");
     expect(html).toContain('href="http://127.0.0.1:4173/demo/"');
+    expect(html).toContain('href="http://127.0.0.1:4173/docs/"');
+    expect(html).toContain('href="http://127.0.0.1:4173/docs/quickstart/"');
     for (const label of ["JavaScript", "Web page", "Go", "Python", "Swift", "NDJSON"])
       expect(html).toContain(`role="tab">${label}</label>`);
     expectLandingSnippets(html);
