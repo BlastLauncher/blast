@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -109,6 +110,15 @@ describe("docs site", () => {
         const target = url.pathname;
         checked++;
         if (otherSitePages.has(target)) continue;
+        if (target.startsWith("/fonts/")) {
+          const fontFile = join(projectRoot, "examples/browser-demo", target.slice(1));
+          expect({ href, from: path, exists: existsSync(fontFile) }).toEqual({
+            href,
+            from: path,
+            exists: true,
+          });
+          continue;
+        }
         const file = target.endsWith("/") ? `${target.slice(1)}index.html` : target.slice(1);
         expect({ href, from: path, written: docs.has(file) }).toEqual({
           href,
@@ -155,12 +165,42 @@ describe("docs site", () => {
       "# Q\n\n```html\n<script>alert(1)</script>\n```\n\nPress <kbd>Esc</kbd> to run <command>.\n",
       () => undefined,
     );
-    expect(body).toContain(
-      '<pre><code class="language-html">&lt;script&gt;alert(1)&lt;/script&gt;</code></pre>',
-    );
+    const codeHtml = body.match(/<pre><code class="language-html">([\s\S]*?)<\/code><\/pre>/)?.[1];
+    expect(codeHtml).toBeDefined();
+    expect(codeHtml!).toContain('<span style="color:#');
+    expect(textOf(codeHtml!)).toBe("<script>alert(1)</script>");
     expect(body).not.toContain("<script");
     expect(body).toContain("<kbd>Esc</kbd>");
     expect(body).toContain("&lt;command&gt;");
+  });
+
+  test("a docs fixture highlights ts and sh fences and leaves unlabeled fences as escaped plain text", () => {
+    const tsCode = 'import { createEngine } from "@blastlauncher/engine";\nconst n: number = 1;';
+    const shCode = "npm install @blastlauncher/engine@next";
+    const plainCode = "client -> host -> <script>alert(1)</script>";
+    const rendered = renderDocs(
+      fixture({
+        embedding: `# Embedding\n\n\`\`\`ts\n${tsCode}\n\`\`\`\n\n\`\`\`sh\n${shCode}\n\`\`\`\n\n\`\`\`\n${plainCode}\n\`\`\`\n`,
+      }),
+    );
+    const html = rendered.get("docs/embedding/index.html")!;
+    const article = html.match(/<article>([\s\S]*?)<\/article>/)![1]!;
+    expect(article).not.toContain("<script");
+
+    const tsBlock = article.match(/<pre><code class="language-ts">([\s\S]*?)<\/code><\/pre>/)?.[1];
+    expect(tsBlock).toBeDefined();
+    expect(tsBlock!).toContain('<span style="color:#');
+    expect(textOf(tsBlock!)).toBe(tsCode);
+
+    const shBlock = article.match(/<pre><code class="language-sh">([\s\S]*?)<\/code><\/pre>/)?.[1];
+    expect(shBlock).toBeDefined();
+    expect(shBlock!).toContain('<span style="color:#');
+    expect(textOf(shBlock!)).toBe(shCode);
+
+    const unlabeled = article.match(/<pre><code>([\s\S]*?)<\/code><\/pre>/)?.[1];
+    expect(unlabeled).toBeDefined();
+    expect(unlabeled!).not.toContain("<span");
+    expect(textOf(unlabeled!)).toBe(plainCode);
   });
 
   test("renders tables, nested lists, emphasis and inline code", () => {
@@ -202,12 +242,27 @@ describe("docs site", () => {
     }
   });
 
-  test("the stylesheet needs no network and adapts to dark mode", () => {
+  test("docs pages link local Geist fonts, carry the landing header nav, and adapt to dark mode", () => {
     const css = docs.get("docs/docs.css")!;
-    expect(css).toContain("prefers-color-scheme:dark");
-    expect(css).not.toMatch(/url\(|@import|https?:/);
+    expect(css).toMatch(/prefers-color-scheme:\s*dark/);
+    expect(css).not.toMatch(/@import|https?:/);
+    const cssUrls = [...css.matchAll(/url\(([^)]+)\)/g)].map((match) =>
+      match[1]!.replace(/^["']|["']$/g, ""),
+    );
+    expect(cssUrls.length).toBeGreaterThan(0);
+    for (const url of cssUrls) expect(url).toMatch(/^\/fonts\/[^/]+\.woff2$/);
+    expect(cssUrls).toContain("/fonts/geist-latin-wght-normal.woff2");
+    expect(cssUrls).toContain("/fonts/geist-mono-latin-wght-normal.woff2");
+
     for (const [, html] of pages) {
-      expect(html).not.toContain("<script");
+      expect(html).toContain('href="/fonts/geist-latin-wght-normal.woff2"');
+      expect(html).toContain('<span class="mark" aria-hidden="true"></span>Blast</a>');
+      expect(html).toContain('<nav aria-label="Main">');
+      expect(html).toContain('<a href="/docs/">Docs</a>');
+      expect(html).toContain('<a href="/demo/" class="opt">Demo</a>');
+      expect(html).toContain("Coverage</a>");
+      expect(html).toContain(`<a href="${repoUrl}">GitHub</a>`);
+      expect(html).not.toMatch(/<script\b[^>]*\bsrc=/i);
       expect(html).not.toMatch(/(src|href)="https?:\/\/(?!github\.com)[^"]*\.(css|js|woff2?)"/);
     }
   });

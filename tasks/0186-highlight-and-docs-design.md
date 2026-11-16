@@ -72,8 +72,41 @@ page's design.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/5f3777bb (based on t3/highlight-docs-design) @ 8964502 (last code commit; this handoff commit sits on top)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 125.7s
 Done:
+- examples/browser-demo/highlight.ts: build-time shiki (devDependency shiki 4.6.0 = npm latest;
+  shiki because it is the TextMate-grammar highlighter with per-language imports, so only
+  ts/js/html/go/python/swift/json/bash load). One theme, github-dark-default, for both page
+  themes: the code surface is dark in both, so dual themes add nothing; every token colour
+  is >= 4.5:1 on #121316 and #08090a (asserted in highlight.test.ts). Output is inline
+  style colours; text/unlabeled/unknown languages are escaped plain text.
+- Highlighter is created once at module load (top-level await, Oniguruma wasm), so
+  landing() and renderChapter() stay synchronous. Round 2 tried the sync API with the
+  JavaScript regex engine and reverted it: under Bun it mis-tokenizes the first JS
+  snippet a fresh highlighter sees (the landing JS panel came out all keyword-red);
+  Node matched Oniguruma. Comment in highlight.ts says why.
+- Landing: JS/html/Go/Python/Swift highlighted; NDJSON keeps -> / <- classes with JSON
+  tokens inside. expectLandingSnippets now asserts on stripped text content per panel
+  (markup splits checked strings across spans) and that each panel has token spans.
+- Docs: shared site-chrome.ts (tokens, Geist faces from /fonts/, header) used by landing
+  and docs.css; docs keep sidebar/aria-current/TOC/anchors/Edit on GitHub; code blocks
+  have a language label (visible without JS) and a Copy button (hidden without JS).
+- Tests: docs fixture with ts/sh/unlabeled fences and escaped <script>; docs pages link
+  /fonts/ Geist, carry the landing header nav, resolvable links incl. /fonts/. e2e checks
+  /docs/embedding/ at 360 and 1280 (no overflow, highlighted spans, fonts and css from
+  this origin only, JS-off Copy hidden, Copy works) and takes the screenshots below.
+Screenshots (looked at each):
+- /tmp/claude-1001/-home-ubuntu--t3-worktrees-blast-t3-5f3777bb-99338d448851966f/d71fcf92-1afd-41d1-b1bd-7cb8b0af0e85/scratchpad/shots3/landing-code-1280-light.png, landing-code-1280-dark.png (NDJSON tab),
+  landing-code-360-light.png, landing-code-360-dark.png
+- /tmp/claude-1001/-home-ubuntu--t3-worktrees-blast-t3-5f3777bb-99338d448851966f/d71fcf92-1afd-41d1-b1bd-7cb8b0af0e85/scratchpad/shots3/docs-embedding-1280-light.png, docs-embedding-1280-dark.png,
+  docs-embedding-360-light.png, docs-embedding-360-dark.png
+- /tmp/claude-1001/-home-ubuntu--t3-worktrees-blast-t3-5f3777bb-99338d448851966f/d71fcf92-1afd-41d1-b1bd-7cb8b0af0e85/scratchpad/shots3/docs-embedding-code-1280-light.png, -dark.png, docs-embedding-code-360-light.png, -dark.png
 Not done / risks:
+- Screenshots are in a local scratch dir, not committed; the orchestrator should
+  regenerate them with `bun run site:e2e -- --screenshots <dir>` for the PR body.
+- Docs header has a surface background and bottom border (landing header is transparent on
+  the hero); kept so the docs chrome separates from the article.
+- Top-level await in highlight.ts: any importer of landing.ts/docs-site.ts waits for wasm
+  init once; fine on Node 24 and Bun.
 ```
