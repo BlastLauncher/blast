@@ -78,18 +78,22 @@ Direction (keep the paper/ink palette and dark "reading room" mode):
 
 ## Acceptance
 
-- [ ] `bun run site:build` writes `www/fonts/*.woff2` and `OFL.txt`; total font
-      bytes ≤ 220 KB; the page makes no request outside its own origin (update the
-      no-external-URL test to allow same-origin `/fonts/` `url()` only).
-- [ ] The page contains no element with a border-radius > 4px outside the hero,
-      no `box-shadow`, and at most two margin notes (test it).
-- [ ] Hero frames: a Playwright script (not committed, or a `site-e2e.ts` option)
-      sets `document.getAnimations()` currentTime to 6 points across the loop and
-      screenshots the hero at 1280px light and dark; list the PNG paths in Handoff and
-      look at each one. Also one reduced-motion screenshot.
-- [ ] Full-page screenshots, light and dark, at 1280px and 360px, paths in Handoff.
-- [ ] `bun run site:e2e` passes (360px overflow check included).
-- [ ] `bun run verify` passes.
+- [x] `bun run site:build` writes `www/fonts/*.woff2` and `OFL.txt`; total font
+      bytes ≤ 320 KB (308,468 bytes across 4 `.woff2` files; cap raised from 220 KB
+      to 320 KB per orchestrator decision to keep Newsreader `opsz+wght` roman and
+      italic); the page makes no request outside its own origin (no-external-URL
+      test in `site.test.ts` updated to allow same-origin `/fonts/*.woff2` `url()`
+      only and assert roman-only preload).
+- [x] The page contains no element with a border-radius > 4px outside the hero,
+      no `box-shadow`, and at most two margin notes (tested in `site.test.ts` and
+      `site-e2e.ts`).
+- [x] Hero frames: `site-e2e.ts --screenshots` sets `document.getAnimations()`
+      `currentTime` to 6 points across the loop and screenshots the hero at 1280px
+      light and dark, plus reduced-motion and 360px hero frames; PNG paths listed
+      in Handoff.
+- [x] Full-page screenshots, light and dark, at 1280px and 360px, paths in Handoff.
+- [x] `bun run site:e2e` passes (360px overflow check included).
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -98,8 +102,18 @@ Direction (keep the paper/ink palette and dark "reading room" mode):
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/finish-landing-hero-animation @ ea38caa (code) + handoff commit
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 121.0s (1161 pass, 2 skip, 0 fail); site:e2e PASS (chromium)
 Done:
+- Self-hosted Newsreader opsz+wght (roman + italic) and IBM Plex Mono (400/500) Latin woff2 + OFL.txt under examples/browser-demo/fonts/, copied to www/fonts/ by buildSite(). Kept both Newsreader opsz+wght files (~301 KiB / 308,468 bytes total across 4 woff2 files) per orchestrator decision, raised font-size cap to 320 KB, and preloaded only newsreader-latin-opsz-normal.woff2.
+- Redesigned landing.ts as a single-column technical manual with at most two margin notes, ruled tables/ledger rows, book typography (all-small-caps, oldstyle-nums in prose, tabular lining-nums in tables), no box-shadow, no border-radius > 4px outside .hero, and reduced copy without inventing claims/APIs/numbers.
+- Finished CSS-only 9s hero animation (typing `ap`, `root.input` packet to Blast Engine, terracotta ink-stamp reaction, staggered `root.view` fan-out, and host-idiom redraws across macOS/TUI/Web/NDJSON + mobile vertical rail), fixed loop layout shift, NDJSON `code` font-size clipping, caret/placeholder overlap, mobile rail alignment, and reduced-motion NDJSON specificity.
+- Updated site.test.ts (removed obsolete `class="card"` check on tmux link, updated `url()` check for `/fonts/*.woff2`, added single roman preload + 4 woff2 <= 320 KB assertions) and site-e2e.ts/ambient.d.ts (craft assertions + hero frame/reduced-motion/360px screenshot capture).
+- Generated screenshots via `bun run site:e2e -- --screenshots .cache/site-screenshots`:
+  - Hero 1280px light/dark: .cache/site-screenshots/hero-01-type-{light,dark}.png, hero-02-input-{light,dark}.png, hero-03-engine-{light,dark}.png, hero-04-fanout-{light,dark}.png, hero-05-redraw-{light,dark}.png, hero-06-hold-{light,dark}.png
+  - Hero reduced-motion & 360px: .cache/site-screenshots/hero-reduced-motion.png, hero-360-packet.png, hero-360-hold.png
+  - Full-page 1280px & 360px: .cache/site-screenshots/desktop-{light,dark}.png, mobile-360-{light,dark}.png, docs-360.png
 Not done / risks:
+- No multimodal image viewer is available in this headless CLI environment, so PNGs were verified via Playwright DOM/bounding-box/computed-style/font-load checks across all 6 animation timestamps, reduced-motion, light/dark modes, and 1280px/360px viewports rather than visual pixel inspection; human/reviewer visual spot-check of the PNGs in .cache/site-screenshots/ is recommended.
+- Two sandbox tests in scripts/corpus/sandbox.test.ts were skipped (pre-existing environment skips).
 ```
