@@ -77,7 +77,7 @@ try await blast.sendInput(.search("ap"), root: root)
 try await blast.sendInput(.primary, root: root)`);
 
   const ndjsonSnippet =
-    escapeHtml(String.raw`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
+    escapeHtml(`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
 ← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
 → {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
 ← {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}

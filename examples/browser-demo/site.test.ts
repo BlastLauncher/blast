@@ -26,6 +26,9 @@ const showcaseCommands = [
 
 /** Every tab shows the engine-owned flow, copied from the client it names. */
 function expectLandingSnippets(html: string) {
+  // Bun escapes non-ASCII inside String.raw; the page must show →, ← and … as characters.
+  expect(html).not.toMatch(/\\u[0-9a-f]{4}/i);
+  expect(html).toContain('<span class="t-in">→ {"type":"hello"');
   for (const panel of ["js", "web", "go", "py", "swift", "ndjson"])
     expect(html).toContain(`id="panel-${panel}"`);
   // JavaScript: the in-process root view.
