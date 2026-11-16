@@ -50,14 +50,14 @@ engine feeding the same view into many different host applications.
 
 ## Acceptance
 
-- [ ] `site.test.ts` passes, updated so it also checks the
+- [x] `site.test.ts` passes, updated so it also checks the
       `/docs/` and `/docs/quickstart/` links and that no `blob/main/docs/quickstart.md` link remains.
-- [ ] Test: the hero has the four host labels above and a
+- [x] Test: the hero has the four host labels above and a
       `@media (prefers-reduced-motion: reduce)` rule that disables its animation.
-- [ ] `bun run site:build && bun run site:e2e -- --screenshots .cache/landing-shots`
+- [x] `bun run site:build && bun run site:e2e -- --screenshots .cache/landing-shots`
       passes. Put light and dark screenshots at 1280px and 360px in Handoff (paths), and look at them yourself.
-- [ ] No external URLs in `src=` / `@import` / `url(` in the generated page.
-- [ ] `bun run verify` passes.
+- [x] No external URLs in `src=` / `@import` / `url(` in the generated page.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -67,8 +67,17 @@ engine feeding the same view into many different host applications.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/landing-library-redesign @ ce09d99 (implementation) + handoff commit
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 140.6s (1147 pass, 2 skip, 0 fail); site:build && site:e2e -- --screenshots .cache/landing-shots passed ({"pass":true,"browser":"chromium"})
 Done:
+- Redesigned `examples/browser-demo/landing.ts` with a reference-library / catalogue aesthetic (warm rag paper light mode, dark night reading room, system font stacks only, zero external assets, `/docs/` and `/docs/quickstart/` links, all verbatim copy/snippets/stats/tmux content preserved).
+- Replaced `wire-mock-card` with accessible HTML/inline-SVG + CSS-animated `Plate I · Architecture` hero diagram (`Blast Engine` -> `macOS app`, `Terminal / tmux`, `Web page`, `Go / Python`), responsive `.mobile-rail` vertical trunk on <=700px viewports, and `@media (prefers-reduced-motion: reduce)` disabling all animations and hover motion.
+- Updated `examples/browser-demo/site.test.ts` to assert `/docs/`, `/docs/quickstart/`, absence of `blob/main/docs/quickstart.md`, all 4 hero host labels/sublabels, reduced-motion CSS rule, and absence of external `src=` / `@import` / `url(`.
+- Generated and verified landing screenshots at 1280px and 360px in both themes:
+  - `.cache/landing-shots/desktop-light.png` (1280x3457)
+  - `.cache/landing-shots/desktop-dark.png` (1280x3457)
+  - `.cache/landing-shots/mobile-360-light.png` (360x6961)
+  - `.cache/landing-shots/mobile-360-dark.png` (360x6961)
 Not done / risks:
+- Pixel-level human/image viewing of the PNG files could not be performed directly in this tool environment (`view_file` reads binary PNGs as text and `preview_status` reported `available: false`). Layout and visual properties were instead verified via `site:e2e` and a Playwright DOM/computed-style audit across `1280px` and `360px` light/dark and `prefers-reduced-motion: reduce`: 0 WCAG AA contrast violations (< 4.5:1), 0 horizontal overflow, 0 element overlaps/clipping inside `.plate`, <=1px SVG bus-to-card alignment, and disabled animations under reduced motion.
 ```
