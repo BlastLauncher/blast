@@ -263,13 +263,14 @@ try {
       await noJsContext.close();
     }
 
-    // 0180: a docs chapter loads with its stylesheet, from this site only,
-    // and fits a 360px phone.
+    // 0180 + 0186: docs chapters load with Geist fonts and stylesheet from this site only,
+    // fit 360px and 1280px without overflow, highlight code, and keep Copy interactive.
     const docsPage = await browser.newPage({ viewport: { width: 360, height: 740 } });
     try {
       const docsRequests: string[] = [];
       docsPage.on("request", (request) => docsRequests.push(request.url()));
       await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/quickstart/`, { waitUntil: "load" });
+      await docsPage.evaluate(() => document.fonts?.ready);
       const docsLayout = await docsPage.evaluate(() => ({
         doc: document.documentElement.scrollWidth,
         body: document.body.scrollWidth,
@@ -283,27 +284,128 @@ try {
         docsLayout.current !== "Quickstart"
       )
         throw new Error(`/docs/quickstart/ at 360px: ${JSON.stringify(docsLayout)}`);
+
+      await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/embedding/`, { waitUntil: "load" });
+      await docsPage.evaluate(() => document.fonts?.ready);
+      const embedding360 = await docsPage.evaluate(() => ({
+        doc: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth,
+        title: document.querySelector("article h1")?.textContent,
+        current: document.querySelector('.sidebar a[aria-current="page"]')?.textContent,
+        highlightedSpans: document.querySelectorAll('code.language-js span[style*="color:#"]')
+          .length,
+        plainTextSpans: document.querySelectorAll("code.language-text span").length,
+      }));
+      if (
+        embedding360.doc > 360 ||
+        embedding360.body > 360 ||
+        embedding360.title !== "Embedding Blast" ||
+        embedding360.current !== "Embedding Blast" ||
+        embedding360.highlightedSpans === 0 ||
+        embedding360.plainTextSpans !== 0
+      )
+        throw new Error(`/docs/embedding/ at 360px: ${JSON.stringify(embedding360)}`);
+
+      const copyBtn = docsPage.locator(".code-copy").first();
+      await copyBtn.click();
+      await docsPage.waitForFunction(() => {
+        const label = document.querySelector(".code-copy")?.textContent;
+        return label === "Copied" || label === "Selected";
+      });
+
       const foreign = docsRequests.filter((url) => !url.startsWith(`http://127.0.0.1:${wwwPort}/`));
-      if (foreign.length || !docsRequests.some((url) => url.endsWith("/docs/docs.css")))
-        throw new Error(`/docs/quickstart/ requests: ${JSON.stringify(docsRequests)}`);
+      if (
+        foreign.length ||
+        !docsRequests.some((url) => url.endsWith("/docs/docs.css")) ||
+        !docsRequests.some((url) => url.endsWith("/fonts/geist-latin-wght-normal.woff2")) ||
+        !docsRequests.some((url) => url.endsWith("/fonts/geist-mono-latin-wght-normal.woff2"))
+      )
+        throw new Error(`docs requests: ${JSON.stringify(docsRequests)}`);
+
       if (screenshots) {
         await mkdir(screenshots, { recursive: true });
-        await docsPage.screenshot({ path: join(screenshots, "docs-360.png"), fullPage: true });
+        await docsPage.emulateMedia({ colorScheme: "light" });
+        await docsPage.screenshot({
+          path: join(screenshots, "docs-embedding-360-light.png"),
+          fullPage: false,
+        });
+        await docsPage.emulateMedia({ colorScheme: "dark" });
+        await docsPage.screenshot({
+          path: join(screenshots, "docs-embedding-360-dark.png"),
+          fullPage: false,
+        });
+
+        await docsPage.setViewportSize({ width: 1280, height: 800 });
+        await docsPage.emulateMedia({ colorScheme: "light" });
+        const embedding1280 = await docsPage.evaluate(() => document.documentElement.scrollWidth);
+        if (embedding1280 > 1280)
+          throw new Error(`/docs/embedding/ overflows at 1280px: ${embedding1280}`);
+        await docsPage.screenshot({
+          path: join(screenshots, "docs-embedding-1280-light.png"),
+          fullPage: false,
+        });
+        await docsPage.emulateMedia({ colorScheme: "dark" });
+        await docsPage.screenshot({
+          path: join(screenshots, "docs-embedding-1280-dark.png"),
+          fullPage: false,
+        });
+
+        const jsBlock = docsPage.locator(".code-block:has(code.language-js)").first();
+        await docsPage.emulateMedia({ colorScheme: "light" });
+        await jsBlock.screenshot({
+          path: join(screenshots, "docs-embedding-code-1280-light.png"),
+        });
+        await docsPage.emulateMedia({ colorScheme: "dark" });
+        await jsBlock.screenshot({
+          path: join(screenshots, "docs-embedding-code-1280-dark.png"),
+        });
       }
     } finally {
       await docsPage.close();
     }
 
+    // JS-off check on docs: readable, zero overflow, Copy button hidden.
+    const noJsDocsContext = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: 360, height: 740 },
+    });
+    try {
+      const noJsDocsPage = await noJsDocsContext.newPage();
+      await noJsDocsPage.goto(`http://127.0.0.1:${wwwPort}/docs/embedding/`, { waitUntil: "load" });
+      await noJsDocsPage.locator("article h1").waitFor({ state: "visible" });
+      if (!(await noJsDocsPage.locator(".code-copy").first().isHidden()))
+        throw new Error("docs Copy button stayed visible with JS disabled");
+      const noJsDocsWidth = await noJsDocsPage.evaluate(() => document.documentElement.scrollWidth);
+      if (noJsDocsWidth > 360)
+        throw new Error(`JS-off /docs/embedding/ overflows at 360px: ${noJsDocsWidth}`);
+    } finally {
+      await noJsDocsContext.close();
+    }
+
     if (screenshots) {
       await mkdir(screenshots, { recursive: true });
+      await page.locator("#tab-js").click();
+      await page.locator("#panel-js").waitFor({ state: "visible" });
       await page.emulateMedia({ colorScheme: "light" });
-      await page.screenshot({ path: join(screenshots, "mobile-360-light.png"), fullPage: true });
-
+      await page
+        .locator(".split")
+        .screenshot({ path: join(screenshots, "landing-code-360-light.png") });
       await page.emulateMedia({ colorScheme: "dark" });
-      await page.screenshot({ path: join(screenshots, "mobile-360-dark.png"), fullPage: true });
+      await page
+        .locator(".split")
+        .screenshot({ path: join(screenshots, "landing-code-360-dark.png") });
 
       await page.setViewportSize({ width: 1280, height: 800 });
+      await page.emulateMedia({ colorScheme: "light" });
+      await page
+        .locator(".split")
+        .screenshot({ path: join(screenshots, "landing-code-1280-light.png") });
+      await page.locator("#tab-ndjson").click();
+      await page.locator("#panel-ndjson").waitFor({ state: "visible" });
       await page.emulateMedia({ colorScheme: "dark" });
+      await page
+        .locator(".split")
+        .screenshot({ path: join(screenshots, "landing-code-1280-dark.png") });
       await page.screenshot({ path: join(screenshots, "desktop-dark.png"), fullPage: true });
       await page.locator(".hero").screenshot({ path: join(screenshots, "hero-desktop-dark.png") });
 
