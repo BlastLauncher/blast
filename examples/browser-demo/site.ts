@@ -203,6 +203,9 @@ export async function buildSite(
     ".button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ff6338;outline-offset:3px}\n",
   );
   await writeDocs(www);
+  await cp(join(projectRoot, "examples/browser-demo/fonts"), join(www, "fonts"), {
+    recursive: true,
+  });
   await writeFile(
     join(www, "404.html"),
     '<!doctype html><title>Blast — not found</title><p>That page is not here. <a href="/">Go home</a>.</p>\n',

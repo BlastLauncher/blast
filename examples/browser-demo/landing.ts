@@ -89,7 +89,41 @@ try await blast.sendInput(.primary, root: root)`);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blast — Raycast extensions, inside your app</title>
   <meta name="description" content="Embed unmodified Raycast extensions inside your application in any language.">
+  <link rel="preload" href="/fonts/newsreader-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
   <style>
+    @font-face {
+      font-family: "Newsreader";
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+      src: url(/fonts/newsreader-latin-opsz-normal.woff2) format("woff2-variations");
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+    @font-face {
+      font-family: "Newsreader";
+      font-style: italic;
+      font-weight: 200 800;
+      font-display: swap;
+      src: url(/fonts/newsreader-latin-opsz-italic.woff2) format("woff2-variations");
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(/fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2");
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(/fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2");
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+
     :root {
       /* Reference Library: warm rag paper & iron-gall ink */
       --bg: #f7f4ec;
@@ -111,9 +145,9 @@ try await blast.sendInput(.primary, root: root)`);
       --code-border: #36302a;
       --focus-ring: #8c2318;
       --radius: 3px;
-      --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
       --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -147,10 +181,14 @@ try await blast.sendInput(.primary, root: root)`);
     }
 
     html {
-      font-family: var(--font-sans);
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-optical-sizing: auto;
+      font-variant-numeric: oldstyle-nums;
+      hanging-punctuation: first allow-end last;
       background-color: var(--bg);
       color: var(--ink);
-      line-height: 1.6;
+      line-height: 1.62;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
       max-width: 100vw;

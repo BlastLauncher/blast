@@ -84,10 +84,14 @@ function expectLandingSnippets(html: string) {
   expect(html).toMatch(
     /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*animation:\s*none/,
   );
-  // Pure self-contained page: no external requests in src=, @import, or url(.
+  // Pure self-contained page: no external requests in src=, @import, or non-font url(.
   expect(html).not.toMatch(/\bsrc\s*=/i);
   expect(html).not.toMatch(/@import/i);
-  expect(html).not.toMatch(/\burl\(/i);
+  const urls = [...html.matchAll(/\burl\(\s*([^)]+?)\s*\)/gi)].map((match) =>
+    match[1]!.replace(/^["']|["']$/g, ""),
+  );
+  expect(urls.length).toBeGreaterThan(0);
+  for (const target of urls) expect(target).toMatch(/^\/fonts\/[^/]+\.woff2$/);
 }
 
 describe("site build helpers", () => {
@@ -193,6 +197,12 @@ describe("site build helpers", () => {
     expectLandingSnippets(landingHtml);
     expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
     expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);
+    await expect(readFile(`${result.www}/fonts/OFL.txt`, "utf8")).resolves.toContain(
+      "SIL OPEN FONT LICENSE",
+    );
+    await expect(
+      readFile(`${result.www}/fonts/newsreader-latin-opsz-normal.woff2`),
+    ).resolves.toBeDefined();
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     // The showcase ships prebuilt with every build, fixtures or not.
     const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
