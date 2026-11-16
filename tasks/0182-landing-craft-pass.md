@@ -19,7 +19,7 @@ User feedback on 0181: "still feels like vibe coding, AI touches; maybe the
 typography or some touches; the hero diagram needs animation". Diagnosis:
 
 1. Templated rhythm: every section is eyebrow label (`§ 1 · …`, `FOLIO I · …`)
-   + h2 + filler subtitle + "Margin note" aside + grid of bordered cards.
+   - h2 + filler subtitle + "Margin note" aside + grid of bordered cards.
 2. Boxes everywhere: card grids with "Explore … →", big-number stat tiles,
    ✓/→ two-column cards with bold-lead bullets, "B"-in-a-square logo plus a "REFERENCE" tag.
 3. Type falls back to Georgia/DejaVu on most machines; small caps and figures are faked
@@ -40,7 +40,7 @@ Direction (keep the paper/ink palette and dark "reading room" mode):
   tables, optical sizes for display vs text, proper hanging punctuation where it
   works. Body in the serif too; sans only if something truly needs it.
 - **Layout like a manual, not a SaaS page.** One strong text column (~62–68ch)
-  with a real margin column used *sparingly* (at most two marginal notes on the
+  with a real margin column used _sparingly_ (at most two marginal notes on the
   page, and only ones that add information). Drop most eyebrow labels; if
   sections are numbered, number them plainly in the heading. Replace card grids with
   typographic structures: "Runs everywhere" as a ruled table or definition list
@@ -64,16 +64,16 @@ Direction (keep the paper/ink palette and dark "reading room" mode):
   3. The engine reacts visibly (e.g. an ink-stamp or tick, not a glowing pulse) and
      emits `root.view`.
   4. Packets fan out (staggered) to all four hosts along the wires.
-  5. Each host redraws the same filtered result in its *own idiom*: macOS: rounded
+  5. Each host redraws the same filtered result in its _own idiom_: macOS: rounded
      native-looking list with selection; Terminal / tmux: monospace rows with a `›`
      marker and box-drawing frame; Web page: a plain DOM list; Go / Python: the
      raw NDJSON line typing out, e.g.
      `{"event":"root.view","view":{"kind":"list","rows":[…]}}`.
      Rows that do not match `ap` collapse; the match becomes selected.
   6. Hold, then reset softly.
-  Keep the four labels and sublabels the 0181 test checks. Under
-  `prefers-reduced-motion: reduce`, show step 5's final state statically. At ≤ 700px a
-  simplified vertical version is fine but must still animate the same story.
+     Keep the four labels and sublabels the 0181 test checks. Under
+     `prefers-reduced-motion: reduce`, show step 5's final state statically. At ≤ 700px a
+     simplified vertical version is fine but must still animate the same story.
 - Docs pages (`docs-site.ts`) stay as they are. Do not touch `demo.css`/`client.ts`.
 
 ## Acceptance
