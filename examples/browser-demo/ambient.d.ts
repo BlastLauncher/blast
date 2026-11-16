@@ -42,8 +42,13 @@ declare module "playwright" {
     innerText(): Promise<string>;
     textContent(): Promise<string | null>;
     click(): Promise<void>;
+    focus(): Promise<void>;
+    isHidden(): Promise<boolean>;
     getAttribute(name: string): Promise<string | null>;
     screenshot(options: { path: string }): Promise<unknown>;
+  };
+  export type FrameLocator = {
+    locator(selector: string): Locator;
   };
   export const chromium: {
     launch(options: { headless: boolean }): Promise<Browser>;
@@ -56,6 +61,10 @@ declare module "playwright" {
       colorScheme?: "dark" | "light";
       viewport?: { width: number; height: number };
     }): Promise<Page>;
+    newContext(options?: {
+      javaScriptEnabled?: boolean;
+      viewport?: { width: number; height: number };
+    }): Promise<Browser>;
     close(): Promise<void>;
   };
   export type Page = {
@@ -90,6 +99,7 @@ declare module "playwright" {
       waitForEvent(event: "page", options?: { timeout?: number }): Promise<Page>;
     };
     locator(selector: string): Locator;
+    frameLocator(selector: string): FrameLocator;
     getByRole(role: string, options: { name: RegExp | string }): Locator;
     getByText(text: RegExp | string): Locator;
     keyboard: { press(key: string): Promise<void>; type(text: string): Promise<void> };

@@ -254,7 +254,7 @@ try await blast.sendInput(.primary, root: root)`);
       letter-spacing: -0.045em;
       font-weight: 600;
       margin: 22px auto 18px;
-      max-width: 14ch;
+      max-width: 15ch;
       text-wrap: balance;
     }
     .lede {

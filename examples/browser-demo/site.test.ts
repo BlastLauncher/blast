@@ -61,39 +61,30 @@ function expectLandingSnippets(html: string) {
   expect(html).toContain("<code>3.0.0-alpha.3</code>");
   for (const stale of ["alpha.1", "alpha.2", "From Source", "release:build"])
     expect(html).not.toContain(stale);
-  // Runs everywhere: the Terminal row links to the tmux plugin.
-  expect(html).toContain('<a href="https://github.com/BlastLauncher/tmux-blast">');
-  expect(html).toContain("command palette in a popup");
+  // Release pill links to the tmux plugin.
+  expect(html).toContain('<a class="pill" href="https://github.com/BlastLauncher/tmux-blast">');
+  expect(html).toContain("The tmux palette is out");
   // Docs and quickstart live on the site now, not on GitHub blob URLs.
   expect(html).not.toContain("blob/main/docs/quickstart.md");
-  // Hero diagram: Blast's engine dispatching to the four host shells.
-  for (const label of [
-    "macOS app",
-    "examples/macos-launcher",
-    "BlastKit",
-    "Terminal / tmux",
-    "blast-tui",
-    "Web page",
-    "@blastlauncher/web",
-    "mount()",
-    "Go / Python",
-    "blast serve",
-    "NDJSON",
-  ])
-    expect(html).toContain(label);
+  // Hero switch and embedded live Browser demo / lazy Terminal player.
+  expect(html).toContain('id="sw-web"');
+  expect(html).toContain('id="sw-tui"');
+  expect(html).toContain('aria-controls="view-web"');
+  expect(html).toContain('aria-controls="view-tui"');
+  expect(html).toContain("/demo/?embed=1");
+  expect(html).toContain("Open full screen ↗");
+  expect(html).toContain('id="tui-player" data-cast="/tui.cast"');
+  expect(html).toContain('import("/tui-player.js")');
+  expect(html).toContain("mountTuiPlayer");
+  expect(html).toContain("Recording unavailable");
+  expect(html).not.toContain("Ctrl+Space opens blast-tui");
   // Reduced-motion media query disables CSS animations cleanly.
   expect(html).toMatch(
     /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*animation:\s*none/,
   );
-  // Craft pass: no box-shadows, no eyebrow/brand tags, and at most two margin notes.
-  expect(html).not.toMatch(/\bbox-shadow\s*:/i);
-  expect(html).not.toContain("brand-mark");
-  expect(html).not.toContain("brand-folio");
-  expect(html).not.toContain("catalogue-tag");
-  expect(html).not.toContain("section-kicker");
-  expect([...html.matchAll(/<aside\b/gi)].length).toBeLessThanOrEqual(2);
-  // Pure self-contained page: no external requests in src=, @import, or non-font url(.
-  expect(html).not.toMatch(/\bsrc\s*=/i);
+  // Pure self-contained page: only same-origin demo iframe src=, no @import, and only /fonts/*.woff2 in url().
+  const srcs = [...html.matchAll(/\bsrc\s*=\s*["']([^"']+)["']/gi)].map((match) => match[1]!);
+  for (const target of srcs) expect(target).toMatch(/^(?:https?:\/\/[^/]+)?\/demo\/\?embed=1$/);
   expect(html).not.toMatch(/@import/i);
   const urls = [...html.matchAll(/\burl\(\s*([^)]+?)\s*\)/gi)].map((match) =>
     match[1]!.replace(/^["']|["']$/g, ""),
@@ -102,7 +93,7 @@ function expectLandingSnippets(html: string) {
   for (const target of urls) expect(target).toMatch(/^\/fonts\/[^/]+\.woff2$/);
   const preloads = [...html.matchAll(/<link\b[^>]*rel=["']preload["'][^>]*>/gi)].map((m) => m[0]);
   expect(preloads).toHaveLength(1);
-  expect(preloads[0]).toContain('href="/fonts/newsreader-latin-opsz-normal.woff2"');
+  expect(preloads[0]).toContain('href="/fonts/geist-latin-wght-normal.woff2"');
 }
 
 describe("site build helpers", () => {
@@ -156,10 +147,11 @@ describe("site build helpers", () => {
     const html = landing(stats, "http://127.0.0.1:4173");
     expect(html).toContain("Raycast extensions, inside your app.");
     expect(html).toContain('href="http://127.0.0.1:4173/demo/"');
+    expect(html).toContain('<iframe src="http://127.0.0.1:4173/demo/?embed=1"');
     expect(html).toContain('href="http://127.0.0.1:4173/docs/"');
     expect(html).toContain('href="http://127.0.0.1:4173/docs/quickstart/"');
-    for (const label of ["JavaScript", "Web page", "Go", "Python", "Swift", "NDJSON"])
-      expect(html).toContain(`role="tab">${label}</label>`);
+    for (const label of ["NDJSON", "JavaScript", "Web page", "Go", "Python", "Swift"])
+      expect(html).toMatch(new RegExp(`<button[^>]*role="tab"[^>]*>${label}</button>`));
     expectLandingSnippets(html);
     expect(html).toContain("90.0%");
     expect(html).toContain("1,250");
@@ -230,16 +222,19 @@ describe("site build helpers", () => {
       "SIL OPEN FONT LICENSE",
     );
     await expect(
-      readFile(`${result.www}/fonts/newsreader-latin-opsz-normal.woff2`),
+      readFile(`${result.www}/fonts/geist-latin-wght-normal.woff2`),
+    ).resolves.toBeDefined();
+    await expect(
+      readFile(`${result.www}/fonts/geist-mono-latin-wght-normal.woff2`),
     ).resolves.toBeDefined();
     const fontFiles = (await readdir(`${result.www}/fonts`)).filter((f) => f.endsWith(".woff2"));
-    expect(fontFiles.length).toBe(4);
+    expect(fontFiles.length).toBe(2);
     const fontSizes = await Promise.all(
       fontFiles.map(async (f) => (await stat(`${result.www}/fonts/${f}`)).size),
     );
     const totalFontBytes = fontSizes.reduce((sum, n) => sum + n, 0);
     expect(totalFontBytes).toBeGreaterThan(0);
-    expect(totalFontBytes).toBeLessThanOrEqual(320 * 1024);
+    expect(totalFontBytes).toBeLessThan(200 * 1024);
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     // The showcase ships prebuilt with every build, fixtures or not.
     const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
