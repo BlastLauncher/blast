@@ -54,3 +54,9 @@ per capability (List, Detail markdown, Form, Grid, actions, feedback, storage
 and menu bar). It is prebuilt with every site build, from its manifest.
 `bun run site:e2e -- --screenshots <dir>` saves each showcase command in light
 and dark.
+
+The landing page's terminal view replays `recordings/tui.cast`, a real
+`blast-tui` session in the tmux palette, with `tui-player.ts` (ghostty-web),
+built to `/tui-player.js` and `/tui.cast`. `bun run site:record-tui`
+re-records it; it needs tmux 3.2+, util-linux `script` and Bun, and runs only
+isolated tmux servers.

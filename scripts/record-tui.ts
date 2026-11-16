@@ -7,18 +7,12 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { scriptToCast } from "../examples/browser-demo/tui-cast.ts";
+import { createTheme } from "../packages/tui/src/theme.ts";
 import { createHarness, repo, requireTmux, tuiMain, type Server } from "./tmux-harness.ts";
 
 const size = { width: 100, height: 28 };
 const output = join(repo, "examples/browser-demo/recordings/tui.cast");
-const palette = {
-  background: "#181825",
-  panel: "#1e1e2e",
-  border: "#45475a",
-  accent: "#89b4fa",
-  text: "#cdd6f4",
-  muted: "#6c7086",
-};
+const { colors } = createTheme(false, "dark");
 
 const { bin: tmuxBin, version } = requireTmux("site:record-tui");
 if (!Bun.which("script")) {
@@ -71,7 +65,6 @@ function selectedRow(host: Server): string {
 
 const timing = join(work, "tui.timing");
 const log = join(work, "tui.log");
-let cut = 0;
 try {
   console.log(`site:record-tui: ${version}`);
   const server = startServer(
@@ -80,14 +73,14 @@ try {
       "set -as terminal-features ',xterm-256color:RGB'",
       "set -g escape-time 0",
       `set -g default-command 'bash --noprofile --rcfile ${rc}'`,
-      `set -g status-style 'bg=${palette.panel},fg=${palette.text}'`,
-      `set -g status-left '#[fg=${palette.accent},bold] #S #[default]'`,
-      `set -g status-right '#[fg=${palette.muted}]blast-tui · tmux palette '`,
+      `set -g status-style 'bg=${colors.panel},fg=${colors.text}'`,
+      `set -g status-left '#[fg=${colors.accent},bold] #S #[default]'`,
+      `set -g status-right '#[fg=${colors.textMuted}]blast-tui · tmux palette '`,
       "set -g window-status-format ' #I:#W '",
       "set -g window-status-current-format ' #I:#W '",
-      `set -g window-status-current-style 'bg=${palette.accent},fg=${palette.background},bold'`,
-      `set -g pane-border-style 'fg=${palette.border}'`,
-      `set -g pane-active-border-style 'fg=${palette.accent}'`,
+      `set -g window-status-current-style 'bg=${colors.accent},fg=${colors.background},bold'`,
+      `set -g pane-border-style 'fg=${colors.border}'`,
+      `set -g pane-active-border-style 'fg=${colors.accent}'`,
       `set -g @blast-command '"${process.execPath}" "${tuiMain}"'`,
       "set -g @blast-theme dark",
       "set -g @blast-popup-width 84",
@@ -153,7 +146,7 @@ try {
   await waitFor("the actions", () => screen(host).includes("Open Command"), host);
   await Bun.sleep(900);
   await press(host, "Enter", 0);
-  await waitFor("the form", () => !screen(host).includes("Open Command"), host);
+  await waitFor("the form", () => screen(host).includes("╭─Rename Window"), host);
   await Bun.sleep(800);
   // The field starts with the current name.
   for (const _ of "bash") await press(host, "BSpace", rhythm[beat++ % rhythm.length]);
@@ -165,8 +158,8 @@ try {
   await waitFor("the rename", () => windowName() === "engine", host);
   await waitFor("the status line", () => screen(host).includes("0:engine"), host);
   await Bun.sleep(2200);
-  // Detaching prints a message; the cast ends before it.
-  cut = (performance.now() - started) / 1000;
+  // The client prints "[server exited]" when the server goes; the cast ends before it.
+  const cut = (performance.now() - started) / 1000;
   server.tmux(["kill-server"]);
   await waitFor(
     "the recorder to finish",
