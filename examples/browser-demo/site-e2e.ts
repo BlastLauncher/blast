@@ -306,13 +306,6 @@ try {
       )
         throw new Error(`/docs/embedding/ at 360px: ${JSON.stringify(embedding360)}`);
 
-      const copyBtn = docsPage.locator(".code-copy").first();
-      await copyBtn.click();
-      await docsPage.waitForFunction(() => {
-        const label = document.querySelector(".code-copy")?.textContent;
-        return label === "Copied" || label === "Selected";
-      });
-
       const foreign = docsRequests.filter((url) => !url.startsWith(`http://127.0.0.1:${wwwPort}/`));
       if (
         foreign.length ||
@@ -322,44 +315,33 @@ try {
       )
         throw new Error(`docs requests: ${JSON.stringify(docsRequests)}`);
 
-      if (screenshots) {
+      for (const width of [360, 1280]) {
+        await docsPage.setViewportSize({ width, height: 800 });
+        await docsPage.evaluate(() => window.scrollTo(0, 0));
+        const docWidth = await docsPage.evaluate(() => document.documentElement.scrollWidth);
+        if (docWidth > width)
+          throw new Error(`/docs/embedding/ overflows at ${width}px: ${docWidth}`);
+        if (!screenshots) continue;
         await mkdir(screenshots, { recursive: true });
-        await docsPage.emulateMedia({ colorScheme: "light" });
-        await docsPage.screenshot({
-          path: join(screenshots, "docs-embedding-360-light.png"),
-          fullPage: false,
-        });
-        await docsPage.emulateMedia({ colorScheme: "dark" });
-        await docsPage.screenshot({
-          path: join(screenshots, "docs-embedding-360-dark.png"),
-          fullPage: false,
-        });
-
-        await docsPage.setViewportSize({ width: 1280, height: 800 });
-        await docsPage.emulateMedia({ colorScheme: "light" });
-        const embedding1280 = await docsPage.evaluate(() => document.documentElement.scrollWidth);
-        if (embedding1280 > 1280)
-          throw new Error(`/docs/embedding/ overflows at 1280px: ${embedding1280}`);
-        await docsPage.screenshot({
-          path: join(screenshots, "docs-embedding-1280-light.png"),
-          fullPage: false,
-        });
-        await docsPage.emulateMedia({ colorScheme: "dark" });
-        await docsPage.screenshot({
-          path: join(screenshots, "docs-embedding-1280-dark.png"),
-          fullPage: false,
-        });
-
         const jsBlock = docsPage.locator(".code-block:has(code.language-js)").first();
-        await docsPage.emulateMedia({ colorScheme: "light" });
-        await jsBlock.screenshot({
-          path: join(screenshots, "docs-embedding-code-1280-light.png"),
-        });
-        await docsPage.emulateMedia({ colorScheme: "dark" });
-        await jsBlock.screenshot({
-          path: join(screenshots, "docs-embedding-code-1280-dark.png"),
-        });
+        for (const colorScheme of ["light", "dark"] as const) {
+          await docsPage.emulateMedia({ colorScheme });
+          await docsPage.screenshot({
+            path: join(screenshots, `docs-embedding-${width}-${colorScheme}.png`),
+          });
+          await jsBlock.screenshot({
+            path: join(screenshots, `docs-embedding-code-${width}-${colorScheme}.png`),
+          });
+          await docsPage.evaluate(() => window.scrollTo(0, 0));
+        }
       }
+
+      // After the screenshots: the clipboard fallback leaves the code selected.
+      await docsPage.locator(".code-copy").first().click();
+      await docsPage.waitForFunction(() => {
+        const label = document.querySelector(".code-copy")?.textContent;
+        return label === "Copied" || label === "Selected";
+      });
     } finally {
       await docsPage.close();
     }
