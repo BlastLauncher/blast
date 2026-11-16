@@ -1,7 +1,7 @@
 // asciicast v2 (https://docs.asciinema.org/manual/asciicast/v2/): a JSON
 // header line, then one `[seconds, "o", data]` line per output chunk. Shared
 // by the recorder (`site:record-tui`) and the browser player, so it must stay
-// free of Node APIs.
+// free of Node and DOM APIs; tests replay casts with it headless.
 
 export type CastHeader = {
   version: 2;
@@ -89,4 +89,74 @@ export function scriptToCast(
     if (data) lines.push(JSON.stringify([Number(time.toFixed(4)), "o", data]));
   }
   return `${lines.join("\n")}\n`;
+}
+
+/** The TUI's dark palette (`packages/tui/src/theme.ts`) as a terminal theme. */
+export const tuiTerminalTheme = {
+  background: "#181825",
+  foreground: "#cdd6f4",
+  cursor: "#89b4fa",
+  cursorAccent: "#181825",
+  selectionBackground: "#313244",
+  selectionForeground: "#cdd6f4",
+  black: "#45475a",
+  red: "#f38ba8",
+  green: "#a6e3a1",
+  yellow: "#f9e2af",
+  blue: "#89b4fa",
+  magenta: "#f5c2e7",
+  cyan: "#94e2d5",
+  white: "#bac2de",
+  brightBlack: "#6c7086",
+  brightRed: "#f38ba8",
+  brightGreen: "#a6e3a1",
+  brightYellow: "#f9e2af",
+  brightBlue: "#89b4fa",
+  brightMagenta: "#cba6f7",
+  brightCyan: "#94e2d5",
+  brightWhite: "#cdd6f4",
+} as const;
+
+/** Seconds the last frame stays up before the recording starts over. */
+export const loopHold = 2;
+
+export type Screen = { write(data: string): void; reset(): void };
+export type Playback = {
+  /** 0–1 through the recording; 1 while holding the last frame. */
+  readonly progress: number;
+  /** Moves the playhead forward and writes every event it passes. */
+  advance(seconds: number): void;
+  /** Writes everything left (the last frame, without playback). */
+  finish(): void;
+};
+
+/** The replay clock, apart from the DOM so it can be tested headless. */
+export function createPlayback(cast: Cast, screen: Screen, hold = loopHold): Playback {
+  let index = 0,
+    position = 0;
+  const flush = () => {
+    let chunk = "";
+    while (index < cast.events.length && cast.events[index]!.time <= position)
+      chunk += cast.events[index++]!.data;
+    if (chunk) screen.write(chunk);
+  };
+  return {
+    get progress() {
+      return cast.duration ? Math.min(1, position / cast.duration) : 1;
+    },
+    advance(seconds) {
+      position += seconds;
+      if (index >= cast.events.length && position >= cast.duration + hold) {
+        screen.reset();
+        index = 0;
+        position = 0;
+      }
+      flush();
+    },
+    finish() {
+      // Past the hold, so playing on starts the recording over at once.
+      position = cast.duration + hold;
+      flush();
+    },
+  };
 }

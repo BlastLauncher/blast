@@ -4,6 +4,7 @@ import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
 import { checkShowcase } from "./showcase-e2e.ts";
+import { checkTuiPlayer } from "./tui-player-e2e.ts";
 
 type BrowserElement = {
   id?: string;
@@ -136,6 +137,17 @@ try {
     join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
   )) as typeof import("playwright");
   const browser = await (browserName === "firefox" ? firefox : chromium).launch({ headless: true });
+  // 0184: the terminal recording player, on a page of its own.
+  try {
+    await checkTuiPlayer(browser, `http://127.0.0.1:${wwwPort}`, {
+      label: browserName,
+      ...(screenshots ? { screenshots } : {}),
+    });
+    console.log(`ok: tui-player replays tui.cast (${browserName})`);
+  } catch (error) {
+    await browser.close();
+    throw error;
+  }
   try {
     const page = await browser.newPage();
     scrollPage = page;
