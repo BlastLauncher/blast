@@ -5,9 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M11 — tmux palette is done and released (2026-11-15): `3.0.0-alpha.3` on npm
-`next` includes `@blastlauncher/tui`; plugin at `BlastLauncher/tmux-blast`.
-Next milestone not chosen yet.
+M12 — Site as a library: docs rendered on the site, landing page redesigned
+as a reference-book look with an animated engine hero (user's choice 2026-11-16).
 
 ## Milestones
 
@@ -62,6 +61,11 @@ client and doc shows the smaller API.
 - [x] 0177 Publish `@blastlauncher/tui` (bin `blast-tui`, bundled `tmux` extension)
 - [x] 0178 tmux plugin (`examples/tmux-plugin`) with a real-tmux e2e in CI
 - [x] 0179 Docs, README and landing for the tmux palette
+
+### M12 — Site as a library
+
+- [ ] 0180 User-facing docs rendered on the site under `/docs/`
+- [ ] 0181 Landing redesign: reference-book look, engine hero animation
 
 ## Later (not scheduled)
 
