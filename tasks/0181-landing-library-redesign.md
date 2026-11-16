@@ -1,7 +1,7 @@
 ---
 id: "0181"
 title: Landing page redesign — reference-book look, engine hero animation
-status: todo
+status: doing
 milestone: M12
 depends: []
 ---
