@@ -1,5 +1,5 @@
 {
-  "version": "2.11.1",
+  "version": "2.12.1",
   "totals": {
     "all": {
       "covered": 2481,
@@ -8,16 +8,16 @@
       "total": 2482
     },
     "nonDeprecated": {
-      "covered": 1539,
+      "covered": 1538,
       "partial": 1,
       "missing": 0,
-      "total": 1540
+      "total": 1539
     },
     "deprecated": {
-      "covered": 942,
+      "covered": 943,
       "partial": 0,
       "missing": 0,
-      "total": 942
+      "total": 943
     },
     "kinds": {
       "namespace": {

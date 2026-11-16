@@ -1,6 +1,6 @@
 {
-  "version": "2.11.1",
-  "sha256": "779bd6399374f32c8187c6f49f594d32c619edb82b2cf5e5be312a1b7ed4ba2c",
+  "version": "2.12.1",
+  "sha256": "c2f5bfd7b0d8e9b30aa6bb6483cdfd586daba857e41e9217e5c898ba6faee960",
   "entries": [
     {
       "path": "AI",
@@ -841,7 +841,7 @@
     {
       "path": "AI.Model.Vercel_Inkling_Small",
       "kind": "enum-member",
-      "deprecated": false
+      "deprecated": true
     },
     {
       "path": "AI.Model.Vercel_Kimi_K2.7_Code",

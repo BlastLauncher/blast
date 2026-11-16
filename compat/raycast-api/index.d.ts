@@ -585,7 +585,6 @@ export declare namespace AI {
         "Vercel_Kimi_K3.1_Pro" = "gateway-moonshotai/kimi-k3.1-pro",
         "Vercel_Gemma_4_31B" = "gateway-google/gemma-4-31b-it",
         "Vercel_Inkling" = "gateway-thinkingmachines/inkling",
-        "Vercel_Inkling_Small" = "gateway-thinkingmachines/inkling-small",
         "Vercel_DeepSeek_V4_Flash" = "gateway-deepseek/deepseek-v4-flash",
         "Vercel_DeepSeek_V4.1_Flash" = "gateway-deepseek/deepseek-v4.1-flash",
         "Vercel_DeepSeek_V4_Pro" = "gateway-deepseek/deepseek-v4-pro-0813",
@@ -596,6 +595,8 @@ export declare namespace AI {
         "Mistral_Nemo" = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_3.7_Flash" = "google-gemini-3.7-flash",
+        /** @deprecated Use `AI.Model["Vercel_Inkling"]` instead */
+        "Vercel_Inkling_Small" = "gateway-thinkingmachines/inkling",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
         "OpenAI_GPT-5.3_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */

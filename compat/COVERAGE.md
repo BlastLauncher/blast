@@ -1,18 +1,18 @@
 # Raycast API coverage
 
-Denominator: the `@raycast/api@2.11.1` declarations. Evidence:
+Denominator: the `@raycast/api@2.12.1` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 Proven aliases inherit descendant evidence from their targets (`via` in JSON).
 
-**Non-deprecated coverage: 1539/1540 covered (99.9%), 1 partial, 0 missing.**
-Deprecated: 942/942 covered (100.0%), 0 partial, 0 missing.
+**Non-deprecated coverage: 1538/1539 covered (99.9%), 1 partial, 0 missing.**
+Deprecated: 943/943 covered (100.0%), 0 partial, 0 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1539 | 942 | 2481 |
+| covered | 1538 | 943 | 2481 |
 | partial | 1 | 0 | 1 |
 | missing | 0 | 0 | 0 |
 
