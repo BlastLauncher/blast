@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M13 — Product landing is done (2026-11-16): centered hero with the live demo and a
-real `blast-tui` recording (ghostty-web), technical section below. Landed by PR.
+M14 — Work through PRs: one task branch and PR per task, merged on green
+(2026-11-16); site code highlighting and docs in the landing design.
 
 ## Milestones
 
@@ -72,6 +72,11 @@ client and doc shows the smaller API.
 
 - [x] 0183 Centered product hero with the live demo, technical section below
 - [x] 0184 Real blast-tui recording played with ghostty-web
+
+### M14 — Work through PRs
+
+- [x] 0185 Task scripts work through one pull request per task
+- [ ] 0186 Build-time syntax highlighting; docs pages in the landing design
 
 ## Later (not scheduled)
 

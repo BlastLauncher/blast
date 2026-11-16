@@ -23,8 +23,7 @@ claimed.
 
 ## Ground rules
 
-- The V1/V2 prototype is not in the tree; tag `archive/v2-prototype-2026-10-18`
-  keeps it. Do not consult it unless your task file names a path there.
+- The V1/V2 prototype lives only in tag `archive/v2-prototype-2026-10-18`; ignore it.
 - The repo is public. Never commit secrets, tokens, personal paths, or
   extension source you are not licensed to redistribute.
 - Keep disk usage minimal: no global installs, no full clones of large repos;
@@ -42,8 +41,8 @@ claimed.
   it fully, never `npm install` inside an extension, never modify extension
   source; incompatibilities are fixed in Blast.
 - Deterministic, order-independent tests only (verify randomizes order; reproduce
-  with the printed `--seed`). Never throw from React commit callbacks. Network access is allowed in explicit fetch scripts
-  that write to `.cache/`, never in `bun test`.
+  with `--seed`). Never throw from React commit callbacks. Network only in fetch
+  scripts that write to `.cache/`, never in `bun test`.
 
 ## Layout
 
@@ -75,10 +74,8 @@ pipe hides the failure.
 A task is done only when all are true:
 
 1. Every acceptance check in the task file is satisfied and demonstrated.
-2. `bun run verify` passes on the final commit; paste its summary line in the
-   task's Handoff section.
-3. Behaviour changes have tests; API surface changes update `compat/` via its
-   generator.
+2. `bun run verify` passes on the final commit; its summary line is in Handoff.
+3. Behaviour changes have tests; API surface changes regenerate `compat/`.
 4. No stray files: no debug scripts, no `.only`, no commented-out code.
 5. The task's Handoff section is filled in (see below).
 
@@ -89,8 +86,7 @@ File: `tasks/NNNN-short-slug.md`, four-digit id, never reused. Template:
 (`todo|doing|review|done`), `milestone`, `depends` (list of ids). Required
 sections: `Goal`, `Context`, `Acceptance`, `Out of scope`, `Handoff`.
 
-- A task fits in one focused session (roughly < 600 changed lines). Split
-  otherwise.
+- A task fits in one focused session (roughly < 600 changed lines), else split.
 - Acceptance items are concrete, checkable commands or observable results.
 - When a task is merged, delete its file in the same commit and tick it in
   `PLAN.md`. Git history is the archive; there is no status ledger.
@@ -100,8 +96,8 @@ sections: `Goal`, `Context`, `Acceptance`, `Out of scope`, `Handoff`.
 Work is done by three roles. One agent may hold several roles, but the
 reviewer must never review their own implementation.
 
-- **Orchestrator** — owns `PLAN.md` and `tasks/`, writes task files, delegates,
-  reviews results, merges into the integration branch, and pushes.
+- **Orchestrator** — owns `PLAN.md`, `tasks/` and this file, writes task files,
+  delegates, reviews, opens one PR per task and merges it once CI is green.
 - **Worker** — implements exactly one task on its own branch/worktree.
   Does not edit `PLAN.md`, other tasks, or `AGENTS.md`; does not push. If the
   task is wrong or blocked, stop and write why in Handoff instead of
@@ -110,8 +106,8 @@ reviewer must never review their own implementation.
   Acceptance and this file; reruns `bun run verify`; reports concrete findings
   (file:line, failure scenario). Does not rewrite the work.
 
-Handoff happens through files and commits, never chat history. A worker's
-final message and the task's Handoff section both contain:
+Handoff happens through files, commits and PRs, never chat history. A worker's
+final message and the task's Handoff section (copied into the PR body) contain:
 
 ```
 Branch/commit: <branch> @ <sha>
@@ -122,13 +118,15 @@ Not done / risks: <anything skipped, assumptions, follow-ups>
 
 ## Delegation (orchestrator)
 
-Branches: integration branch is `main`. Workers commit on
-their own branch; the orchestrator merges after review and pushes.
+Branches: `main` changes only through pull requests; never push to it. Each
+task gets a branch `task/NNNN-slug` from `origin/main` and one PR (tightly
+coupled tasks may share one; say so in both task files). Workers branch off it.
 
 Loop per task:
 
-1. Commit the task file (`status: todo`), then `bun run tasks:start NNNN`: it
-   commits `doing` (children see only commits) and prints the brief.
+1. Write the task file (`status: todo`), then `bun run tasks:start NNNN`: it
+   creates the task branch, commits the file as `doing` there (children see
+   only commits) and prints the brief. Delegate from that checkout.
 2. Delegate to a worker in an isolated worktree with a prompt that says only:
    "Follow AGENTS.md. You are the Worker for `tasks/NNNN-*.md`." plus anything
    not already in the task file.
@@ -137,25 +135,29 @@ Loop per task:
    findings, remove the old worktree (keep its branch) and send a new round
    with the original brief plus numbered findings; the new worker starts with
    `git merge --ff-only <previous-branch>`.
-4. `bun run tasks:merge NNNN` finds the worker branch, merges `--no-ff`,
-   deletes the task file, ticks `- [ ] NNNN` in PLAN.md (or `--plan "<text>"`),
-   verifies and commits done; `bun run tasks:land NNNN` pushes, waits for green
-   CI, then removes the worktree/branch. `git branch -d` earlier-round branches.
+4. On the task branch, `bun run tasks:merge NNNN` merges the worker branch
+   `--no-ff`, deletes the task file, ticks `- [ ] NNNN` in PLAN.md (or
+   `--plan "<text>"`), verifies and commits done. `bun run tasks:land NNNN`
+   merges `origin/main` in (stops on conflicts), pushes, opens the PR from
+   `.github/pull_request_template.md`, waits for green checks, merges it with a
+   merge commit, updates local `main` and removes worktrees and branches.
 
-Independent tasks may run in parallel; merge one at a time. Regenerate
-conflicting `compat/` files and `bun.lock` (`bun install`), never hand-merge.
+Independent tasks run in parallel on their own task branches; land one at a
+time. Regenerate conflicting `compat/` files and `bun.lock` (`bun install`),
+never hand-merge. UI tasks get before/after screenshots in the PR body.
 
 In T3 Code use `delegate_task` with `isolation: "worktree"`, `mode: "async"`,
 a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
 until the completion notification arrives. Model guidance (re-check with
 `orchestrator_capabilities`; names change):
 
-| Use                                     | Provider instance    | Model                                                                                         |
-| --------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
-| Well-specified, mechanical tasks        | `opencode_opencode2` | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash`, free `opencode/*-free` models |
-| Harder implementation, review           | `codex`              | `gpt-6.1-sol`                                                                                 |
-| Fallback (no quota / model unavailable) | `claudeAgent`        | `claude-sonnet-5`                                                                             |
-| Orchestration, design, final review     | `claudeAgent`        | `claude-opus-5-5`                                                                             |
+| Use                                 | Provider instance    | Model                                                                                         |
+| ----------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
+| Well-specified, mechanical tasks    | `opencode_opencode2` | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash`, free `opencode/*-free` models |
+| Harder implementation, review       | `codex`              | `gpt-6.1-sol`                                                                                 |
+| Large migrations; fallback          | `claudeAgent`        | `claude-sonnet-5-5`                                                                           |
+| Interface and visual design         | `antigravity`        | `gemini-4-hydrogen-high`                                                                      |
+| Orchestration, design, final review | `claudeAgent`        | `claude-opus-5-5`                                                                             |
 
 Cheap models get tasks whose Acceptance is fully mechanical. If a cheap model
 fails a task twice, escalate the model rather than loosening the task.
@@ -173,7 +175,6 @@ fails a task twice, escalate the model rather than loosening the task.
   unknown path. Never hand-edit `compat/`.
 - Upgrading the API = `compat:fetch` → `compat:inventory` → `compat:report`,
   then review the inventory diff and record notable changes in the commit.
-- Corpus usage weights join the report in M2.
 
 ## Docs policy
 
@@ -191,8 +192,7 @@ fails a task twice, escalate the model rather than loosening the task.
   `@blastlauncher/<name>`, `"private": true`, `"type": "module"`, `exports`
   pointing at `./src/*.ts` (no build step), and internal deps as
   `"workspace:*"`. Read `docs/architecture.md` and `docs/decisions/` first.
-- Test fixtures that are not product code live under `fixtures/` (excluded
-  from typecheck).
+- Non-product test fixtures live under `fixtures/` (excluded from typecheck).
 - Tests sit next to code as `*.test.ts` and use `bun:test`.
 - Comments explain why, not what. Match surrounding style.
 - Commit messages: conventional (`feat:`, `fix:`, `chore:`, `test:`, `docs:`),
