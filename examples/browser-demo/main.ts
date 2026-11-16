@@ -21,11 +21,21 @@ async function main() {
     hostname: "127.0.0.1",
     port: 0,
     fetch: async (request) => {
-      const path = new URL(request.url).pathname;
+      const url = new URL(request.url);
+      const path = url.pathname;
       if (path === "/" || path === "/index.html")
-        return new Response(demoPage(`http://127.0.0.1:${sandbox.port}/`, "/", true), {
-          headers: { "content-type": "text/html" },
-        });
+        return new Response(
+          demoPage(
+            `http://127.0.0.1:${sandbox.port}/`,
+            "/",
+            true,
+            "/",
+            url.searchParams.get("embed") === "1",
+          ),
+          {
+            headers: { "content-type": "text/html" },
+          },
+        );
       if (path === "/demo.css")
         return new Response(await readFile(join(projectRoot, "examples/browser-demo/demo.css")), {
           headers: { "content-type": "text/css" },

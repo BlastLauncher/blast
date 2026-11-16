@@ -4,12 +4,14 @@ import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
 import { checkShowcase } from "./showcase-e2e.ts";
+import { checkTuiPlayer } from "./tui-player-e2e.ts";
 
 type BrowserElement = {
   id?: string;
   tagName?: string;
   value?: string;
   textContent: string | null;
+  children?: { length: number };
   matches?(selector: string): boolean;
   closest?(selector: string): BrowserElement | null;
   getAttribute?(name: string): string | null;
@@ -136,69 +138,101 @@ try {
     join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
   )) as typeof import("playwright");
   const browser = await (browserName === "firefox" ? firefox : chromium).launch({ headless: true });
+  // 0184: the terminal recording player, on a page of its own.
   try {
-    const page = await browser.newPage();
+    await checkTuiPlayer(browser, `http://127.0.0.1:${wwwPort}`, {
+      label: browserName,
+      ...(screenshots ? { screenshots } : {}),
+    });
+    console.log(`ok: tui-player replays tui.cast (${browserName})`);
+  } catch (error) {
+    await browser.close();
+    throw error;
+  }
+  try {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     scrollPage = page;
     const resources: string[] = [];
+    const landingRequests: string[] = [];
     page.on("console", (message) => console.error(`[browser:${message.type()}] ${message.text()}`));
     page.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
     page.on("response", (response) => {
       resources.push(response.url());
-      if (response.status() >= 400)
+      if (response.status() >= 400 && !response.url().endsWith("/tui-player.js"))
         console.error(`[response:${response.status()}] ${response.url()}`);
     });
     // 0167: the default run serves fixtures and prebuilt bundles, so GitHub's
     // anonymous API quota must never decide whether it passes.
     const githubApiRequests: string[] = [];
     page.on("request", (request) => {
+      landingRequests.push(request.url());
       if (request.url().startsWith("https://api.github.com/"))
         githubApiRequests.push(request.url());
     });
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
     await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
+    await page.evaluate(() => document.fonts?.ready);
 
-    // Verify manual craft-pass constraints on the rendered DOM
-    const craftCheck = await page.evaluate(() => {
-      const marginNotes = document.querySelectorAll("aside, .marginalia").length;
-      const shadowViolations: string[] = [];
-      const radiusViolations: string[] = [];
-      const all = Array.from(document.querySelectorAll("*"));
-      for (const el of all) {
-        const style = getComputedStyle(el);
-        if (style.boxShadow && style.boxShadow !== "none") {
-          shadowViolations.push(`${el.tagName}: ${style.boxShadow}`);
-        }
-        if (!el.closest?.(".hero")) {
-          for (const radius of [
-            style.borderTopLeftRadius,
-            style.borderTopRightRadius,
-            style.borderBottomRightRadius,
-            style.borderBottomLeftRadius,
-          ]) {
-            const px = Number.parseFloat(radius);
-            if (Number.isFinite(px) && px > 4) {
-              radiusViolations.push(`${el.tagName}: ${radius}`);
-            }
-          }
-        }
-      }
-      return { marginNotes, shadowViolations, radiusViolations };
-    });
-    if (
-      craftCheck.marginNotes > 2 ||
-      craftCheck.shadowViolations.length > 0 ||
-      craftCheck.radiusViolations.length > 0
-    ) {
-      throw new Error(`landing craft-pass failed: ${JSON.stringify(craftCheck)}`);
+    // Hero iframe loads the live demo without .demo-bar at 1280px, with zero external requests.
+    const heroFrame = page.frameLocator(".browser iframe");
+    await heroFrame.locator("#root-search").waitFor({ timeout: 30_000 });
+    if ((await heroFrame.locator(".demo-bar").count()) !== 0)
+      throw new Error("embedded hero demo unexpectedly rendered .demo-bar");
+    const foreignLanding = landingRequests.filter(
+      (url) =>
+        !url.startsWith(`http://127.0.0.1:${wwwPort}/`) &&
+        !url.startsWith(`http://127.0.0.1:${sandboxPort}/`) &&
+        !url.startsWith("https://raw.githubusercontent.com/raycast/extensions/"),
+    );
+    if (foreignLanding.length > 0)
+      throw new Error(`landing made external requests: ${JSON.stringify(foreignLanding)}`);
+    if (!resources.some((url) => url.endsWith("/fonts/geist-latin-wght-normal.woff2")))
+      throw new Error("Geist font was not loaded on landing page");
+    if (landingRequests.some((url) => url.endsWith("/tui-player.js")))
+      throw new Error("/tui-player.js was eagerly requested before selecting Terminal");
+
+    // Browser / Terminal ARIA tab switch (click + keyboard ArrowRight/ArrowLeft) and lazy tui-player import.
+    await page.locator("#sw-web").focus();
+    await page.keyboard.press("ArrowRight");
+    await page.locator("#view-tui").waitFor({ state: "visible" });
+    if ((await page.locator("#sw-tui").getAttribute("aria-selected")) !== "true")
+      throw new Error("ArrowRight did not select Terminal tab");
+    if (!(await page.locator("#view-web").isHidden()))
+      throw new Error("Browser panel stayed visible when Terminal was selected");
+    await page.waitForFunction(
+      () =>
+        document.querySelector("#tui-player")?.textContent?.includes("Recording unavailable") ||
+        (document.querySelector("#tui-player")?.children?.length ?? 0) > 0,
+      undefined,
+      { timeout: 10_000 },
+    );
+    if (!landingRequests.some((url) => url.endsWith("/tui-player.js")))
+      throw new Error("selecting Terminal did not request /tui-player.js");
+
+    if (screenshots) {
+      await mkdir(screenshots, { recursive: true });
+      await page.emulateMedia({ colorScheme: "light" });
+      await page
+        .locator(".hero")
+        .screenshot({ path: join(screenshots, "hero-terminal-light.png") });
     }
 
-    // Verify pure CSS tab switching
-    await page.locator('label[for="tab-go"]').click();
-    await page.locator("#panel-go").waitFor({ state: "visible" });
-    await page.locator('label[for="tab-web"]').click();
-    await page.locator("#panel-web").waitFor({ state: "visible" });
-    await page.locator('label[for="tab-js"]').click();
+    await page.keyboard.press("ArrowLeft");
+    await page.locator("#view-web").waitFor({ state: "visible" });
+    if ((await page.locator("#sw-web").getAttribute("aria-selected")) !== "true")
+      throw new Error("ArrowLeft did not return to Browser tab");
+
+    // Verify all 6 code tab panels switch via click and keyboard.
+    for (const tab of ["go", "web", "js", "py", "swift", "ndjson"] as const) {
+      await page.locator(`#tab-${tab}`).click();
+      await page.locator(`#panel-${tab}`).waitFor({ state: "visible" });
+      if ((await page.locator(`#tab-${tab}`).getAttribute("aria-selected")) !== "true")
+        throw new Error(`tab ${tab} did not become aria-selected="true"`);
+    }
+    await page.locator("#tab-ndjson").focus();
+    await page.keyboard.press("ArrowRight");
     await page.locator("#panel-js").waitFor({ state: "visible" });
+    await page.locator("#tab-ndjson").click();
 
     // Responsive check at 360px viewport: no horizontal scroll
     await page.setViewportSize({ width: 360, height: 740 });
@@ -210,6 +244,23 @@ try {
       throw new Error(
         `landing page overflows horizontally at 360px: doc=${docScrollWidth}, body=${bodyScrollWidth}`,
       );
+    }
+
+    // JS-off check: page is readable, Browser view is shown, and all 6 code panels are visible.
+    const noJsContext = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: 360, height: 740 },
+    });
+    try {
+      const noJsPage = await noJsContext.newPage();
+      await noJsPage.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
+      await noJsPage.locator("#view-web").waitFor({ state: "visible" });
+      for (const panel of ["ndjson", "js", "web", "go", "py", "swift"])
+        await noJsPage.locator(`#panel-${panel}`).waitFor({ state: "visible" });
+      const noJsWidth = await noJsPage.evaluate(() => document.documentElement.scrollWidth);
+      if (noJsWidth > 360) throw new Error(`JS-off landing overflows at 360px: ${noJsWidth}`);
+    } finally {
+      await noJsContext.close();
     }
 
     // 0180: a docs chapter loads with its stylesheet, from this site only,
@@ -254,46 +305,17 @@ try {
       await page.setViewportSize({ width: 1280, height: 800 });
       await page.emulateMedia({ colorScheme: "dark" });
       await page.screenshot({ path: join(screenshots, "desktop-dark.png"), fullPage: true });
+      await page.locator(".hero").screenshot({ path: join(screenshots, "hero-desktop-dark.png") });
 
       await page.emulateMedia({ colorScheme: "light" });
       await page.screenshot({ path: join(screenshots, "desktop-light.png"), fullPage: true });
-
-      const heroPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-      try {
-        await heroPage.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
-        await heroPage.evaluate(() => document.fonts?.ready);
-        const hero = heroPage.locator(".hero");
-        const heroFrames = [
-          ["01-type", 1200],
-          ["02-input", 2250],
-          ["03-engine", 2970],
-          ["04-fanout", 4320],
-          ["05-redraw", 5580],
-          ["06-hold", 7200],
-        ] as const;
-        for (const scheme of ["light", "dark"] as const) {
-          await heroPage.emulateMedia({ colorScheme: scheme, reducedMotion: "no-preference" });
-          for (const [label, ms] of heroFrames) {
-            await heroPage.evaluate((timeMs) => {
-              for (const anim of document.getAnimations()) {
-                anim.pause();
-                anim.currentTime = timeMs;
-              }
-            }, ms);
-            await hero.screenshot({ path: join(screenshots, `hero-${label}-${scheme}.png`) });
-          }
-        }
-        await heroPage.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-        await hero.screenshot({ path: join(screenshots, "hero-reduced-motion.png") });
-      } finally {
-        await heroPage.close();
-      }
+      await page.locator(".hero").screenshot({ path: join(screenshots, "hero-desktop-light.png") });
     }
 
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.emulateMedia({ colorScheme: "light" });
 
-    await page.getByRole("link", { name: "Try the live demo" }).click();
+    await page.getByRole("link", { name: "Try it in the browser" }).click();
     await page.locator("#root-search").waitFor();
     await page.evaluate(() => localStorage.clear());
     // The demo bar names the page and links back to the landing page.

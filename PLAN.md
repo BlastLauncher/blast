@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M12 — Site as a library is done (2026-11-16): docs under `/docs/`, landing set as
-a technical manual with an animated engine hero. Next milestone not chosen yet.
+M13 — Product landing is done (2026-11-16): centered hero with the live demo and a
+real `blast-tui` recording (ghostty-web), technical section below. Landed by PR.
 
 ## Milestones
 
@@ -67,6 +67,11 @@ client and doc shows the smaller API.
 - [x] 0180 User-facing docs rendered on the site under `/docs/`
 - [x] 0181 Landing redesign: reference-book look, engine hero animation
 - [x] 0182 Landing craft pass: book typography, fewer boxes, hero tells the flow
+
+### M13 — Product landing
+
+- [x] 0183 Centered product hero with the live demo, technical section below
+- [x] 0184 Real blast-tui recording played with ghostty-web
 
 ## Later (not scheduled)
 

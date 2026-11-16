@@ -873,9 +873,13 @@ function runRootAction(id: RootActionId) {
 
 async function start() {
   try {
+    const params = new URLSearchParams(location.search);
+    if (params.get("embed") === "1") {
+      document.documentElement.dataset.embed = "1";
+      document.querySelector(".demo-bar")?.remove();
+    }
     catalog = validateCatalog(await (await fetch(asset("catalog.json"))).json());
     recentIds = readRecent();
-    const params = new URLSearchParams(location.search);
     const extension = params.get("ext");
     const command = params.get("cmd");
     if (extension && command) return launch(extension, command);

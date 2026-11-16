@@ -31,3 +31,20 @@ export async function buildBrowserAssets(): Promise<BrowserAssets> {
   if (!client.success) throw new Error(client.logs.map((log) => log.message).join("\n"));
   return { ...assets, clientJs: await client.outputs[0]!.text() };
 }
+
+/**
+ * The landing page's terminal recording player. ghostty-web's ESM build
+ * inlines its wasm as a data URL, so the bundle is a single file.
+ */
+export async function buildTuiPlayer(): Promise<string> {
+  const player = await Bun.build({
+    entrypoints: [join(projectRoot, "examples/browser-demo/tui-player.ts")],
+    target: "browser",
+    format: "esm",
+    minify: true,
+  });
+  if (!player.success) throw new Error(player.logs.map((log) => log.message).join("\n"));
+  if (player.outputs.length !== 1)
+    throw new Error(`tui-player.js: expected one bundle, got ${player.outputs.length} files`);
+  return player.outputs[0]!.text();
+}
