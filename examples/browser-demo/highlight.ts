@@ -1,5 +1,5 @@
-import { createHighlighterCore, type ThemedToken } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
+import { createHighlighterCoreSync, type ThemedToken } from "shiki/core";
+import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import bash from "shiki/langs/bash.mjs";
 import go from "shiki/langs/go.mjs";
 import html from "shiki/langs/html.mjs";
@@ -36,10 +36,12 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   zsh: "bash",
 };
 
-const highlighter = await createHighlighterCore({
+// Synchronous, created once at module load: landing() and renderChapter() stay
+// synchronous, and the JavaScript regex engine needs no wasm.
+const highlighter = createHighlighterCoreSync({
   themes: [githubDarkDefault],
   langs: [typescript, javascript, html, go, python, swift, json, bash],
-  engine: createOnigurumaEngine(import("shiki/wasm")),
+  engine: createJavaScriptRegexEngine(),
 });
 
 export function escapeHtml(text: string): string {
