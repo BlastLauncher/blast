@@ -20,6 +20,8 @@ type BrowserDocument = {
   body: { scrollWidth: number; clientWidth: number };
   scrollingElement?: { scrollHeight: number };
   documentElement: { scrollWidth: number; clientHeight: number; clientWidth: number };
+  fonts?: { ready: Promise<unknown> };
+  getAnimations(): Array<{ pause(): void; play(): void; currentTime: number | null }>;
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
   querySelectorAll(selector: string): ArrayLike<BrowserElement>;
 };
@@ -255,6 +257,37 @@ try {
 
       await page.emulateMedia({ colorScheme: "light" });
       await page.screenshot({ path: join(screenshots, "desktop-light.png"), fullPage: true });
+
+      const heroPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      try {
+        await heroPage.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
+        await heroPage.evaluate(() => document.fonts?.ready);
+        const hero = heroPage.locator(".hero");
+        const heroFrames = [
+          ["01-type", 1200],
+          ["02-input", 2250],
+          ["03-engine", 2970],
+          ["04-fanout", 4320],
+          ["05-redraw", 5580],
+          ["06-hold", 7200],
+        ] as const;
+        for (const scheme of ["light", "dark"] as const) {
+          await heroPage.emulateMedia({ colorScheme: scheme, reducedMotion: "no-preference" });
+          for (const [label, ms] of heroFrames) {
+            await heroPage.evaluate((timeMs) => {
+              for (const anim of document.getAnimations()) {
+                anim.pause();
+                anim.currentTime = timeMs;
+              }
+            }, ms);
+            await hero.screenshot({ path: join(screenshots, `hero-${label}-${scheme}.png`) });
+          }
+        }
+        await heroPage.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+        await hero.screenshot({ path: join(screenshots, "hero-reduced-motion.png") });
+      } finally {
+        await heroPage.close();
+      }
     }
 
     await page.setViewportSize({ width: 1280, height: 800 });

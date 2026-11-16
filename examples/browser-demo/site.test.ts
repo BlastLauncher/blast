@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { rootModel, rootSections, validateCatalog } from "./root.ts";
 import {
   buildSite,
@@ -99,6 +99,9 @@ function expectLandingSnippets(html: string) {
   );
   expect(urls.length).toBeGreaterThan(0);
   for (const target of urls) expect(target).toMatch(/^\/fonts\/[^/]+\.woff2$/);
+  const preloads = [...html.matchAll(/<link\b[^>]*rel=["']preload["'][^>]*>/gi)].map((m) => m[0]);
+  expect(preloads).toHaveLength(1);
+  expect(preloads[0]).toContain('href="/fonts/newsreader-latin-opsz-normal.woff2"');
 }
 
 describe("site build helpers", () => {
@@ -210,6 +213,14 @@ describe("site build helpers", () => {
     await expect(
       readFile(`${result.www}/fonts/newsreader-latin-opsz-normal.woff2`),
     ).resolves.toBeDefined();
+    const fontFiles = (await readdir(`${result.www}/fonts`)).filter((f) => f.endsWith(".woff2"));
+    expect(fontFiles.length).toBe(4);
+    const fontSizes = await Promise.all(
+      fontFiles.map(async (f) => (await stat(`${result.www}/fonts/${f}`)).size),
+    );
+    const totalFontBytes = fontSizes.reduce((sum, n) => sum + n, 0);
+    expect(totalFontBytes).toBeGreaterThan(0);
+    expect(totalFontBytes).toBeLessThanOrEqual(320 * 1024);
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     // The showcase ships prebuilt with every build, fixtures or not.
     const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
