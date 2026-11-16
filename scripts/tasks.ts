@@ -495,7 +495,8 @@ export function landTask(root: string, id: string, options: LandOptions = {}): s
   for (const worker of workers) {
     if (runner("git", ["merge-base", "--is-ancestor", worker.branch, "main"], root).status !== 0)
       continue;
-    runOrFail(runner, root, "git", ["worktree", "remove", worker.path]);
+    // Merged into main, so only untracked leftovers (screenshots, .cache) remain.
+    runOrFail(runner, root, "git", ["worktree", "remove", "--force", worker.path]);
     runOrFail(runner, root, "git", ["branch", "-d", worker.branch]);
   }
   // gh pr merge --delete-branch usually deletes the local branch already.
