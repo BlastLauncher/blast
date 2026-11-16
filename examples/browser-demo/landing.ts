@@ -433,18 +433,20 @@ try await blast.sendInput(.primary, root: root)`);
     .mobile-rail {
       position: absolute;
       left: 0.5rem;
-      top: 2.5rem;
-      bottom: 3.5rem;
+      top: 5.45rem;
+      bottom: 5.45rem;
       width: 1px;
       background: var(--rule-strong);
       pointer-events: none;
     }
     .mobile-rail-packet {
       position: absolute;
-      left: -3px;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
+      left: -3.5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      border: 1px solid var(--paper);
+      transform: translateY(-50%);
       pointer-events: none;
       opacity: 0;
     }
@@ -573,7 +575,8 @@ try await blast.sendInput(.primary, root: root)`);
       border: 1px solid var(--rule-strong);
       border-radius: 6px;
       padding: 0.35rem;
-      min-height: 5.1rem;
+      height: 6.45rem;
+      overflow: hidden;
     }
     .macos-search {
       position: relative;
@@ -591,7 +594,7 @@ try await blast.sendInput(.primary, root: root)`);
     }
     .macos-placeholder {
       position: absolute;
-      left: 0.4rem;
+      left: 0.62rem;
       color: var(--ink-muted);
       animation: macos-placeholder 9s linear infinite;
     }
@@ -650,7 +653,8 @@ try await blast.sendInput(.primary, root: root)`);
       font-family: var(--font-mono);
       font-size: 0.67rem;
       line-height: 1.32;
-      min-height: 5.1rem;
+      height: 6.45rem;
+      overflow: hidden;
     }
     .tui-bar {
       color: var(--ink-muted);
@@ -693,7 +697,8 @@ try await blast.sendInput(.primary, root: root)`);
       border: 1px solid var(--rule);
       border-radius: 0;
       padding: 0.32rem 0.4rem;
-      min-height: 5.1rem;
+      height: 6.45rem;
+      overflow: hidden;
     }
     .web-dom-tag {
       font-family: var(--font-mono);
@@ -733,18 +738,21 @@ try await blast.sendInput(.primary, root: root)`);
       border-radius: 2px;
       padding: 0.36rem 0.42rem;
       font-family: var(--font-mono);
-      font-size: 0.59rem;
-      line-height: 1.45;
+      font-size: 0.54rem;
+      line-height: 1.48;
       overflow: hidden;
-      min-height: 5.1rem;
+      height: 6.45rem;
     }
     .ndjson-prompt {
+      font-size: 0.56rem;
       color: var(--code-muted);
       white-space: nowrap;
       overflow: hidden;
+      margin-bottom: 0.14rem;
     }
-    .ndjson-line {
+    .idiom-ndjson .ndjson-line {
       display: block;
+      font-size: 0.53rem;
       white-space: nowrap;
       overflow: hidden;
       width: 0;
@@ -960,16 +968,16 @@ try await blast.sendInput(.primary, root: root)`);
     }
 
     @keyframes mobile-in {
-      0%, 17% { top: 4%; opacity: 0; }
-      19% { top: 4%; opacity: 1; }
-      31% { top: 24%; opacity: 1; }
-      33%, 100% { top: 26%; opacity: 0; }
+      0%, 17% { top: 0%; opacity: 0; }
+      19% { top: 0%; opacity: 1; }
+      31% { top: 22%; opacity: 1; }
+      33%, 100% { top: 22%; opacity: 0; }
     }
     @keyframes mobile-out {
-      0%, 38% { top: 28%; opacity: 0; }
-      40% { top: 28%; opacity: 1; }
-      58% { top: 96%; opacity: 1; }
-      60%, 100% { top: 98%; opacity: 0; }
+      0%, 38% { top: 22%; opacity: 0; }
+      40% { top: 22%; opacity: 1; }
+      58% { top: 100%; opacity: 1; }
+      60%, 100% { top: 100%; opacity: 0; }
     }
 
     /* Host redraw keyframes (staggered at 49%, 52%, 55%, 58%) */
@@ -1059,7 +1067,7 @@ try await blast.sendInput(.primary, root: root)`);
         display: none;
       }
       .macos-placeholder {
-        opacity: 0;
+        display: none;
       }
       .macos-typed {
         width: 2ch;
@@ -1098,10 +1106,10 @@ try await blast.sendInput(.primary, root: root)`);
         text-decoration: underline;
         text-underline-offset: 2px;
       }
-      .ndjson-line-1 {
+      .idiom-ndjson .ndjson-line-1 {
         width: 28ch;
       }
-      .ndjson-line-2 {
+      .idiom-ndjson .ndjson-line-2 {
         width: 33ch;
       }
     }
