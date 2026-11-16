@@ -413,7 +413,9 @@ try await blast.sendInput(.primary, root: root)`);
     }
     .screen {
       position: relative;
-      height: 620px;
+      /* The recording sets the height; the minimum keeps the fallback message framed. */
+      min-height: 240px;
+      padding: 16px 18px 12px;
       font: clamp(10.5px, 1.45vw, 13.5px)/1.6 var(--mono);
       color: #cdd6f4;
       display: flex;
@@ -568,7 +570,6 @@ try await blast.sendInput(.primary, root: root)`);
       .split, .flow { grid-template-columns: minmax(0, 1fr); }
       .flow > div + div { border-left: 0; border-top: 1px solid var(--line); }
       .browser iframe { height: 560px; }
-      .screen { height: 420px; }
       nav a.opt { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
