@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { TASK_FILE, parseFrontmatter } from "./check-workflow.ts";
 
@@ -106,10 +106,19 @@ function branch(runner: CommandRunner, root: string): string {
   return runOrFail(runner, root, "git", ["branch", "--show-current"]).stdout.trim();
 }
 
-function requireMainClean(runner: CommandRunner, root: string): void {
-  if (branch(runner, root) !== "main") fail("must be on main");
-  if (runOrFail(runner, root, "git", ["status", "--porcelain"]).stdout.trim())
-    fail("working tree is not clean");
+/** Paths with uncommitted changes, untracked files listed one by one. */
+function dirtyPaths(runner: CommandRunner, root: string): string[] {
+  return runOrFail(runner, root, "git", ["status", "--porcelain", "--untracked-files=all"])
+    .stdout.split("\n")
+    .filter((line) => line.trim())
+    .map((line) => line.slice(3));
+}
+
+function requireTaskBranchClean(runner: CommandRunner, root: string): string {
+  const current = branch(runner, root);
+  if (!current || current === "main") fail("must be on the task branch, not main");
+  if (dirtyPaths(runner, root).length) fail("working tree is not clean");
+  return current;
 }
 
 function taskById(root: string, id: string): TaskInfo {
@@ -117,6 +126,13 @@ function taskById(root: string, id: string): TaskInfo {
   if (!task) fail(`task ${id} does not exist`);
   return task;
 }
+
+export function taskBranchName(file: string): string {
+  return `task/${file.replace(/\.md$/, "")}`;
+}
+
+const exists = (runner: CommandRunner, root: string, ref: string) =>
+  runner("git", ["show-ref", "--verify", "--quiet", `refs/heads/${ref}`], root).status === 0;
 
 export type TaskMutationOptions = { coAuthor?: string };
 
@@ -128,17 +144,26 @@ export function startTask(
 ): string {
   const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
   const runner = typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
-  requireMainClean(runner, root);
+  if (branch(runner, root) !== "main") fail("must be on main");
   const task = taskById(root, id);
+  const taskPath = `tasks/${task.file}`;
+  // The new task file may still be uncommitted on main; it moves to the task branch.
+  if (dirtyPaths(runner, root).some((path) => path !== taskPath)) fail("working tree is not clean");
   if (task.status !== "todo") fail(`task ${id} has status ${task.status}, expected todo`);
   const updated = task.text.replace(/^(status:\s*)todo\s*$/m, "$1doing");
   if (updated === task.text) fail(`task ${id} has no todo status line`);
-  writeFileSync(join(root, "tasks", task.file), updated);
-  runOrFail(runner, root, "git", ["add", join("tasks", task.file)]);
+  const taskBranch = taskBranchName(task.file);
+  if (exists(runner, root, taskBranch)) fail(`branch ${taskBranch} already exists`);
+  runOrFail(runner, root, "git", ["fetch", "origin"]);
+  runOrFail(runner, root, "git", ["switch", "-c", taskBranch, "origin/main"]);
+  // Written after the switch: a file committed only on local main is absent on origin/main.
+  mkdirSync(join(root, "tasks"), { recursive: true });
+  writeFileSync(join(root, taskPath), updated);
+  runOrFail(runner, root, "git", ["add", taskPath]);
   const commitArgs = ["commit", "-m", `chore: start ${id} (${task.title})`];
   if (options.coAuthor) commitArgs.push("-m", `Co-Authored-By: ${options.coAuthor}`);
   runOrFail(runner, root, "git", commitArgs);
-  return `Follow AGENTS.md. You are the Worker for \`tasks/${task.file}\`.`;
+  return `Follow AGENTS.md. You are the Worker for \`${taskPath}\`.`;
 }
 
 type Worktree = { path: string; branch: string };
@@ -157,17 +182,25 @@ function worktrees(runner: CommandRunner, root: string): Worktree[] {
   return result;
 }
 
-function candidateBranches(runner: CommandRunner, root: string, task: TaskInfo): string[] {
+function candidateBranches(
+  runner: CommandRunner,
+  root: string,
+  task: TaskInfo,
+  taskBranch: string,
+): string[] {
+  const slug = task.file.slice(5, -3);
   const candidates: string[] = [];
   for (const worktree of worktrees(runner, root)) {
-    if (worktree.branch === "main") continue;
-    if (worktree.branch.includes(task.file.slice(5, -3))) {
+    if (worktree.branch === "main" || worktree.branch === taskBranch) continue;
+    if (worktree.branch.includes(slug)) {
       candidates.push(worktree.branch);
       continue;
     }
+    // Three dots: only changes made on the worker since it forked. Another task's
+    // worker lacks this task file, and a two-dot diff would report it as deleted.
     const touched = runner(
       "git",
-      ["diff", "--name-only", `main..${worktree.branch}`, "--", `tasks/${task.file}`],
+      ["diff", "--name-only", `${taskBranch}...${worktree.branch}`, "--", `tasks/${task.file}`],
       root,
     );
     if (touched.status === 0 && touched.stdout.split("\n").includes(`tasks/${task.file}`))
@@ -205,22 +238,23 @@ export function mergeTask(
   options: { branch?: string; plan?: string; coAuthor?: string } = {},
   runner: CommandRunner = realRunner,
 ): void {
-  requireMainClean(runner, root);
+  const taskBranch = requireTaskBranchClean(runner, root);
   const task = taskById(root, id);
-  const candidates = options.branch ? [options.branch] : candidateBranches(runner, root, task);
+  const candidates = options.branch
+    ? [options.branch]
+    : candidateBranches(runner, root, task, taskBranch);
   if (!options.branch && candidates.length !== 1)
     fail(
       `expected one worker branch for ${task.file}; candidates: ${candidates.join(", ") || "none"}`,
     );
   const selected = candidates[0]!;
-  const verifyBranch = runner("git", ["show-ref", "--verify", `refs/heads/${selected}`], root);
-  if (verifyBranch.status !== 0) fail(`branch ${selected} does not exist`);
+  if (!exists(runner, root, selected)) fail(`branch ${selected} does not exist`);
   const ahead = runOrFail(runner, root, "git", [
     "rev-list",
     "--count",
-    `main..${selected}`,
+    `${taskBranch}..${selected}`,
   ]).stdout.trim();
-  if (ahead === "0") fail(`branch ${selected} is not ahead of main`);
+  if (ahead === "0") fail(`branch ${selected} is not ahead of ${taskBranch}`);
   // Fail on a missing PLAN line before anything changes.
   updatedPlan(readFileSync(join(root, "PLAN.md"), "utf8"), task, options.plan);
   const merged = runner("git", ["merge", "--no-ff", selected], root);
@@ -252,81 +286,223 @@ export function mergeTask(
   runOrFail(runner, root, "git", commitArgs);
 }
 
-type GhRun = { status?: string; conclusion?: string; name?: string };
+/** Body of a `## <name>` markdown section, without the heading. */
+function section(text: string, name: string): string {
+  const lines = text.split("\n");
+  const start = lines.findIndex((line) => line.trim() === `## ${name}`);
+  if (start < 0) return "";
+  let end = lines.findIndex((line, i) => i > start && line.startsWith("## "));
+  if (end < 0) end = lines.length;
+  return lines
+    .slice(start + 1, end)
+    .join("\n")
+    .trim();
+}
+
+/** The PR template with the task file named and its Handoff section pasted in. */
+export function pullRequestBody(template: string, taskPath: string, taskText: string): string {
+  const body = template.replace("tasks/NNNN-slug.md", taskPath);
+  const handoff = section(taskText, "Handoff");
+  if (!handoff) return body;
+  const lines = body.split("\n");
+  const start = lines.findIndex((line) => line.trim() === "## Handoff");
+  if (start < 0) return `${body.trimEnd()}\n\n## Handoff\n\n${handoff}\n`;
+  let end = lines.findIndex((line, i) => i > start && line.startsWith("## "));
+  if (end < 0) end = lines.length;
+  lines.splice(start + 1, end - start - 1, "", handoff, "");
+  return lines.join("\n");
+}
+
+/** `type(NNNN): title`, typed after the branch's first non-chore conventional commit. */
+export function pullRequestTitle(id: string, title: string, subjects: string[]): string {
+  const type = subjects
+    .map((subject) => /^([a-z]+)(?:\([^)]*\))?!?:/.exec(subject)?.[1])
+    .find((value) => value && value !== "chore");
+  return `${type ?? "feat"}(${id}): ${title}`;
+}
+
+type GhCheck = { name?: string; state?: string; bucket?: string };
 
 export interface LandOptions {
   runner?: CommandRunner;
   sleep?: (ms: number) => void;
   now?: () => number;
+  log?: (line: string) => void;
   timeoutMs?: number;
   pollMs?: number;
 }
 
-export function landTask(root: string, id: string, options: LandOptions = {}): void {
-  const runner = options.runner ?? realRunner;
-  const sleep = options.sleep ?? ((ms: number) => Bun.sleepSync(ms));
-  const now = options.now ?? (() => Date.now());
-  const timeoutMs = options.timeoutMs ?? 1_800_000;
-  const pollMs = options.pollMs ?? 20_000;
-  const subject = runOrFail(runner, root, "git", [
-    "show",
-    "-s",
-    "--format=%s",
+function doneTask(
+  runner: CommandRunner,
+  root: string,
+  id: string,
+): { path: string; text: string; title: string } {
+  const subject = `chore(${id}): done`;
+  const log = runOrFail(runner, root, "git", [
+    "log",
+    "--format=%H %s",
+    "--fixed-strings",
+    `--grep=${subject}`,
     "HEAD",
-  ]).stdout.trim();
-  if (subject !== `chore(${id}): done`) fail(`HEAD is not chore(${id}): done`);
-  const head = runOrFail(runner, root, "git", ["rev-parse", "HEAD"]).stdout.trim();
-  runOrFail(runner, root, "git", ["push", "origin", "main"]);
+  ]).stdout;
+  const done = log
+    .split("\n")
+    .map((line) => line.split(" "))
+    .find(([, ...words]) => words.join(" ") === subject)?.[0];
+  if (!done) fail(`no ${subject} commit on this branch; run tasks:merge ${id} first`);
+  const deleted = runOrFail(runner, root, "git", [
+    "diff",
+    "--name-only",
+    "--diff-filter=D",
+    `${done}^`,
+    done,
+    "--",
+    "tasks",
+  ]).stdout.split("\n");
+  const path = deleted.find((name) => name.startsWith(`tasks/${id}-`));
+  if (!path) fail(`${subject} does not delete a tasks/${id}-*.md file`);
+  const text = runOrFail(runner, root, "git", ["show", `${done}^:${path}`]).stdout;
+  return { path, text, title: String(parseFrontmatter(text)?.title ?? `task ${id}`) };
+}
+
+/** Worktrees whose branch was merged into the task branch and is new relative to origin/main. */
+function taskWorkers(runner: CommandRunner, root: string, taskBranch: string): Worktree[] {
+  return worktrees(runner, root).filter(
+    (item) =>
+      item.branch !== "main" &&
+      item.branch !== taskBranch &&
+      runner("git", ["merge-base", "--is-ancestor", item.branch, "HEAD"], root).status === 0 &&
+      runOrFail(runner, root, "git", [
+        "rev-list",
+        "--count",
+        `origin/main..${item.branch}`,
+      ]).stdout.trim() !== "0",
+  );
+}
+
+function openPullRequest(runner: CommandRunner, root: string, taskBranch: string): string {
+  const listed = runOrFail(runner, root, "gh", [
+    "pr",
+    "list",
+    "--head",
+    taskBranch,
+    "--state",
+    "open",
+    "--json",
+    "url",
+  ]).stdout;
+  try {
+    const prs = JSON.parse(listed || "[]") as Array<{ url?: string }>;
+    return prs[0]?.url ?? "";
+  } catch {
+    return fail("gh pr list returned invalid JSON");
+  }
+}
+
+function waitForChecks(
+  runner: CommandRunner,
+  root: string,
+  pr: string,
+  options: Required<Omit<LandOptions, "runner">>,
+): void {
+  const { now, sleep, log, timeoutMs, pollMs } = options;
   const deadline = now() + timeoutMs;
   const maxPolls = Math.max(1, Math.ceil(timeoutMs / pollMs) + 1);
-  let runs: GhRun[] = [];
-  let polls = 0;
-  while (now() <= deadline && polls++ < maxPolls) {
-    const result = runOrFail(runner, root, "gh", [
-      "run",
-      "list",
-      "--commit",
-      head,
-      "--json",
-      "status,conclusion,name",
-    ]);
+  let checks: GhCheck[] = [];
+  for (let polls = 0; now() <= deadline && polls < maxPolls; polls++) {
+    // gh exits 8 while checks are pending and 1 when one failed or none are reported yet.
+    const result = runner("gh", ["pr", "checks", pr, "--json", "name,state,bucket"], root);
     try {
-      runs = JSON.parse(result.stdout) as GhRun[];
+      checks = JSON.parse(result.stdout) as GhCheck[];
     } catch {
-      fail("gh returned invalid run JSON");
+      if (!/no checks reported/i.test(result.stderr))
+        fail(`gh pr checks ${pr} failed: ${result.stderr.trim() || "invalid JSON"}`);
+      checks = [];
     }
-    console.log(
-      `GitHub Actions: ${runs.length ? runs.map((run) => `${run.name ?? "unnamed"} ${run.status ?? "unknown"}`).join(", ") : "waiting for runs"}`,
+    const named = (bucket: string[]) =>
+      checks.filter((check) => bucket.includes(check.bucket ?? "")).map((c) => c.name ?? "unnamed");
+    const failed = named(["fail", "cancel"]);
+    if (failed.length) fail(`checks failed: ${failed.join(", ")}`);
+    log(
+      `PR checks: ${checks.length ? checks.map((c) => `${c.name ?? "unnamed"} ${c.bucket ?? c.state ?? "unknown"}`).join(", ") : "waiting for checks"}`,
     );
-    if (runs.length > 0 && runs.every((run) => run.status === "completed")) break;
+    if (checks.length > 0 && checks.every((c) => c.bucket === "pass" || c.bucket === "skipping"))
+      return;
     sleep(pollMs);
   }
-  if (runs.length === 0 || runs.some((run) => run.status !== "completed"))
-    fail("GitHub Actions did not complete before timeout");
-  const failed = runs.filter((run) => run.conclusion !== "success");
-  if (failed.length > 0)
-    fail(`GitHub Actions failed: ${failed.map((run) => run.name ?? "unnamed").join(", ")}`);
-  // The orchestrator may add fix commits between the merge and the done commit,
-  // so find the task's merge on main's first-parent line rather than at HEAD^.
-  // Start from the done commit captured before the push, not HEAD: another task
-  // can be merged on main while this one waits for CI.
-  const merge = runOrFail(runner, root, "git", [
-    "rev-list",
-    "--first-parent",
-    "--merges",
-    "-n",
-    "1",
-    head,
-  ]).stdout.trim();
-  if (!merge) fail(`no merge commit found below HEAD for task ${id}`);
-  const secondParent = runOrFail(runner, root, "git", ["rev-parse", `${merge}^2`]).stdout.trim();
-  const worker = worktrees(runner, root).find((item) => {
-    if (item.branch === "main") return false;
-    return runner("git", ["rev-parse", item.branch], root).stdout.trim() === secondParent;
-  });
-  if (!worker) fail(`could not find worktree for task ${id}`);
-  runOrFail(runner, root, "git", ["worktree", "remove", worker.path]);
-  runOrFail(runner, root, "git", ["branch", "-d", worker.branch]);
+  const pending = checks
+    .filter((c) => c.bucket !== "pass" && c.bucket !== "skipping")
+    .map((c) => c.name ?? "unnamed");
+  fail(`checks did not complete before timeout: ${pending.join(", ") || "no checks reported"}`);
+}
+
+/** Pushes the task branch, opens or reuses its PR, waits for green checks,
+ * merges it and cleans up. Returns the PR URL. */
+export function landTask(root: string, id: string, options: LandOptions = {}): string {
+  const runner = options.runner ?? realRunner;
+  const timing = {
+    sleep: options.sleep ?? ((ms: number) => Bun.sleepSync(ms)),
+    now: options.now ?? (() => Date.now()),
+    log: options.log ?? ((line: string) => console.log(line)),
+    timeoutMs: options.timeoutMs ?? 1_800_000,
+    pollMs: options.pollMs ?? 20_000,
+  };
+  const taskBranch = requireTaskBranchClean(runner, root);
+  const done = doneTask(runner, root, id);
+  runOrFail(runner, root, "git", ["fetch", "origin"]);
+  const merged = runner("git", ["merge", "--no-edit", "origin/main"], root);
+  if (merged.status !== 0) {
+    const files = runner("git", ["diff", "--name-only", "--diff-filter=U"], root)
+      .stdout.split("\n")
+      .filter(Boolean);
+    runner("git", ["merge", "--abort"], root);
+    fail(
+      `merging origin/main into ${taskBranch} failed; merge was aborted${files.length ? `; conflicts: ${files.join(", ")}` : ""}`,
+    );
+  }
+  // Collected before the PR merge, while origin/main still separates this task's work.
+  const workers = taskWorkers(runner, root, taskBranch);
+  runOrFail(runner, root, "git", ["push", "-u", "origin", taskBranch]);
+  let pr = openPullRequest(runner, root, taskBranch);
+  if (!pr) {
+    const subjects = runOrFail(runner, root, "git", [
+      "log",
+      "--reverse",
+      "--no-merges",
+      "--format=%s",
+      "origin/main..HEAD",
+    ]).stdout.split("\n");
+    const template = readFileSync(join(root, ".github/pull_request_template.md"), "utf8");
+    const created = runOrFail(runner, root, "gh", [
+      "pr",
+      "create",
+      "--base",
+      "main",
+      "--head",
+      taskBranch,
+      "--title",
+      pullRequestTitle(id, done.title, subjects),
+      "--body",
+      pullRequestBody(template, done.path, done.text),
+    ]).stdout;
+    pr = created.trim().split("\n").at(-1) ?? "";
+    if (!pr) fail("gh pr create printed no PR URL");
+  }
+  waitForChecks(runner, root, pr, timing);
+  runOrFail(runner, root, "gh", ["pr", "merge", pr, "--merge", "--delete-branch"]);
+  runOrFail(runner, root, "git", ["switch", "main"]);
+  runOrFail(runner, root, "git", ["pull", "--ff-only", "origin", "main"]);
+  for (const worker of workers) {
+    if (runner("git", ["merge-base", "--is-ancestor", worker.branch, "main"], root).status !== 0)
+      continue;
+    // Merged into main, so only untracked leftovers (screenshots, .cache) remain.
+    runOrFail(runner, root, "git", ["worktree", "remove", "--force", worker.path]);
+    runOrFail(runner, root, "git", ["branch", "-d", worker.branch]);
+  }
+  // gh pr merge --delete-branch usually deletes the local branch already.
+  if (exists(runner, root, taskBranch))
+    runOrFail(runner, root, "git", ["branch", "-d", taskBranch]);
+  return pr;
 }
 
 function usage(): never {
@@ -378,7 +554,7 @@ if (import.meta.main) {
       const timeoutArg = timeoutIndex >= 0 ? Number(args[timeoutIndex + 1]) : undefined;
       if (timeoutArg !== undefined && !(Number.isInteger(timeoutArg) && timeoutArg > 0))
         fail("--timeout-ms must be a positive integer");
-      landTask(root, id, timeoutArg === undefined ? {} : { timeoutMs: timeoutArg });
+      console.log(landTask(root, id, timeoutArg === undefined ? {} : { timeoutMs: timeoutArg }));
     } else usage();
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
