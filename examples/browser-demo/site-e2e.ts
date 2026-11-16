@@ -173,18 +173,19 @@ try {
     try {
       const docsRequests: string[] = [];
       docsPage.on("request", (request) => docsRequests.push(request.url()));
-      const docsResponse = await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/quickstart/`, {
-        waitUntil: "load",
-      });
-      if (docsResponse?.status() !== 200)
-        throw new Error(`/docs/quickstart/ returned ${docsResponse?.status()}`);
-      await docsPage.getByRole("heading", { level: 1, name: "Quickstart" }).waitFor();
+      await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/quickstart/`, { waitUntil: "load" });
       const docsLayout = await docsPage.evaluate(() => ({
         doc: document.documentElement.scrollWidth,
         body: document.body.scrollWidth,
+        title: document.querySelector("article h1")?.textContent,
         current: document.querySelector('.sidebar a[aria-current="page"]')?.textContent,
       }));
-      if (docsLayout.doc > 360 || docsLayout.body > 360 || docsLayout.current !== "Quickstart")
+      if (
+        docsLayout.doc > 360 ||
+        docsLayout.body > 360 ||
+        docsLayout.title !== "Quickstart" ||
+        docsLayout.current !== "Quickstart"
+      )
         throw new Error(`/docs/quickstart/ at 360px: ${JSON.stringify(docsLayout)}`);
       const foreign = docsRequests.filter((url) => !url.startsWith(`http://127.0.0.1:${wwwPort}/`));
       if (foreign.length || !docsRequests.some((url) => url.endsWith("/docs/docs.css")))

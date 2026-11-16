@@ -33,6 +33,13 @@ const hrefs = (html: string) => [...html.matchAll(/href="([^"]*)"/g)].map((match
 const ids = (html: string) => new Set([...html.matchAll(/\sid="([^"]*)"/g)].map((m) => m[1]!));
 const sidebarOf = (html: string) => html.match(/<nav class="sidebar"[^>]*>([\s\S]*?)<\/nav>/)![1]!;
 
+/** Repo paths that exist, for the link rewriting test. */
+const kind: DocsInput["pathKind"] = (path) =>
+  ({ "examples/go-embedder": "directory", "packages/web/README.md": "file" })[path] as
+    | "file"
+    | "directory"
+    | undefined;
+
 /** Sources for every chapter, each a bare title unless overridden. */
 function fixture(overrides: Record<string, string> = {}): DocsInput {
   const sources: Record<string, string> = {};
@@ -42,12 +49,12 @@ function fixture(overrides: Record<string, string> = {}): DocsInput {
 
 describe("docs site", () => {
   test("writes an index, every chapter, and the stylesheet", () => {
-    expect([...docs.keys()].sort()).toEqual(
+    expect([...docs.keys()].toSorted()).toEqual(
       [
         "docs/docs.css",
         "docs/index.html",
         ...slugs.map((slug) => `docs/${slug}/index.html`),
-      ].sort(),
+      ].toSorted(),
     );
   });
 
@@ -128,11 +135,6 @@ describe("docs site", () => {
   });
 
   test("rewrites chapter, repository and absolute links", () => {
-    const kind: DocsInput["pathKind"] = (path) =>
-      ({ "examples/go-embedder": "directory", "packages/web/README.md": "file" })[path] as
-        | "file"
-        | "directory"
-        | undefined;
     const from = "docs/quickstart.md";
     expect(rewriteHref("embedding.md", from, kind)).toBe("/docs/embedding/");
     expect(rewriteHref("./root-view.md#keys", from, kind)).toBe("/docs/root-view/#keys");
@@ -191,7 +193,7 @@ describe("docs site", () => {
     const www = await mkdtemp(join(tmpdir(), "blast-docs-"));
     try {
       const written = await writeDocs(www);
-      expect(written.sort()).toEqual([...docs.keys()].sort());
+      expect(written.toSorted()).toEqual([...docs.keys()].toSorted());
       expect(await readFile(join(www, "docs/cli/index.html"), "utf8")).toBe(
         docs.get("docs/cli/index.html")!,
       );

@@ -1,7 +1,7 @@
 import { readFile, mkdir, writeFile } from "node:fs/promises";
 import { statSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
-import { Marked, type Tokens } from "marked";
+import { Marked } from "marked";
 import { projectRoot } from "./build.ts";
 
 export const repoUrl = "https://github.com/blastlauncher/blast";
@@ -145,6 +145,9 @@ export function renderChapter(
   return { title: title.text, titleHtml: title.html, body, headings };
 }
 
+const chapterLink = (href: string, label: string, current: boolean) =>
+  `<li><a href="${href}"${current ? ' aria-current="page"' : ""}>${label}</a></li>`;
+
 function page(options: {
   title: string;
   chapterTitles: readonly string[];
@@ -153,8 +156,6 @@ function page(options: {
   headings: Heading[];
   source: string;
 }): string {
-  const chapterLink = (href: string, label: string, current: boolean) =>
-    `<li><a href="${href}"${current ? ' aria-current="page"' : ""}>${label}</a></li>`;
   const sidebar = [
     chapterLink("/docs/", "Overview", options.current === ""),
     ...docChapters.map((chapter, index) =>
