@@ -82,6 +82,11 @@ function serve(root: string, basePath = "/") {
   });
 }
 type DemoPage = import("playwright").Page;
+const scrollToTop = () => {
+  const root = document.querySelector<BrowserScroller>("html");
+  if (root) root.scrollTop = 0;
+};
+
 let scrollPage: DemoPage | undefined;
 /**
  * Wheel `list` to its end, redraw with `redraw` (by default a pointer move
@@ -317,7 +322,7 @@ try {
 
       for (const width of [360, 1280]) {
         await docsPage.setViewportSize({ width, height: 800 });
-        await docsPage.evaluate(() => window.scrollTo(0, 0));
+        await docsPage.evaluate(scrollToTop);
         const docWidth = await docsPage.evaluate(() => document.documentElement.scrollWidth);
         if (docWidth > width)
           throw new Error(`/docs/embedding/ overflows at ${width}px: ${docWidth}`);
@@ -332,7 +337,7 @@ try {
           await jsBlock.screenshot({
             path: join(screenshots, `docs-embedding-code-${width}-${colorScheme}.png`),
           });
-          await docsPage.evaluate(() => window.scrollTo(0, 0));
+          await docsPage.evaluate(scrollToTop);
         }
       }
 
