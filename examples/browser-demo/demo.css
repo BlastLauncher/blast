@@ -1629,3 +1629,16 @@ main.menu-window::after {
 .menu-bar .menu-panel {
   pointer-events: auto;
 }
+
+/* Embed mode (?embed=1): omit the demo bar and keep the launcher centered. */
+:root[data-embed="1"],
+:root:has(body:not(:has(.demo-bar))) {
+  --bar-height: 0px;
+}
+:root[data-embed="1"] .demo-bar {
+  display: none;
+}
+:root[data-embed="1"] body,
+body:not(:has(.demo-bar)) {
+  grid-template-rows: minmax(0, 1fr);
+}

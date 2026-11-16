@@ -11,6 +11,7 @@ import {
   showcaseDirectory,
   siteCatalog,
 } from "./site.ts";
+import { demoPage } from "./template.ts";
 
 const showcaseCommands = [
   "list",
@@ -116,6 +117,24 @@ describe("site build helpers", () => {
     expect(cnameForOrigin("http://127.0.0.1:4173")).toBeUndefined();
     expect(cnameForOrigin("https://blastlauncher.github.io/")).toBeUndefined();
     expect(cnameForOrigin("https://blast.example.com/")).toBe("blast.example.com");
+  });
+  test("demoPage omits .demo-bar in embed mode and keeps it by default", () => {
+    const standard = demoPage("https://example.com/sandbox/", "./", false, "https://example.com/");
+    expect(standard).toContain('class="demo-bar"');
+    expect(standard).toContain('class="demo-home"');
+    expect(standard).toContain('"embed")==="1"');
+
+    const embedded = demoPage(
+      "https://example.com/sandbox/",
+      "./",
+      false,
+      "https://example.com/",
+      true,
+    );
+    expect(embedded).not.toContain("demo-bar");
+    expect(embedded).toContain('data-embed="1"');
+    expect(embedded).toContain('<div id="app"></div>');
+    expect(embedded).toContain("https://example.com/sandbox/");
   });
   test("extracts generated coverage and sweep numbers", () => {
     const stats = extractStats(
