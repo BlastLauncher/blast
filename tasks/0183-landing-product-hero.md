@@ -14,7 +14,7 @@ Terminal switch), and the technical material in one section below.
 
 ## Context
 
-- **Approved mock-up (the spec):** `/home/ubuntu/.cache/blast-design/landing-mock.html`
+- **Approved mock-up (the spec):** the HTML file the orchestrator names in the worker brief (kept outside the repo)
   (open it in Playwright or read the source). Match its structure, copy, spacing
   and tokens. It replaces the 0181/0182 serif "manual" look completely.
 - **Type:** self-host Geist and Geist Mono, latin woff2 only, from
