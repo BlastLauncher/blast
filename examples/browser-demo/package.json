@@ -9,6 +9,7 @@
     "@blastlauncher/runtime": "workspace:*",
     "@blastlauncher/web": "workspace:*",
     "cmdk": "1.1.1",
+    "marked": "18.2.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   }

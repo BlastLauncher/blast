@@ -6,6 +6,7 @@ import { sandboxPage } from "../../packages/web/sandbox/page.ts";
 import { demoPage } from "./template.ts";
 import { enrichCatalog, type Catalog, type CatalogExtension, type SweepResult } from "./root.ts";
 import { landing } from "./landing.ts";
+import { writeDocs } from "./docs-site.ts";
 export { landing };
 
 /** The Blast-authored showcase extension, shipped in every site build. */
@@ -201,6 +202,7 @@ export async function buildSite(
     join(www, "site.css"),
     ".button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ff6338;outline-offset:3px}\n",
   );
+  await writeDocs(www);
   await writeFile(
     join(www, "404.html"),
     '<!doctype html><title>Blast — not found</title><p>That page is not here. <a href="/">Go home</a>.</p>\n',
