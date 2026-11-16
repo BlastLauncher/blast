@@ -2,7 +2,8 @@
 import { createHeadlessHandlers } from "@blastlauncher/cli";
 import { useEffect, useRef, useState } from "react";
 import { readFile } from "node:fs/promises";
-import { watch } from "node:fs";
+import { mkdirSync, watch, type FSWatcher } from "node:fs";
+import { basename, dirname } from "node:path";
 import type { KeyEvent } from "@opentui/core";
 import type { ControllerView, KeyInput } from "@blastlauncher/client-core";
 import {
@@ -127,9 +128,19 @@ export function CommandSession({
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => void sync(), 75);
     };
-    const watcher = watch(configPath, { persistent: false }, listener);
+    // Watch the directory, not the file: the config may not exist yet, and an
+    // atomic rewrite replaces the file a direct watch would be bound to.
+    let watcher: FSWatcher | undefined;
+    try {
+      mkdirSync(dirname(configPath), { recursive: true });
+      watcher = watch(dirname(configPath), { persistent: false }, (_event, name) => {
+        if (!name || name === basename(configPath)) listener();
+      });
+    } catch {
+      // Without a watchable directory the catalog only updates on restart.
+    }
     return () => {
-      watcher.close();
+      watcher?.close();
       if (timer) clearTimeout(timer);
     };
   }, [setup]);
