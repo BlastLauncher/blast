@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M12 — Site as a library: docs under `/docs/` and the reference-book landing are
-live; 0182 is a craft pass after user feedback (less template, real type, hero story).
+M12 — Site as a library is done (2026-11-16): docs under `/docs/`, landing set as
+a technical manual with an animated engine hero. Next milestone not chosen yet.
 
 ## Milestones
 
