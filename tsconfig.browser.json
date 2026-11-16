@@ -7,6 +7,7 @@
   "include": [
     "examples/browser-demo/client.ts",
     "examples/browser-demo/root.ts",
+    "examples/browser-demo/tui-player.ts",
     "examples/browser-demo/ambient.d.ts",
     "packages/web/src/**/*.ts"
   ],

@@ -56,6 +56,7 @@
     "example:web-embed:e2e": "bun examples/web-embed/e2e.ts",
     "example:tmux:e2e": "bun scripts/tmux-plugin-e2e.ts",
     "site:build": "bun examples/browser-demo/site.ts",
+    "site:record-tui": "bun scripts/record-tui.ts",
     "site:e2e": "bun examples/browser-demo/site-e2e.ts",
     "site:smoke:browser": "bun examples/browser-demo/site-smoke-browser.ts",
     "site:sweep:browser": "bun examples/browser-demo/browser-sweep.ts"

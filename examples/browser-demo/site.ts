@@ -1,6 +1,6 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
+import { buildBrowserAssets, buildTuiPlayer, projectRoot, relativeFiles } from "./build.ts";
 import { prebuildCatalog } from "./prebuild.ts";
 import { sandboxPage } from "../../packages/web/sandbox/page.ts";
 import { demoPage } from "./template.ts";
@@ -203,6 +203,8 @@ export async function buildSite(
     ".button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ff6338;outline-offset:3px}\n",
   );
   await writeDocs(www);
+  await writeFile(join(www, "tui-player.js"), await buildTuiPlayer());
+  await cp(join(projectRoot, "examples/browser-demo/recordings/tui.cast"), join(www, "tui.cast"));
   await cp(join(projectRoot, "examples/browser-demo/fonts"), join(www, "fonts"), {
     recursive: true,
   });
