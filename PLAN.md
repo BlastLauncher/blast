@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M14 — Work through PRs: one task branch and PR per task, merged on green
-(2026-11-16); site code highlighting and docs in the landing design.
+M15 — CORS proxy (#102): sandbox network through a Cloudflare Worker that
+stores nothing, opt-in `fetchProxy` in `@blastlauncher/web`, demo notice.
 
 ## Milestones
 
@@ -77,6 +77,12 @@ client and doc shows the smaller API.
 
 - [x] 0185 Task scripts work through one pull request per task
 - [x] 0186 Build-time syntax highlighting; docs pages in the landing design
+
+### M15 — CORS proxy
+
+- [ ] 0187 CORS proxy Worker (`packages/cors-proxy`) and decision 0017
+- [ ] 0188 `fetchProxy` in `@blastlauncher/web`: sandbox fetch and XHR through the proxy
+- [ ] 0189 Demo on the deployed proxy, policy notice, sweep and catalog refresh
 
 ## Later (not scheduled)
 
