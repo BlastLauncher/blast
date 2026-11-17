@@ -74,8 +74,8 @@ CORS headers work. Without the option nothing changes.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
-Done:
-Not done / risks:
+Branch/commit: t3/web-fetch-proxy (see commit containing this handoff)
+Verify: baseline verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
+Done: Read task, proxy implementation, and sandbox startup; ran baseline verification.
+Not done / risks: Implementation, tests, documentation, and browser e2e remain undone. The worktree browser dependency cache is absent; prepare it without external requests before running the e2e. The proxy rejects local target URLs, so an e2e must inject an upstream function mapping a permitted test URL to the local server.
 ```
