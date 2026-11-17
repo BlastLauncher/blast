@@ -82,7 +82,7 @@ client and doc shows the smaller API.
 
 - [x] 0187 CORS proxy Worker (`packages/cors-proxy`) and decision 0017
 - [x] 0188 `fetchProxy` in `@blastlauncher/web`: sandbox fetch and XHR through the proxy
-- [ ] 0189 Demo on the deployed proxy, policy notice, sweep and catalog refresh
+- [x] 0189 Demo on the deployed proxy, policy notice, sweep and catalog refresh
 
 ## Later (not scheduled)
 
