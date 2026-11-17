@@ -61,6 +61,7 @@ const result = await buildSite({
   siteOrigin: `http://127.0.0.1:${wwwPort}`,
   sandboxUrl: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
   fixtures: true,
+  ...(process.argv.includes("--proxy-notice") ? { fetchProxy: "http://127.0.0.1:4179/v1" } : {}),
 });
 function serve(root: string, basePath = "/") {
   return Bun.serve({
@@ -124,17 +125,16 @@ async function expectScrollKept(
   await page.mouse.move(box.x + box.width / 2, Math.max(1, box.y - 30));
   await page.waitForTimeout(300);
   await page.keyboard.press("ArrowDown");
-  await page.waitForTimeout(300);
-  const visible = await page.evaluate(
+  await page.waitForFunction(
     ([listSelector, rowSelector]) => {
       const row = document.querySelector(rowSelector)?.getBoundingClientRect();
       const frame = document.querySelector(listSelector)?.getBoundingClientRect();
-      // A revealed row may sit against the list's border, a pixel or two past its box.
+      // Smooth scroll can still be settling after a fixed delay on a busy runner.
       return !!row && !!frame && row.top >= frame.top - 4 && row.bottom <= frame.bottom + 4;
     },
     [list, selected] as const,
+    { timeout: 10_000 },
   );
-  if (!visible) throw new Error(`↓ did not bring the ${list} selection into view`);
 }
 const www = serve(result.www),
   sandbox = serve(result.sandbox, "/blast-sandbox/");
@@ -156,6 +156,12 @@ try {
   }
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    // Keep browser checks from writing to the host clipboard.
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText: async () => undefined },
+      });
+    });
     scrollPage = page;
     const resources: string[] = [];
     const landingRequests: string[] = [];
@@ -177,6 +183,19 @@ try {
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
     await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
     await page.evaluate(() => document.fonts?.ready);
+    const expectNotice = async (target: DemoPage) => {
+      const notice = target.locator(".proxy-notice");
+      if (!process.argv.includes("--proxy-notice")) {
+        if (await notice.count()) throw new Error("proxy notice present without fetchProxy");
+        return;
+      }
+      const box = await notice.boundingBox();
+      if (!box || box.y < 0 || box.y + box.height > 800)
+        throw new Error("proxy notice is outside the initial viewport");
+      await target.locator('.proxy-notice a[href="/docs/embedding/#network-proxy"]').waitFor();
+      await target.locator('.proxy-notice a[href*="/packages/cors-proxy"]').waitFor();
+    };
+    await expectNotice(page);
 
     // Hero iframe loads the live demo without .demo-bar at 1280px, with zero external requests.
     const heroFrame = page.frameLocator(".browser iframe");
@@ -271,6 +290,11 @@ try {
     // 0180 + 0186: docs chapters load with Geist fonts and stylesheet from this site only,
     // fit 360px and 1280px without overflow, highlight code, and keep Copy interactive.
     const docsPage = await browser.newPage({ viewport: { width: 360, height: 740 } });
+    await docsPage.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText: async () => undefined },
+      });
+    });
     try {
       const docsRequests: string[] = [];
       docsPage.on("request", (request) => docsRequests.push(request.url()));
@@ -440,6 +464,13 @@ try {
     if (documentHeight > 801) throw new Error(`page unexpectedly scrolls: ${documentHeight}px`);
     // On a phone the panel fits the width and the footer sits inside the viewport.
     await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForFunction(
+      () =>
+        (document.querySelector("main.root footer")?.getBoundingClientRect().bottom ?? Infinity) <=
+        document.documentElement.clientHeight,
+      undefined,
+      { timeout: 10_000 },
+    );
     const phone = await page.evaluate(() => ({
       page: document.documentElement.scrollWidth,
       panel: Math.round(document.querySelector("main.root")?.getBoundingClientRect().width ?? 0),
@@ -460,6 +491,14 @@ try {
         [1180, 560],
       ] as const) {
         await page.setViewportSize({ width, height });
+        // The notice reflows through ResizeObserver before the launcher fits.
+        await page.waitForFunction(
+          () =>
+            (document.scrollingElement?.scrollHeight ?? Infinity) <=
+            (globalThis as unknown as { innerHeight: number }).innerHeight,
+          undefined,
+          { timeout: 10_000 },
+        );
         const size = await page.evaluate(() => ({
           scroll: document.scrollingElement?.scrollHeight ?? Infinity,
           inner: (globalThis as unknown as { innerHeight: number }).innerHeight,
@@ -533,7 +572,12 @@ try {
         if (!list || !row) throw new Error("the root list or the browser-storage row is missing");
         list.scrollTop = row.offsetTop - 117;
       });
-      // The click both selects and opens the row, replacing the root at once.
+      // Let pointer highlighting settle before capturing the position that
+      // opening the command must preserve.
+      const farBox = await far.boundingBox();
+      if (!farBox) throw new Error("the browser-storage row is not visible");
+      await page.mouse.move(farBox.x + farBox.width / 2, farBox.y + farBox.height / 2);
+      await page.waitForTimeout(300);
       const before = await rootPlace("browser-storage:index");
       if (before.top < 400) throw new Error(`the root list did not scroll: ${before.top}`);
       await far.click();
@@ -1580,6 +1624,13 @@ try {
       )) !== "browser-secret"
     )
       throw new Error("preferences form did not reopen with its saved value");
+    const demoNoticePage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    try {
+      await demoNoticePage.goto(`http://127.0.0.1:${wwwPort}/demo/`);
+      await expectNotice(demoNoticePage);
+    } finally {
+      await demoNoticePage.close();
+    }
     if (githubApiRequests.length)
       throw new Error(`the default run fetched GitHub's API: ${githubApiRequests.join(", ")}`);
     console.log(

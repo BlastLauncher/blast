@@ -68,7 +68,10 @@ async function main() {
   const sweep = existsSync(sweepPath)
     ? (JSON.parse(await readFile(sweepPath, "utf8")) as Report)
     : undefined;
-  const excluded = sweep ? exclusions(sweep) : [];
+  // Retry old CORS exclusions when measuring with the sweep's local proxy.
+  const excluded = (sweep ? exclusions(sweep) : []).filter(
+    (item) => !process.argv.includes("--retry-network") || item.limit !== "network",
+  );
   const byExtension = catalogCommands(smoke.results, deps.extensions, excluded);
   const fetchManifest = async (name: string) => {
     const response = await fetch(

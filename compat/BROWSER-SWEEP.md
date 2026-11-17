@@ -1,52 +1,61 @@
 # Browser catalog sweep
 
-Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-15; 170 command records; wall time 118.6 s.
+Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-17; 174 command records; wall time 108.6 s.
 
-Rendered: **141 / 168** (108 rendered + 33 rendered with placeholder preferences) of 170 commands − 2 browser-limit.
-Not rendered: 5 Blast failure(s), 16 needing real credentials.
+Rendered: **130 / 174** (110 rendered + 20 rendered with placeholder preferences) of 174 commands − 0 browser-limit.
+Not rendered: 14 Blast failure(s), 24 needing real credentials.
 
 ## Totals
 
-- browser-limit: 2 command(s)
 - completed: 4 command(s)
 - empty: 2 command(s)
-- needs-credentials: 16 command(s)
-- rendered: 108 command(s)
-- rendered-with-placeholders: 33 command(s)
+- needs-credentials: 24 command(s)
+- rendered: 110 command(s)
+- rendered-with-placeholders: 20 command(s)
 - runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command.: 1 command(s)
+- runtime-error:Error in event listener: TypeError: xe.default.createBrotliDecompress is not a function: 1 command(s)
+- runtime-error:Failed to load resource: the server responded with a status of 403 (Forbidden): 4 command(s)
+- runtime-error:Failed to load resource: the server responded with a status of 404 (Not Found): 1 command(s)
+- runtime-error:Failed to load resource: the server responded with a status of 502 (Bad Gateway): 4 command(s)
 - runtime-error:Height must be an integer: 1 command(s)
 - runtime-error:Width must be an integer: 1 command(s)
-- timeout: 2 command(s)
+- timeout: 1 command(s)
 
 ## Blast failures
 
-| Signature                                                                                                   | Commands | Examples                                            |
-| ----------------------------------------------------------------------------------------------------------- | -------: | --------------------------------------------------- |
-| timeout                                                                                                     |        2 | `sf-symbols-search/index`, `uk-bank-holidays/index` |
-| runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command. |        1 | `ring-intercom/unlock`                              |
-| runtime-error:Height must be an integer                                                                     |        1 | `convert-px-to-vw-vh/height`                        |
-| runtime-error:Width must be an integer                                                                      |        1 | `convert-px-to-vw-vh/width`                         |
+| Signature                                                                                                   | Commands | Examples                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------------- | -------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| runtime-error:Failed to load resource: the server responded with a status of 403 (Forbidden)                |        4 | `keeper-security/generate-passphrase`, `keeper-security/generate-password-quick`, `keeper-security/my-vault`, `scrapbook/view-recent-posts` |
+| runtime-error:Failed to load resource: the server responded with a status of 502 (Bad Gateway)              |        4 | `mealie/add-to-shopping-list`, `mealie/meal-plan`, `mealie/search-recipes`, `mealie/shopping-lists`                                         |
+| runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command. |        1 | `ring-intercom/unlock`                                                                                                                      |
+| runtime-error:Error in event listener: TypeError: xe.default.createBrotliDecompress is not a function       |        1 | `uk-bank-holidays/index`                                                                                                                    |
+| runtime-error:Failed to load resource: the server responded with a status of 404 (Not Found)                |        1 | `hyrule-compendium-search/broadSearch`                                                                                                      |
+| runtime-error:Height must be an integer                                                                     |        1 | `convert-px-to-vw-vh/height`                                                                                                                |
+| runtime-error:Width must be an integer                                                                      |        1 | `convert-px-to-vw-vh/width`                                                                                                                 |
+| timeout                                                                                                     |        1 | `sf-symbols-search/index`                                                                                                                   |
 
 ## Needs credentials
 
 Ran with placeholder preferences, then the service refused them.
 
-| Response                 | Commands | Examples                                                                                             |
-| ------------------------ | -------: | ---------------------------------------------------------------------------------------------------- |
-| HTTP 404 api.keygen.sh   |        7 | `keygen/api-tokens`, `keygen/api-usage`, `keygen/environments`, `keygen/licenses`, `keygen/policies` |
-| HTTP 401 api.v0.dev      |        3 | `v0-by-vercel/new-chat`, `v0-by-vercel/view-billing`, `v0-by-vercel/view-projects`                   |
-| HTTP 401 api.hevyapp.com |        2 | `hevy/search-routines`, `hevy/search-workouts`                                                       |
-| HTTP 401 app.humaans.io  |        2 | `humaans/clock-in`, `humaans/clock-out`                                                              |
-| HTTP 404 placeholder URL |        2 | `bookstack/show-all-books`, `bookstack/show-all-shelves`                                             |
+| Response                               | Commands | Examples                                                                                                                                      |
+| -------------------------------------- | -------: | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP 404 api.keygen.sh                 |        7 | `keygen/api-tokens`, `keygen/api-usage`, `keygen/environments`, `keygen/licenses`, `keygen/policies`                                          |
+| HTTP 401 api.v0.dev                    |        5 | `v0-by-vercel/manage-profiles`, `v0-by-vercel/new-chat`, `v0-by-vercel/view-billing`, `v0-by-vercel/view-chats`, `v0-by-vercel/view-projects` |
+| HTTP 401 api.codepen.io                |        3 | `codepen/search-assets`, `codepen/search-collections`, `codepen/search-pens`                                                                  |
+| HTTP 401 api.hevyapp.com               |        2 | `hevy/search-routines`, `hevy/search-workouts`                                                                                                |
+| HTTP 401 app.humaans.io                |        2 | `humaans/clock-in`, `humaans/clock-out`                                                                                                       |
+| HTTP 404 placeholder URL               |        2 | `bookstack/show-all-books`, `bookstack/show-all-shelves`                                                                                      |
+| HTTP 401 api.parcel.app                |        1 | `parcel/my-deliveries`                                                                                                                        |
+| HTTP 401 workflowy.com                 |        1 | `workflowy-inbox/view`                                                                                                                        |
+| HTTP 404 botw-compendium.herokuapp.com |        1 | `hyrule-compendium-search/getEntry`                                                                                                           |
 
 ## Browser limits
 
 Denied by the browser host (capability log), not by Blast's runtime.
 
-| Capability  | Commands | Examples                            |
-| ----------- | -------: | ----------------------------------- |
-| network     |        1 | `hyrule-compendium-search/getEntry` |
-| node:sqlite |        1 | `ego-lite/search-bookmarks`         |
+| Capability | Commands | Examples |
+| ---------- | -------: | -------- |
 
 ## Excluded from the demo
 
@@ -60,14 +69,12 @@ because a sweep found them `browser-limit`.
 | `cangjie/cangjie`                                                | selection.text         |
 | `color-studio-picker/index`                                      | selection.text         |
 | `ego-lite/new-tab`                                               | applications.list      |
+| `ego-lite/search-bookmarks`                                      | node:sqlite            |
 | `fix-helper/fix-parser`                                          | selection.text         |
 | `flighty/view-flights`                                           | applications.list      |
-| `gradle-plugins/index`                                           | network                |
 | `input-source-switcher/form`                                     | applications.frontmost |
 | `invisible-text-detector/analyze-clipboard-invisible-characters` | selection.text         |
 | `invisible-text-detector/fix-invisible-characters`               | selection.text         |
-| `jisho/search`                                                   | network                |
-| `leetcode/daily-challenge`                                       | network                |
 | `menucloak/open-settings`                                        | applications.list      |
 | `menucloak/toggle`                                               | applications.list      |
 | `menucloak/turn-off`                                             | applications.list      |
@@ -114,11 +121,9 @@ because a sweep found them `browser-limit`.
 | `rectangle/top-left-sixth`                                       | applications.list      |
 | `rectangle/top-right`                                            | applications.list      |
 | `rectangle/top-right-sixth`                                      | applications.list      |
-| `scrapbook/view-recent-posts`                                    | network                |
 | `superwhisper/copy-last-history`                                 | applications.list      |
 | `superwhisper/open-settings`                                     | applications.list      |
 | `superwhisper/paste-last-history`                                | applications.list      |
 | `superwhisper/toggle-record`                                     | applications.list      |
 | `tategaki/japanese-vertical-text`                                | selection.text         |
 | `text-decorator/decorate-text-with-font`                         | selection.text         |
-| `workflowy-inbox/view`                                           | network                |

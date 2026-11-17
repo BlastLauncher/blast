@@ -51,10 +51,24 @@ import {
 
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
+const notice = document.querySelector<HTMLElement>("body > .proxy-notice");
+if (notice) {
+  const sizeNotice = () =>
+    document.documentElement.style.setProperty(
+      "--proxy-height",
+      `${notice.getBoundingClientRect().height}px`,
+    );
+  sizeNotice();
+  new ResizeObserver(sizeNotice).observe(notice);
+}
 /** Every session uses these, so the one warmed while the root is idle is the one adopted. */
+const fetchProxy = (globalThis as Record<string, unknown>)["__BLAST_FETCH_PROXY__"] as
+  | string
+  | undefined;
 const sandboxOptions = {
   sandboxUrl:
     ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "",
+  ...(fetchProxy ? { fetchProxy } : {}),
   assetsUrl: asset("./"),
   bundlesUrl: asset("bundles.json"),
   buildUrl: asset("../build.json"),
