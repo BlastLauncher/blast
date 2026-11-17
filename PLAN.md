@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M15 — CORS proxy (#102): sandbox network through a Cloudflare Worker that
-stores nothing, opt-in `fetchProxy` in `@blastlauncher/web`, demo notice.
+M15 done (2026-11-17): the demo's sandbox traffic goes through
+`blast-proxy.yukai.dev` (decision 0017). Next milestone not chosen yet.
 
 ## Milestones
 
@@ -88,6 +88,10 @@ client and doc shows the smaller API.
 
 - Browser sweep: numeric placeholders for number-typed arguments (convert-px-to-vw-vh).
 - Browser: `sf-symbols-search` times out parsing its 1.1 MB asset.
+- Sweep: upstream 401/403/502 under placeholder preferences (keeper, mealie,
+  scrapbook) counts as a Blast failure; classify as needs-credentials.
+- Browser: `uk-bank-holidays` gets a brotli body it decodes with `zlib`
+  (`createBrotliDecompress` missing in almostnode).
 
 Out of scope (0009): MyGo, TUI launcher features.
 
