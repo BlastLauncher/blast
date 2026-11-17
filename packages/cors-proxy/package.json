@@ -1,0 +1,9 @@
+{
+  "name": "@blastlauncher/cors-proxy",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "devDependencies": {
+    "wrangler": "4.163.0"
+  }
+}
