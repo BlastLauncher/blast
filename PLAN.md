@@ -68,10 +68,7 @@ client and doc shows the smaller API.
 - [x] 0181 Landing redesign: reference-book look, engine hero animation
 - [x] 0182 Landing craft pass: book typography, fewer boxes, hero tells the flow
 
-### M13 — Product landing
-
-- [x] 0183 Centered product hero with the live demo, technical section below
-- [x] 0184 Real blast-tui recording played with ghostty-web
+### M13 — Product landing (0183–0184): hero with the live demo, real blast-tui recording
 
 ### M14 — Work through PRs
 
@@ -88,10 +85,8 @@ client and doc shows the smaller API.
 
 - Browser sweep: numeric placeholders for number-typed arguments (convert-px-to-vw-vh).
 - Browser: `sf-symbols-search` times out parsing its 1.1 MB asset.
-- Sweep: upstream 401/403/502 under placeholder preferences (keeper, mealie,
-  scrapbook) counts as a Blast failure; classify as needs-credentials.
-- Browser: `uk-bank-holidays` gets a brotli body it decodes with `zlib`
-  (`createBrotliDecompress` missing in almostnode).
+- Sweep: upstream 401/403/502 with placeholder preferences is a Blast failure, not needs-credentials.
+- Browser: `uk-bank-holidays` decodes brotli with `zlib`, missing in almostnode.
 
 Out of scope (0009): MyGo, TUI launcher features.
 
@@ -117,7 +112,7 @@ One line per decision; link a record only when it exists.
 - 2026-11-04: Launch reports missing dependencies as a typed error (now in `0002`); M7 example uses AppKit.
 - 2026-11-05: Browser runtime runs extensions only in almostnode's cross-origin sandbox (`0013`).
 - 2026-11-14: Engine owns the launcher flow; embedders only draw views (`0014`).
-  \n- 2026-11-14: `3.0.0-alpha.2` published to npm `next`, including `@blastlauncher/web`.\n
+- 2026-11-14: `3.0.0-alpha.2` published to npm `next`, including `@blastlauncher/web`.
 - 2026-11-15: tmux palette: published TUI, `tmux` extension, plugin in its own repo (`0016`).
 - 2026-11-15: `3.0.0-alpha.3` published to npm `next`, adding `@blastlauncher/tui`.
 - 2026-11-17: Sandbox network may go through an embedder-hosted CORS proxy; ours is a Worker that stores nothing (`0017`).
