@@ -59,7 +59,8 @@
     "site:record-tui": "bun scripts/record-tui.ts",
     "site:e2e": "bun examples/browser-demo/site-e2e.ts",
     "site:smoke:browser": "bun examples/browser-demo/site-smoke-browser.ts",
-    "site:sweep:browser": "bun examples/browser-demo/browser-sweep.ts"
+    "site:sweep:browser": "bun examples/browser-demo/browser-sweep.ts",
+    "proxy:deploy": "cd packages/cors-proxy && bunx wrangler deploy"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

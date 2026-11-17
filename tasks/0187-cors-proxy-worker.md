@@ -94,8 +94,11 @@ new trust boundary. Tracked by GitHub issue #102 (read it: `gh issue view 102`).
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/cors-proxy-worker @ HEAD (worker commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
-Not done / risks:
+- Added the proxy, local injected-fetch tests, deployment config and decision record.
+- Dry run: cd packages/cors-proxy && bunx wrangler deploy --dry-run --outdir ../../.cache/cors-proxy-dry-run
+- Pinned Wrangler 4.163.0 as a local dev dependency for deployment and dry runs.
+Not done / risks: Cloudflare's rate limit is per location, not a global hard limit. `cf deploy --dry-run` requires a different config format; Wrangler's equivalent succeeds. No deployment was performed.
 ```
