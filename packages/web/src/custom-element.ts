@@ -3,7 +3,7 @@ import { startSession, type WebMount, type WebMountOptions } from "./session.ts"
 /**
  * Defines `<blast-extension extension="raycast/extensions/name" sandbox-url="…">`
  * for pages that prefer declarative embedding. Optional attributes: `source`,
- * `command`, `assets-url`, `theme`, and the booleans `root` and `fixtures`.
+ * `command`, `assets-url`, `fetch-proxy`, `theme`, and the booleans `root` and `fixtures`.
  */
 export function defineBlastExtension(tag = "blast-extension"): void {
   if (customElements.get(tag)) return;
@@ -22,6 +22,7 @@ export function defineBlastExtension(tag = "blast-extension"): void {
           ["source", "source"],
           ["command", "command"],
           ["assets-url", "assetsUrl"],
+          ["fetch-proxy", "fetchProxy"],
           ["theme", "theme"],
         ] as const) {
           const value = this.getAttribute(attribute);

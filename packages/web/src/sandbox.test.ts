@@ -57,3 +57,78 @@ test("files reach the sandbox through execute, binary bytes intact", async () =>
   );
   expect([...written.get("/blast/assets/demo/bytes.bin")!]).toEqual([0, 127, 128, 255]);
 });
+
+const { validateFetchProxy } = (await import(sandboxModule)) as {
+  validateFetchProxy(value: string | undefined): void;
+};
+test("proxy requires HTTPS apart from HTTP loopback test servers", () => {
+  for (const value of [
+    undefined,
+    "https://proxy.example/v1",
+    "http://127.0.0.1:4321/v1",
+    "http://localhost/v1",
+  ])
+    expect(() => validateFetchProxy(value)).not.toThrow();
+  for (const value of [
+    "",
+    "/v1",
+    "http://proxy.example/v1",
+    "ftp://proxy.example/v1",
+    "https://user:pass@proxy.example/v1",
+  ])
+    expect(() => validateFetchProxy(value)).toThrow("fetchProxy must be an absolute HTTPS URL");
+});
+
+test("prewarm includes proxy identity and installs it before a command", async () => {
+  const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { pathToFileURL } = await import("node:url");
+  const directory = await mkdtemp(join(tmpdir(), "blast-proxy-"));
+  type Runtime = {
+    calls: Array<[string, string]>;
+    execute(code: string, filename: string): Promise<void>;
+  };
+  const { prewarm, acquireSandbox } = (await import(sandboxModule)) as {
+    prewarm(options: { sandboxUrl: string; assetsUrl: string; fetchProxy?: string }): void;
+    acquireSandbox(options: {
+      sandboxUrl: string;
+      assetsUrl: string;
+      fetchProxy?: string;
+    }): Promise<Runtime>;
+  };
+  try {
+    await writeFile(
+      join(directory, "almostnode.mjs"),
+      `
+      export class VirtualFS {}
+      export async function createRuntime() {
+        return { calls: [], async execute(code, filename) { this.calls.push([code, filename]); } };
+      }
+    `,
+    );
+    const options = {
+      sandboxUrl: "https://sandbox.example/",
+      assetsUrl: pathToFileURL(`${directory}/`).href,
+      fetchProxy: "https://proxy.example/v1",
+    };
+    prewarm(options);
+    const warm = await acquireSandbox(options);
+    expect(warm.calls[0]?.[1]).toBe("/blast/fetch-proxy.cjs");
+    expect(warm.calls[0]?.[0]).toContain(JSON.stringify(options.fetchProxy));
+    await warm.execute("command", "command.cjs");
+    expect(warm.calls.map((call) => call[1])).toEqual(["/blast/fetch-proxy.cjs", "command.cjs"]);
+    prewarm(options);
+    const direct = await acquireSandbox({
+      sandboxUrl: options.sandboxUrl,
+      assetsUrl: options.assetsUrl,
+    });
+    expect(direct.calls).toEqual([]);
+    // A different key left the original warm sandbox available.
+    const adopted = await acquireSandbox(options);
+    expect(adopted.calls[0]?.[1]).toBe("/blast/fetch-proxy.cjs");
+    expect(adopted).not.toBe(warm);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

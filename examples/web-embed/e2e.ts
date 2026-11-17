@@ -1,3 +1,6 @@
+import { handleRequest } from "../../packages/cors-proxy/src/index.ts";
+import { build } from "esbuild";
+import { browserBuiltinModules } from "../../packages/web/src/browser-bundle.ts";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +15,31 @@ process.env.PLAYWRIGHT_BROWSERS_PATH = browsers;
 if (!existsSync(browsers)) throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
 
 const assets = await buildWebAssets();
+// Bundle already-installed clients locally: the fixture never contacts npm.
+for (const name of ["node-fetch", "axios"]) {
+  const bundled = await build({
+    entryPoints: [join(projectRoot, "packages/shared-deps/node_modules", name, "index.js")],
+    // node-fetch has no index.js at its root.
+    ...(name === "node-fetch"
+      ? {
+          entryPoints: [
+            join(projectRoot, "packages/shared-deps/node_modules/node-fetch/src/index.js"),
+          ],
+        }
+      : {}),
+    bundle: true,
+    write: false,
+    platform: "browser",
+    format: "cjs",
+    external: [
+      ...browserBuiltinModules,
+      ...browserBuiltinModules.map((builtin) => `node:${builtin}`),
+    ],
+  });
+  assets.sources[`/node_modules/${name}/index.js`] = bundled.outputFiles![0]!.text;
+  assets.sources[`/node_modules/${name}/package.json`] = '{"main":"index.js"}';
+}
+const clients = ["fetch", "xhr", "https", "node-fetch", "axios-xhr", "axios-fetch"];
 const js = (body: string) => new Response(body, { headers: { "content-type": "text/javascript" } });
 
 const sandbox = Bun.serve({
@@ -23,6 +51,34 @@ const sandbox = Bun.serve({
       : new Response(sandboxPage("/almostnode-full.mjs"), {
           headers: { "content-type": "text/html" },
         }),
+});
+const received: string[] = [];
+const upstream = Bun.serve({
+  hostname: "127.0.0.1",
+  port: 0,
+  async fetch(request) {
+    received.push(`${request.method} ${request.headers.get("x-test")} ${await request.text()}`);
+    return Response.json({ message: "local data" });
+  },
+});
+const proxy = Bun.serve({
+  hostname: "127.0.0.1",
+  port: 0,
+  fetch(request) {
+    request.headers.set("CF-Connecting-IP", "192.0.2.1");
+    return handleRequest(
+      request,
+      {
+        ALLOWED_ORIGINS: `http://127.0.0.1:${sandbox.port}`,
+        RATE_LIMITER: { limit: async () => ({ success: true }) },
+      },
+      (url, init) => {
+        if (url !== "https://no-cors.example.test/data.json")
+          throw new Error(`Unexpected target ${url}`);
+        return fetch(`http://127.0.0.1:${upstream.port}/data.json`, init);
+      },
+    );
+  },
 });
 const host = Bun.serve({
   hostname: "127.0.0.1",
@@ -54,7 +110,8 @@ try {
   )) as typeof import("playwright");
   const browser = await chromium.launch({ headless: true });
   try {
-    const page = await browser.newPage();
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await page.addInitScript(() => {
       const state = globalThis as typeof globalThis & { blastClipboard?: string };
       Object.defineProperty(navigator, "clipboard", {
@@ -64,6 +121,11 @@ try {
     });
     page.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
     const url = `http://127.0.0.1:${host.port}/?fixtures&sandbox=${encodeURIComponent(`http://127.0.0.1:${sandbox.port}/`)}`;
+    // Refuse any accidental external traffic, including the deliberately fake target.
+    await context.route("**/*", (route) => {
+      const requestUrl = new URL(route.request().url());
+      return requestUrl.hostname === "127.0.0.1" ? route.continue() : route.abort();
+    });
     const rows = page.locator("#app li[data-id]");
 
     await page.goto(url, { waitUntil: "load" });
@@ -89,7 +151,7 @@ try {
     if (copied !== "banana") throw new Error(`primary action copied ${JSON.stringify(copied)}`);
 
     // root: true shows the engine root view first and launches on primary.
-    const rooted = await browser.newPage();
+    const rooted = await context.newPage();
     await rooted.goto(`${url}&root`, { waitUntil: "load" });
     await rooted.locator("#app li[data-id]:has-text('index')").waitFor({ timeout: 120_000 });
     await rooted.keyboard.press("Enter");
@@ -97,7 +159,7 @@ try {
 
     // Files the command reads at load time are in the sandbox's own file system,
     // and the mount's launch arguments reach the command's props.
-    const assetPage = await browser.newPage();
+    const assetPage = await context.newPage();
     assetPage.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
     assetPage.on("console", (message) => {
       if (message.type() === "error") console.error(`[console] ${message.text()}`);
@@ -120,11 +182,48 @@ try {
       "argument given",
     ])
       if (!assetText.includes(row)) throw new Error(`asset row ${row} missing: ${assetText}`);
+    for (const proxied of [false, true]) {
+      received.length = 0;
+      const network = await context.newPage();
+      network.on("pageerror", (error) => console.error(`[network pageerror] ${error.message}`));
+      console.log(`network proxy=${proxied}`);
+      await network.goto(
+        `${url}&extension=raycast/extensions/browser-network${proxied ? `&fetchProxy=${encodeURIComponent(`http://127.0.0.1:${proxy.port}/v1`)}` : `&arguments=${encodeURIComponent(JSON.stringify({ target: `http://127.0.0.1:${upstream.port}/data.json` }))}`}`,
+      );
+      for (const client of clients)
+        await network
+          .locator(
+            `#app li[data-id] strong:text-is('${client} ${proxied ? (client === "node-fetch" ? "status 200" : "local data") : "blocked"}')`,
+          )
+          .waitFor({ timeout: 30_000 })
+          .catch(async (error: unknown) => {
+            throw new Error(`${error} app=${await network.locator("#app").innerText()}`);
+          });
+      await network.close();
+    }
+    for (const client of clients)
+      if (
+        !received.includes(
+          client === "node-fetch"
+            ? "GET node-fetch-header "
+            : `POST ${client}-header ${client}-body`,
+        )
+      )
+        throw new Error(`Missing upstream request ${client}: ${JSON.stringify(received)}`);
+    console.log(
+      JSON.stringify({
+        network:
+          "fetch/xhr/https/axios: local data via proxy; node-fetch: status 200; all blocked direct",
+        received,
+      }),
+    );
     console.log(JSON.stringify({ pass: true, rows: 3, copied, root: true, assets: true }));
   } finally {
     await browser.close();
   }
 } finally {
+  proxy.stop();
+  upstream.stop();
   host.stop();
   sandbox.stop();
 }

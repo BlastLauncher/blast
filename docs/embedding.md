@@ -140,6 +140,10 @@ checked-in schema.
 
 ## In a web page
 
+Pass `fetchProxy: "https://proxy.example/v1"` to `mount()` and `prewarm()`, or `fetch-proxy="…"` on `<blast-extension>`, to route sandbox fetch, XHR and Node HTTP requests through a proxy for APIs without CORS.
+Without it, normal CORS applies. HTTPS is required (HTTP loopback for tests); proxied requests omit browser credentials.
+The operator sees request contents, including API keys: deploy your own from `packages/cors-proxy`.
+
 `@blastlauncher/web` runs extensions in the browser runtime, inside a
 cross-origin sandbox you host, with one `mount()` call; see its
 [README](../packages/web/README.md).
