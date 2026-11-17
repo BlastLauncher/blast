@@ -1,3 +1,4 @@
+import { installFetchProxy } from "../sandbox/fetch-proxy.ts";
 import { loadPrebuiltRuntime } from "./prebuilt.ts";
 
 export type SandboxRuntime = {
@@ -12,6 +13,7 @@ export type SandboxRuntime = {
 /** What decides which sandbox a session can adopt: the same page, assets and bundles. */
 export type SandboxOptions = {
   sandboxUrl: string;
+  fetchProxy?: string | undefined;
   assetsUrl?: string | undefined;
   bundlesUrl?: string | undefined;
   buildUrl?: string | undefined;
@@ -36,8 +38,32 @@ export const assetUrl = (options: Pick<SandboxOptions, "assetsUrl">, path: strin
       ? new URL(options.assetsUrl, (globalThis as { location?: { href: string } }).location?.href)
       : packagedAssets(),
   ).toString();
+export function validateFetchProxy(value: string | undefined): void {
+  if (value === undefined) return;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new TypeError("fetchProxy must be an absolute HTTPS URL");
+  }
+  if (
+    url.username ||
+    url.password ||
+    (url.protocol !== "https:" &&
+      !(url.protocol === "http:" && ["127.0.0.1", "localhost"].includes(url.hostname)))
+  )
+    throw new TypeError(
+      "fetchProxy must be an absolute HTTPS URL (HTTP loopback is allowed for tests)",
+    );
+}
 const keyOf = (options: SandboxOptions) =>
-  [options.sandboxUrl, assetUrl(options, "./"), options.bundlesUrl, options.buildUrl].join("\n");
+  [
+    options.sandboxUrl,
+    assetUrl(options, "./"),
+    options.bundlesUrl,
+    options.buildUrl,
+    options.fetchProxy,
+  ].join("\n");
 
 const base64 = (value: string | Uint8Array) => {
   const bytes = typeof value === "string" ? new TextEncoder().encode(value) : value;
@@ -86,6 +112,7 @@ export function disposeSandbox(runtime: SandboxRuntime | undefined) {
  * runtime, when the bundle index has one, loads before any command code.
  */
 async function createSandbox(options: SandboxOptions, kind: "warm" | "session") {
+  validateFetchProxy(options.fetchProxy);
   const almost = (await import(/* @vite-ignore */ assetUrl(options, "almostnode.mjs"))) as {
     VirtualFS: new () => unknown;
     createRuntime(vfs: unknown, options: { sandbox: string }): Promise<SandboxRuntime>;
@@ -95,6 +122,11 @@ async function createSandbox(options: SandboxOptions, kind: "warm" | "session") 
   });
   runtime.iframe?.setAttribute("data-blast", kind);
   try {
+    if (options.fetchProxy !== undefined)
+      await runtime.execute(
+        `(${installFetchProxy.toString()})(${JSON.stringify(options.fetchProxy)}); module.exports = null;`,
+        "/blast/fetch-proxy.cjs",
+      );
     const code = options.bundlesUrl
       ? await loadPrebuiltRuntime({ bundlesUrl: options.bundlesUrl, buildUrl: options.buildUrl })
       : undefined;
@@ -108,6 +140,7 @@ async function createSandbox(options: SandboxOptions, kind: "warm" | "session") 
 
 /** Starts a sandbox now so the next `mount()` with the same options skips that wait. */
 export function prewarm(options: SandboxOptions): void {
+  validateFetchProxy(options.fetchProxy);
   const key = keyOf(options);
   if (warm?.key === key) return;
   const previous = warm;

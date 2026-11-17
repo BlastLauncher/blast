@@ -18,6 +18,7 @@
     extension: query.get("extension") ?? "raycast/extensions/hello-list",
     // The self-hosted sandbox origin (decision 0015); blast.yukai.dev's is for demos.
     sandboxUrl: query.get("sandbox") ?? "https://blast.yukai.dev/blast-sandbox/",
+    ...(query.has("fetchProxy") ? { fetchProxy: query.get("fetchProxy") } : {}),
     assetsUrl: "./assets/",
     fixtures: query.has("fixtures"),
     root: query.has("root"),
