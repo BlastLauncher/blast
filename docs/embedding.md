@@ -1,17 +1,13 @@
 # Embedding Blast
 
-Blast is an engine, not a launcher. It runs unmodified Raycast extension
-commands and gives an embedder views to draw plus requests for granted
-capabilities. The embedder owns windows, pixels, input devices and policy;
-the engine owns the launcher flow (decision 0014): command search, launch
-prompts, dependency installs and each command's views.
+Blast is an engine, not a launcher. It runs unmodified Raycast extension commands and gives an embedder views to draw plus
+requests for granted capabilities. The embedder owns windows, pixels, input devices and policy; the engine owns the launcher
+flow (decision 0014): command search, launch prompts, dependency installs and each command's views.
 
-A **view** is the serializable `ControllerView` model (`kind`, `title`,
-`search`, `rows`, `form`, `actions`, `feedback`, …) with ranking, selection,
-shortcuts and pagination already applied. **Input** is semantic (`search`,
-`move`, `primary`, `openActions`, `back`, …). A **session** is one launched
-command. A **capability** is an OS or service operation named in the catalog,
-either answered by Blast (storage, OAuth, provider AI) or forwarded to you.
+A **view** is the serializable `ControllerView` model (`kind`, `title`, `search`, `rows`, `form`, `actions`, `feedback`, …)
+with ranking, selection, shortcuts and pagination already applied. **Input** is semantic (`search`, `move`, `primary`,
+`openActions`, `back`, …). A **session** is one launched command. A **capability** is an OS or service operation named in the
+catalog, either answered by Blast (storage, OAuth, provider AI) or forwarded to you.
 
 Install from npm `next` (`3.0.0-alpha.3`; use `@next`, not `latest`), e.g.
 `npm install @blastlauncher/engine@next`; the [quickstart](quickstart.md) runs
@@ -145,5 +141,9 @@ Without it, normal CORS applies. HTTPS is required (HTTP loopback for tests); pr
 The operator sees request contents, including API keys: deploy your own from `packages/cors-proxy`.
 
 `@blastlauncher/web` runs extensions in the browser runtime, inside a
-cross-origin sandbox you host, with one `mount()` call; see its
-[README](../packages/web/README.md).
+cross-origin sandbox you host, with one `mount()` call; see its [README](../packages/web/README.md).
+
+## Network proxy
+
+The live demo forwards extension requests through our Cloudflare proxy. The Worker does not log or store requests or responses.
+The operator can see request contents; destination services receive them under their own policies. Do not enter secret keys, tokens or private data. [Worker source](https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy).

@@ -38,6 +38,7 @@ export type SiteOptions = {
   siteOrigin: string;
   sandboxUrl: string;
   buildSha?: string;
+  fetchProxy?: string | undefined;
   fixtures?: boolean;
 };
 export type SiteStats = {
@@ -197,7 +198,7 @@ export async function buildSite(
   await mkdir(demo, { recursive: true });
   await mkdir(sandbox, { recursive: true });
   const assets = await buildBrowserAssets();
-  await writeFile(join(www, "index.html"), landing(stats, site.origin));
+  await writeFile(join(www, "index.html"), landing(stats, site.origin, options.fetchProxy));
   await writeFile(
     join(www, "site.css"),
     ".button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ff6338;outline-offset:3px}\n",
@@ -215,7 +216,7 @@ export async function buildSite(
   await writeFile(join(www, ".nojekyll"), "");
   await writeFile(
     join(demo, "index.html"),
-    demoPage(sandboxUrl.href, "./", options.fixtures, `${site.origin}/`),
+    demoPage(sandboxUrl.href, "./", options.fixtures, `${site.origin}/`, false, options.fetchProxy),
   );
   await cp(join(projectRoot, "examples/browser-demo/demo.css"), join(demo, "demo.css"));
   await writeFile(join(demo, "client.js"), assets.clientJs);
@@ -336,6 +337,7 @@ if (import.meta.main) {
   const result = await buildSite({
     siteOrigin,
     sandboxUrl,
+    fetchProxy: value("--fetch-proxy"),
     fixtures: args.includes("--fixtures"),
   });
   console.log(`site:build ${result.www} and ${result.sandbox}`);

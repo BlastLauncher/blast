@@ -10,6 +10,7 @@ import {
   placeholderPreferences,
   unsuppliedArguments,
   recordCapabilities,
+  sweepProxyRequest,
   type CapabilityCall,
 } from "./browser-sweep.ts";
 
@@ -446,4 +447,34 @@ describe("recordCapabilities", () => {
       },
     ]);
   });
+});
+
+const localProxyRequest = (origin: string, target = "https://example.com/api") =>
+  new Request(`http://127.0.0.1:4179/v1?url=${encodeURIComponent(target)}`, {
+    headers: { Origin: origin, "Sec-Fetch-Mode": "cors" },
+  });
+
+test("local proxy permits only the sandbox origin and never forwards to production", async () => {
+  const calls: string[] = [];
+  const upstream = async (url: string) => {
+    calls.push(url);
+    return new Response("upstream");
+  };
+  const allowed = "http://127.0.0.1:4178";
+  const response = await sweepProxyRequest(localProxyRequest(allowed), allowed, upstream);
+  expect(await response.text()).toBe("upstream");
+  expect(response.headers.get("access-control-allow-origin")).toBe(allowed);
+  expect(
+    (await sweepProxyRequest(localProxyRequest("https://other.example"), allowed, upstream)).status,
+  ).toBe(403);
+  expect(
+    (
+      await sweepProxyRequest(
+        localProxyRequest(allowed, "https://blast-proxy.yukai.dev/v1"),
+        allowed,
+        upstream,
+      )
+    ).status,
+  ).toBe(502);
+  expect(calls).toEqual(["https://example.com/api"]);
 });

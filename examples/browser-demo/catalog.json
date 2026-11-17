@@ -453,12 +453,6 @@
       "icon": "extension-icon.png",
       "commands": [
         {
-          "name": "search-bookmarks",
-          "title": "Search Bookmarks",
-          "mode": "view",
-          "subtitle": "Ego Lite"
-        },
-        {
           "name": "search-history",
           "title": "Search History",
           "mode": "view",
@@ -543,6 +537,19 @@
           "title": "Get Me Somewhere",
           "mode": "view",
           "subtitle": "Google Maps"
+        }
+      ]
+    },
+    {
+      "name": "gradle-plugins",
+      "title": "Gradle Plugins",
+      "description": "Search for gradle plugins",
+      "icon": "gradle-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Plugin",
+          "mode": "view"
         }
       ]
     },
@@ -677,6 +684,12 @@
         {
           "name": "history",
           "title": "Search History",
+          "mode": "view",
+          "subtitle": "Jisho"
+        },
+        {
+          "name": "search",
+          "title": "Translate Japanese",
           "mode": "view",
           "subtitle": "Jisho"
         }
@@ -844,6 +857,12 @@
       "description": "Search LeetCode problem, view LeetCode daily challenge, view LeetCode problem and more.",
       "icon": "leetcode.png",
       "commands": [
+        {
+          "name": "daily-challenge",
+          "title": "View LeetCode Daily Challenge",
+          "mode": "view",
+          "subtitle": "LeetCode"
+        },
         {
           "name": "potd-menu-bar",
           "title": "Daily Challenge Status",
@@ -1346,6 +1365,12 @@
           "title": "Search User's Posts",
           "mode": "view",
           "subtitle": "Scrapbook"
+        },
+        {
+          "name": "view-recent-posts",
+          "title": "View Recent Posts",
+          "mode": "view",
+          "subtitle": "Scrapbook"
         }
       ]
     },
@@ -1658,6 +1683,11 @@
         {
           "name": "index",
           "title": "Send to Workflowy Inbox",
+          "mode": "view"
+        },
+        {
+          "name": "view",
+          "title": "View Workflowy Inbox",
           "mode": "view"
         }
       ]

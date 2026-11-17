@@ -1,3 +1,4 @@
+import { handleRequest } from "../../packages/cors-proxy/src/index.ts";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
@@ -513,7 +514,10 @@ async function runCommand(
   });
   page.on("response", (response) => {
     if (response.status() >= 400)
-      responses.push({ status: response.status(), url: response.url() });
+      responses.push({
+        status: response.status(),
+        url: new URL(response.url()).searchParams.get("url") ?? response.url(),
+      });
     if (response.status() >= 400 && networkPattern.test(response.url())) network = true;
     if (response.url().includes("/bundles/") && response.status() >= 400)
       bundleFallbackFailed = true;
@@ -651,127 +655,168 @@ async function previousExclusions(items: readonly CatalogCommand[]): Promise<Exc
   );
 }
 
+/** Local sweep adapter: keep the Worker's checks while replacing Cloudflare bindings. */
+export function sweepProxyRequest(
+  request: Request,
+  sandboxOrigin: string,
+  upstream: (url: string, init: RequestInit) => Promise<Response> = fetch,
+): Promise<Response> {
+  const headers = new Headers(request.headers);
+  headers.set("CF-Connecting-IP", "127.0.0.1");
+  return handleRequest(
+    new Request(request, { headers }),
+    {
+      ALLOWED_ORIGINS: sandboxOrigin,
+      RATE_LIMITER: { limit: async () => ({ success: true }) },
+    },
+    (url, init) => {
+      if (new URL(url).hostname === "blast-proxy.yukai.dev")
+        throw new Error("Production proxy is forbidden in the sweep");
+      return upstream(url, init);
+    },
+  );
+}
+
 async function main() {
   const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
   if (!browsers) throw new Error("PLAYWRIGHT_BROWSERS_PATH is required");
   if (!existsSync(browsers)) throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
   const wwwPort = 4177;
   const sandboxPort = 4178;
-  const built = await buildSite({
-    siteOrigin: `http://127.0.0.1:${wwwPort}`,
-    sandboxUrl: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
-  });
-  const www = serve(built.www, wwwPort);
-  const sandbox = serve(built.sandbox, sandboxPort, "/blast-sandbox/");
-  await depsReady();
-  const { chromium } = (await import(
-    join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
-  )) as { chromium: { launch(options: { headless: boolean }): Promise<Browser> } };
-  const browser = await chromium.launch({ headless: true });
-  const started = performance.now();
+  const proxy = process.argv.includes("--local-proxy")
+    ? Bun.serve({
+        hostname: "127.0.0.1",
+        port: 0,
+        fetch(request) {
+          return sweepProxyRequest(request, `http://127.0.0.1:${sandboxPort}`, (url, init) =>
+            // Keep compressed bytes consistent with the upstream encoding header.
+            // Bun otherwise decompresses the body but retains that header.
+            fetch(url, { ...init, decompress: false }),
+          );
+        },
+      })
+    : undefined;
   try {
-    const catalog = validateCatalog(
-      JSON.parse(await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8")),
-    );
-    const index = parseBundleIndex(
-      JSON.parse(await readFile(join(built.www, "demo/bundles.json"), "utf8")),
-    );
-    // `--only <extension/command>` (repeatable) sweeps just those commands and
-    // prints their results; the reports are left as they are.
-    const only = process.argv.flatMap((value, position) =>
-      process.argv[position - 1] === "--only" ? [value] : [],
-    );
-    const items = commands(catalog).filter(
-      (item) => !only.length || only.includes(`${item.extension}/${item.command}`),
-    );
-    const results: SweepResult[] = [];
-    let next = 0;
-    const worker = async () => {
-      while (true) {
-        const position = next++;
-        if (position >= items.length) return;
-        const page = await browser.newPage({
-          colorScheme: "dark",
-          viewport: { width: 1280, height: 800 },
-        });
-        try {
-          await page.addInitScript(() => {
-            Object.defineProperty(navigator, "clipboard", {
-              configurable: true,
-              value: { writeText: async () => undefined },
-            });
-            window.open = (() => null) as typeof window.open;
+    const built = await buildSite({
+      siteOrigin: `http://127.0.0.1:${wwwPort}`,
+      fetchProxy: proxy ? `http://127.0.0.1:${proxy.port}/v1` : undefined,
+      sandboxUrl: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
+    });
+    const www = serve(built.www, wwwPort);
+    const sandbox = serve(built.sandbox, sandboxPort, "/blast-sandbox/");
+    await depsReady();
+    const { chromium } = (await import(
+      join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
+    )) as { chromium: { launch(options: { headless: boolean }): Promise<Browser> } };
+    const browser = await chromium.launch({ headless: true });
+    const started = performance.now();
+    try {
+      const catalog = validateCatalog(
+        JSON.parse(await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8")),
+      );
+      const index = parseBundleIndex(
+        JSON.parse(await readFile(join(built.www, "demo/bundles.json"), "utf8")),
+      );
+      // `--only <extension/command>` (repeatable) sweeps just those commands and
+      // prints their results; the reports are left as they are.
+      const only = process.argv.flatMap((value, position) =>
+        process.argv[position - 1] === "--only" ? [value] : [],
+      );
+      const items = commands(catalog).filter(
+        (item) => !only.length || only.includes(`${item.extension}/${item.command}`),
+      );
+      const results: SweepResult[] = [];
+      let next = 0;
+      const worker = async () => {
+        while (true) {
+          const position = next++;
+          if (position >= items.length) return;
+          const page = await browser.newPage({
+            colorScheme: "dark",
+            viewport: { width: 1280, height: 800 },
           });
-          await page.addInitScript(recordCapabilities);
-          const item = items[position]!;
-          const manifest = index.bundles[bundleKey(item.extension, item.command)]?.manifest;
-          await page.addInitScript(
-            (values) => {
-              (globalThis as { blastSweepPlaceholders?: unknown }).blastSweepPlaceholders = values;
-            },
-            placeholderPreferences(manifest, item.command),
-          );
-          await page.addInitScript(
-            (values) => {
-              (globalThis as { blastSweepArguments?: unknown }).blastSweepArguments = values;
-            },
-            {
-              source: item.url,
-              command: item.command,
-              values: placeholderArguments(manifest, item.command),
-            },
-          );
-          results.push(
-            await runCommand(
-              page,
-              item,
-              `http://127.0.0.1:${wwwPort}`,
-              unsuppliedArguments(manifest, item.command),
-            ),
-          );
-        } finally {
-          await page.close();
+          try {
+            await page.addInitScript(() => {
+              Object.defineProperty(navigator, "clipboard", {
+                configurable: true,
+                value: { writeText: async () => undefined },
+              });
+              window.open = (() => null) as typeof window.open;
+            });
+            await page.addInitScript(recordCapabilities);
+            const item = items[position]!;
+            const manifest = index.bundles[bundleKey(item.extension, item.command)]?.manifest;
+            await page.addInitScript(
+              (values) => {
+                (globalThis as { blastSweepPlaceholders?: unknown }).blastSweepPlaceholders =
+                  values;
+              },
+              placeholderPreferences(manifest, item.command),
+            );
+            await page.addInitScript(
+              (values) => {
+                (globalThis as { blastSweepArguments?: unknown }).blastSweepArguments = values;
+              },
+              {
+                source: item.url,
+                command: item.command,
+                values: placeholderArguments(manifest, item.command),
+              },
+            );
+            results.push(
+              await runCommand(
+                page,
+                item,
+                `http://127.0.0.1:${wwwPort}`,
+                unsuppliedArguments(manifest, item.command),
+              ),
+            );
+          } finally {
+            await page.close();
+          }
         }
+      };
+      await Promise.all(Array.from({ length: 4 }, worker));
+      results.sort((a, b) =>
+        `${a.extension}:${a.command}`.localeCompare(`${b.extension}:${b.command}`),
+      );
+      if (only.length) {
+        for (const result of results) console.log(JSON.stringify(result));
+        return;
       }
-    };
-    await Promise.all(Array.from({ length: 4 }, worker));
-    results.sort((a, b) =>
-      `${a.extension}:${a.command}`.localeCompare(`${b.extension}:${b.command}`),
-    );
-    if (only.length) {
-      for (const result of results) console.log(JSON.stringify(result));
-      return;
+      const totals: Record<string, number> = {};
+      const limits: Record<string, number> = {};
+      for (const result of results) {
+        totals[result.outcome] = (totals[result.outcome] ?? 0) + 1;
+        if (result.limit) limits[result.limit] = (limits[result.limit] ?? 0) + 1;
+      }
+      const report: Report = {
+        schema: 2,
+        commit: catalog.commit,
+        date: new Date().toISOString().slice(0, 10),
+        commands: results.length,
+        wallTimeMs: Math.round(performance.now() - started),
+        totals: sorted(totals),
+        limits: sorted(limits),
+        excluded: await previousExclusions(items),
+        results,
+      };
+      await mkdir(join(projectRoot, "compat"), { recursive: true });
+      await writeFile(
+        join(projectRoot, "compat/browser-sweep.json"),
+        `${JSON.stringify(report, null, 2)}\n`,
+      );
+      await writeFile(join(projectRoot, "compat/BROWSER-SWEEP.md"), markdown(report));
+      console.log(
+        `browser sweep: ${results.length} commands in ${(report.wallTimeMs / 1000).toFixed(1)}s`,
+      );
+    } finally {
+      await browser.close();
+      www.stop();
+      sandbox.stop();
     }
-    const totals: Record<string, number> = {};
-    const limits: Record<string, number> = {};
-    for (const result of results) {
-      totals[result.outcome] = (totals[result.outcome] ?? 0) + 1;
-      if (result.limit) limits[result.limit] = (limits[result.limit] ?? 0) + 1;
-    }
-    const report: Report = {
-      schema: 2,
-      commit: catalog.commit,
-      date: new Date().toISOString().slice(0, 10),
-      commands: results.length,
-      wallTimeMs: Math.round(performance.now() - started),
-      totals: sorted(totals),
-      limits: sorted(limits),
-      excluded: await previousExclusions(items),
-      results,
-    };
-    await mkdir(join(projectRoot, "compat"), { recursive: true });
-    await writeFile(
-      join(projectRoot, "compat/browser-sweep.json"),
-      `${JSON.stringify(report, null, 2)}\n`,
-    );
-    await writeFile(join(projectRoot, "compat/BROWSER-SWEEP.md"), markdown(report));
-    console.log(
-      `browser sweep: ${results.length} commands in ${(report.wallTimeMs / 1000).toFixed(1)}s`,
-    );
   } finally {
-    await browser.close();
-    www.stop();
-    sandbox.stop();
+    proxy?.stop();
   }
 }
 
