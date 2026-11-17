@@ -24,6 +24,9 @@ declare module "playwright" {
   export type Response = { status(): number; url(): string; body(): Promise<Buffer> };
   export type Request = { url(): string };
   export type Route = {
+    request(): Request;
+    continue(): Promise<void>;
+    abort(): Promise<void>;
     fulfill(options: { contentType: string; body: string }): Promise<void>;
   };
   export type Locator = {
@@ -57,6 +60,7 @@ declare module "playwright" {
     launch(options: { headless: boolean }): Promise<Browser>;
   };
   export type Browser = {
+    route(url: string, handler: (route: Route) => Promise<void>): Promise<void>;
     newPage(options?: {
       colorScheme?: "dark" | "light";
       viewport?: { width: number; height: number };

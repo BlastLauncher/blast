@@ -48,6 +48,7 @@ import {
   assetUrl,
   disposeSandbox,
   writeSandboxFiles,
+  validateFetchProxy,
   type SandboxRuntime,
 } from "./sandbox.ts";
 
@@ -64,6 +65,8 @@ export type WebMountOptions = {
   commandTitle?: string;
   /** Origin that serves the cross-origin sandbox page (decision 0013). */
   sandboxUrl: string;
+  /** Opt-in proxy endpoint for cross-origin sandbox requests. Its operator sees request contents. */
+  fetchProxy?: string;
   /**
    * Where the package's `assets/` (`almostnode.mjs`, `esbuild.mjs`, `esbuild.wasm`,
    * `blast-sources.json`) are served; defaults to `assets/` beside this module.
@@ -184,6 +187,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
   if (!given) throw new TypeError("mount requires extension or source");
   const source: string = given;
   if (!options.sandboxUrl) throw new TypeError("mount requires sandboxUrl");
+  validateFetchProxy(options.fetchProxy);
   const asset = (path: string) => assetUrl(options, path);
   const handlers: WebHandlers = { ...createDefaultHandlers(), ...options.handlers };
   const launches = createLaunchGeneration();

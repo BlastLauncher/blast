@@ -1,0 +1,10 @@
+{
+  "name": "browser-network",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Network",
+      "mode": "view"
+    }
+  ]
+}

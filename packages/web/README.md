@@ -33,6 +33,12 @@ Serve two directories from the package as static files, unchanged:
 ## Options
 
 - `session.input({ type: "search", text: "ban" })` sends input; `session.close()` ends it.
+- `fetchProxy: "https://proxy.example/v1"` routes cross-origin sandbox fetch,
+  XHR and Node HTTP requests through that endpoint; omitted, normal CORS applies.
+  Use `fetch-proxy="https://proxy.example/v1"` on `<blast-extension>`.
+  The proxy operator sees request contents, including API keys. Embedders deploy
+  their own proxy from `packages/cors-proxy`; HTTPS is required (HTTP loopback
+  is allowed for tests). Proxied requests omit browser credentials.
 - `root: true` shows the extension's commands as the engine root view.
 - `handlers` overrides the default `storage`, `clipboard` and `openUrl`;
   `handlers.capability` answers or denies any capability first.
@@ -72,7 +78,7 @@ Hooks for hosts with their own UI (`examples/browser-demo` uses all of them):
   `undefined` to cancel; after `open*Preferences` the command runs again.
 - `prewarm(options)` starts a sandbox (with the prebuilt runtime) while the
   page is idle; the next `mount()` with the same `sandboxUrl`, `assetsUrl`,
-  `bundlesUrl` and `buildUrl` adopts it. Its frame has `data-blast="warm"`,
+  `bundlesUrl`, `buildUrl` and `fetchProxy` adopts it. Its frame has `data-blast="warm"`,
   then `"session"` once adopted.
 
 ## In this repository
