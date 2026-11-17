@@ -202,8 +202,8 @@ main {
   /* Raycast's 475px, shrunk to fit a short viewport with the bar and #app's
      72px of padding, so the page never scrolls. */
   height: 475px;
-  height: clamp(280px, calc(100vh - var(--bar-height) - 72px), 475px);
-  height: clamp(280px, calc(100dvh - var(--bar-height) - 72px), 475px);
+  height: clamp(280px, calc(100vh - var(--bar-height) - var(--proxy-height, 0px) - 72px), 475px);
+  height: clamp(280px, calc(100dvh - var(--bar-height) - var(--proxy-height, 0px) - 72px), 475px);
   min-width: 0;
   box-sizing: border-box;
   display: flex;
@@ -1237,7 +1237,7 @@ main.preferences > header > h1 {
    outside that closes the menu, and holds the command's toast, HUD and alert. */
 main.menu-window {
   position: fixed;
-  inset: var(--bar-height) 0 0;
+  inset: calc(var(--bar-height) + var(--proxy-height, 0px)) 0 0;
   z-index: 20;
   width: auto;
   height: auto;
@@ -1514,8 +1514,12 @@ main.menu-window::after {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
   main {
-    height: calc(100vh - var(--bar-height) - 32px - env(safe-area-inset-bottom));
-    height: calc(100dvh - var(--bar-height) - 32px - env(safe-area-inset-bottom));
+    height: calc(
+      100vh - var(--bar-height) - var(--proxy-height, 0px) - 32px - env(safe-area-inset-bottom)
+    );
+    height: calc(
+      100dvh - var(--bar-height) - var(--proxy-height, 0px) - 32px - env(safe-area-inset-bottom)
+    );
   }
 }
 
@@ -1543,8 +1547,8 @@ main.menu-window::after {
     width: 100%;
     /* 100vh includes the area behind mobile toolbars; dvh is the visible viewport.
        The demo bar above takes the top inset. */
-    height: calc(100vh - var(--bar-height));
-    height: calc(100dvh - var(--bar-height));
+    height: calc(100vh - var(--bar-height) - var(--proxy-height, 0px));
+    height: calc(100dvh - var(--bar-height) - var(--proxy-height, 0px));
     border: 0;
     border-radius: 0;
     box-shadow: none;
@@ -1619,11 +1623,11 @@ main.menu-window::after {
 }
 .menu-bar {
   position: fixed;
-  inset: var(--bar-height) 0 0;
+  inset: calc(var(--bar-height) + var(--proxy-height, 0px)) 0 0;
   z-index: 20;
   width: 100vw;
-  height: calc(100vh - var(--bar-height));
-  height: calc(100dvh - var(--bar-height));
+  height: calc(100vh - var(--bar-height) - var(--proxy-height, 0px));
+  height: calc(100dvh - var(--bar-height) - var(--proxy-height, 0px));
   pointer-events: none;
 }
 .menu-bar .menu-panel {
@@ -1640,5 +1644,26 @@ main.menu-window::after {
 }
 :root[data-embed="1"] body,
 body:not(:has(.demo-bar)) {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* Keep the proxy policy above the launcher; the landing supplies its own copy. */
+body:has(> .proxy-notice) {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.proxy-notice {
+  margin: 0;
+  padding: 10px 24px;
+  font-size: 12px;
+  color: var(--gray11);
+}
+.proxy-notice a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+:root[data-embed="1"] .proxy-notice {
+  display: none;
+}
+:root[data-embed="1"] body:has(> .proxy-notice) {
   grid-template-rows: minmax(0, 1fr);
 }

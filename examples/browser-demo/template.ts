@@ -1,3 +1,9 @@
+export function proxyNotice(fetchProxy?: string): string {
+  return fetchProxy
+    ? '<p class="proxy-notice">Demo extension requests go through our Cloudflare proxy; nothing is logged or stored. Do not enter secret keys, tokens or private data. <a href="/docs/embedding/#network-proxy" target="_top">Policy</a> · <a href="https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy" target="_top">Source</a></p>'
+    : "";
+}
+
 const escapeAttribute = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
 
@@ -11,6 +17,7 @@ export function demoPage(
   fixtures = false,
   home = "/",
   embed = false,
+  fetchProxy?: string,
 ): string {
   const bar = embed
     ? ""
@@ -18,5 +25,5 @@ export function demoPage(
   const embedHead = embed
     ? ""
     : `<script>if(new URLSearchParams(location.search).get("embed")==="1")document.documentElement.dataset.embed="1"</script>`;
-  return `<!doctype html><html lang="en"${embed ? ' data-embed="1"' : ""}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">${embedHead}<link rel="stylesheet" href="${base}demo.css"><title>Blast browser demo</title></head><body>${bar}<div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(sandboxUrl)};window.__BLAST_FIXTURES__=${fixtures}</script><script type="module" src="${base}client.js"></script></body></html>`;
+  return `<!doctype html><html lang="en"${embed ? ' data-embed="1"' : ""}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">${embedHead}<link rel="stylesheet" href="${base}demo.css"><title>Blast browser demo</title></head><body>${bar}${embed ? "" : proxyNotice(fetchProxy)}<div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(sandboxUrl)};window.__BLAST_FIXTURES__=${fixtures}${fetchProxy ? `;window.__BLAST_FETCH_PROXY__=${JSON.stringify(fetchProxy).replaceAll("<", "\\u003c")}` : ""}</script><script type="module" src="${base}client.js"></script></body></html>`;
 }

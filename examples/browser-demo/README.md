@@ -42,7 +42,9 @@ commands start from prebuilt bundles.
 | Preferences                                | Missing required values and `open*Preferences` show a form; submitted values stay in `localStorage`                                                                                |
 | Applications, selection, windows and AI    | Denied because a browser tab cannot honestly provide these host services, except `applications.list`, which answers an empty list because the demo cannot enumerate installed apps |
 
-Extension network requests still require CORS. `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.
+Without `site:build --fetch-proxy <url>`, extension network requests require CORS.
+The production build routes them through our Cloudflare proxy and shows a notice
+linking to the [network policy](../../docs/embedding.md#network-proxy). `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.
 
 Each command receives `/blast/support/<extension>` and `/blast/assets/<extension>`
 inside almostnode's virtual filesystem. Cache data therefore lasts only for the
@@ -60,3 +62,10 @@ The landing page's terminal view replays `recordings/tui.cast`, a real
 built to `/tui-player.js` and `/tui.cast`. `bun run site:record-tui`
 re-records it; it needs tmux 3.2+, util-linux `script` and Bun, and runs only
 isolated tmux servers.
+
+To remeasure CORS exclusions, run `bun run example:browser-demo:catalog --retry-network`,
+then `bun run site:sweep:browser --local-proxy` with `PLAYWRIGHT_BROWSERS_PATH` set,
+then regenerate the catalog without the retry flag. The sweep starts a loopback
+proxy using the unchanged Worker handler and real upstream fetch; it never calls
+the production proxy. `--only extension/command` limits a diagnostic run without
+rewriting the report. `site:e2e -- --proxy-notice` checks the opt-in notice with fixtures.

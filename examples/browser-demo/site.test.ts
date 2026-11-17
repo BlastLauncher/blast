@@ -225,57 +225,83 @@ describe("site build helpers", () => {
       );
   });
   // Runs a full buildSite (client, almostnode, runtime bundles): seconds on a busy CI runner.
-  test("writes one build id and relative sandbox asset references", async () => {
-    const result = await buildSite({
-      siteOrigin: "http://127.0.0.1:4173",
-      sandboxUrl: "https://blastlauncher.github.io/blast-sandbox/",
-      buildSha: "test-sha",
-      fixtures: true,
-    });
-    const [wwwBuild, sandboxBuild] = await Promise.all([
-      readFile(`${result.www}/build.json`, "utf8"),
-      readFile(`${result.sandbox}/build.json`, "utf8"),
-    ]);
-    expect(JSON.parse(wwwBuild)).toEqual({ sha: "test-sha" });
-    expect(JSON.parse(sandboxBuild)).toEqual({ sha: "test-sha" });
-    const demo = await readFile(`${result.www}/demo/index.html`, "utf8");
-    expect(demo).toContain("https://blastlauncher.github.io/blast-sandbox/");
-    expect(demo).toContain('href="./demo.css"');
-    // The demo says what it is and links home; home links back to the demo.
-    expect(demo).toContain('<a class="demo-home" href="http://127.0.0.1:4173/">');
-    expect(demo).toContain("Browser demo · alpha");
-    const landingHtml = await readFile(`${result.www}/index.html`, "utf8");
-    expect(landingHtml).toContain('href="http://127.0.0.1:4173/demo/"');
-    expect(landingHtml).toContain("Raycast extensions, inside your app.");
-    expectLandingSnippets(landingHtml);
-    expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
-    expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);
-    await expect(readFile(`${result.www}/fonts/OFL.txt`, "utf8")).resolves.toContain(
-      "SIL OPEN FONT LICENSE",
-    );
-    await expect(
-      readFile(`${result.www}/fonts/geist-latin-wght-normal.woff2`),
-    ).resolves.toBeDefined();
-    await expect(
-      readFile(`${result.www}/fonts/geist-mono-latin-wght-normal.woff2`),
-    ).resolves.toBeDefined();
-    const fontFiles = (await readdir(`${result.www}/fonts`)).filter((f) => f.endsWith(".woff2"));
-    expect(fontFiles.length).toBe(2);
-    const fontSizes = await Promise.all(
-      fontFiles.map(async (f) => (await stat(`${result.www}/fonts/${f}`)).size),
-    );
-    const totalFontBytes = fontSizes.reduce((sum, n) => sum + n, 0);
-    expect(totalFontBytes).toBeGreaterThan(0);
-    expect(totalFontBytes).toBeLessThan(200 * 1024);
-    await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
-    // The showcase ships prebuilt with every build, fixtures or not.
-    const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
-      bundles: Record<string, unknown>;
-    };
-    for (const command of showcaseCommands)
-      expect(Object.keys(bundles.bundles)).toContain(`blast-showcase/${command}`);
-    const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
-    expect(sandbox).toContain("./almostnode-full.mjs");
-    expect(sandbox).not.toMatch(/(?:src|href)=["']\//);
-  }, 60_000);
+  test.each([undefined, "https://proxy.example/v1"])(
+    "writes sandbox assets and optional proxy %s",
+    async (fetchProxy) => {
+      const result = await buildSite({
+        siteOrigin: "http://127.0.0.1:4173",
+        sandboxUrl: "https://blastlauncher.github.io/blast-sandbox/",
+        buildSha: "test-sha",
+        fetchProxy,
+        fixtures: true,
+      });
+      const [wwwBuild, sandboxBuild] = await Promise.all([
+        readFile(`${result.www}/build.json`, "utf8"),
+        readFile(`${result.sandbox}/build.json`, "utf8"),
+      ]);
+      expect(JSON.parse(wwwBuild)).toEqual({ sha: "test-sha" });
+      expect(JSON.parse(sandboxBuild)).toEqual({ sha: "test-sha" });
+      const demo = await readFile(`${result.www}/demo/index.html`, "utf8");
+      expect(demo).toContain("https://blastlauncher.github.io/blast-sandbox/");
+      expect(demo.includes("window.__BLAST_FETCH_PROXY__=")).toBe(Boolean(fetchProxy));
+      if (fetchProxy)
+        expect(demo).toContain(`window.__BLAST_FETCH_PROXY__=${JSON.stringify(fetchProxy)}`);
+      for (const html of [demo, await readFile(`${result.www}/index.html`, "utf8")]) {
+        expect(html.includes('<p class="proxy-notice">')).toBe(Boolean(fetchProxy));
+        if (fetchProxy) {
+          expect(html).toContain('href="/docs/embedding/#network-proxy"');
+          expect(html).toContain(
+            'href="https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy"',
+          );
+          expect(html).toContain("nothing is logged or stored");
+          expect(html).toContain("Do not enter secret keys, tokens or private data");
+        }
+      }
+      const client = await readFile(`${result.www}/demo/client.js`, "utf8");
+      expect(client).toContain("__BLAST_FETCH_PROXY__");
+      const source = await readFile(new URL("./client.ts", import.meta.url), "utf8");
+      expect(source).toContain("...sandboxOptions,");
+      expect(source).toContain("prewarm(sandboxOptions)");
+      expect(demo).toContain('href="./demo.css"');
+      // The demo says what it is and links home; home links back to the demo.
+      expect(demo).toContain('<a class="demo-home" href="http://127.0.0.1:4173/">');
+      expect(demo).toContain("Browser demo · alpha");
+      const landingHtml = await readFile(`${result.www}/index.html`, "utf8");
+      expect(landingHtml).toContain('href="http://127.0.0.1:4173/demo/"');
+      expect(landingHtml).toContain("Raycast extensions, inside your app.");
+      expectLandingSnippets(landingHtml);
+      expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
+      expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);
+      await expect(readFile(`${result.www}/fonts/OFL.txt`, "utf8")).resolves.toContain(
+        "SIL OPEN FONT LICENSE",
+      );
+      await expect(
+        readFile(`${result.www}/fonts/geist-latin-wght-normal.woff2`),
+      ).resolves.toBeDefined();
+      await expect(
+        readFile(`${result.www}/fonts/geist-mono-latin-wght-normal.woff2`),
+      ).resolves.toBeDefined();
+      const fontFiles = (await readdir(`${result.www}/fonts`)).filter((f) => f.endsWith(".woff2"));
+      expect(fontFiles.length).toBe(2);
+      const fontSizes = await Promise.all(
+        fontFiles.map(async (f) => (await stat(`${result.www}/fonts/${f}`)).size),
+      );
+      const totalFontBytes = fontSizes.reduce((sum, n) => sum + n, 0);
+      expect(totalFontBytes).toBeGreaterThan(0);
+      expect(totalFontBytes).toBeLessThan(200 * 1024);
+      await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(
+        ".root-icon",
+      );
+      // The showcase ships prebuilt with every build, fixtures or not.
+      const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
+        bundles: Record<string, unknown>;
+      };
+      for (const command of showcaseCommands)
+        expect(Object.keys(bundles.bundles)).toContain(`blast-showcase/${command}`);
+      const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
+      expect(sandbox).toContain("./almostnode-full.mjs");
+      expect(sandbox).not.toMatch(/(?:src|href)=["']\//);
+    },
+    60_000,
+  );
 });

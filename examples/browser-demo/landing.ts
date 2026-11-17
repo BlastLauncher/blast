@@ -1,3 +1,4 @@
+import { proxyNotice } from "./template.ts";
 // Landing page for Blast: centered product hero with live Browser demo and Terminal switch,
 // plus one technical section below. Zero external requests, responsive at 360px, dark mode.
 
@@ -80,7 +81,7 @@ function escapeAttribute(value: string): string {
   return escapeHtml(value);
 }
 
-export function landing(stats: SiteStats, siteOrigin = ""): string {
+export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string): string {
   const origin = siteOrigin.replace(/\/$/, "");
   const homeUrl = `${origin}/`;
   const demoUrl = `${origin}/demo/`;
@@ -351,6 +352,8 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
       flex-wrap: wrap;
       text-align: left;
     }
+    .proxy-notice { margin: 0; padding: 10px 16px; font-size: 12px; line-height: 1.5; color: var(--muted); text-align: left; }
+    .proxy-notice a { text-decoration: underline; text-underline-offset: 3px; }
     .under code { font-size: 12px; }
 
     /* Technical section */
@@ -504,6 +507,7 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
           <div id="view-web" role="tabpanel" aria-labelledby="sw-web">
             <div class="browser">
               <div class="chrome"><i></i><i></i><i></i><span>${escapeHtml(displayDemoUrl)}</span><a href="${escapeAttribute(demoUrl)}" class="pop">Open full screen ↗</a></div>
+              ${proxyNotice(fetchProxy)}
               <iframe src="${escapeAttribute(embedDemoUrl)}" title="Blast browser demo: run Raycast extensions from raycast/extensions in this page" allow="clipboard-read; clipboard-write"></iframe>
             </div>
             <div class="under"><span>Live: unmodified extensions from raycast/extensions, run in a sandboxed iframe in your browser.</span><code>@blastlauncher/web</code></div>
