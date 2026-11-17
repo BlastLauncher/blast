@@ -116,3 +116,4 @@ One line per decision; link a record only when it exists.
   \n- 2026-11-14: `3.0.0-alpha.2` published to npm `next`, including `@blastlauncher/web`.\n
 - 2026-11-15: tmux palette: published TUI, `tmux` extension, plugin in its own repo (`0016`).
 - 2026-11-15: `3.0.0-alpha.3` published to npm `next`, adding `@blastlauncher/tui`.
+- 2026-11-17: Sandbox network may go through an embedder-hosted CORS proxy; ours is a Worker that stores nothing (`0017`).
