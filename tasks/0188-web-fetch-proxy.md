@@ -56,13 +56,13 @@ CORS headers work. Without the option nothing changes.
 
 ## Acceptance
 
-- [ ] Unit tests for the URL rewrite rules (each kept/rewritten case above) and
+- [x] Unit tests for the URL rewrite rules (each kept/rewritten case above) and
       for fetch `Request` inputs with bodies and headers.
-- [ ] The browser e2e proves a no-CORS upstream renders with `fetchProxy` and
+- [x] The browser e2e proves a no-CORS upstream renders with `fetchProxy` and
       fails without it; command and output in Handoff.
-- [ ] `<blast-extension fetch-proxy>` is passed through (unit test).
-- [ ] Docs updated as above.
-- [ ] `bun run verify` passes.
+- [x] `<blast-extension fetch-proxy>` is passed through (unit test).
+- [x] Docs updated as above.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -74,8 +74,23 @@ CORS headers work. Without the option nothing changes.
 ## Handoff
 
 ```
-Branch/commit: t3/web-fetch-proxy (see commit containing this handoff)
-Verify: baseline verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
-Done: Read task, proxy implementation, and sandbox startup; ran baseline verification.
-Not done / risks: Implementation, tests, documentation, and browser e2e remain undone. The worktree browser dependency cache is absent; prepare it without external requests before running the e2e. The proxy rejects local target URLs, so an e2e must inject an upstream function mapping a permitted test URL to the local server.
+Branch/commit: t3/web-fetch-proxy-1 @ 9652a1889221815e0535251d5fc923f1026ead63 (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
+Done:
+- Validated fetchProxy and fetch-proxy plumbing; proxy identity participates in prewarm reuse and wrappers install before any runtime/command bundle.
+- Wrapped fetch (string/URL/Request) and XHR, retaining method, headers, body and signal while omitting credentials; relative, non-HTTP, same-origin and proxy-origin URLs stay direct.
+- Added URL/Request, custom-element and prewarm tests; no dependencies added and no cors-proxy changes.
+- Updated embedding/package docs with deployment and operator visibility guidance.
+- Local browser e2e passes for fetch, XHR, http/https.request, axios XHR/fetch adapters and node-fetch GET status, including upstream method/header/body assertions.
+Not done / risks: Request bodies are buffered to avoid Chromium's HTTP/2 requirement for streaming uploads. node-fetch response JSON consumption and POST upload hang in almostnode's existing stream shims; GET forwarding and status are covered. got is not installed in the shared cache, and almostnode has no undici built-in, so neither was exercised. No external APIs or production proxy were contacted.
+```
+
+Browser command: `bun run example:web-embed:e2e`, with
+`PLAYWRIGHT_BROWSERS_PATH` set on the command line to the existing shared browser
+cache and the worktree's ignored browser-demo cache symlinked as instructed.
+Output (exit 0):
+
+```json
+{"network":"fetch/xhr/https/axios: local data via proxy; node-fetch: status 200; all blocked direct","received":["GET node-fetch-header ","POST axios-xhr-header axios-xhr-body","POST xhr-header xhr-body","POST https-header https-body","POST fetch-header fetch-body","POST axios-fetch-header axios-fetch-body"]}
+{"pass":true,"rows":3,"copied":"banana","root":true,"assets":true}
 ```
