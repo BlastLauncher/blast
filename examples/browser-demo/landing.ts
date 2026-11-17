@@ -489,7 +489,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
   <main>
     <section class="hero">
       <div class="wrap">
-        <a class="pill" href="${escapeAttribute(tmuxRepoUrl)}"><b>3.0.0-alpha.3</b> The tmux palette is out →</a>
+        <a class="pill" href="${escapeAttribute(tmuxRepoUrl)}"><b>3.0.0-alpha.9</b> The tmux palette is out →</a>
         <h1>Raycast extensions, inside your app.</h1>
         <p class="lede">The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
         <div class="ctas">
@@ -551,7 +551,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
               <div><span>Any language</span>npx -p @blastlauncher/serve@next blast-serve</div>
               <div><span>Web page</span>npm install @blastlauncher/web@next</div>
             </div>
-            <p class="inst-note">Prereleases (<code>3.0.0-alpha.3</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a>.</p>
+            <p class="inst-note">Prereleases (<code>3.0.0-alpha.9</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a>.</p>
           </div>
           <div>
             <div class="tabs" role="tablist" aria-label="Integration code examples">

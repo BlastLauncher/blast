@@ -3,7 +3,7 @@ import { escapeHtml } from "./highlight.ts";
 // Shared design system tokens, Geist font faces, and header chrome for Blast site pages.
 
 export const coverageUrl = "https://github.com/blastlauncher/blast/blob/main/compat/COVERAGE.md";
-export const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/SWEEP.md";
+export const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/compat/SWEEP.md";
 export const repoUrl = "https://github.com/blastlauncher/blast";
 export const tmuxRepoUrl = "https://github.com/BlastLauncher/tmux-blast";
 

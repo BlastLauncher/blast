@@ -90,8 +90,8 @@ function expectLandingSnippets(html: string) {
   expect(html).toContain("npm install @blastlauncher/engine@next");
   expect(html).toContain("npx -p @blastlauncher/serve@next blast-serve");
   expect(html).toContain("npm install @blastlauncher/web@next");
-  expect(html).toContain("<code>3.0.0-alpha.3</code>");
-  for (const stale of ["alpha.1", "alpha.2", "From Source", "release:build"])
+  expect(html).toContain("<code>3.0.0-alpha.9</code>");
+  for (const stale of ["alpha.1", "alpha.2", "alpha.3", "From Source", "release:build"])
     expect(html).not.toContain(stale);
   // Release pill links to the tmux plugin.
   expect(html).toContain('<a class="pill" href="https://github.com/BlastLauncher/tmux-blast">');
