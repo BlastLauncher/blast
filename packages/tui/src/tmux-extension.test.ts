@@ -36,6 +36,8 @@ async function withServer(
   const sockets: string[] = [];
   try {
     tmux(["new-session", "-d", "-s", "blast", "-x", "80", "-y", "24"]);
+    // A login shell's prompt may set the pane title and race the rename tests.
+    tmux(["set-option", "-g", "allow-set-title", "off"]);
     // Ask tmux rather than assume /tmp/tmux-<uid>: TMUX_TMPDIR moves it.
     const socket = tmux(["display-message", "-p", "#{socket_path}"]);
     sockets.push(socket);

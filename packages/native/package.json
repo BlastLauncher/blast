@@ -4,6 +4,10 @@
   "type": "module",
   "exports": "./src/index.ts",
   "dependencies": {
-    "@blastlauncher/protocol": "workspace:*"
+    "@blastlauncher/protocol": "workspace:*",
+    "ws": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.2"
   }
 }

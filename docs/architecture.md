@@ -28,7 +28,7 @@ extension code (unmodified, bundled)
 | `packages/cli`         | `blast` debug CLI and headless capability answers                                                                              | host, protocol                           |
 | `packages/tui`         | Bun terminal client: keys → controller, view → OpenTUI                                                                         | client-core, cli, host, protocol, native |
 
-`host` only spawns `runtime`, never imports it. See `docs/capabilities.md` for capabilities/storage and `docs/embedding.md` for embedding; `examples/go-embedder` is a minimal non-JS embedder.
+`host` only spawns `runtime`, never imports it. See `docs/capabilities.md` for capabilities/storage and `docs/embedding.md` for embedding; `examples/go-embedder` is a minimal non-JS embedder. `native.startBrowserBridge` serves real browser tabs/content over the loopback companion-extension protocol (0018).
 
 ## Message flow
 
