@@ -8,6 +8,13 @@ type Pending = {
 };
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
+const validRequestId = (id: unknown): id is string | number | null =>
+  id === null || typeof id === "string" || typeof id === "number";
+const parseResponseId = (id: unknown): number | undefined => {
+  if (typeof id === "number" && Number.isInteger(id)) return id;
+  if (typeof id === "string" && /^\d+$/.test(id)) return Number(id);
+  return undefined;
+};
 
 /** Serves the companion protocol only on IPv4 loopback; no browser data is cached. */
 export async function startBrowserBridge({
@@ -18,7 +25,12 @@ export async function startBrowserBridge({
   port: number;
   allowedOrigins?: readonly string[];
   timeoutMs?: number;
-}): Promise<{ port: number; handlers: Record<string, CapabilityHandler>; close(): Promise<void> }> {
+}): Promise<{
+  host: string;
+  port: number;
+  handlers: Record<string, CapabilityHandler>;
+  close(): Promise<void>;
+}> {
   const server = new WebSocketServer({
     host: "127.0.0.1",
     port,
@@ -32,7 +44,7 @@ export async function startBrowserBridge({
       done(allowed, 403, "Browser extension Origin required");
     },
   });
-  let client: WebSocket | undefined;
+  const clients: WebSocket[] = [];
   let nextId = 1;
   let closed = false;
   const pending = new Map<number, Pending>();
@@ -41,10 +53,11 @@ export async function startBrowserBridge({
       if (request.socket === socket) request.finish(new Error(message));
   };
   server.on("connection", (socket) => {
-    client = socket;
+    clients.push(socket);
     socket.on("error", () => fail(socket, "Browser companion extension connection failed"));
     socket.on("close", () => {
-      if (client === socket) client = undefined;
+      const index = clients.indexOf(socket);
+      if (index !== -1) clients.splice(index, 1);
       fail(socket, "Browser companion extension disconnected");
     });
     socket.on("message", (raw) => {
@@ -56,6 +69,7 @@ export async function startBrowserBridge({
       }
       if (!record(message) || message.jsonrpc !== "2.0" || message.id === undefined) return;
       if (typeof message.method === "string") {
+        if (!validRequestId(message.id)) return;
         socket.send(
           JSON.stringify({
             jsonrpc: "2.0",
@@ -68,7 +82,9 @@ export async function startBrowserBridge({
         );
         return;
       }
-      const request = pending.get(Number(message.id));
+      const id = parseResponseId(message.id);
+      if (id === undefined) return;
+      const request = pending.get(id);
       if (!request || request.socket !== socket) return;
       if (record(message.error))
         request.finish(
@@ -95,9 +111,14 @@ export async function startBrowserBridge({
   });
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Browser bridge has no address");
+  function activeClient(): WebSocket | undefined {
+    for (let i = clients.length - 1; i >= 0; i--)
+      if (clients[i]!.readyState === WebSocket.OPEN) return clients[i];
+    return undefined;
+  }
   function rpcRequest(method: string, params: Record<string, JsonValue> = {}): Promise<unknown> {
-    const socket = client;
-    if (closed || !socket || socket.readyState !== WebSocket.OPEN)
+    const socket = activeClient();
+    if (closed || !socket)
       return Promise.reject(
         new Error("Install and enable the browser companion extension to use BrowserExtension"),
       );
@@ -151,6 +172,7 @@ export async function startBrowserBridge({
   };
   let closing: Promise<void> | undefined;
   return {
+    host: address.address,
     port: address.port,
     handlers,
     close() {

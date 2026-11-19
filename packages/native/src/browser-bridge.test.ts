@@ -81,8 +81,8 @@ test("content forwards tabId, formats and CSS selector through getTab", async ()
   expect(received.at(-1)).toEqual({ method: "getTab", params: { field: "content" } });
 });
 
-test("RPC errors propagate, missing clients explain setup and requests time out", async () => {
-  const bridge = await start({ timeoutMs: 20 });
+test("RPC errors propagate and missing clients explain setup", async () => {
+  const bridge = await start();
   await expect(bridge.handlers["browser.tabs"]!({})).rejects.toThrow("companion extension");
   const socket = await connect(bridge.port);
   socket.once("message", (raw) => {
@@ -98,16 +98,23 @@ test("RPC errors propagate, missing clients explain setup and requests time out"
   await expect(bridge.handlers["browser.content"]!({})).rejects.toThrow(
     "Cannot read restricted page",
   );
+});
+
+test("unanswered RPC requests reject after the configured timeout", async () => {
+  const bridge = await start({ timeoutMs: 25 });
+  await connect(bridge.port);
   await expect(bridge.handlers["browser.tabs"]!({})).rejects.toThrow(
-    "getTabs timed out after 20ms",
+    "getTabs timed out after 25ms",
   );
 });
 
-test("ping is answered, notifications and malformed frames ignored", async () => {
+test("ping is answered; notifications, malformed frames and object IDs are ignored safely", async () => {
   const bridge = await start();
   const socket = await connect(bridge.port);
   socket.send("not json");
   socket.send("null");
+  socket.send(JSON.stringify({ jsonrpc: "2.0", id: { toString: null }, result: { value: "bad" } }));
+  socket.send(JSON.stringify({ jsonrpc: "2.0", id: {}, method: "ping" }));
   socket.send(
     JSON.stringify({ jsonrpc: "2.0", method: "whoami", params: { name: "browserExtension" } }),
   );
@@ -120,17 +127,34 @@ test("ping is answered, notifications and malformed frames ignored", async () =>
   });
 });
 
-test("latest client wins and an older disconnect cannot clear it", async () => {
+test("latest client wins; closing an older keeps latest, closing latest restores older", async () => {
   const bridge = await start();
   const first = await connect(bridge.port);
   answer(first, "first");
-  const latest = await connect(bridge.port, "moz-extension://abc");
-  answer(latest, "latest");
-  expect(await bridge.handlers["browser.content"]!({})).toBe("latest");
-  const disconnected = once(first, "close");
+  const second = await connect(bridge.port, "moz-extension://second");
+  answer(second, "second");
+  const third = await connect(bridge.port, "moz-extension://third");
+  answer(third, "third");
+  expect(await bridge.handlers["browser.content"]!({})).toBe("third");
+  const firstClosed = once(first, "close");
   first.close();
-  await disconnected;
-  expect(await bridge.handlers["browser.content"]!({})).toBe("latest");
+  await firstClosed;
+  expect(await bridge.handlers["browser.content"]!({})).toBe("third");
+  const thirdClosed = once(third, "close");
+  third.close();
+  await thirdClosed;
+  // Client "close" can resolve before the server socket observes EOF on loopback.
+  let fallback: unknown;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      fallback = await bridge.handlers["browser.content"]!({});
+      break;
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes("disconnected")) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+  }
+  expect(fallback).toBe("second");
 });
 
 test("disconnect and bridge close reject pending requests and close is idempotent", async () => {
@@ -161,8 +185,9 @@ test("origin gate rejects web, null and missing origins even if allowlisted", as
   }
 });
 
-test("extension and custom allowlisted origins connect on IPv4 loopback", async () => {
+test("server binds 127.0.0.1 only and accepts extension and allowlisted origins", async () => {
   const bridge = await start({ allowedOrigins: ["https://trusted.example"] });
+  expect(bridge.host).toBe("127.0.0.1");
   for (const origin of [
     "chrome-extension://abc",
     "moz-extension://abc",
@@ -170,7 +195,6 @@ test("extension and custom allowlisted origins connect on IPv4 loopback", async 
     "https://trusted.example",
   ]) {
     const socket = await connect(bridge.port, origin);
-    expect(new URL(socket.url).hostname).toBe("127.0.0.1");
     const closed = once(socket, "close");
     socket.close();
     await closed;
