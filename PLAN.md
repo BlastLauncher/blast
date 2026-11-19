@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M15 done (2026-11-17): the demo's sandbox traffic goes through
-`blast-proxy.yukai.dev` (decision 0017). Next milestone not chosen yet.
+M16 in progress: browser bridge for real `BrowserExtension.getTabs` and
+`getContent` via the Raycast companion-extension protocol (decision 0018).
 
 ## Milestones
 
@@ -21,54 +21,11 @@ M15 done (2026-11-17): the demo's sandbox traffic goes through
 - [x] M7 Real examples: BlastKit/AppKit launcher, web launcher, task scripts (0106–0114)
 - [x] M8 Browser runtime: extensions by URL in almostnode's sandbox, site,
       showcase, Raycast-style demo UI (0115–0151)
-
-### M9 — Embed anywhere
-
-Docs first for today's API, then the engine takes over the flow, then every
-client and doc shows the smaller API.
-
-- [x] 0152 Condense decision records into a few current-state records
-- [x] 0153 Product story: README, `docs/quickstart.md`, `docs/embedding.md`
-- [x] 0154 Landing page: simple API, any language, demo front and centre
-- [x] 0155 Zero-config serve: runnable bin, views by default, drawable icons
-- [x] 0156 Engine root view: search and launch commands across extensions
-- [x] 0157 Launch prompts and dependency installs as views
-- [x] 0158 Minimal Python embedder (stdlib, ≤ 200 lines); Go example on new flow
-- [x] 0159 `@blastlauncher/web`: embed the browser runtime in any page (+ decision)
-- [x] 0160 TUI on the engine root view and launch prompts
-- [x] 0161 Deterministic TUI picker capability-handler test
-- [x] 0162 Real engine version in the serve welcome
-- [x] 0163 Browser demo on `@blastlauncher/web`
-- [x] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
-- [x] 0165 macOS and web-launcher examples on the engine flows
-- [x] 0166 Docs, README and landing page show the final API
-- [x] 0167 Site e2e without GitHub API quota
-- [x] 0168 Engine prompt and root view gaps found by the TUI migration
-- [x] 0169 M9 follow-ups: TUI scope, Python errors, web launcher, release web e2e
-
-### M10 — Published and measured
-
-- [x] 0170 Docs and landing install from npm `@next` (alpha.2)
-- [x] 0171 Browser sweep: fresh baseline, placeholder preferences, browser limits apart
-- [x] 0172 Browser runtime fixes: extension assets, forbidden fetch headers, triaged errors
-- [x] 0173 Coverage measured against `@raycast/api` 2.11.1 (#89)
-
-### M11 — tmux palette
-
-- [x] 0174 TUI popup mode: several extension dirs, exit on close, start-up time
-- [x] 0175 `tmux` extension I: one-shot pane, window, session and system commands
-- [x] 0176 `tmux` extension II: find/move pane, choose session, rename and new forms
-- [x] 0177 Publish `@blastlauncher/tui` (bin `blast-tui`, bundled `tmux` extension)
-- [x] 0178 tmux plugin (`examples/tmux-plugin`) with a real-tmux e2e in CI
-- [x] 0179 Docs, README and landing for the tmux palette
-
-### M12 — Site as a library
-
-- [x] 0180 User-facing docs rendered on the site under `/docs/`
-- [x] 0181 Landing redesign: reference-book look, engine hero animation
-- [x] 0182 Landing craft pass: book typography, fewer boxes, hero tells the flow
-
-### M13 — Product landing (0183–0184): hero with the live demo, real blast-tui recording
+- [x] M9 Embed anywhere: engine root view, prompts, `@blastlauncher/web`, examples (0152–0169)
+- [x] M10 Published and measured: `@next` alpha.2, browser sweep, `@raycast/api` 2.11.1 (0170–0173)
+- [x] M11 tmux palette: popup TUI, `tmux` extension, `@blastlauncher/tui`, plugin (0174–0179)
+- [x] M12 Site as a library: `/docs/` pages, landing redesign and craft pass (0180–0182)
+- [x] M13 Product landing: hero with the live demo, real blast-tui recording (0183–0184)
 
 ### M14 — Work through PRs
 
@@ -80,6 +37,10 @@ client and doc shows the smaller API.
 - [x] 0187 CORS proxy Worker (`packages/cors-proxy`) and decision 0017
 - [x] 0188 `fetchProxy` in `@blastlauncher/web`: sandbox fetch and XHR through the proxy
 - [x] 0189 Demo on the deployed proxy, policy notice, sweep and catalog refresh
+
+### M16 — Browser bridge
+
+- [ ] 0190 Browser bridge for real `BrowserExtension` tabs and content (+ decision 0018)
 
 ## Later (not scheduled)
 
@@ -116,3 +77,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-15: tmux palette: published TUI, `tmux` extension, plugin in its own repo (`0016`).
 - 2026-11-15: `3.0.0-alpha.3` published to npm `next`, adding `@blastlauncher/tui`.
 - 2026-11-17: Sandbox network may go through an embedder-hosted CORS proxy; ours is a Worker that stores nothing (`0017`).
+- 2026-11-19: `@blastlauncher/native` hosts a loopback companion-extension WebSocket server for real `BrowserExtension` tabs and content (`0018`).
