@@ -25,16 +25,16 @@ registrations override in that order; session-scoped handlers apply last.
 
 `ai.ask` returns a supplied full-text answer as one runtime `data` chunk; abort
 stops waiting and suppresses late data. `browser.tabs` / `browser.content` use
-supplied tabs and content. These capabilities are denied by default. The CLI
-opts in with `--ai-answer` / `--browser-tabs`. AI.experimental_decide requests
+supplied tabs and content or a live browser companion. These capabilities are denied by default. The CLI
+opts in with `--ai-answer`, `--browser-tabs`, or `--browser-bridge [port]`. AI.experimental_decide requests
 `ai.decide` (denied by default); `--ai-decide <file.json>` supplies typed answers
-validated by the runtime. Its AbortSignal stops waiting. Supplied browser content is returned as is,
+validated by the runtime. Its AbortSignal stops waiting. Supplied `--browser-tabs` content is returned as is,
 without format conversion, and CSS selectors are unsupported in the headless host.
 Embedders answering `browser.content` must select `tabId` (the active tab when
 omitted), apply `cssSelector` for HTML/text, and convert to the requested
-`format` (default markdown). The runtime forwards those options and returns the
-handler's string unchanged; markdown with a selector is rejected before dispatch.
-BrowserExtension.getContent remains partial until an embedder supplies this.
+`format` (default markdown). `@blastlauncher/native`'s `startBrowserBridge` implements
+this over the loopback companion-extension protocol (decision 0018); the runtime forwards
+those options and rejects markdown with a selector before dispatch.
 
 `OAuth.PKCEClient` generates S256 PKCE requests and delegates authorization to
 `oauth.authorize` (denied unless a client answers it; CLI: `--oauth-code <code>`).
