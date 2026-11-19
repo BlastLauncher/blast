@@ -1,0 +1,9 @@
+{
+  "name": "browser-bridge",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

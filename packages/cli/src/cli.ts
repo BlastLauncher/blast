@@ -4,6 +4,7 @@
 // dropdown / back / confirm / dismiss / wait / expect / quit), which is how e2e tests interact
 // with extensions. See "Debugging extensions" in docs/architecture.md.
 
+import { startBrowserBridge } from "@blastlauncher/native";
 import { parseBrowserTabs, type BrowserTab } from "./browser.ts";
 import type {
   CapabilityRequestMessage,
@@ -65,6 +66,7 @@ Options:
                         "name" and "path". Defaults to an empty list.
   --ai-decide <file.json> Supply AI.experimental_decide answers; denied otherwise.
   --ai-answer <text>   Answer AI.ask with this text; denied otherwise.
+  --browser-bridge [port]  Use the browser companion extension (default port: 7265).
   --browser-tabs <file.json>
                         Supply tabs (id, url, active; optional title, favicon, content).
   --oauth-code <code>   Answer OAuth authorization with this code; denied otherwise.
@@ -507,6 +509,7 @@ type RunOptions = {
   aiAnswer: string | undefined;
   aiDecide: JsonValue | undefined;
   browserTabs: BrowserTab[] | undefined;
+  browserBridgePort: number | undefined;
   oauthCode: string | undefined;
   selectedFiles: string[];
   frontmost: string | undefined;
@@ -584,8 +587,13 @@ async function run(options: RunOptions): Promise<number> {
   deadline.catch(() => undefined);
   let outDir: string | undefined;
   let session: Session | undefined;
+  let bridge: Awaited<ReturnType<typeof startBrowserBridge>> | undefined;
   let stopScenes: (() => void) | undefined;
   try {
+    if (options.browserBridgePort !== undefined) {
+      bridge = await startBrowserBridge({ port: options.browserBridgePort });
+      console.error(`# browser bridge listening on 127.0.0.1:${bridge.port}`);
+    }
     const steps =
       options.scriptSource === undefined ? undefined : parseScript(options.scriptSource);
     let bundled: BundledCommand;
@@ -666,6 +674,7 @@ async function run(options: RunOptions): Promise<number> {
             selectedFiles: options.selectedFiles,
             frontmost: options.frontmost,
           }),
+          ...bridge?.handlers,
           ...(options.aiDecide === undefined ? {} : { "ai.decide": () => options.aiDecide! }),
         },
       },
@@ -678,7 +687,7 @@ async function run(options: RunOptions): Promise<number> {
         dataDir: options.dataDir,
         availableAPIs: [
           ...(options.aiAnswer === undefined ? [] : ["AI" as const]),
-          ...(options.browserTabs === undefined ? [] : ["BrowserExtension" as const]),
+          ...(options.browserTabs === undefined && !bridge ? [] : ["BrowserExtension" as const]),
         ],
         broker: reportingBroker(broker, output),
       }),
@@ -719,6 +728,7 @@ async function run(options: RunOptions): Promise<number> {
     if (deadlineTimer !== undefined) clearTimeout(deadlineTimer);
     stopScenes?.();
     await session?.shutdown({ timeoutMs: 250 });
+    await bridge?.close().catch(() => undefined);
     if (session) output.flushLogs(session);
     if (outDir !== undefined) await rm(outDir, { recursive: true, force: true });
   }
@@ -727,9 +737,16 @@ async function run(options: RunOptions): Promise<number> {
 const GRACEFUL_SHUTDOWN_MS = 5000;
 
 function parseArguments(argv: string[]) {
+  const end = argv.indexOf("--");
   try {
     return parseArgs({
-      args: argv,
+      args: argv.flatMap((arg, index) =>
+        arg === "--browser-bridge" &&
+        (end === -1 || index < end) &&
+        (argv[index + 1] === undefined || argv[index + 1]!.startsWith("--"))
+          ? ["--browser-bridge=7265"]
+          : [arg],
+      ),
       allowPositionals: true,
       options: {
         argument: { type: "string", multiple: true },
@@ -740,6 +757,7 @@ function parseArguments(argv: string[]) {
         "ai-answer": { type: "string" },
         "ai-decide": { type: "string" },
         "browser-tabs": { type: "string" },
+        "browser-bridge": { type: "string" },
         "selected-text": { type: "string" },
         "selected-files": { type: "string", multiple: true },
         frontmost: { type: "string" },
@@ -881,6 +899,11 @@ async function main(argv: string[]): Promise<number> {
   ) {
     throw new UsageError('expected "run <extensionDir> <command>"');
   }
+  const bridgePort = parsed.values["browser-bridge"];
+  if (bridgePort !== undefined && parsed.values["browser-tabs"] !== undefined)
+    throw new UsageError("--browser-bridge conflicts with --browser-tabs");
+  if (bridgePort !== undefined && (!/^\d+$/.test(bridgePort) || Number(bridgePort) > 65535))
+    throw new UsageError("--browser-bridge port must be an integer between 0 and 65535");
   let timeoutMs: number | undefined;
   if (parsed.values.timeout !== undefined) {
     const value = Number(parsed.values.timeout);
@@ -921,6 +944,7 @@ async function main(argv: string[]): Promise<number> {
       parsed.values["ai-decide"] === undefined
         ? undefined
         : await readDecisions(parsed.values["ai-decide"]),
+    browserBridgePort: bridgePort === undefined ? undefined : Number(bridgePort),
     browserTabs:
       parsed.values["browser-tabs"] === undefined
         ? undefined

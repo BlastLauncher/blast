@@ -327,3 +327,5 @@ export function createNativeHandlers({
 function missing(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
 }
+
+export { startBrowserBridge } from "./browser-bridge.ts";
