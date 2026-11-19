@@ -5,15 +5,15 @@ Denominator: the `@raycast/api@2.11.1` declarations. Evidence:
 by its children. Partial support is reported separately from covered.
 Proven aliases inherit descendant evidence from their targets (`via` in JSON).
 
-**Non-deprecated coverage: 1539/1540 covered (99.9%), 1 partial, 0 missing.**
+**Non-deprecated coverage: 1540/1540 covered (100.0%), 0 partial, 0 missing.**
 Deprecated: 942/942 covered (100.0%), 0 partial, 0 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1539 | 942 | 2481 |
-| partial | 1 | 0 | 1 |
+| covered | 1540 | 942 | 2482 |
+| partial | 0 | 0 | 0 |
 | missing | 0 | 0 | 0 |
 
 ## Totals by kind
@@ -22,7 +22,7 @@ Deprecated: 942/942 covered (100.0%), 0 partial, 0 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 9 | 0 | 0 | 9 |
 | component | 116 | 0 | 0 | 116 |
-| function | 49 | 1 | 0 | 50 |
+| function | 50 | 0 | 0 | 50 |
 | const | 21 | 0 | 0 | 21 |
 | class | 3 | 0 | 0 | 3 |
 | enum | 13 | 0 | 0 | 13 |
@@ -57,7 +57,7 @@ Children counts include all descendants, as covered/partial/total.
 | `AlertOptions` | interface | covered | 6/0/6 | 0 |
 | `Application` | interface | covered | 5/0/5 | 121 |
 | `ArgumentsLaunchProps` | interface | covered | 1/0/1 | 1 |
-| `BrowserExtension` | namespace | covered | 7/1/8 | 67 |
+| `BrowserExtension` | namespace | covered | 8/0/8 | 67 |
 | `Cache` | class | covered | 17/0/17 | 344 |
 | `Clipboard` | namespace | covered | 18/0/18 | 1070 |
 | `Color` | enum | covered | 22/0/22 | 1454 |

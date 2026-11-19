@@ -72,14 +72,14 @@ Headless answers for capabilities a desktop client owns:
 Form `storeValue` choices and root `enableDrafts` edits survive launches with the
 same `--data-dir` in its separate `internal/` store. Password fields never persist.
 
-Exit codes: 0 success, 1 script or expectation failure, 2 usage error,
-3 extension crash, bundle failure (e.g. `MISSING_DEPENDENCY`) or protocol error.
+Exit codes: 0 success, 1 script or expectation failure, 2 usage error, 3 extension crash, bundle failure (e.g. `MISSING_DEPENDENCY`) or protocol error.
 
-`--browser-tabs` reads a JSON array with integer `id`, string `url`, boolean
-`active`, and optional string `title`, `favicon`, `content`. Tab IDs must be unique.
-Content defaults to the first active tab, or uses the requested `tabId`; missing
-content rejects. Content is returned as supplied for every format. CSS selectors
-reject in the headless host. Content is omitted from `getTabs()` results.
+`--browser-bridge [port]` answers tabs and content from a browser (default 7265; 0 picks a free port), enables `BrowserExtension`, conflicts with `--browser-tabs`, and view commands fetching after first render need `--script` (e.g. `wait`) so `blast run` does not exit on the initial scene.
+Install and enable [raycast-context-bridge](https://github.com/Yukaii/raycast-context-bridge) (or another compatible companion) while Blast runs. Its Chrome build connects to default port `7265` (Raycast Release) and its Firefox build connects to port `8787` (`--browser-bridge 8787`); other ports require a companion configured for that port.
+The bridge binds only `127.0.0.1` and accepts browser-extension Origins (`chrome-extension://`, `moz-extension://`, `safari-web-extension://`); web, `null` and missing Origins are refused (embedders may explicitly allow custom origins).
+
+`--browser-tabs` reads a JSON array with integer `id`, string `url`, boolean `active`, and optional string `title`, `favicon`, `content`. Tab IDs must be unique.
+Content defaults to the first active tab, or uses the requested `tabId`; missing content rejects. Content is returned as supplied for every format. CSS selectors reject in the headless host. Content is omitted from `getTabs()` results.
 `--ai-answer` enables AI even for an empty answer; each answer emits one data chunk.
 These flags also set synchronous `environment.canAccess` availability; bare
 `--grant` does not enable these APIs. Extension-provided AI model selectors are

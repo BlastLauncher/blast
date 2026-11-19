@@ -100,7 +100,7 @@ test("AI propagates denial, rejects malformed host responses", async () => {
 
 // @covers BrowserExtension
 // @covers BrowserExtension.getTabs
-// @covers BrowserExtension.getContent partial
+// @covers BrowserExtension.getContent
 // @covers BrowserExtension.Tab
 // @covers BrowserExtension.Tab.id
 // @covers BrowserExtension.Tab.url
