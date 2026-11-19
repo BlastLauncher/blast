@@ -79,8 +79,15 @@ so `BrowserExtension.getContent` is no longer `partial` in `compat/`.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-bridge-0190 @ d38fd026
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 140.4s
 Done:
+- Added `startBrowserBridge` in `packages/native/src/browser-bridge.ts` (re-exported from `packages/native/src/index.ts`), serving the Raycast companion-extension JSON-RPC 2.0 WebSocket protocol on `127.0.0.1` only, with strict browser-extension Origin checking + explicit allowlist, tab/content mapping (`getTabs`/`getTab`), `ping` handling, latest-client selection, request timeouts, and clean shutdown.
+- Pinned `ws@8.23.0` (needed because Node 24 ships a WebSocket client but no server, per decision 0018) and `@types/ws@8.18.2` (dev dependency for TypeScript types) in `packages/native/package.json` and `packages/cli/package.json`.
+- Wired `--browser-bridge [port]` (default 7265) into `packages/cli/src/cli.ts`, conflicting with `--browser-tabs` (exit 2), enabling `BrowserExtension`, and closing cleanly on exit.
+- Added unit tests in `packages/native/src/browser-bridge.test.ts` (covering protocol, errors, timeouts, origin gate, disconnect/close, occupied port) and subprocess integration tests in `packages/cli/src/browser-bridge.test.ts` with fixture `fixtures/extensions/browser-bridge/`.
+- Removed `partial` from `BrowserExtension.getContent`, regenerated `compat/COVERAGE.md` and `compat/raycast-api.json` (`1540/1540` non-deprecated covered, `2482/2482` total), and updated `docs/cli.md` and `docs/architecture.md`.
 Not done / risks:
+- Manual testing against a real browser companion extension (out of scope per task; left for orchestrator/user).
+- `blast serve`, TUI, and `@blastlauncher/web` wiring are out of scope for this task.
 ```
