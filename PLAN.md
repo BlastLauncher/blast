@@ -40,7 +40,7 @@ M16 in progress: browser bridge for real `BrowserExtension.getTabs` and
 
 ### M16 — Browser bridge
 
-- [ ] 0190 Browser bridge for real `BrowserExtension` tabs and content (+ decision 0018)
+- [x] 0190 Browser bridge for real `BrowserExtension` tabs and content (+ decision 0018)
 
 ## Later (not scheduled)
 
