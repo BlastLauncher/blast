@@ -562,16 +562,19 @@ export declare namespace AI {
         "Anthropic_Claude_Sonnet_5.5" = "anthropic-claude-sonnet-5-5",
         "Anthropic_Claude_Opus_5" = "anthropic-claude-opus-5",
         "Anthropic_Claude_Opus_5.5" = "anthropic-claude-opus-5-5",
-        "Anthropic_Claude_Fable_5.1" = "anthropic-claude-fable-5-1",
+        "Anthropic_Claude_Fable_5.2" = "anthropic-claude-fable-5-2",
         "Perplexity_Sonar" = "perplexity-sonar",
         "Perplexity_Sonar_Pro" = "perplexity-sonar-pro",
         "Vercel_Muse_Spark_1.3" = "gateway-meta/muse-spark-1.3",
         "Vercel_Muse_Wonder_1.0" = "gateway-meta/muse-wonder-1.0",
+        "Vercel_Muse_Ember" = "gateway-meta/muse-ember",
         "Mistral_Large" = "mistral-mistral-large-latest",
         "Mistral_Medium" = "mistral-mistral-medium-latest",
         "Mistral_Small" = "mistral-mistral-small-latest",
         "Mistral_Codestral" = "mistral-codestral-latest",
+        "Google_Gemini_4_Carbon" = "google-gemini-4-carbon",
         "Google_Gemini_4_Argon" = "google-gemini-4-argon",
+        "Google_Gemini_4_Hydrogen" = "google-gemini-4-hydrogen",
         "Google_Gemini_3.8_Flash" = "google-gemini-3.8-flash",
         "Google_Gemini_3.5_Flash_Lite" = "google-gemini-3.5-flash-lite",
         "Google_Gemini_3.1_Pro" = "google-gemini-3.1-pro",
@@ -585,17 +588,20 @@ export declare namespace AI {
         "Vercel_Kimi_K3.1_Pro" = "gateway-moonshotai/kimi-k3.1-pro",
         "Vercel_Gemma_4_31B" = "gateway-google/gemma-4-31b-it",
         "Vercel_Inkling" = "gateway-thinkingmachines/inkling",
-        "Vercel_Inkling_Small" = "gateway-thinkingmachines/inkling-small",
         "Vercel_DeepSeek_V4_Flash" = "gateway-deepseek/deepseek-v4-flash",
         "Vercel_DeepSeek_V4.1_Flash" = "gateway-deepseek/deepseek-v4.1-flash",
         "Vercel_DeepSeek_V4_Pro" = "gateway-deepseek/deepseek-v4-pro-0813",
         "Vercel_Qwen3.8_Max" = "gateway-alibaba/qwen3.8-max",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_Haiku_4.5" = "anthropic-claude-4-5-haiku",
+        /** @deprecated Use `AI.Model["Anthropic_Claude_Fable_5.2"]` instead */
+        "Anthropic_Claude_Fable_5.1" = "anthropic-claude-fable-5-1",
         /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
         "Mistral_Nemo" = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_3.7_Flash" = "google-gemini-3.7-flash",
+        /** @deprecated Use `AI.Model["Vercel_Inkling"]` instead */
+        "Vercel_Inkling_Small" = "gateway-thinkingmachines/inkling",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
         "OpenAI_GPT-5.3_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */

@@ -1,6 +1,6 @@
 {
-  "version": "2.11.1",
-  "sha256": "779bd6399374f32c8187c6f49f594d32c619edb82b2cf5e5be312a1b7ed4ba2c",
+  "version": "2.13.1",
+  "sha256": "a861c9f4b50f9508328c4f13d0507aa1652d51776875afb6cbb6f31ea78fb5dc",
   "entries": [
     {
       "path": "AI",
@@ -100,6 +100,11 @@
     },
     {
       "path": "AI.Model.Anthropic_Claude_Fable_5.1",
+      "kind": "enum-member",
+      "deprecated": true
+    },
+    {
+      "path": "AI.Model.Anthropic_Claude_Fable_5.2",
       "kind": "enum-member",
       "deprecated": false
     },
@@ -325,6 +330,16 @@
     },
     {
       "path": "AI.Model.Google_Gemini_4_Argon",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Carbon",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Hydrogen",
       "kind": "enum-member",
       "deprecated": false
     },
@@ -841,7 +856,7 @@
     {
       "path": "AI.Model.Vercel_Inkling_Small",
       "kind": "enum-member",
-      "deprecated": false
+      "deprecated": true
     },
     {
       "path": "AI.Model.Vercel_Kimi_K2.7_Code",
@@ -855,6 +870,11 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3.1_Pro",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Ember",
       "kind": "enum-member",
       "deprecated": false
     },

@@ -1,18 +1,18 @@
 # Raycast API coverage
 
-Denominator: the `@raycast/api@2.11.1` declarations. Evidence:
+Denominator: the `@raycast/api@2.13.1` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 Proven aliases inherit descendant evidence from their targets (`via` in JSON).
 
-**Non-deprecated coverage: 1540/1540 covered (100.0%), 0 partial, 0 missing.**
-Deprecated: 942/942 covered (100.0%), 0 partial, 0 missing.
+**Non-deprecated coverage: 1542/1542 covered (100.0%), 0 partial, 0 missing.**
+Deprecated: 944/944 covered (100.0%), 0 partial, 0 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1540 | 942 | 2482 |
+| covered | 1542 | 944 | 2486 |
 | partial | 0 | 0 | 0 |
 | missing | 0 | 0 | 0 |
 
@@ -26,7 +26,7 @@ Deprecated: 942/942 covered (100.0%), 0 partial, 0 missing.
 | const | 21 | 0 | 0 | 21 |
 | class | 3 | 0 | 0 | 3 |
 | enum | 13 | 0 | 0 | 13 |
-| enum-member | 696 | 0 | 0 | 696 |
+| enum-member | 700 | 0 | 0 | 700 |
 | interface | 64 | 0 | 0 | 64 |
 | type | 179 | 0 | 0 | 179 |
 | property | 1307 | 0 | 0 | 1307 |
@@ -38,7 +38,7 @@ Children counts include all descendants, as covered/partial/total.
 
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
-| `AI` | namespace | covered | 271/0/271 | 116 |
+| `AI` | namespace | covered | 275/0/275 | 116 |
 | `Action` | component | covered | 110/0/110 | 3033 |
 | `ActionPanel` | component | covered | 129/0/129 | 3070 |
 | `ActionPanelChildren` | type | covered | 0/0/0 | 0 |
