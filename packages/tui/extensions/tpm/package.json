@@ -1,0 +1,67 @@
+{
+  "name": "tpm",
+  "description": "Install, update, clean, and inspect tmux plugins managed by TPM.",
+  "license": "MIT",
+  "type": "module",
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "manage-plugins",
+      "title": "Manage TPM Plugins",
+      "description": "Inspect installed TPM plugins, update individual plugins, or clear stale git locks",
+      "keywords": [
+        "tmux",
+        "tpm",
+        "plugin",
+        "plugins",
+        "manage",
+        "update",
+        "lock"
+      ],
+      "mode": "view"
+    },
+    {
+      "name": "install-plugins",
+      "title": "Install TPM Plugins",
+      "description": "Install plugins declared in tmux.conf via TPM",
+      "keywords": [
+        "tmux",
+        "tpm",
+        "plugin",
+        "plugins",
+        "install"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "update-plugins",
+      "title": "Update All TPM Plugins",
+      "description": "Update every installed TPM plugin",
+      "keywords": [
+        "tmux",
+        "tpm",
+        "plugin",
+        "plugins",
+        "update",
+        "upgrade"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "clean-plugins",
+      "title": "Clean Unused TPM Plugins",
+      "description": "Remove plugins not listed in tmux.conf after confirmation",
+      "keywords": [
+        "tmux",
+        "tpm",
+        "plugin",
+        "plugins",
+        "clean",
+        "remove",
+        "uninstall"
+      ],
+      "mode": "no-view"
+    }
+  ],
+  "title": "Tmux Plugin Manager (TPM)"
+}

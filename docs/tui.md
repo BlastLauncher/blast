@@ -17,6 +17,7 @@ The built-in `tmux` extension (`packages/tui/extensions/tmux`) acts on the pane 
 - **Windows:** New Window, Next / Previous / Last Window, Close Window, Rename Window.
 - **Sessions:** Next / Previous Session, Detach, Kill Session, Rename Session, New Session, Choose Session (switch, rename, kill or create).
 - **System:** Reload Config.
+- **TPM (auto-detected when installed):** Manage TPM Plugins (inspect git status, update individual/all plugins, clear stale `index.lock`), Install TPM Plugins, Update All TPM Plugins, Clean Unused TPM Plugins.
 
 ## Keys
 
