@@ -49,7 +49,7 @@ decision, perf baseline, embedder view patches, a fresh `latest` release.
 - [x] 0193 `bench` script with a recorded perf baseline
 - [x] 0194 Embedder protocol 2: view patches from `blast serve` (+ decision 0020; one PR with 0196)
 - [x] 0196 Swift, Go and Python examples speak embedder protocol 2
-- [ ] 0197 Runtime scene patches always on, including the browser host
+- [x] 0197 Runtime scene patches always on, including the browser host
 - [ ] 0195 Release `alpha.10` and move the npm `latest` tag
 
 ## Later (not scheduled)

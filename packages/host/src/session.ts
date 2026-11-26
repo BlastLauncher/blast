@@ -139,7 +139,6 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   const init: HostMessage = {
     type: "init",
     protocol: PROTOCOL_VERSION,
-    scenePatches: true,
     command: {
       entry,
       extension: options.extensionName,

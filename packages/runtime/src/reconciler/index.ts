@@ -283,7 +283,6 @@ export function createSceneRoot({
   onError,
 }: SceneRootOptions) {
   let revision = 0;
-  let patchMode = publishPatch !== undefined;
   let lastPublishedKind: "none" | "null" | "single" | "synthetic" = "none";
   let lastPublishedRootId: string | null = null;
   let lastTopChildren: Instance[] = [];
@@ -505,7 +504,6 @@ export function createSceneRoot({
     const nextRootId = nextKind === "null" ? null : nextKind === "single" ? visibleTop[0]!.id : "0";
 
     const canPatch =
-      patchMode &&
       publishPatch !== undefined &&
       lastPublishedKind !== "none" &&
       nextKind === lastPublishedKind &&
@@ -572,7 +570,7 @@ export function createSceneRoot({
     const prevKind = lastPublishedKind;
     lastPublishedKind = nextKind;
     lastPublishedRootId = nextRootId;
-    if (patchMode && publishPatch !== undefined && prevKind !== "none" && nextKind === "null") {
+    if (publishPatch !== undefined && prevKind !== "none" && nextKind === "null") {
       const baseRevision = revision;
       revision = activeRev;
       publishPatch({ revision, baseRevision, ops: [{ op: "root", root: null }] });
@@ -619,9 +617,6 @@ export function createSceneRoot({
       const callback = callbacks.get(handler);
       if (!callback) throw new Error(`Unknown handler ${handler} on scene node ${nodeId}`);
       return callback(...args);
-    },
-    setPatchMode(enabled: boolean) {
-      patchMode = enabled && publishPatch !== undefined;
     },
     flush,
   };

@@ -86,7 +86,6 @@ export function startRuntime(options: RuntimeOptions): RuntimeController {
     onWarning: (message) => log("warn", [message]),
     onError: fatal,
   });
-  root.setPatchMode(false);
   setCapabilityRequester((name, params, requestOptions = {}) => {
     if (requestOptions.signal?.aborted)
       return Promise.reject(new DOMException("The operation was aborted", "AbortError"));
@@ -216,7 +215,6 @@ export function startRuntime(options: RuntimeOptions): RuntimeController {
       if (message.type !== "init" || message.protocol !== PROTOCOL_VERSION)
         return fatal(`Expected init with protocol ${PROTOCOL_VERSION}`, "PROTOCOL_ERROR");
       initialized = true;
-      root.setPatchMode(message.scenePatches === true);
       send({ type: "ready", protocol: PROTOCOL_VERSION });
       providerLoad = load(message);
       void providerLoad.catch(fatal);
