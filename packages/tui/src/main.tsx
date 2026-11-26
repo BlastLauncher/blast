@@ -1,8 +1,9 @@
 /** @jsxImportSource @opentui/react */
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { spawn } from "node:child_process";
+import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createNativeHandlers } from "@blastlauncher/native";
@@ -19,6 +20,11 @@ if (args.kind === "version") {
   console.log(packageJson.version ?? "0.0.0-dev");
   process.exit(0);
 }
+// In --popup-daemon mode the process runs inside a dedicated inner tmux server,
+// so restore the caller's outer TMUX before extensions and engine prewarm read it.
+if (args.kind === "root" && args.daemon && process.env.BLAST_OUTER_TMUX) {
+  process.env.TMUX = process.env.BLAST_OUTER_TMUX;
+}
 if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
   const bundled = [
     new URL("../../extensions/tmux", import.meta.url),
@@ -27,7 +33,8 @@ if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
     .map((url) => fileURLToPath(url))
     .find((path) => existsSync(path));
   if (!bundled) throw new Error("Bundled tmux extension is missing");
-  const tmuxMode = process.env.BLAST_TMUX_TARGET !== undefined;
+  const tmuxMode =
+    process.env.BLAST_TMUX_TARGET !== undefined || process.env.BLAST_TMUX_TARGET_FILE !== undefined;
   if (tmuxMode) {
     const configPath =
       process.env.BLAST_TMUX_CONFIG ??
@@ -104,17 +111,64 @@ if (args.kind === "usage") {
   const finished = new Promise<void>((resolve) => {
     quit = resolve;
   });
+  const popupSocket = args.daemon ? process.env.BLAST_POPUP_SOCKET : undefined;
+  const pidFile = args.daemon ? process.env.BLAST_POPUP_PID_FILE : undefined;
+  const outerPid = args.daemon ? Number(process.env.BLAST_OUTER_PID ?? "") : Number.NaN;
+  const outerAlive = () => {
+    if (!Number.isInteger(outerPid) || outerPid <= 1) return true;
+    try {
+      process.kill(outerPid, 0);
+      return true;
+    } catch (error) {
+      return (error as NodeJS.ErrnoException).code !== "ESRCH";
+    }
+  };
+  let resetDaemon: (() => void) | undefined;
+  const onSigUsr1 = () => {
+    if (!outerAlive()) {
+      quit();
+      return;
+    }
+    resetDaemon?.();
+  };
+  const detach = () => {
+    if (popupSocket) {
+      const child = spawn("tmux", ["-S", popupSocket, "detach-client", "-s", "blast"], {
+        stdio: "ignore",
+      });
+      child.unref();
+    } else {
+      quit();
+    }
+    if (!outerAlive()) quit();
+  };
   const renderer = await createCliRenderer({ exitOnCtrlC: false, onDestroy: quit });
   const root = createRoot(renderer);
   const stop = () => quit();
   process.on("SIGTERM", stop);
   process.on("SIGINT", stop);
+  if (args.daemon) process.on("SIGUSR1", onSigUsr1);
+  const watchdog =
+    args.daemon && Number.isInteger(outerPid) && outerPid > 1
+      ? setInterval(() => {
+          if (!outerAlive()) quit();
+        }, 5_000)
+      : undefined;
+  watchdog?.unref();
   try {
     root.render(
       <CommandSession
         extensionDir={args.extensionDirs}
         popup={args.popup}
         handlers={handlers}
+        {...(args.daemon
+          ? {
+              onDetach: detach,
+              onRegisterReset: (fn: () => void) => {
+                resetDaemon = fn;
+              },
+            }
+          : {})}
         onExit={(crashed) => {
           // Only a crashed last launch makes the whole TUI exit non-zero.
           if (crashed) process.exitCode = 1;
@@ -122,10 +176,28 @@ if (args.kind === "usage") {
         }}
       />,
     );
+    if (pidFile) {
+      const tmp = `${pidFile}.${process.pid}`;
+      writeFileSync(tmp, `${process.pid}\n`);
+      renameSync(tmp, pidFile);
+    }
     await finished;
   } finally {
+    if (watchdog) clearInterval(watchdog);
+    if (args.daemon) process.off("SIGUSR1", onSigUsr1);
     process.off("SIGTERM", stop);
     process.off("SIGINT", stop);
+    if (pidFile) {
+      try {
+        if (!outerAlive()) {
+          rmSync(dirname(pidFile), { recursive: true, force: true });
+        } else if (readFileSync(pidFile, "utf8").trim() === String(process.pid)) {
+          rmSync(pidFile, { force: true });
+        }
+      } catch {
+        // Best-effort cleanup on shutdown.
+      }
+    }
     root.unmount();
     renderer.destroy();
   }

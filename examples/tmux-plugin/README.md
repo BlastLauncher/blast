@@ -54,6 +54,7 @@ Set options before the `@plugin` / `run-shell` line, then reload tmux
 | `@blast-config`          | `~/.config/blast/tmux.json`    | Persistent extension and builtin state.                                       |
 | `@blast-cache-dir`       | `~/.local/share/blast/tui`     | Local cached TUI install used by the default command.                         |
 | `@blast-update-interval` | `3600`                         | Seconds between background `@next` update checks (`0` disables auto-updates). |
+| `@blast-daemon`          | `on`                           | Keep a warm background TUI daemon for instant popups (`off` spawns per open). |
 
 Below 80 columns the popup fills the client; a fixed size larger than the
 client does too. `C-Space` in the root table shadows it for programs inside
@@ -70,14 +71,20 @@ set -g @plugin 'BlastLauncher/tmux-blast'
 ## How it works
 
 `blast.tmux` binds the key to `run-shell -b scripts/palette.sh`, which checks
-for Bun and opens `display-popup -E` running `@blast-command --popup`. With the
-default command, the popup launches immediately from the local cache and checks
-npm in the background via `scripts/update-tui.sh` once `@blast-update-interval`
+for Bun and opens `display-popup -E`. By default (`@blast-daemon on`), the first
+popup starts a warm `blast-tui --popup-daemon` inside a dedicated private tmux
+socket (invisible to your sessions) and attaches to it; closing the popup
+detaches while keeping the TUI and prewarmed runtime pool hot so subsequent
+popups open in ~20 ms. The daemon automatically restarts when `@next` updates or
+options change, and exits cleanly when your tmux server exits. Set
+`set -g @blast-daemon off` to spawn a fresh process per popup instead.
+
+With the default command, the popup launches from the local cache and checks npm
+in the background via `scripts/update-tui.sh` once `@blast-update-interval`
 seconds have elapsed, atomically swapping in newer `@next` builds for the next
 popup. Run `scripts/update-tui.sh` directly to force an immediate check. The
-popup exports `BLAST_TMUX_TARGET` (`session:window.pane` of the pane the key was
-pressed in), so commands act on that pane rather than on the popup. The Blast
-TUI exits when a command finishes or on <kbd>Esc</kbd>, which closes the popup.
+popup passes the active pane target (`session:window.pane`), so commands act on
+that pane rather than on the popup.
 
 ## Development
 
