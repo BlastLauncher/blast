@@ -26,6 +26,15 @@ on Blast v1. After publishing,
 `bun run release:web:e2e --from-npm <version>` checks the web package as npm
 serves it.
 
+## tmux plugin
+
+The `Sync tmux plugin` workflow (`.github/workflows/sync-tmux-plugin.yml`)
+mirrors `examples/tmux-plugin/` to `BlastLauncher/tmux-blast` (`main`) on every
+push to `main` touching that directory (or via `workflow_dispatch`), preserving
+executable bits and commit history so TPM updates fast-forward cleanly. It uses
+a write-enabled deploy key stored as the `TMUX_BLAST_DEPLOY_KEY` repository
+secret.
+
 ## Website
 
 The `site` workflow publishes `blast.yukai.dev` through the Blast repository's

@@ -1,0 +1,57 @@
+name: Sync tmux plugin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/tmux-plugin/**"
+      - ".github/workflows/sync-tmux-plugin.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-tmux-plugin
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Sync examples/tmux-plugin to BlastLauncher/tmux-blast
+        env:
+          TMUX_BLAST_DEPLOY_KEY: ${{ secrets.TMUX_BLAST_DEPLOY_KEY }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -z "$TMUX_BLAST_DEPLOY_KEY" ]; then
+            echo "TMUX_BLAST_DEPLOY_KEY secret is not configured" >&2
+            exit 1
+          fi
+          key_file="$RUNNER_TEMP/tmux-blast-deploy-key"
+          printf '%s\n' "$TMUX_BLAST_DEPLOY_KEY" > "$key_file"
+          chmod 600 "$key_file"
+          eval "$(ssh-agent -s)"
+          trap 'ssh-agent -k >/dev/null' EXIT
+          ssh-add "$key_file"
+          mkdir -p "$HOME/.ssh"
+          ssh-keyscan -H github.com >> "$HOME/.ssh/known_hosts"
+
+          target="$RUNNER_TEMP/tmux-blast"
+          git clone --depth 1 --branch main git@github.com:BlastLauncher/tmux-blast.git "$target"
+          rsync -a --delete --exclude='.git' examples/tmux-plugin/ "$target/"
+
+          git -C "$target" config user.name github-actions[bot]
+          git -C "$target" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git -C "$target" add --all
+          if git -C "$target" diff --cached --quiet; then
+            echo "BlastLauncher/tmux-blast is already up to date."
+            exit 0
+          fi
+          short_sha="${SOURCE_SHA:0:7}"
+          git -C "$target" commit \
+            -m "sync from BlastLauncher/blast@${short_sha}" \
+            -m "Source: https://github.com/BlastLauncher/blast/commit/${SOURCE_SHA}"
+          git -C "$target" push origin main
