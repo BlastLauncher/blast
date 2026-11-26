@@ -68,8 +68,6 @@ export type InitMessage = {
   command: InitCommand;
   preferences: Record<string, JsonValue>;
   environment: InitEnvironment;
-  /** Host accepts incremental `scene.patch` updates after the initial scene. */
-  scenePatches?: boolean;
 };
 
 export type EventMessage = { type: "event"; node: string; handler: string; args: JsonValue[] };
@@ -840,24 +838,13 @@ function buildHostMessage(object: Obj): HostMessage {
       };
     }
     case "init": {
-      checkKeys(object, "", [
-        "type",
-        "protocol",
-        "command",
-        "preferences",
-        "environment",
-        "scenePatches",
-      ]);
-      const scenePatches = object["scenePatches"];
+      checkKeys(object, "", ["type", "protocol", "command", "preferences", "environment"]);
       return {
         type: "init",
         protocol: readNumber(object["protocol"], "protocol"),
         command: readCommand(object["command"], "command"),
         preferences: readJsonObject(object["preferences"], "preferences"),
         environment: readEnvironment(object["environment"], "environment"),
-        ...(scenePatches === undefined
-          ? {}
-          : { scenePatches: readBoolean(scenePatches, "scenePatches") }),
       };
     }
     case "event": {
@@ -1069,6 +1056,11 @@ export function createScenePatchApplier(): ScenePatchApplier {
       if (!current || current.revision !== patch.baseRevision) {
         throw new Error(
           `Scene patch baseRevision ${patch.baseRevision} does not match current revision ${current?.revision ?? "none"}`,
+        );
+      }
+      if (patch.revision !== patch.baseRevision + 1) {
+        throw new Error(
+          `Scene patch revision ${patch.revision} must equal baseRevision + 1 (${patch.baseRevision + 1})`,
         );
       }
       if (patch.ops.length === 0) {

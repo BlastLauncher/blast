@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import type { HostMessage, InitEnvironment, RuntimeMessage } from "@blastlauncher/protocol";
+import {
+  createScenePatchApplier,
+  type HostMessage,
+  type InitEnvironment,
+  type RuntimeMessage,
+} from "@blastlauncher/protocol";
 import { Action, ActionPanel, List } from "./api/index.ts";
 import { startBrowserRuntime } from "./browser.ts";
 import { MessageChannel } from "node:worker_threads";
@@ -85,14 +90,18 @@ function find(node: any, predicate: (node: any) => boolean): any {
 
 test("browser runtime renders, dispatches search and answers clipboard", async () => {
   const runtime = start();
+  const applier = createScenePatchApplier();
   runtime.send(init());
   expect(await runtime.next("ready")).toEqual({ type: "ready", protocol: 1 });
-  const first = await runtime.next("scene");
+  const first = applier.reset(await runtime.next("scene"));
   const list = find(first.root, (node) => node.type === "List");
   const search = list.props.searchText as string;
   const searchHandler = list.props.onSearchTextChange as { $handler: string };
   runtime.send({ type: "event", node: list.id, handler: searchHandler.$handler, args: ["ban"] });
-  const filtered = await runtime.next("scene");
+  const filteredPatch = await runtime.next("scene.patch");
+  expect(filteredPatch.baseRevision).toBe(first.revision);
+  expect(filteredPatch.revision).toBe(first.revision + 1);
+  const filtered = applier.apply(filteredPatch);
   const filteredItems: any[] = [];
   const collectItems = (node: any) => {
     if (node.type === "List.Item") filteredItems.push(node);
@@ -110,11 +119,26 @@ test("browser runtime renders, dispatches search and answers clipboard", async (
   expect(request.name).toBe("clipboard.copy");
   expect(request.params).toEqual({ text: "banana" });
   runtime.send({ type: "capability.result", id: request.id, ok: true, value: null });
-  const copied = await runtime.next("scene");
+  const copiedPatch = await runtime.next("scene.patch");
+  expect(copiedPatch.baseRevision).toBe(filtered.revision);
+  expect(copiedPatch.revision).toBe(filtered.revision + 1);
+  const copied = applier.apply(copiedPatch);
   expect(find(copied.root, (node) => node.type === "List").props.navigationTitle).toBe("banana");
   runtime.send({ type: "shutdown" });
   expect(await runtime.next("exit")).toEqual({ type: "exit", code: 0 });
-  expect(runtime.messages).toEqual([{ type: "scene", revision: expect.any(Number), root: null }]);
+  expect(runtime.messages).toEqual([
+    {
+      type: "scene.patch",
+      revision: copied.revision + 1,
+      baseRevision: copied.revision,
+      ops: [{ op: "root", root: null }],
+    },
+  ]);
+  expect(applier.apply(runtime.messages[0] as any)).toEqual({
+    type: "scene",
+    revision: copied.revision + 1,
+    root: null,
+  });
   runtime.stop();
   runtime.channels.port1.close();
 });
