@@ -45,7 +45,7 @@ decision, perf baseline, embedder view patches, a fresh `latest` release.
 ### M17 — Current and measured
 
 - [x] 0191 `@raycast/api` 2.14.0 and `@raycast/utils` 2.3.3 denominator
-- [ ] 0192 Decision record for scene patches and the runtime pool; architecture doc
+- [x] 0192 Decision record for scene patches and the runtime pool; architecture doc
 - [x] 0193 `bench` script with a recorded perf baseline
 - [ ] 0194 Embedder view patches for `blast serve`, or a measured no
 - [ ] 0195 Release `alpha.10` and move the npm `latest` tag
@@ -86,3 +86,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-15: `3.0.0-alpha.3` published to npm `next`, adding `@blastlauncher/tui`.
 - 2026-11-17: Sandbox network may go through an embedder-hosted CORS proxy; ours is a Worker that stores nothing (`0017`).
 - 2026-11-19: `@blastlauncher/native` hosts a loopback companion-extension WebSocket server for real `BrowserExtension` tabs and content (`0018`).
+- 2026-11-26: Runtime sends opt-in `scene.patch` updates; the engine keeps one pre-warmed standby runtime (`0019`).

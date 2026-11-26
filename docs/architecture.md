@@ -9,7 +9,7 @@ client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)
 runtime (one Node process per command or provider)
-   ├─ React reconciler → scene snapshots
+   ├─ React reconciler → scene snapshots / patches
    └─ @raycast/api shim → capability requests for privileged calls
 extension code (unmodified, bundled)
 ```
@@ -32,10 +32,8 @@ extension code (unmodified, bundled)
 
 ## Message flow
 
-1. host → `init` (protocol version, command, preferences, environment: identity,
-   owner/author, paths, appearance, text size; the runtime derives `entryPoint*`
-   from the command before importing it)
-2. runtime → `ready`, then `scene` after every commit
+1. host → `init` (protocol version, command, preferences, environment: identity, owner/author, paths, appearance, text size, optional `scenePatches: true`; runtime derives `entryPoint*` before importing the command)
+2. runtime → `ready`, then initial `scene` and incremental `scene.patch` updates when negotiated (full `scene` on root changes or without opt-in; decision 0019)
 3. host → `event` for user input (handler reference + args)
 4. runtime → `capability.request` / `capability.cancel`; host → `capability.progress` / `capability.result`
 5. host → `shutdown`, or the process exits/crashes and the host reports it
@@ -114,12 +112,7 @@ prompts as views (form, install toast, Retry); `close()` ends sessions.
 Bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
 inside the extension directory), then matching installs, then the optional `@blastlauncher/shared-deps` allowlist.
 
-`bundleCommand({ extensionDir, command, outDir?, dataDir?, cacheDir? })` returns the entry path,
-extension/command names, manifest mode and argument declarations. Pass those to
-`startCommand({ ...bundled, argumentValues, launchContext, broker })`; the values
-reach the command as its launch props. The host resolves
-`@blastlauncher/runtime/main` and spawns an explicit Node binary (`nodePath`,
-default `node`); it never imports runtime source.
+`bundleCommand({ extensionDir, command, outDir?, dataDir?, cacheDir? })` returns the entry path, extension/command names, manifest mode and argument declarations. Pass those to `startCommand({ ...bundled, argumentValues, launchContext, broker })`; the values reach the command as its launch props. The host resolves `@blastlauncher/runtime/main` and spawns an explicit Node binary (`nodePath`, default `node`), never importing runtime source. `createEngine` owns a single-slot standby runtime pool (`runtime-pool.ts`, warmed with `--prewarm` on `engine.root()`, keyed by `nodePath`/`env`, never reused across commands, bypassed on explicit `env`, killed on `engine.close()`; decision 0019).
 
 `bundleModelProvider({ extensionDir, outDir? })` resolves `ai.modelProvider`
 from the manifest. `startModelProvider({ ...bundled, preferences?, broker? })`
@@ -133,10 +126,7 @@ extension's provider, reuses it until command exit and streams each text chunk.
 AI.refreshModels re-lists that provider, or does nothing when none is declared.
 Both own-extension operations need no grant (decision 0006).
 
-Startup resolves after the version handshake. `session.scenes(callback)` subscribes
-and replays the latest scene; its return value unsubscribes. `latestScene`, `logs`,
-`sendEvent(node, handler, args)` and `exited` support headless clients. Runtime
-errors appear in logs; fatal and protocol errors also appear in `exited.error`.
+Startup resolves after the version handshake. The Node host opts into `scenePatches: true` and applies `scene.patch` via `createScenePatchApplier` (terminating with `PROTOCOL_ERROR` on mismatch; `packages/web` keeps full scenes and `blast serve` still emits whole views/scenes). `session.scenes(callback)` subscribes and replays the latest reconstructed scene; its return value unsubscribes. `latestScene`, `logs`, `sendEvent(node, handler, args)` and `exited` support headless clients. Runtime errors appear in logs; fatal and protocol errors also appear in `exited.error`.
 `shutdown({ timeoutMs })` sends shutdown, then SIGTERM after the timeout, then SIGKILL after another timeout. Exit resolves after stdio closes.
 
 Broker grants are explicit; missing handlers return `denied`, thrown handlers

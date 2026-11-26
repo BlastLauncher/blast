@@ -33,6 +33,8 @@ keep clients deterministic without serializing React objects.
 
 ## Consequences
 
-Large scenes cost more per update; measure before introducing patches. Every
-privileged API needs a catalog entry and broker test. Clients must traverse the
-active navigation entry and render unknown nodes safely.
+Large scenes cost more per update; measure before introducing patches (opt-in
+`scene.patch` updates and the standby runtime pool are now recorded in
+`0019-scene-patches-and-runtime-pool.md`). Every privileged API needs a catalog
+entry and broker test. Clients must traverse the active navigation entry and
+render unknown nodes safely.
