@@ -139,7 +139,7 @@ func applyOp(root any, op viewPatchOp) (any, error) {
 			if at < 0 || at > len(array) {
 				return nil, fmt.Errorf("splice index out of bounds: %d (length %d)", at, len(array))
 			}
-			if remove < 0 || at+remove > len(array) {
+			if remove < 0 || remove > len(array)-at {
 				return nil, fmt.Errorf("splice remove count out of bounds: %d at %d (length %d)", remove, at, len(array))
 			}
 			next := make([]any, 0, len(array)-remove+len(op.Insert))

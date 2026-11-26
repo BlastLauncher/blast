@@ -169,7 +169,7 @@ public struct ViewPatch: Equatable, Sendable {
                 guard case .array(let array) = target else {
                     throw ViewPatchError.spliceTargetNotArray(path)
                 }
-                guard at >= 0, at <= array.count, remove >= 0, at + remove <= array.count else {
+                guard at >= 0, at <= array.count, remove >= 0, remove <= array.count - at else {
                     throw ViewPatchError.spliceOutOfBounds(at: at, remove: remove, count: array.count)
                 }
                 var next: [JSONValue] = []

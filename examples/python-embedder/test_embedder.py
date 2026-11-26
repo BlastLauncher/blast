@@ -104,7 +104,7 @@ class ViewPatchTests(unittest.TestCase):
         client._root_views = {}
         client._session_views = {}
         client._write_lock = threading.Lock()
-        client.seq, client.root, client.session = 0, "", ""
+        client.seq, client.root, client.session, client._session_root = 0, "", "", ""
         client.protocol, client.version, client.catalog, client.closed = PROTOCOL_VERSION, "", {}, False
         client.ready = threading.Condition()
 
@@ -187,6 +187,56 @@ class ViewPatchTests(unittest.TestCase):
         self.assertEqual(session_sent[0]["method"], "session.resync")
         self.assertEqual(session_sent[0]["params"], {"session": "s1"})
 
+    def test_resync_after_stdin_closed_reaches_reader_shutdown(self) -> None:
+        class BrokenPipeStream:
+            def write(self, _text: str) -> int:
+                raise BrokenPipeError("pipe closed")
+
+            def flush(self) -> None:
+                pass
+
+        closed_stdin = io.StringIO()
+        closed_stdin.close()
+
+        for label, stdin_stream in (("closed", closed_stdin), ("broken_pipe", BrokenPipeStream())):
+            with self.subTest(stdin=label):
+                client = object.__new__(Client)
+                lines = [
+                    json.dumps(
+                        {"type": "event", "event": "root.view", "root": "r1", "revision": 1, "view": {"title": "Root"}}
+                    )
+                    + "\n",
+                    json.dumps(
+                        {
+                            "type": "event",
+                            "event": "root.view.patch",
+                            "root": "r1",
+                            "baseRevision": 2,
+                            "revision": 3,
+                            "ops": [{"op": "set", "path": ["title"], "value": "Gap"}],
+                        }
+                    )
+                    + "\n",
+                ]
+                client.child = types.SimpleNamespace(stdin=stdin_stream, stdout=io.StringIO("".join(lines)))
+                client.pending = {}
+                client.events = []
+                client._root_views = {}
+                client._session_views = {}
+                client._write_lock = threading.Lock()
+                client.seq, client.root, client.session, client._session_root = 0, "", "", ""
+                client.protocol, client.version, client.catalog, client.closed = PROTOCOL_VERSION, "", {}, False
+                client.ready = threading.Condition()
+
+                reader = threading.Thread(target=client._read)
+                reader.start()
+                with client.ready:
+                    reached_shutdown = client.ready.wait_for(lambda: client.closed, 5)
+                reader.join(timeout=5)
+                self.assertTrue(reached_shutdown)
+                self.assertTrue(client.closed)
+                self.assertEqual(len(client.events), 1)
+
 
 class EmbedderFlow(unittest.TestCase):
     def setUp(self) -> None:
@@ -243,13 +293,15 @@ class EmbedderFlow(unittest.TestCase):
         self.assertEqual(empty["event"], "root.view.patch")
         self.assertEqual(empty["view"]["search"]["text"], "zzz")
         self.client.events.clear()
-        self.client.request("root.input", {"root": root, "input": {"type": "search", "text": "hello"}})
-        wait(
+        self.client.request("root.input", {"root": root, "input": {"type": "search", "text": ""}})
+        cleared = wait(
             self.client,
             lambda m: m.get("event") in ROOT_VIEW_EVENTS
             and m["view"].get("rows")
-            and m["view"].get("search", {}).get("text") == "hello",
+            and m["view"].get("search", {}).get("text", "") == "",
         )
+        root_title = cleared["view"].get("title", "")
+        selected_root_row = next(row["title"] for row in cleared["view"]["rows"] if row.get("selected"))
         self.client.events.clear()
         self.client.input({"type": "primary"})
         launched = wait(self.client, lambda m: m.get("event") == "root.launched")
@@ -276,24 +328,26 @@ class EmbedderFlow(unittest.TestCase):
         self.assertTrue(
             any(line.startswith("capability.request clipboard.copy") for line in OUT), list(OUT)
         )
-        # Back closes the command; the root resumes with its search cleared.
+        # Back closes the command; protocol 2 sends no root event when the root
+        # search was already empty, so the client redraws its cached root view.
         self.client.events.clear()
+        before_exit = len(OUT)
         self.client.request("session.input", {"session": session, "input": {"type": "back"}})
         exited = wait(
             self.client, lambda m: m.get("event") == "session.exited" and m.get("session") == session
         )
         self.assertEqual(exited.get("code"), 0)
-        resumed = wait(
-            self.client,
-            lambda m: m.get("event") in ROOT_VIEW_EVENTS
-            and m["view"].get("rows")
-            and m["view"].get("search", {}).get("text", "") == "",
-        )
-        self.assertEqual(
-            [row["id"] for row in resumed["view"]["rows"] if row.get("kind") == "item"],
-            ["hello-list:index"],
-        )
+        redrawn = OUT[before_exit:]
+        if root_title:
+            self.assertIn(f'view "{root_title}"', redrawn)
+        self.assertIn(f"> {selected_root_row}", redrawn)
         self.shutdown()
+        with self.client.ready:
+            self.assertTrue(self.client.ready.wait_for(lambda: self.client.closed, 5))
+        self.assertFalse(
+            any(m.get("event") in ROOT_VIEW_EVENTS for m in self.client.events),
+            self.client.events,
+        )
 
     def test_protocol_error_fails_outstanding_requests(self) -> None:
         extension = self.client.request("extension.open", {"dir": HELLO})["extension"]

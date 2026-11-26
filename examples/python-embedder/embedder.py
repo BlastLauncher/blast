@@ -206,7 +206,7 @@ class Client:
         self._root_views: dict[str, dict[str, Any]] = {}
         self._session_views: dict[str, dict[str, Any]] = {}
         self._write_lock = threading.Lock()
-        self.seq, self.root, self.session = 0, "", ""
+        self.seq, self.root, self.session, self._session_root = 0, "", "", ""
         self.protocol, self.version, self.catalog, self.closed = 0, "", {}, False
         self.ready = threading.Condition()
         threading.Thread(target=self._read, daemon=True).start()
@@ -226,7 +226,10 @@ class Client:
         with self.ready:
             self.seq += 1
             req_id = str(self.seq)
-        self._send({"type": "request", "id": req_id, "method": f"{kind}.resync", "params": {kind: handle}})
+        try:
+            self._send({"type": "request", "id": req_id, "method": f"{kind}.resync", "params": {kind: handle}})
+        except (OSError, ValueError):
+            pass  # stdin may already be closed during shutdown
 
     def request(self, method: str, params: dict | None = None) -> dict:
         """Send a request and wait for its response; raises when not ok."""
@@ -271,7 +274,7 @@ class Client:
                 return False
             view = copy.deepcopy(message["view"])
             store[handle] = {"view": view, "revision": revision, "resyncing": False}
-            if isinstance(view, dict):
+            if isinstance(view, dict) and (kind != "root" or not self.session):
                 draw(view)
             return True
 
@@ -310,7 +313,7 @@ class Client:
                 return False
             store[handle] = {"view": next_view, "revision": revision, "resyncing": False}
             message["view"] = next_view
-            if isinstance(next_view, dict):
+            if isinstance(next_view, dict) and (kind != "root" or not self.session):
                 draw(next_view)
             return True
 
@@ -333,9 +336,17 @@ class Client:
             else:
                 if event == "root.launched":
                     self.session = message.get("session", "")
+                    self._session_root = message.get("root", "")
                 elif event == "session.exited":
-                    self.session = ""
-                    self._session_views.pop(message.get("session", ""), None)
+                    exited = message.get("session", "")
+                    self._session_views.pop(exited, None)
+                    if exited and self.session == exited:
+                        root = getattr(self, "_session_root", "") or self.root
+                        self.session = ""
+                        self._session_root = ""
+                        state = self._root_views.get(root)
+                        if state and not state["resyncing"] and isinstance(state["view"], dict):
+                            draw(state["view"])
                 self.events.append(message)
         elif kind == "capability.request":
             say(f'capability.request {message.get("name")} {json.dumps(message.get("params"))}')
@@ -350,15 +361,17 @@ class Client:
 
     def _read(self) -> None:
         """The reader thread: dispatch every server line; EOF marks closed."""
-        for line in self.child.stdout:
-            try:
-                message = json.loads(line)
-            except ValueError:
-                continue  # malformed lines recover at the next newline
-            self._handle_message(message)
-        with self.ready:
-            self.closed = True
-            self.ready.notify_all()
+        try:
+            for line in self.child.stdout:
+                try:
+                    message = json.loads(line)
+                except ValueError:
+                    continue  # malformed lines recover at the next newline
+                self._handle_message(message)
+        finally:
+            with self.ready:
+                self.closed = True
+                self.ready.notify_all()
 
 
 def main() -> None:

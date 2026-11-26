@@ -60,6 +60,9 @@ struct ViewPatchTests {
         #expect(throws: ViewPatchError.spliceOutOfBounds(at: 0, remove: 2, count: 1)) {
             try ViewPatch(ops: [.splice(path: ["rows"], at: 0, remove: 2, insert: [])]).apply(to: view)
         }
+        #expect(throws: ViewPatchError.spliceOutOfBounds(at: 1, remove: Int.max, count: 1)) {
+            try ViewPatch(ops: [.splice(path: ["rows"], at: 1, remove: Int.max, insert: [])]).apply(to: view)
+        }
         #expect(throws: ViewPatchError.baseRevisionMismatch(expected: 1, received: 2)) {
             try ViewPatch(revision: 3, baseRevision: 2, ops: []).apply(to: view, currentRevision: 1)
         }

@@ -196,6 +196,7 @@ type eventMessage struct {
 
 type viewStreamState struct {
 	raw       any
+	view      *controllerView
 	revision  int
 	resyncing bool
 }
@@ -266,6 +267,7 @@ type Client struct {
 	welcome      *welcomeMessage
 	rootID       string
 	sessionID    string // set by root.launched; keys go to root.input until then
+	sessionRoot  string // root that launched sessionID
 	rootViews    map[string]*viewStreamState
 	sessionViews map[string]*viewStreamState
 	events       []*eventMessage
@@ -548,12 +550,18 @@ func (c *Client) handleEvent(event *eventMessage) {
 		c.mu.Lock()
 		c.viewStoreLocked(kind)[handle] = &viewStreamState{
 			raw:       raw,
+			view:      view,
 			revision:  *event.Revision,
 			resyncing: false,
 		}
+		shouldPrint := kind != "root" || c.sessionID == ""
+		c.mu.Unlock()
+		if shouldPrint {
+			c.printView(view)
+		}
+		c.mu.Lock()
 		c.events = append(c.events, event)
 		c.mu.Unlock()
-		c.printView(view)
 
 	case "root.view.patch", "session.view.patch":
 		kind, handle := "root", event.Root
@@ -595,22 +603,45 @@ func (c *Client) handleEvent(event *eventMessage) {
 			return
 		}
 		state.raw = nextRaw
+		state.view = view
 		state.revision = *event.Revision
 		event.View = view
+		shouldPrint := kind != "root" || c.sessionID == ""
+		c.mu.Unlock()
+		if shouldPrint {
+			c.printView(view)
+		}
+		c.mu.Lock()
 		c.events = append(c.events, event)
 		c.mu.Unlock()
-		c.printView(view)
 
 	default:
 		c.mu.Lock()
-		c.events = append(c.events, event)
+		var redraw *controllerView
 		switch event.Event {
 		case "root.launched":
 			c.sessionID = event.Session
+			c.sessionRoot = event.Root
 		case "session.exited":
-			c.sessionID = ""
 			delete(c.sessionViews, event.Session)
+			if event.Session != "" && c.sessionID == event.Session {
+				root := c.sessionRoot
+				if root == "" {
+					root = c.rootID
+				}
+				c.sessionID = ""
+				c.sessionRoot = ""
+				if state := c.rootViews[root]; state != nil && !state.resyncing {
+					redraw = state.view
+				}
+			}
 		}
+		c.mu.Unlock()
+		if redraw != nil {
+			c.printView(redraw)
+		}
+		c.mu.Lock()
+		c.events = append(c.events, event)
 		c.mu.Unlock()
 	}
 }
