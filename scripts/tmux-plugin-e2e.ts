@@ -42,7 +42,27 @@ async function paletteSplitsThePane() {
     () => extraChildren(server).length === 0 && !screen(host).includes("Split Horizontal"),
     host,
   );
-  console.log("ok: the palette split the pane that opened it and closed");
+  // Second open reuses the warm daemon: search is reset, and Esc detaches cleanly.
+  const tWarm = performance.now();
+  host.tmux(["send-keys", "-t", "host", "C-Space"]);
+  await waitFor(
+    "the warm palette to reopen cleanly",
+    () => screen(host).includes("Split Vertical") && screen(host).includes("Search commands…"),
+    host,
+  );
+  const warmMs = Math.round(performance.now() - tWarm);
+  host.tmux(["send-keys", "-t", "host", "Escape"]);
+  await waitFor(
+    "the warm popup to detach on Esc",
+    () => extraChildren(server).length === 0 && !screen(host).includes("Split Vertical"),
+    host,
+  );
+  // Daemon socket must not add any phantom session to the user's tmux server.
+  if (server.tmux(["list-sessions"]).split("\n").length !== 1)
+    throw new Error("Expected only the user's single tmux session");
+  console.log(
+    `ok: the palette split the pane, reopened warm in ${warmMs} ms with clean search, and closed`,
+  );
 }
 
 function keyOptions() {

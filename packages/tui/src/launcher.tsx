@@ -55,6 +55,8 @@ export function CommandSession({
   installer,
   handlers,
   onExit,
+  onDetach,
+  onRegisterReset,
 }: {
   /** One extension or several; the root lists every command of each. */
   extensionDir: string | readonly string[];
@@ -67,6 +69,10 @@ export function CommandSession({
   installer?: DependencyInstaller;
   handlers?: Record<string, CapabilityHandler>;
   onExit?: (crashed: boolean) => void;
+  /** In popup-daemon mode, detach and reset to a clean root instead of exiting. */
+  onDetach?: () => void;
+  /** Registers an imperative reset hook (used by `--popup-daemon` on SIGUSR1). */
+  onRegisterReset?: (reset: () => void) => void;
 }) {
   const launchRef = useRef<NonNullable<RootOptions["launch"]>>(null!);
   const [setup] = useState(() => {
@@ -95,11 +101,14 @@ export function CommandSession({
   const [launchError, setLaunchError] = useState<string>();
   const crashed = useRef(false);
   const exiting = useRef(false);
+  // Bumped on daemon detach/reset so stale command exits do not restore old selection.
+  const generation = useRef(0);
   // The scope a command's `preferences.open` asked for, until the root opens it.
   const configureNext = useRef<"extension" | "command">(undefined);
   const commands = useRef(0);
   // What is running now, for quitting and unmounting.
   const live = useRef<{ flow?: LaunchFlow; stop?: () => Promise<void>; leave?: () => void }>({});
+  const resetHandlerRef = useRef<() => void>(() => {});
 
   useEffect(() => setup.root.subscribe(setRootView), []);
   // The Blast manager writes the tmux config after installing an extension.
@@ -234,6 +243,7 @@ export function CommandSession({
       target = { ...target, scope: configureNext.current };
     setLaunchError(undefined);
     const selected = setup.root.view().selectedId;
+    const launchGeneration = generation.current;
     let finish!: () => void;
     const exited = new Promise<void>((resolve) => {
       finish = resolve;
@@ -242,7 +252,7 @@ export function CommandSession({
     // the selection after that, and open the form a command asked for.
     void exited.then(() =>
       setTimeout(() => {
-        if (exiting.current) return;
+        if (exiting.current || generation.current !== launchGeneration) return;
         setScreen({ kind: "root" });
         if (selected) setup.root.input({ type: "select", id: selected });
         if (configureNext.current) {
@@ -304,8 +314,34 @@ export function CommandSession({
     return { exited };
   };
 
+  function resetToRoot() {
+    const nextGeneration = ++generation.current;
+    configureNext.current = undefined;
+    crashed.current = false;
+    setLaunchError(undefined);
+    live.current.flow?.cancel();
+    if (live.current.leave) live.current.leave();
+    else void live.current.stop?.();
+    setScreen({ kind: "root" });
+    setup.root.input({ type: "search", text: "" });
+    setTimeout(() => {
+      if (exiting.current || generation.current !== nextGeneration) return;
+      setup.root.input({ type: "search", text: "" });
+    }, 0);
+  }
+  resetHandlerRef.current = resetToRoot;
+  useEffect(() => {
+    onRegisterReset?.(() => resetHandlerRef.current());
+  }, [onRegisterReset]);
+
   function quit() {
     if (exiting.current) return;
+    if (onDetach) {
+      // Detach first so the popup closes without flashing the root screen.
+      onDetach();
+      resetToRoot();
+      return;
+    }
     exiting.current = true;
     void (async () => {
       live.current.flow?.cancel();

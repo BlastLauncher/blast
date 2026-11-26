@@ -141,3 +141,72 @@ test("--popup: Esc in a command returns to the root, Esc at the root quits", asy
     await dispose();
   }
 }, 30_000);
+
+test("daemon mode detaches and resets to a clean root instead of exiting", async () => {
+  const space = await workspace("hello-list", "launch");
+  const exits: boolean[] = [];
+  let detaches = 0;
+  let reset: (() => void) | undefined;
+  const terminal = await testRender(
+    <CommandSession
+      extensionDir={space.dirs}
+      popup
+      dataDir={space.dataDir}
+      hudDurationMs={1_000}
+      onExit={(crashed) => exits.push(crashed)}
+      onDetach={() => {
+        detaches += 1;
+      }}
+      onRegisterReset={(fn) => {
+        reset = fn;
+      }}
+    />,
+    { width: 100, height: 20, exitOnCtrlC: false },
+  );
+  try {
+    await settle(
+      terminal,
+      (current) => current.includes("hello-list") && current.includes("launch"),
+    );
+    // Typing and pressing Esc detaches and clears the search bar without exiting.
+    await key(terminal, (input) => input.typeText("hello"));
+    await settle(terminal, (current) => !current.includes("launch"));
+    await key(terminal, (input) => input.pressEscape());
+    await settle(terminal, (current) => detaches === 1 && current.includes("launch"));
+    expect(exits).toEqual([]);
+
+    // Launching a command and calling closeMainWindow detaches and resets back to root.
+    await launch(terminal, "launch", "index");
+    await settle(terminal, (current) => current.includes("Set up index"));
+    await key(terminal, (input) => input.typeText("x"));
+    await key(terminal, (input) => input.pressEnter());
+    await settle(terminal, (current) => current.includes("launch x one"));
+    await key(terminal, (input) => input.pressKey("a", { ctrl: true }));
+    await key(terminal, (input) => input.typeText("Close"));
+    await settle(terminal, (current) => current.includes("› Close"));
+    await key(terminal, (input) => input.pressEnter());
+    await settle(
+      terminal,
+      (current) => detaches === 2 && current.includes("hello-list") && current.includes("launch"),
+    );
+    expect(exits).toEqual([]);
+
+    // An external reset (SIGUSR1) cancels an open command and restores clean root.
+    await launch(terminal, "hello", "index");
+    await settle(terminal, (current) => current.includes("apple"));
+    await act(async () => {
+      reset?.();
+    });
+    await settle(
+      terminal,
+      (current) =>
+        current.includes("Search commands…") &&
+        current.includes("hello-list") &&
+        current.includes("launch"),
+    );
+    expect(exits).toEqual([]);
+  } finally {
+    await act(async () => terminal.dispose());
+    await space.remove();
+  }
+}, 30_000);

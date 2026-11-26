@@ -5,7 +5,12 @@ import { openExtension, type CapabilityHandler, type ExtensionHandle } from "@bl
  * Host variables the TUI passes to extensions on top of the default
  * allowlist: the bundled tmux extension acts on the client that opened it.
  */
-export const inheritEnv = ["TMUX", "BLAST_TMUX_TARGET", "XDG_CONFIG_HOME"];
+export const inheritEnv = [
+  "TMUX",
+  "BLAST_TMUX_TARGET",
+  "BLAST_TMUX_TARGET_FILE",
+  "XDG_CONFIG_HOME",
+];
 
 export async function openCommand(
   extensionDir: string,

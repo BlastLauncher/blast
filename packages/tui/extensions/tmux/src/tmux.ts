@@ -1,11 +1,23 @@
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { access } from "node:fs/promises";
 import { promisify } from "node:util";
 import { useEffect, useState } from "react";
 import { Alert, Toast, closeMainWindow, confirmAlert, showHUD, showToast } from "@raycast/api";
 
 const run = promisify(execFile);
-export const target = () => process.env.BLAST_TMUX_TARGET || "{last}";
+export const target = () => {
+  const file = process.env.BLAST_TMUX_TARGET_FILE;
+  if (file) {
+    try {
+      const value = readFileSync(file, "utf8").trim();
+      if (value) return value;
+    } catch {
+      // Fall back to BLAST_TMUX_TARGET or {last}.
+    }
+  }
+  return process.env.BLAST_TMUX_TARGET || "{last}";
+};
 
 /** Shows why tmux could not run and closes the palette. */
 export async function fail(error: unknown): Promise<void> {

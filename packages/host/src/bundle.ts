@@ -1,5 +1,5 @@
 import type { CommandMode } from "@blastlauncher/protocol";
-import { context, transform, version as esbuildVersion, type Plugin } from "esbuild";
+import type { Plugin } from "esbuild";
 import { execFileSync } from "node:child_process";
 import {
   access,
@@ -37,6 +37,9 @@ export {
   type Preference,
   type PreferenceValue,
 } from "@blastlauncher/protocol/preference-fields";
+
+let esbuildModule: Promise<typeof import("esbuild")> | undefined;
+const loadEsbuild = () => (esbuildModule ??= import("esbuild"));
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
 // includes npm packages such as undici and ws, which must be bundled for Node.
@@ -628,6 +631,8 @@ async function bundleEntryWithSignal(
   if (install && !install.needed) await containment.registerInstalled(install.directory);
   try {
     signal.throwIfAborted();
+    const { context, transform } = await loadEsbuild();
+    signal.throwIfAborted();
     const builder = await context({
       absWorkingDir: extensionDir,
       entryPoints: [source],
@@ -749,14 +754,15 @@ let bundlerPrint: Promise<string> | undefined;
 function bundlerFingerprint(): Promise<string> {
   // Source in development, `dist/*.js` in a release build.
   const suffix = extname(new URL(import.meta.url).pathname);
-  return (bundlerPrint ??= Promise.all(
-    ["bundle", "dependencies", "tsconfig-paths"].map(async (name) => {
+  return (bundlerPrint ??= Promise.all([
+    loadEsbuild().then((mod) => `esbuild ${mod.version}`),
+    ...["bundle", "dependencies", "tsconfig-paths"].map(async (name) => {
       const info = await stat(new URL(`./${name}${suffix}`, import.meta.url), {
         bigint: true,
       }).catch(() => undefined);
       return `${name}:${info?.size}:${info?.mtimeNs}`;
     }),
-  ).then((files) => [`esbuild ${esbuildVersion}`, ...files].join(" ")));
+  ]).then((parts) => parts.join(" ")));
 }
 
 export function bundleModelProvider(

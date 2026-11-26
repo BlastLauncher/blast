@@ -9,12 +9,21 @@ test("several extension dirs open one root, with --popup and --native anywhere",
     kind: "root",
     extensionDirs: ["ext-a", "ext-b", "ext-c"],
     popup: true,
+    daemon: false,
     native: true,
+  });
+  expect(parse("--popup-daemon", "ext-a")).toEqual({
+    kind: "root",
+    extensionDirs: ["ext-a"],
+    popup: true,
+    daemon: true,
+    native: false,
   });
   expect(parse("ext-a")).toEqual({
     kind: "root",
     extensionDirs: ["ext-a"],
     popup: false,
+    daemon: false,
     native: false,
   });
 });
@@ -33,13 +42,20 @@ test("one dir plus a name that is not a directory opens that command", () => {
 });
 
 test("missing dirs, unknown options and --popup with a command print usage", () => {
-  expect(parse()).toEqual({ kind: "root", extensionDirs: [], popup: false, native: false });
+  expect(parse()).toEqual({
+    kind: "root",
+    extensionDirs: [],
+    popup: false,
+    daemon: false,
+    native: false,
+  });
   expect(parse("--no-builtin")).toEqual({ kind: "usage", error: "Missing <extensionDir>" });
   expect(parse("--verbose", "ext-a")).toEqual({
     kind: "usage",
     error: "Unknown option: --verbose",
   });
   expect(parse("--popup", "ext-a", "index")).toMatchObject({ kind: "usage" });
+  expect(parse("--popup-daemon", "ext-a", "index")).toMatchObject({ kind: "usage" });
   expect(parse("--help")).toEqual({ kind: "usage" });
 });
 
@@ -49,6 +65,7 @@ test("version and builtin flags are accepted", () => {
     kind: "root",
     extensionDirs: ["ext-a"],
     popup: false,
+    daemon: false,
     native: false,
   });
 });
