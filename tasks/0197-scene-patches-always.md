@@ -1,7 +1,7 @@
 ---
 id: "0197"
 title: Runtime scene patches always on, including the browser host
-status: doing
+status: review
 milestone: M17
 depends: []
 ---
@@ -40,15 +40,15 @@ rejects any revision that does not advance by exactly one.
 
 ## Acceptance
 
-- [ ] `git grep -n scenePatches` and `git grep -n setPatchMode` are empty.
-- [ ] Tests: the runtime sends `scene.patch` after the first commit with no
+- [x] `git grep -n scenePatches` and `git grep -n setPatchMode` are empty.
+- [x] Tests: the runtime sends `scene.patch` after the first commit with no
       opt-in; the web session reconstructs the same scene as the Node host
       for a multi-commit fixture (deep-equal to the reconciler's full scene).
-- [ ] Test: a patch with `revision !== baseRevision + 1` is rejected and the
+- [x] Test: a patch with `revision !== baseRevision + 1` is rejected and the
       session ends with `PROTOCOL_ERROR` (Node host); same for the web host.
-- [ ] Decision 0019 no longer mentions an opt-in; `docs/architecture.md`
+- [x] Decision 0019 no longer mentions an opt-in; `docs/architecture.md`
       no longer mentions `scenePatches` and stays ≤ 200 lines.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -61,8 +61,15 @@ rejects any revision that does not advance by exactly one.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/97f53899 @ 24c56fa6
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 111.1s
 Done:
+- Removed `InitMessage.scenePatches`, its parser support, Node host opt-in, and reconciler `setPatchMode`, so the runtime always sends an initial `scene` followed by `scene.patch` updates (retaining full `scene` fallback on root kind/id changes).
+- Enforced `revision === baseRevision + 1` in `createScenePatchApplier().apply()`.
+- Updated `packages/web/src/session.ts` to validate and apply `scene` / `scene.patch` via `createScenePatchApplier`, terminating the sandbox session with fatal `PROTOCOL_ERROR` on parse or apply failure.
+- Updated `docs/decisions/0019-scene-patches-and-runtime-pool.md` (58 lines) and `docs/architecture.md` (188 lines) to reflect always-on patches on both hosts.
+- Added/updated tests across protocol, reconciler, Node runtime, browser runtime, Node host, and `packages/web/src/session.test.ts` (including multi-commit scene parity across reconciler/Node/web and `PROTOCOL_ERROR` rejection on bad patch revisions).
 Not done / risks:
+- `examples/` and `packages/serve` / `embedder*.ts` were intentionally untouched (out of scope, parallel task 0194 / task 0196).
+- Browser e2e scripts (`example:browser:e2e`, etc.) are not part of `bun run verify` and were not run; `packages/web/src/session.test.ts` exercises `startSession` + real `startBrowserRuntime` over `MessageChannel` offline.
 ```
