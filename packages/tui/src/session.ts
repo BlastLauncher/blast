@@ -9,6 +9,8 @@ export const inheritEnv = [
   "TMUX",
   "BLAST_TMUX_TARGET",
   "BLAST_TMUX_TARGET_FILE",
+  "BLAST_TPM_PATH",
+  "TMUX_PLUGIN_MANAGER_PATH",
   "XDG_CONFIG_HOME",
 ];
 

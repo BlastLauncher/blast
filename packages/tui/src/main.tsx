@@ -11,6 +11,7 @@ import { App } from "./app.tsx";
 import { parseCliArgs, USAGE } from "./cli.ts";
 import { CommandSession } from "./launcher.tsx";
 import { openCommand } from "./session.ts";
+import { detectTpmPluginsDir } from "./tpm.ts";
 
 const args = parseCliArgs(process.argv.slice(2));
 if (args.kind === "version") {
@@ -33,6 +34,13 @@ if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
     .map((url) => fileURLToPath(url))
     .find((path) => existsSync(path));
   if (!bundled) throw new Error("Bundled tmux extension is missing");
+  const tpmBundled = [
+    new URL("../../extensions/tpm", import.meta.url),
+    new URL("../extensions/tpm", import.meta.url),
+  ]
+    .map((url) => fileURLToPath(url))
+    .find((path) => existsSync(path));
+  const hasTpm = Boolean(tpmBundled && detectTpmPluginsDir());
   const tmuxMode =
     process.env.BLAST_TMUX_TARGET !== undefined || process.env.BLAST_TMUX_TARGET_FILE !== undefined;
   if (tmuxMode) {
@@ -61,8 +69,10 @@ if (args.kind === "root" && !process.argv.includes("--no-builtin")) {
       .find((path) => existsSync(path));
     if (manager) args.extensionDirs.unshift(manager);
     args.extensionDirs.unshift(...installed);
+    if (builtinTmux && hasTpm && tpmBundled) args.extensionDirs.unshift(tpmBundled);
     if (builtinTmux) args.extensionDirs.unshift(bundled);
   } else {
+    if (hasTpm && tpmBundled) args.extensionDirs.unshift(tpmBundled);
     args.extensionDirs.unshift(bundled);
   }
 }
