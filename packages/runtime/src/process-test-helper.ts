@@ -2,6 +2,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import {
   createLineDecoder,
+  createScenePatchApplier,
   encodeMessage,
   parseRuntimeMessage,
   PROTOCOL_VERSION,
@@ -10,6 +11,7 @@ import {
   type InitEnvironment,
   type JsonValue,
   type RuntimeMessage,
+  type SceneMessage,
 } from "@blastlauncher/protocol";
 
 const noop = () => {};
@@ -42,16 +44,23 @@ export function startRuntime() {
     stdio: ["pipe", "pipe", "pipe"],
   });
   const messages: RuntimeMessage[] = [];
+  const scenes: SceneMessage[] = [];
+  const patchApplier = createScenePatchApplier();
   const invalid: string[] = [];
   let stderr = "";
   let cursor = 0;
+  let sceneCursor = 0;
   let wake = noop;
   let closed = false;
   const decoder = createLineDecoder({
     onLine(value) {
       const parsed = parseRuntimeMessage(value);
-      if (parsed.ok) messages.push(parsed.message);
-      else invalid.push(parsed.error);
+      if (parsed.ok) {
+        messages.push(parsed.message);
+        if (parsed.message.type === "scene") scenes.push(patchApplier.reset(parsed.message));
+        else if (parsed.message.type === "scene.patch")
+          scenes.push(patchApplier.apply(parsed.message));
+      } else invalid.push(parsed.error);
       wake();
     },
     onError(error) {
@@ -75,6 +84,7 @@ export function startRuntime() {
   return {
     child,
     messages,
+    scenes,
     invalid,
     exited,
     get stderr() {
@@ -104,6 +114,20 @@ export function startRuntime() {
         preferences: options.preferences ?? {},
         environment: options.environment ?? defaultEnvironment,
       });
+    },
+    async nextScene(): Promise<SceneMessage> {
+      for (;;) {
+        if (invalid.length) throw new Error(invalid.join("\n"));
+        if (sceneCursor < scenes.length) return scenes[sceneCursor++]!;
+        if (closed) throw new Error(`Exited waiting for scene: ${stderr}`);
+        await new Promise<void>((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error("Timed out waiting for scene")), 3000);
+          wake = () => {
+            clearTimeout(timer);
+            resolve();
+          };
+        });
+      }
     },
     async next<T extends RuntimeMessage["type"]>(
       type: T,

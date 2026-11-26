@@ -49,6 +49,7 @@ decision, perf baseline, embedder view patches, a fresh `latest` release.
 - [x] 0193 `bench` script with a recorded perf baseline
 - [ ] 0194 Embedder view patches for `blast serve`, or a measured no
 - [ ] 0195 Release `alpha.10` and move the npm `latest` tag
+- [x] 0197 Runtime scene patches always on, including the browser host
 
 ## Later (not scheduled)
 

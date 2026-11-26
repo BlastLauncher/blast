@@ -446,10 +446,17 @@ test("shutdown escalates through SIGTERM to SIGKILL and is idempotent", async ()
   expect(await shutdown).toEqual({ code: null, signal: "SIGKILL" });
 });
 
+const validSceneLine = JSON.stringify({
+  type: "scene",
+  revision: 1,
+  root: { id: "1", type: "List", props: {}, children: [] },
+});
 for (const wire of [
   "invalid protocol\n",
   '{"type":"unknown"}\n',
   '{"type":"ready","protocol":1}\n',
+  `${validSceneLine}\n${JSON.stringify({ type: "scene.patch", revision: 3, baseRevision: 1, ops: [] })}\n`,
+  `${validSceneLine}\n${JSON.stringify({ type: "scene.patch", revision: 1, baseRevision: 1, ops: [] })}\n`,
 ]) {
   test(`invalid runtime output: ${wire.trim()}`, async () => {
     const session = await startCommand({

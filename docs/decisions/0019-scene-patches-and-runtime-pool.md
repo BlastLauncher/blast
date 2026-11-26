@@ -11,26 +11,25 @@ re-serializing unchanged subtrees per commit, and paying Node, React and
 
 ## Decision
 
-1. **Opt-in `scene.patch` on protocol v1** (`packages/protocol/src/messages.ts`).
-   `InitMessage` adds optional `scenePatches?: boolean`. Runtimes default to
-   full scenes and enable patches only when `init.scenePatches === true`
-   (`packages/runtime/src/core.ts`). The Node host opts in
-   (`packages/host/src/session.ts`); `packages/web/src/session.ts` does not and
-   keeps receiving full `scene` messages.
+1. **Always-on `scene.patch` on protocol v1** (`packages/protocol/src/messages.ts`).
+   Runtimes send one full `scene` on the first commit and `scene.patch` updates
+   afterwards (`packages/runtime/src/core.ts`). Both Node
+   (`packages/host/src/session.ts`) and browser (`packages/web/src/session.ts`)
+   hosts apply patches with `createScenePatchApplier`.
 2. **Ops, revisions, and fallback.** `ScenePatchMessage` sends
    `{ revision, baseRevision, ops }` with ops `props`, `children` (existing IDs
    or inline new `SceneNode`s), `replace` (subtree replacement; valid in
    protocol/applier, not yet emitted by the reconciler), and `root`. The
    reconciler (`packages/runtime/src/reconciler/index.ts`) sends a full `scene`
-   when patches are off, on the first commit, or on a root kind
-   (`null`/single/`#root`) or root-id change—except transitions to `null` after
-   a prior commit, which emit `{ op: "root", root: null }`.
+   on the first commit or on a root kind (`null`/single/`#root`) or root-id
+   change—except transitions to `null` after a prior commit, which emit
+   `{ op: "root", root: null }`.
 3. **Reconstruction and mismatch.** `createScenePatchApplier`
    (`packages/protocol/src/messages.ts`) resets on `scene`, keeps untouched
    `SceneNode` identities, and throws on missing baseline,
-   `baseRevision !== current.revision`, unknown ID, or non-root op on `null`
-   root. With no resync message, the host treats apply errors as fatal
-   `PROTOCOL_ERROR` and kills the child (`SIGKILL`).
+   `baseRevision !== current.revision`, `revision !== baseRevision + 1`,
+   unknown ID, or non-root op on `null` root. With no resync message, both
+   hosts treat apply errors as fatal `PROTOCOL_ERROR` and terminate the runtime.
 4. **Embedder protocol unchanged.** `session.scenes()` yields full reconstructed
    `SceneMessage`s, so `blast serve` (`packages/serve/src/serve.ts`) still emits
    whole `session.scene`, `session.view`, and `root.view` events under
@@ -49,8 +48,8 @@ re-serializing unchanged subtrees per commit, and paying Node, React and
 
 ## Why
 
-Negotiated patches avoid O(tree) wire work without bumping `PROTOCOL_VERSION` or
-breaking full-scene hosts; one clean standby hides startup without sharing state.
+Always-on patches avoid O(tree) wire work on Node and web with one scene path;
+one clean standby hides startup without sharing state.
 
 ## Consequences
 
