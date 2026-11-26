@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import type { CapabilityHandler } from "./broker.ts";
 import {
   createExtensionHandle,
@@ -7,6 +7,9 @@ import {
 } from "./extension.ts";
 import type { DependencyInstaller } from "./install-dependencies.ts";
 import { createRoot, type Root, type RootOptions, type RootSource } from "./root.ts";
+import { createRuntimePool } from "./runtime-pool.ts";
+import { runtimeEnvironment } from "./session.ts";
+import { defaultDataDir } from "./storage.ts";
 
 /** Shared defaults and capability registrations for a group of extensions. */
 export function createEngine(
@@ -26,6 +29,25 @@ export function createEngine(
   const directories = new Map<ExtensionHandle, string>();
   const roots = new Set<Root>();
   const changes = new Set<Parameters<RootSource["onChange"]>[0]>();
+  const runtimePool = createRuntimePool();
+  let prewarmTimer: ReturnType<typeof setTimeout> | undefined;
+  const schedulePrewarm = () => {
+    if (closing || prewarmTimer !== undefined) return;
+    const resolvedDataDir = resolve(options.dataDir ?? defaultDataDir());
+    prewarmTimer = setTimeout(() => {
+      prewarmTimer = undefined;
+      if (closing) return;
+      runtimePool.prewarm({
+        nodePath: "node",
+        env: {
+          ...runtimeEnvironment(process.env, options.inheritEnv),
+          NODE_ENV: "production",
+          NODE_COMPILE_CACHE: join(resolvedDataDir, "compile-cache"),
+        },
+      });
+    }, 0);
+    prewarmTimer.unref?.();
+  };
   let closing: Promise<void> | undefined;
   const ensureOpen = () => {
     if (closing) throw new Error("Engine is closed");
@@ -57,6 +79,7 @@ export function createEngine(
         },
         registeredHandlers,
         options.dependencies === "auto",
+        runtimePool,
       );
       const close = extension.close;
       extension.close = async () => {
@@ -81,6 +104,10 @@ export function createEngine(
      */
     root(rootOptions: RootOptions): Root {
       ensureOpen();
+      // Start warming one clean standby runtime worker after the root begins
+      // loading so initial manifest I/O stays uncontended while the first
+      // command launch still skips Node/React startup.
+      schedulePrewarm();
       const root = createRoot(
         {
           extensions: () => [...extensions],
@@ -102,7 +129,12 @@ export function createEngine(
     },
     close() {
       return (closing ??= Promise.resolve().then(async () => {
+        if (prewarmTimer !== undefined) {
+          clearTimeout(prewarmTimer);
+          prewarmTimer = undefined;
+        }
         registrations.clear();
+        runtimePool.close();
         await Promise.all([...roots].map((root) => root.close()));
         await Promise.all([...extensions].map((extension) => extension.close()));
       }));

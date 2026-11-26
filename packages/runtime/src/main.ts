@@ -78,6 +78,11 @@ const runtime = startRuntime({
   log,
   loadCommand: (command) => import(pathToFileURL(command.entry).href),
 });
+// Standby workers spawned by the host pass `--prewarm` so the `@raycast/api`
+// shim finishes loading while idle before `init` arrives.
+if (process.argv.includes("--prewarm")) {
+  void import("@blastlauncher/runtime/api").catch((error) => runtime.fatal(error));
+}
 process.on("uncaughtException", (error) => runtime.fatal(error));
 process.on("unhandledRejection", (error) => runtime.fatal(error));
 process.stdin.on("error", (error) => runtime.fatal(error));

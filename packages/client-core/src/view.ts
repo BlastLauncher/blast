@@ -76,58 +76,54 @@ export function activeNode(node: SceneNode | null | undefined): SceneNode | unde
   return node ?? undefined;
 }
 
-function itemAccessories(node: SceneNode, icons: IconOptions): string {
+function itemAccessoryLabels(node: SceneNode, icons: IconOptions): string[] {
   const accessories = node.props.accessories;
-  const labels = Array.isArray(accessories)
-    ? accessories.map((value) => {
-        if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-        return [
-          text(value.text),
-          text(value.tag),
-          value.icon ? iconView(value.icon, icons).label : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
-      })
-    : [];
-  return labels.filter(Boolean).join("  ");
+  if (!Array.isArray(accessories) || accessories.length === 0) return [];
+  const labels: string[] = [];
+  for (let i = 0; i < accessories.length; i++) {
+    const value = accessories[i];
+    if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+    const t = text(value.text);
+    const tag = text(value.tag);
+    const ic = value.icon ? iconView(value.icon, icons).label : "";
+    const joined = [t, tag, ic].filter(Boolean).join(" ");
+    if (joined) labels.push(joined);
+  }
+  return labels;
 }
 
-function itemText(node: SceneNode, icons: IconOptions): string {
-  const accessories = node.props.accessories;
-  const labels = Array.isArray(accessories)
-    ? accessories.map((value) => {
-        if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-        return [
-          text(value.text),
-          text(value.tag),
-          value.icon ? iconView(value.icon, icons).label : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
-      })
-    : [];
-  return [
-    node.props.icon ? iconView(node.props.icon, icons).label : "",
-    text(node.props.title),
-    text(node.props.subtitle),
-    ...labels,
-  ]
-    .filter(Boolean)
-    .join("  ");
+const itemRowCache = new WeakMap<SceneNode, { key: string; row: Row }>();
+
+function iconOptionsKey(icons: IconOptions): string {
+  return `${icons.appearance ?? ""}\0${icons.assetsDir ?? ""}`;
 }
 
-function itemRow(node: SceneNode, icons: IconOptions): Row {
-  return {
+function itemRow(node: SceneNode, icons: IconOptions, iconsKey: string): Row {
+  const cached = itemRowCache.get(node);
+  if (cached && cached.key === iconsKey) return cached.row;
+  const title = text(node.props.title);
+  const subtitle = text(node.props.subtitle);
+  const hasIcon = Boolean(node.props.icon);
+  const resolvedIcon = hasIcon ? iconView(node.props.icon, icons) : undefined;
+  const accLabels = itemAccessoryLabels(node, icons);
+  const accessories = accLabels.join("  ");
+  const parts: string[] = [];
+  if (resolvedIcon?.label) parts.push(resolvedIcon.label);
+  if (title) parts.push(title);
+  if (subtitle) parts.push(subtitle);
+  for (let i = 0; i < accLabels.length; i++) parts.push(accLabels[i]!);
+  const row: Row = {
     node,
-    text: itemText(node, icons),
+    text: parts.join("  "),
     item: true,
-    title: text(node.props.title),
-    subtitle: text(node.props.subtitle),
-    accessories: itemAccessories(node, icons),
-    icon: Boolean(node.props.icon),
-    ...(node.props.icon ? { iconView: iconView(node.props.icon, icons) } : {}),
+    title,
+    subtitle,
+    accessories,
+    icon: hasIcon,
+    ...(resolvedIcon ? { iconView: resolvedIcon } : {}),
   };
+  itemRowCache.set(node, { key: iconsKey, row });
+  return row;
 }
 
 function sectionRow(node: SceneNode): Row {
@@ -150,11 +146,32 @@ function unsupportedRow(node: SceneNode): Row {
   };
 }
 
-export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
+/** Selection-independent view projection; cached per `(scene, searchText)` by controller. */
+export type BaseView = {
+  list: SceneNode | undefined;
+  grid: ReturnType<typeof gridLayout> | undefined;
+  accessory: SceneNode | undefined;
+  navigation: SceneNode | undefined;
+  rows: Row[];
+  items: SceneNode[];
+  itemIndexBySelectionId: Map<string, number>;
+  itemIndexByNodeId: Map<string, number>;
+  rowIndexByNodeId: Map<string, number>;
+  empty: SceneNode | undefined;
+  title: string;
+  loading: boolean;
+  emptyText: string;
+};
+
+export function buildBaseView(
+  scene: SceneMessage | undefined,
+  state: Pick<UIState, "searchText" | "fallbackTitle" | "icons">,
+): BaseView {
   const list = activeNode(scene?.root);
   const rows: Row[] = [];
   const query = state.searchText;
   const icons = state.icons ?? {};
+  const iconsKey = iconOptionsKey(icons);
   const filtering = filteringOf(list);
   const grid = list?.type === "Grid" ? gridLayout(list, query, filtering) : undefined;
   if (list?.type === "List") {
@@ -168,20 +185,55 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
       (node) => score(searchable(node), query),
       filtering,
     );
-    for (const group of groups) {
+    for (let g = 0; g < groups.length; g++) {
+      const group = groups[g]!;
       const header = group.section ? sectionRow(group.section) : undefined;
       if (header) rows.push(header);
-      for (const node of group.items) rows.push(itemRow(node, icons));
+      for (let i = 0; i < group.items.length; i++) {
+        rows.push(itemRow(group.items[i]!, icons, iconsKey));
+      }
       if (header) header.count = group.items.length;
     }
     // Children that are neither items nor sections have no list rendering.
-    for (const node of list.children)
-      if (!["List.Item", "List.Section", "List.EmptyView", "Slot"].includes(node.type))
+    for (let i = 0; i < list.children.length; i++) {
+      const node = list.children[i]!;
+      if (
+        node.type !== "List.Item" &&
+        node.type !== "List.Section" &&
+        node.type !== "List.EmptyView" &&
+        node.type !== "Slot"
+      )
         rows.push(unsupportedRow(node));
+    }
   } else if (!grid && list && list.type !== "Detail") rows.push(unsupportedRow(list));
-  const items = grid ? grid.cells : rows.filter((row) => row.item).map((row) => row.node);
-  const desired = list?.props.selectedItemId ?? state.selectedId;
-  const selected = items.find((item) => (item.props.id ?? item.id) === desired) ?? items[0];
+
+  const itemIndexBySelectionId = new Map<string, number>();
+  const itemIndexByNodeId = new Map<string, number>();
+  const rowIndexByNodeId = new Map<string, number>();
+  let items: SceneNode[];
+  if (grid) {
+    items = grid.cells;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i]!;
+      const sel = String(item.props.id ?? item.id);
+      if (!itemIndexBySelectionId.has(sel)) itemIndexBySelectionId.set(sel, i);
+      itemIndexByNodeId.set(item.id, i);
+    }
+  } else {
+    items = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]!;
+      if (!row.item) continue;
+      const item = row.node;
+      const idx = items.length;
+      items.push(item);
+      const sel = String(item.props.id ?? item.id);
+      if (!itemIndexBySelectionId.has(sel)) itemIndexBySelectionId.set(sel, idx);
+      itemIndexByNodeId.set(item.id, idx);
+      rowIndexByNodeId.set(item.id, i);
+    }
+  }
+
   const empty = list?.children.find(
     (node) => node.type === "List.EmptyView" || node.type === "Grid.EmptyView",
   );
@@ -190,21 +242,12 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     grid,
     accessory: searchBarDropdown(list),
     navigation: scene?.root?.type === "Navigation" ? scene.root : undefined,
-    // An empty list shows its EmptyView, whose actions replace the list's, as in Raycast.
-    actions:
-      (selected ? slot(selected, "actions") : undefined) ??
-      (!selected && empty ? slot(empty, "actions") : undefined) ??
-      (list ? slot(list, "actions") : undefined),
-    detail:
-      list?.type === "Detail"
-        ? detailText(list)
-        : list?.props.isShowingDetail
-          ? detailText(selected ? slot(selected, "detail") : undefined)
-          : "",
     rows,
     items,
+    itemIndexBySelectionId,
+    itemIndexByNodeId,
+    rowIndexByNodeId,
     empty,
-    selected,
     title:
       text(list?.props.navigationTitle) ||
       (list?.type === "MenuBarExtra"
@@ -222,11 +265,39 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
           .filter(Boolean)
           .join("  ")
       : "No results",
-    primary:
-      firstAction(selected ? slot(selected, "actions") : undefined) ??
-      firstAction(!selected && empty ? slot(empty, "actions") : undefined) ??
-      firstAction(list ? slot(list, "actions") : undefined),
   };
+}
+
+export function selectFromBase(base: BaseView, selectedId: string | null) {
+  const { list, items, empty } = base;
+  const desired = list?.props.selectedItemId ?? selectedId;
+  let selected: SceneNode | undefined;
+  if (desired !== null && desired !== undefined) {
+    const key = typeof desired === "string" || typeof desired === "number" ? String(desired) : null;
+    const idx = key !== null ? base.itemIndexBySelectionId.get(key) : undefined;
+    selected =
+      idx !== undefined ? items[idx] : items.find((item) => (item.props.id ?? item.id) === desired);
+  }
+  selected ??= items[0];
+  const selectedActions = selected ? slot(selected, "actions") : undefined;
+  const emptyActions = !selected && empty ? slot(empty, "actions") : undefined;
+  const listActions = list ? slot(list, "actions") : undefined;
+  return {
+    ...base,
+    actions: selectedActions ?? emptyActions ?? listActions,
+    detail:
+      list?.type === "Detail"
+        ? detailText(list)
+        : list?.props.isShowingDetail
+          ? detailText(selected ? slot(selected, "detail") : undefined)
+          : "",
+    selected,
+    primary: firstAction(selectedActions) ?? firstAction(emptyActions) ?? firstAction(listActions),
+  };
+}
+
+export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
+  return selectFromBase(buildBaseView(scene, state), state.selectedId);
 }
 
 function actionRow(node: SceneNode, platform: Platform, index: number): Row {

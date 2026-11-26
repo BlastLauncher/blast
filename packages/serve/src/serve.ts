@@ -87,7 +87,10 @@ let sequence = 0,
   stopping = false;
 let capabilities: string[] = [];
 const id = () => String(++sequence);
-const json = (value: unknown): JsonValue => JSON.parse(JSON.stringify(value)) as JsonValue;
+// Avoid double-serializing hot payloads (`session.scene`, `session.view`,
+// `root.view`, `session.log`): `send()` runs `JSON.stringify` directly, which
+// strips `undefined` fields and preserves every valid JSON value.
+const json = (value: unknown): JsonValue => value as JsonValue;
 const send = (message: EmbedderServerMessage) => {
   process.stdout.write(`${JSON.stringify(message)}\n`);
 };
@@ -532,35 +535,39 @@ export function serve(args: string[]): Promise<number> {
     finish = resolve;
   });
   // Recover at newline after a bad/oversized line without retaining its bytes.
+  const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
   let chunks: Buffer[] = [],
     size = 0,
     oversized = false;
   process.stdin.on("data", (chunk: Buffer) => {
     let start = 0;
-    for (let i = 0; i <= chunk.length; i++) {
-      if (i !== chunk.length && chunk[i] !== 10) continue;
-      const part = chunk.subarray(start, i);
+    for (;;) {
+      const nl = chunk.indexOf(10, start);
+      const end = nl === -1 ? chunk.length : nl;
+      const part = chunk.subarray(start, end);
       size += part.length;
       if (!oversized && size > DEFAULT_MAX_LINE_BYTES) {
         oversized = true;
         chunks = [];
         protocolError("Line exceeds 8 MiB");
       }
-      if (!oversized) chunks.push(part);
-      if (i < chunk.length) {
-        if (!oversized) {
-          try {
-            const line = new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks));
-            if (line.trim()) receive(JSON.parse(line));
-          } catch (error) {
-            protocolError(errorInfo(error).message);
-          }
-        }
-        chunks = [];
-        size = 0;
-        oversized = false;
+      if (nl === -1) {
+        if (!oversized && part.length > 0) chunks.push(part);
+        break;
       }
-      start = i + 1;
+      if (!oversized) {
+        try {
+          const raw = chunks.length === 0 ? part : Buffer.concat([...chunks, part]);
+          const line = utf8Decoder.decode(raw);
+          if (line.trim()) receive(JSON.parse(line));
+        } catch (error) {
+          protocolError(errorInfo(error).message);
+        }
+      }
+      chunks = [];
+      size = 0;
+      oversized = false;
+      start = nl + 1;
     }
   });
   process.stdin.on("end", () => {

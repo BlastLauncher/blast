@@ -68,6 +68,8 @@ export type InitMessage = {
   command: InitCommand;
   preferences: Record<string, JsonValue>;
   environment: InitEnvironment;
+  /** Host accepts incremental `scene.patch` updates after the initial scene. */
+  scenePatches?: boolean;
 };
 
 export type EventMessage = { type: "event"; node: string; handler: string; args: JsonValue[] };
@@ -107,6 +109,21 @@ export type ReadyMessage = { type: "ready"; protocol: number };
 
 export type SceneMessage = { type: "scene"; revision: number; root: SceneNode | null };
 
+/** One incremental mutation against the previous scene's node tree. */
+export type ScenePatchOp =
+  | { op: "props"; id: string; props: Record<string, JsonValue | HandlerRef> }
+  | { op: "children"; id: string; children: (string | SceneNode)[] }
+  | { op: "replace"; id: string; node: SceneNode }
+  | { op: "root"; root: SceneNode | null };
+
+/** Incremental scene update against `baseRevision`, preserving untouched subtrees. */
+export type ScenePatchMessage = {
+  type: "scene.patch";
+  revision: number;
+  baseRevision: number;
+  ops: ScenePatchOp[];
+};
+
 export type CapabilityRequestMessage = {
   type: "capability.request";
   id: string;
@@ -125,6 +142,7 @@ export type RuntimeMessage =
   | ProviderResponse
   | ReadyMessage
   | SceneMessage
+  | ScenePatchMessage
   | CapabilityRequestMessage
   | { type: "capability.cancel"; id: string }
   | LogMessage
@@ -372,18 +390,28 @@ function readHandlerRef(value: unknown, path: string): HandlerRef {
   return { $handler: readString(object["$handler"], keyPath(path, "$handler")) };
 }
 
-function readProps(value: unknown, path: string): Record<string, JsonValue | HandlerRef> {
+function readProps(
+  value: unknown,
+  path: string,
+  seen: WeakSet<object> = new WeakSet<object>(),
+): Record<string, JsonValue | HandlerRef> {
   const object = readObject(value, path);
-  const seen = new WeakSet<object>();
+  if (seen.has(object)) fail(path, "expected acyclic value");
   seen.add(object);
-  const result: Record<string, JsonValue | HandlerRef> = {};
-  for (const [key, item] of Object.entries(object)) {
-    const at = keyPath(path, key);
-    result[key] = isHandlerRefCandidate(item)
-      ? readHandlerRef(item, at)
-      : readJsonValue(item, at, seen);
+  try {
+    const result: Record<string, JsonValue | HandlerRef> = {};
+    for (const key in object) {
+      if (!Object.hasOwn(object, key)) continue;
+      const item = object[key];
+      const at = keyPath(path, key);
+      result[key] = isHandlerRefCandidate(item)
+        ? readHandlerRef(item, at)
+        : readJsonValue(item, at, seen);
+    }
+    return result;
+  } finally {
+    seen.delete(object);
   }
-  return result;
 }
 
 function readSceneNode(value: unknown, path: string, seen: WeakSet<object>): SceneNode {
@@ -394,16 +422,183 @@ function readSceneNode(value: unknown, path: string, seen: WeakSet<object>): Sce
     checkKeys(object, path, ["id", "type", "props", "children"]);
     const children = object["children"];
     if (!Array.isArray(children)) fail(keyPath(path, "children"), "expected array");
+    const childrenPath = keyPath(path, "children");
+    const nextChildren: SceneNode[] = [];
+    for (let index = 0; index < children.length; index++) {
+      nextChildren.push(readSceneNode(children[index], `${childrenPath}[${index}]`, seen));
+    }
     return {
       id: readString(object["id"], keyPath(path, "id")),
       type: readString(object["type"], keyPath(path, "type")),
-      props: readProps(object["props"], keyPath(path, "props")),
-      children: children.map((child, index) =>
-        readSceneNode(child, `${keyPath(path, "children")}[${index}]`, seen),
-      ),
+      props: readProps(object["props"], keyPath(path, "props"), seen),
+      children: nextChildren,
     };
   } finally {
     seen.delete(object);
+  }
+}
+
+// Fast-path structural validator for valid scenes. Skips path-string building
+// and object cloning on the happy path; any rejection falls back to
+// `readSceneNode` so error messages keep the exact `<field path>: <reason>`.
+function isPlainObject(value: unknown): value is Obj {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+function isValidJsonFast(value: unknown, seen: WeakSet<object>): boolean {
+  if (typeof value === "string" || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value !== "object") return false;
+  if (value === null) return true;
+  if (seen.has(value)) return false;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      if (!isValidJsonFast(value[i], seen)) {
+        seen.delete(value);
+        return false;
+      }
+    }
+    seen.delete(value);
+    return true;
+  }
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) {
+    seen.delete(value);
+    return false;
+  }
+  const obj = value as Obj;
+  for (const key in obj) {
+    if (!Object.hasOwn(obj, key)) continue;
+    if (!isValidJsonFast(obj[key], seen)) {
+      seen.delete(value);
+      return false;
+    }
+  }
+  seen.delete(value);
+  return true;
+}
+
+function isValidPropsFast(value: unknown, seen: WeakSet<object>): boolean {
+  if (!isPlainObject(value) || seen.has(value)) return false;
+  seen.add(value);
+  for (const key in value) {
+    if (!Object.hasOwn(value, key)) continue;
+    const item = value[key];
+    if (isHandlerRefCandidate(item)) {
+      if (!isPlainObject(item)) {
+        seen.delete(value);
+        return false;
+      }
+      let count = 0;
+      for (const k in item) {
+        if (!Object.hasOwn(item, k)) continue;
+        if (k !== "$handler" || typeof item[k] !== "string") {
+          seen.delete(value);
+          return false;
+        }
+        count++;
+      }
+      if (count !== 1) {
+        seen.delete(value);
+        return false;
+      }
+    } else if (!isValidJsonFast(item, seen)) {
+      seen.delete(value);
+      return false;
+    }
+  }
+  seen.delete(value);
+  return true;
+}
+
+function isValidSceneNodeFast(value: unknown, seen: WeakSet<object>): value is SceneNode {
+  if (!isPlainObject(value) || seen.has(value)) return false;
+  let keyCount = 0;
+  for (const key in value) {
+    if (!Object.hasOwn(value, key)) continue;
+    if (key !== "id" && key !== "type" && key !== "props" && key !== "children") return false;
+    keyCount++;
+  }
+  if (keyCount !== 4) return false;
+  if (typeof value["id"] !== "string" || typeof value["type"] !== "string") return false;
+  const children = value["children"];
+  if (!Array.isArray(children)) return false;
+  seen.add(value);
+  if (!isValidPropsFast(value["props"], seen)) {
+    seen.delete(value);
+    return false;
+  }
+  for (let i = 0; i < children.length; i++) {
+    if (!isValidSceneNodeFast(children[i], seen)) {
+      seen.delete(value);
+      return false;
+    }
+  }
+  seen.delete(value);
+  return true;
+}
+
+function readSceneNodeChecked(value: unknown, path: string, seen: WeakSet<object>): SceneNode {
+  if (isValidSceneNodeFast(value, seen)) return value;
+  return readSceneNode(value, path, new WeakSet<object>());
+}
+
+function readScenePatchOp(value: unknown, path: string, seen: WeakSet<object>): ScenePatchOp {
+  const object = readObject(value, path);
+  const op = readString(object["op"], keyPath(path, "op"));
+  switch (op) {
+    case "props": {
+      checkKeys(object, path, ["op", "id", "props"]);
+      const props = object["props"];
+      return {
+        op: "props",
+        id: readString(object["id"], keyPath(path, "id")),
+        props: isValidPropsFast(props, seen)
+          ? (props as Record<string, JsonValue | HandlerRef>)
+          : readProps(props, keyPath(path, "props")),
+      };
+    }
+    case "children": {
+      checkKeys(object, path, ["op", "id", "children"]);
+      const children = object["children"];
+      if (!Array.isArray(children)) fail(keyPath(path, "children"), "expected array");
+      const childrenPath = keyPath(path, "children");
+      const next: (string | SceneNode)[] = [];
+      for (let i = 0; i < children.length; i++) {
+        const entry = children[i];
+        next.push(
+          typeof entry === "string"
+            ? entry
+            : readSceneNodeChecked(entry, `${childrenPath}[${i}]`, seen),
+        );
+      }
+      return {
+        op: "children",
+        id: readString(object["id"], keyPath(path, "id")),
+        children: next,
+      };
+    }
+    case "replace": {
+      checkKeys(object, path, ["op", "id", "node"]);
+      return {
+        op: "replace",
+        id: readString(object["id"], keyPath(path, "id")),
+        node: readSceneNodeChecked(object["node"], keyPath(path, "node"), seen),
+      };
+    }
+    case "root": {
+      checkKeys(object, path, ["op", "root"]);
+      const root = object["root"];
+      return {
+        op: "root",
+        root: root === null ? null : readSceneNodeChecked(root, keyPath(path, "root"), seen),
+      };
+    }
+    default:
+      fail(keyPath(path, "op"), `unknown patch op ${JSON.stringify(op)}`);
   }
 }
 
@@ -645,13 +840,24 @@ function buildHostMessage(object: Obj): HostMessage {
       };
     }
     case "init": {
-      checkKeys(object, "", ["type", "protocol", "command", "preferences", "environment"]);
+      checkKeys(object, "", [
+        "type",
+        "protocol",
+        "command",
+        "preferences",
+        "environment",
+        "scenePatches",
+      ]);
+      const scenePatches = object["scenePatches"];
       return {
         type: "init",
         protocol: readNumber(object["protocol"], "protocol"),
         command: readCommand(object["command"], "command"),
         preferences: readJsonObject(object["preferences"], "preferences"),
         environment: readEnvironment(object["environment"], "environment"),
+        ...(scenePatches === undefined
+          ? {}
+          : { scenePatches: readBoolean(scenePatches, "scenePatches") }),
       };
     }
     case "event": {
@@ -736,7 +942,23 @@ function buildRuntimeMessage(object: Obj): RuntimeMessage {
       return {
         type: "scene",
         revision: readNonNegativeInteger(object["revision"], "revision"),
-        root: root === null ? null : readSceneNode(root, "root", new WeakSet<object>()),
+        root: root === null ? null : readSceneNodeChecked(root, "root", new WeakSet<object>()),
+      };
+    }
+    case "scene.patch": {
+      checkKeys(object, "", ["type", "revision", "baseRevision", "ops"]);
+      const ops = object["ops"];
+      if (!Array.isArray(ops)) fail("ops", "expected array");
+      const seen = new WeakSet<object>();
+      const parsedOps: ScenePatchOp[] = [];
+      for (let i = 0; i < ops.length; i++) {
+        parsedOps.push(readScenePatchOp(ops[i], `ops[${i}]`, seen));
+      }
+      return {
+        type: "scene.patch",
+        revision: readNonNegativeInteger(object["revision"], "revision"),
+        baseRevision: readNonNegativeInteger(object["baseRevision"], "baseRevision"),
+        ops: parsedOps,
       };
     }
     case "capability.cancel": {
@@ -792,4 +1014,221 @@ export function parseHostMessage(value: unknown): ParseResult<HostMessage> {
 /** Validates an untyped value as a runtime -> host message. */
 export function parseRuntimeMessage(value: unknown): ParseResult<RuntimeMessage> {
   return parse(() => buildRuntimeMessage(readObject(value, "")));
+}
+
+export type ScenePatchApplier = {
+  reset(scene: SceneMessage): SceneMessage;
+  apply(patch: ScenePatchMessage): SceneMessage;
+};
+
+/**
+ * Stateful incremental scene reconstructor. Untouched subtrees keep exact
+ * `SceneNode` object identity across revisions while modified spines are
+ * replaced immutably in O(dirty * depth).
+ */
+export function createScenePatchApplier(): ScenePatchApplier {
+  let current: SceneMessage | undefined;
+  let indexed = false;
+  const nodes = new Map<string, SceneNode>();
+  const parents = new Map<string, string | null>();
+
+  function indexSubtree(node: SceneNode, parentId: string | null): void {
+    nodes.set(node.id, node);
+    parents.set(node.id, parentId);
+    for (let i = 0; i < node.children.length; i++) {
+      indexSubtree(node.children[i]!, node.id);
+    }
+  }
+
+  function unindexSubtree(node: SceneNode, keep: Set<string>): void {
+    if (keep.has(node.id)) return;
+    nodes.delete(node.id);
+    parents.delete(node.id);
+    for (let i = 0; i < node.children.length; i++) {
+      unindexSubtree(node.children[i]!, keep);
+    }
+  }
+
+  function ensureIndexed(): void {
+    if (indexed) return;
+    indexed = true;
+    nodes.clear();
+    parents.clear();
+    if (current?.root) indexSubtree(current.root, null);
+  }
+
+  return {
+    reset(scene: SceneMessage): SceneMessage {
+      current = scene;
+      indexed = false;
+      nodes.clear();
+      parents.clear();
+      return scene;
+    },
+    apply(patch: ScenePatchMessage): SceneMessage {
+      if (!current || current.revision !== patch.baseRevision) {
+        throw new Error(
+          `Scene patch baseRevision ${patch.baseRevision} does not match current revision ${current?.revision ?? "none"}`,
+        );
+      }
+      if (patch.ops.length === 0) {
+        current = { type: "scene", revision: patch.revision, root: current.root };
+        return current;
+      }
+      const first = patch.ops[0];
+      if (patch.ops.length === 1 && first?.op === "root") {
+        const next: SceneMessage = { type: "scene", revision: patch.revision, root: first.root };
+        return this.reset(next);
+      }
+      ensureIndexed();
+      if (!current.root) {
+        throw new Error("Cannot apply non-root scene patch to null root");
+      }
+
+      const propsOps = new Map<string, Record<string, JsonValue | HandlerRef>>();
+      const childrenOps = new Map<string, (string | SceneNode)[]>();
+      const replaceOps = new Map<string, SceneNode>();
+      let rootOverride: { set: boolean; value: SceneNode | null } = { set: false, value: null };
+
+      for (let i = 0; i < patch.ops.length; i++) {
+        const op = patch.ops[i]!;
+        switch (op.op) {
+          case "root":
+            rootOverride = { set: true, value: op.root };
+            break;
+          case "props":
+            propsOps.set(op.id, op.props);
+            break;
+          case "children":
+            childrenOps.set(op.id, op.children);
+            break;
+          case "replace":
+            replaceOps.set(op.id, op.node);
+            break;
+        }
+      }
+
+      if (rootOverride.set) {
+        const next: SceneMessage = {
+          type: "scene",
+          revision: patch.revision,
+          root: rootOverride.value,
+        };
+        return this.reset(next);
+      }
+
+      // Collect all directly touched node ids and every ancestor up to root.
+      const dirty = new Set<string>();
+      const markAncestors = (id: string) => {
+        let cur: string | null | undefined = id;
+        while (cur !== null && cur !== undefined && !dirty.has(cur)) {
+          dirty.add(cur);
+          cur = parents.get(cur);
+        }
+      };
+      for (const id of propsOps.keys()) {
+        if (!nodes.has(id)) throw new Error(`Unknown scene node in patch: ${id}`);
+        markAncestors(id);
+      }
+      for (const id of childrenOps.keys()) {
+        if (!nodes.has(id)) throw new Error(`Unknown scene node in patch: ${id}`);
+        markAncestors(id);
+      }
+      for (const id of replaceOps.keys()) {
+        if (!nodes.has(id)) throw new Error(`Unknown scene node in patch: ${id}`);
+        markAncestors(id);
+      }
+
+      // Track reused existing node IDs across moves/reorders so we don't unindex them.
+      const keptExisting = new Set<string>();
+      const removedCandidates: SceneNode[] = [];
+
+      // Rebuild only dirty nodes bottom-up via recursion over the dirty spine.
+      const built = new Map<string, SceneNode>();
+
+      function rebuild(id: string): SceneNode {
+        const cached = built.get(id);
+        if (cached) return cached;
+        const replacement = replaceOps.get(id);
+        if (replacement) {
+          const old = nodes.get(id);
+          if (old) removedCandidates.push(old);
+          built.set(id, replacement);
+          return replacement;
+        }
+        const existing = nodes.get(id);
+        if (!existing) throw new Error(`Unknown scene node in patch: ${id}`);
+        if (!dirty.has(id)) return existing;
+
+        const nextProps = propsOps.get(id) ?? existing.props;
+        const rawChildren = childrenOps.get(id);
+        let nextChildren: SceneNode[];
+        if (rawChildren !== undefined) {
+          nextChildren = [];
+          const nextIds = new Set<string>();
+          for (let i = 0; i < rawChildren.length; i++) {
+            const entry = rawChildren[i]!;
+            if (typeof entry === "string") {
+              if (!nodes.has(entry)) throw new Error(`Unknown child node in patch: ${entry}`);
+              keptExisting.add(entry);
+              nextIds.add(entry);
+              nextChildren.push(dirty.has(entry) ? rebuild(entry) : nodes.get(entry)!);
+            } else {
+              nextIds.add(entry.id);
+              nextChildren.push(entry);
+            }
+          }
+          for (let i = 0; i < existing.children.length; i++) {
+            const prevChild = existing.children[i]!;
+            if (!nextIds.has(prevChild.id)) removedCandidates.push(prevChild);
+          }
+        } else {
+          nextChildren = [];
+          for (let i = 0; i < existing.children.length; i++) {
+            const child = existing.children[i]!;
+            nextChildren.push(dirty.has(child.id) ? rebuild(child.id) : child);
+          }
+        }
+        const updated: SceneNode = {
+          id: existing.id,
+          type: existing.type,
+          props: nextProps,
+          children: nextChildren,
+        };
+        built.set(id, updated);
+        return updated;
+      }
+
+      const nextRoot = rebuild(current.root.id);
+
+      // Clean removed subtrees that weren't moved elsewhere, then update index for
+      // rebuilt nodes and newly inserted subtrees.
+      for (let i = 0; i < removedCandidates.length; i++) {
+        unindexSubtree(removedCandidates[i]!, keptExisting);
+      }
+      for (const [id, node] of built) {
+        const parentId = id === nextRoot.id ? null : (parents.get(id) ?? null);
+        if (replaceOps.has(id)) {
+          indexSubtree(node, parentId);
+        } else {
+          nodes.set(id, node);
+          for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i]!;
+            if (
+              !nodes.has(child.id) ||
+              (childrenOps.has(id) && typeof childrenOps.get(id)![i] !== "string")
+            ) {
+              indexSubtree(child, id);
+            } else {
+              parents.set(child.id, id);
+            }
+          }
+        }
+      }
+      parents.set(nextRoot.id, null);
+
+      current = { type: "scene", revision: patch.revision, root: nextRoot };
+      return current;
+    },
+  };
 }

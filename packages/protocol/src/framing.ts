@@ -46,7 +46,10 @@ export function createLineDecoder(options: LineDecoderOptions): LineDecoder {
   // `fatal` turns a truncated or overlong sequence into a protocol error rather
   // than silently writing U+FFFD into the message.
   const decoder = new TextDecoder("utf-8", { fatal: true });
-  let buffer = new Uint8Array(0);
+  // Buffered slices of an incomplete line. Storing chunks instead of growing a
+  // single Uint8Array avoids O(N^2) copies when large scenes arrive in pieces.
+  let chunks: Uint8Array[] = [];
+  let pendingBytes = 0;
   // A string chunk can end between the halves of a surrogate pair; the high
   // half waits here so the pair is encoded as one character.
   let heldHighSurrogate = "";
@@ -54,14 +57,23 @@ export function createLineDecoder(options: LineDecoderOptions): LineDecoder {
 
   function stop(error: string): void {
     stopped = true;
+    chunks = [];
+    pendingBytes = 0;
     options.onError(error);
   }
 
-  function append(bytes: Uint8Array): void {
-    const joined = new Uint8Array(buffer.length + bytes.length);
-    joined.set(buffer);
-    joined.set(bytes, buffer.length);
-    buffer = joined;
+  function assemble(tail: Uint8Array): Uint8Array {
+    const line = new Uint8Array(pendingBytes + tail.length);
+    let offset = 0;
+    for (let i = 0; i < chunks.length; i++) {
+      const part = chunks[i]!;
+      line.set(part, offset);
+      offset += part.length;
+    }
+    if (tail.length > 0) line.set(tail, offset);
+    chunks = [];
+    pendingBytes = 0;
+    return line;
   }
 
   function emitLine(line: Uint8Array): void {
@@ -88,21 +100,6 @@ export function createLineDecoder(options: LineDecoderOptions): LineDecoder {
     options.onLine(value);
   }
 
-  function drain(): void {
-    let start = 0;
-    for (;;) {
-      const index = buffer.indexOf(NEWLINE, start);
-      if (index === -1) break;
-      emitLine(buffer.subarray(start, index));
-      if (stopped) return;
-      start = index + 1;
-    }
-    if (start > 0) buffer = buffer.slice(start);
-    // Checked before the terminator arrives so one bad line cannot grow the
-    // buffer without bound.
-    if (buffer.length > maxLineBytes) stop(`line exceeds ${maxLineBytes} bytes`);
-  }
-
   function encodeChunk(text: string): Uint8Array {
     let value = heldHighSurrogate + text;
     heldHighSurrogate = "";
@@ -117,25 +114,58 @@ export function createLineDecoder(options: LineDecoderOptions): LineDecoder {
   return {
     push(chunk: string | Uint8Array): void {
       if (stopped) return;
-      // Copy the caller's bytes: the buffer outlives the call.
-      const bytes = typeof chunk === "string" ? encodeChunk(chunk) : new Uint8Array(chunk);
+      const owned = typeof chunk === "string";
+      const bytes = owned ? encodeChunk(chunk) : chunk;
       if (bytes.length === 0) return;
-      append(bytes);
-      drain();
+
+      let start = 0;
+      for (;;) {
+        const index = bytes.indexOf(NEWLINE, start);
+        if (index === -1) break;
+        const part = bytes.subarray(start, index);
+        if (pendingBytes === 0) {
+          emitLine(part);
+        } else {
+          if (pendingBytes + part.length > maxLineBytes) {
+            stop(`line exceeds ${maxLineBytes} bytes`);
+            return;
+          }
+          emitLine(assemble(part));
+        }
+        if (stopped) return;
+        start = index + 1;
+      }
+
+      if (start < bytes.length) {
+        const tailLen = bytes.length - start;
+        // Checked before the terminator arrives so one bad line cannot grow the
+        // buffer without bound.
+        if (pendingBytes + tailLen > maxLineBytes) {
+          stop(`line exceeds ${maxLineBytes} bytes`);
+          return;
+        }
+        // Copy only bytes that outlive this `push()` call.
+        const tail = bytes.subarray(start);
+        chunks.push(owned ? tail : new Uint8Array(tail));
+        pendingBytes += tailLen;
+      }
     },
     end(): void {
       if (stopped) return;
       if (heldHighSurrogate !== "") {
-        append(encoder.encode(heldHighSurrogate));
+        const encoded = encoder.encode(heldHighSurrogate);
         heldHighSurrogate = "";
+        chunks.push(encoded);
+        pendingBytes += encoded.length;
       }
-      const leftover = buffer;
-      buffer = new Uint8Array(0);
-      if (leftover.length === 0) {
+      const leftoverBytes = pendingBytes;
+      chunks = [];
+      pendingBytes = 0;
+      if (leftoverBytes === 0) {
         stopped = true;
         return;
       }
-      stop(`unterminated line: ${leftover.length} bytes without a newline`);
+      stop(`unterminated line: ${leftoverBytes} bytes without a newline`);
     },
   };
 }

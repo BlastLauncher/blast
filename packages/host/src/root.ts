@@ -99,8 +99,48 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
   let closed = false;
   let running: Opened | undefined;
   let launching: LaunchFlow | undefined;
+  let rebuildDirty = false;
+  let rebuildScheduled = false;
+  let batchTimer: ReturnType<typeof setTimeout> | undefined;
 
-  const view = () => (active ? active.view() : catalog.view());
+  const clearBatchTimer = () => {
+    if (batchTimer !== undefined) {
+      clearTimeout(batchTimer);
+      batchTimer = undefined;
+    }
+  };
+  const flushRebuild = () => {
+    clearBatchTimer();
+    if (!rebuildDirty || closed) return;
+    rebuildDirty = false;
+    rebuild();
+  };
+  const scheduleRebuild = () => {
+    rebuildDirty = true;
+    if (loads.size > 0) {
+      // Other manifests in this batch are still in flight: wait for the batch
+      // to settle (or at most one 16 ms frame) instead of emitting N full views.
+      if (batchTimer === undefined) {
+        batchTimer = setTimeout(() => {
+          batchTimer = undefined;
+          flushRebuild();
+        }, 16);
+        batchTimer.unref?.();
+      }
+      return;
+    }
+    clearBatchTimer();
+    if (rebuildScheduled) return;
+    rebuildScheduled = true;
+    queueMicrotask(() => {
+      rebuildScheduled = false;
+      flushRebuild();
+    });
+  };
+  const view = () => {
+    flushRebuild();
+    return active ? active.view() : catalog.view();
+  };
   const emit = (next: ControllerView) => {
     for (const listener of listeners) listener(next);
   };
@@ -155,14 +195,17 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     }
     const load = handle.manifest().then(
       (manifest) => {
+        loads.delete(load);
         if (!tracked.includes(handle)) return;
         manifests.set(handle, manifest);
-        rebuild();
+        scheduleRebuild();
       },
-      () => {},
+      () => {
+        loads.delete(load);
+        if (rebuildDirty && loads.size === 0) scheduleRebuild();
+      },
     );
     loads.add(load);
-    void load.finally(() => loads.delete(load));
   };
   const untrack = (handle: ExtensionHandle) => {
     const at = tracked.indexOf(handle);
@@ -271,9 +314,11 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     },
     async ready() {
       while (loads.size) await Promise.all(loads);
+      flushRebuild();
     },
     async close() {
       closed = true;
+      clearBatchTimer();
       stopChanges();
       for (const stop of watches.values()) stop();
       watches.clear();
