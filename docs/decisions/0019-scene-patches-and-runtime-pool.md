@@ -5,8 +5,8 @@ Status: accepted 2026-11-26; amends 0001
 ## Context
 
 Decision 0001 sent full scene snapshots on every commit and spawned a fresh Node
-child at launch. Profiling large lists and cold launches showed two critical-path
-costs: re-serializing unchanged subtrees per commit, and paying Node, React and
+child at launch. PR #109 targeted two critical-path costs of that model:
+re-serializing unchanged subtrees per commit, and paying Node, React and
 `@raycast/api` startup after launch.
 
 ## Decision

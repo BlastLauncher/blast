@@ -86,3 +86,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-15: `3.0.0-alpha.3` published to npm `next`, adding `@blastlauncher/tui`.
 - 2026-11-17: Sandbox network may go through an embedder-hosted CORS proxy; ours is a Worker that stores nothing (`0017`).
 - 2026-11-19: `@blastlauncher/native` hosts a loopback companion-extension WebSocket server for real `BrowserExtension` tabs and content (`0018`).
+- 2026-11-26: Runtime sends opt-in `scene.patch` updates; the engine keeps one pre-warmed standby runtime (`0019`).
