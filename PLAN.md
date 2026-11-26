@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M16 in progress: browser bridge for real `BrowserExtension.getTabs` and
-`getContent` via the Raycast companion-extension protocol (decision 0018).
+M17 in progress: current and measured — latest `@raycast/api`, scene-patch
+decision, perf baseline, embedder view patches, a fresh `latest` release.
 
 ## Milestones
 
@@ -41,6 +41,14 @@ M16 in progress: browser bridge for real `BrowserExtension.getTabs` and
 ### M16 — Browser bridge
 
 - [x] 0190 Browser bridge for real `BrowserExtension` tabs and content (+ decision 0018)
+
+### M17 — Current and measured
+
+- [x] 0191 `@raycast/api` 2.14.0 and `@raycast/utils` 2.3.3 denominator
+- [ ] 0192 Decision record for scene patches and the runtime pool; architecture doc
+- [ ] 0193 `bench` script with a recorded perf baseline
+- [ ] 0194 Embedder view patches for `blast serve`, or a measured no
+- [ ] 0195 Release `alpha.10` and move the npm `latest` tag
 
 ## Later (not scheduled)
 

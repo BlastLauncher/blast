@@ -1,6 +1,6 @@
 {
-  "version": "2.11.1",
-  "sha256": "779bd6399374f32c8187c6f49f594d32c619edb82b2cf5e5be312a1b7ed4ba2c",
+  "version": "2.14.0",
+  "sha256": "19bb8d5b28a0d0a859cc438cb09e8ac184a030da08fbf0479344d513e685193b",
   "entries": [
     {
       "path": "AI",
@@ -100,6 +100,11 @@
     },
     {
       "path": "AI.Model.Anthropic_Claude_Fable_5.1",
+      "kind": "enum-member",
+      "deprecated": true
+    },
+    {
+      "path": "AI.Model.Anthropic_Claude_Fable_5.2",
       "kind": "enum-member",
       "deprecated": false
     },
@@ -325,6 +330,21 @@
     },
     {
       "path": "AI.Model.Google_Gemini_4_Argon",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Carbon",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Hydrogen",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Neon",
       "kind": "enum-member",
       "deprecated": false
     },
@@ -599,6 +619,16 @@
       "deprecated": false
     },
     {
+      "path": "AI.Model.OpenAI_GPT-6.2_Astra",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.OpenAI_GPT-6.2_Sol",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
       "path": "AI.Model.OpenAI_GPT-6_Astra",
       "kind": "enum-member",
       "deprecated": false
@@ -839,9 +869,14 @@
       "deprecated": false
     },
     {
-      "path": "AI.Model.Vercel_Inkling_Small",
+      "path": "AI.Model.Vercel_Inkling_2_Small",
       "kind": "enum-member",
       "deprecated": false
+    },
+    {
+      "path": "AI.Model.Vercel_Inkling_Small",
+      "kind": "enum-member",
+      "deprecated": true
     },
     {
       "path": "AI.Model.Vercel_Kimi_K2.7_Code",
@@ -855,6 +890,11 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3.1_Pro",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Ember",
       "kind": "enum-member",
       "deprecated": false
     },

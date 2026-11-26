@@ -1,23 +1,23 @@
 {
-  "version": "2.11.1",
+  "version": "2.14.0",
   "totals": {
     "all": {
-      "covered": 2482,
+      "covered": 2490,
       "partial": 0,
       "missing": 0,
-      "total": 2482
+      "total": 2490
     },
     "nonDeprecated": {
-      "covered": 1540,
+      "covered": 1546,
       "partial": 0,
       "missing": 0,
-      "total": 1540
+      "total": 1546
     },
     "deprecated": {
-      "covered": 942,
+      "covered": 944,
       "partial": 0,
       "missing": 0,
-      "total": 942
+      "total": 944
     },
     "kinds": {
       "namespace": {
@@ -57,10 +57,10 @@
         "total": 13
       },
       "enum-member": {
-        "covered": 696,
+        "covered": 704,
         "partial": 0,
         "missing": 0,
-        "total": 696
+        "total": 704
       },
       "interface": {
         "covered": 64,
@@ -243,6 +243,14 @@
     },
     {
       "path": "AI.Model.Anthropic_Claude_Fable_5.1",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Anthropic_Claude_Fable_5.2",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/enums.generated.test.ts"
@@ -603,6 +611,30 @@
     },
     {
       "path": "AI.Model.Google_Gemini_4_Argon",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Carbon",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Hydrogen",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Neon",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/enums.generated.test.ts"
@@ -1042,6 +1074,22 @@
       "weight": 0
     },
     {
+      "path": "AI.Model.OpenAI_GPT-6.2_Astra",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.OpenAI_GPT-6.2_Sol",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
       "path": "AI.Model.OpenAI_GPT-6_Astra",
       "status": "covered",
       "tests": [
@@ -1426,6 +1474,14 @@
       "weight": 0
     },
     {
+      "path": "AI.Model.Vercel_Inkling_2_Small",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
       "path": "AI.Model.Vercel_Inkling_Small",
       "status": "covered",
       "tests": [
@@ -1451,6 +1507,14 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3.1_Pro",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Ember",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/enums.generated.test.ts"
