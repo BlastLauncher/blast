@@ -23,7 +23,7 @@ import {
   PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES,
 } from "@blastlauncher/shared-deps";
 
-/** Hooks exported by the pinned `@raycast/utils` (2.3.2) that mark the utils stratum. */
+/** Hooks exported by the pinned `@raycast/utils` (2.3.3) that mark the utils stratum. */
 export const UTILS_HOOKS = [
   "useAI",
   "useCachedPromise",

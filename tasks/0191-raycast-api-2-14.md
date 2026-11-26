@@ -60,8 +60,12 @@ shared `@raycast/utils` pin is `2.3.3`, and non-deprecated coverage is back to
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/47ed6d54 @ ce3282fd2f3a9a4f5423109a9ed40b87723b630d
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 83.9s
 Done:
-Not done / risks:
+- Upgraded the vendored @raycast/api denominator and generated inventory, enums, stubs, coverage report, and source metadata to 2.14.0; non-deprecated coverage is 1546/1546 (100.0%), with 0 partial and 0 missing.
+- Added evidence/runtime values for AI.Model.Anthropic_Claude_Fable_5.2, Google_Gemini_4_Carbon, Google_Gemini_4_Hydrogen, Google_Gemini_4_Neon, OpenAI_GPT-6.2_Astra, OpenAI_GPT-6.2_Sol, Vercel_Inkling_2_Small, and Vercel_Muse_Ember.
+- Recorded the 2.14.0 API changes: Vercel_Inkling_Small now aliases gateway-thinkingmachines/inkling; Anthropic_Claude_Fable_5.1 and Vercel_Inkling_Small are deprecated; no symbols were removed or signatures changed.
+- Pinned @raycast/utils to 2.3.3, regenerated bun.lock, verified the existing utils hook selector against its exports, and updated the README measured-version receipt.
+Not done / risks: No corpus resweep; no fixture or host-test 2.11.1 coverage-version references existed outside the task/plan documentation.
 ```

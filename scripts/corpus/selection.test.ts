@@ -129,7 +129,7 @@ test("runtime dependencies must be provided by Blast", () => {
   expect(
     unprovidedDependencies({
       dependencies: {
-        "@raycast/utils": "2.3.2",
+        "@raycast/utils": "2.3.3",
         "unprovided-schema": "^3",
         "unprovided-fetch": "^2",
       },

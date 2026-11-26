@@ -37,7 +37,7 @@ test("declared dependencies are the runtime ones, beyond the provided packages a
   const manifest = {
     dependencies: {
       "@raycast/api": "^1.0.0",
-      "@raycast/utils": "2.3.2",
+      "@raycast/utils": "2.3.3",
       react: "^18",
       zod: "^3.22.4",
       "node-fetch": "^2",
@@ -141,7 +141,7 @@ test("native-module extensions are excluded from the satisfied population", () =
 /** Two extensions that need nothing, one per package, and one needing two. */
 const FIXTURES: ExtensionDependencies[] = [
   { declared: {}, imported: [] },
-  { declared: { "@raycast/utils": "2.3.2" }, imported: [] },
+  { declared: { "@raycast/utils": "2.3.3" }, imported: [] },
   { declared: { a: "1" }, imported: ["a"] },
   { declared: { a: "2" }, imported: ["a"] },
   { declared: { b: "1" }, imported: ["b"] },

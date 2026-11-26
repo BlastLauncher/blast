@@ -550,28 +550,34 @@ export declare namespace AI {
         "OpenAI_GPT-5.6_Terra" = "openai-gpt-5.6-terra",
         "OpenAI_GPT-5.6_Luna" = "openai-gpt-5.6-luna",
         "OpenAI_GPT-6_Astra" = "openai-gpt-6-astra",
+        "OpenAI_GPT-6.2_Astra" = "openai-gpt-6.2-astra",
         "OpenAI_GPT-6_Sol" = "openai-gpt-6-sol",
         "OpenAI_GPT-6.1_Sol" = "openai-gpt-6.1-sol",
+        "OpenAI_GPT-6.2_Sol" = "openai-gpt-6.2-sol",
         "OpenAI_GPT-6.1_Terra" = "openai-gpt-6.1-terra",
         "OpenAI_GPT-6_Luna" = "openai-gpt-6-luna",
         "Groq_GPT-OSS_20b" = "groq-openai/gpt-oss-20b",
         "Groq_GPT-OSS_120b" = "groq-openai/gpt-oss-120b",
         "Anthropic_Claude_Haiku_5.5" = "anthropic-claude-haiku-5-5",
         "Anthropic_Claude_Sonnet_4.6" = "anthropic-claude-sonnet-4-6",
-        "Anthropic_Claude_Sonnet_5" = "anthropic-claude-sonnet-5",
+        Anthropic_Claude_Sonnet_5 = "anthropic-claude-sonnet-5",
         "Anthropic_Claude_Sonnet_5.5" = "anthropic-claude-sonnet-5-5",
-        "Anthropic_Claude_Opus_5" = "anthropic-claude-opus-5",
+        Anthropic_Claude_Opus_5 = "anthropic-claude-opus-5",
         "Anthropic_Claude_Opus_5.5" = "anthropic-claude-opus-5-5",
-        "Anthropic_Claude_Fable_5.1" = "anthropic-claude-fable-5-1",
-        "Perplexity_Sonar" = "perplexity-sonar",
-        "Perplexity_Sonar_Pro" = "perplexity-sonar-pro",
+        "Anthropic_Claude_Fable_5.2" = "anthropic-claude-fable-5-2",
+        Perplexity_Sonar = "perplexity-sonar",
+        Perplexity_Sonar_Pro = "perplexity-sonar-pro",
         "Vercel_Muse_Spark_1.3" = "gateway-meta/muse-spark-1.3",
         "Vercel_Muse_Wonder_1.0" = "gateway-meta/muse-wonder-1.0",
-        "Mistral_Large" = "mistral-mistral-large-latest",
-        "Mistral_Medium" = "mistral-mistral-medium-latest",
-        "Mistral_Small" = "mistral-mistral-small-latest",
-        "Mistral_Codestral" = "mistral-codestral-latest",
-        "Google_Gemini_4_Argon" = "google-gemini-4-argon",
+        Vercel_Muse_Ember = "gateway-meta/muse-ember",
+        Mistral_Large = "mistral-mistral-large-latest",
+        Mistral_Medium = "mistral-mistral-medium-latest",
+        Mistral_Small = "mistral-mistral-small-latest",
+        Mistral_Codestral = "mistral-codestral-latest",
+        Google_Gemini_4_Carbon = "google-gemini-4-carbon",
+        Google_Gemini_4_Argon = "google-gemini-4-argon",
+        Google_Gemini_4_Hydrogen = "google-gemini-4-hydrogen",
+        Google_Gemini_4_Neon = "google-gemini-4-neon",
         "Google_Gemini_3.8_Flash" = "google-gemini-3.8-flash",
         "Google_Gemini_3.5_Flash_Lite" = "google-gemini-3.5-flash-lite",
         "Google_Gemini_3.1_Pro" = "google-gemini-3.1-pro",
@@ -581,21 +587,25 @@ export declare namespace AI {
         "Vercel_GLM-5.3" = "gateway-zai/glm-5.3",
         "Vercel_GLM-5.3_Flash" = "gateway-zai/glm-5.3-flash",
         "Vercel_Kimi_K2.7_Code" = "gateway-moonshotai/kimi-k2.7-code",
-        "Vercel_Kimi_K3" = "gateway-moonshotai/kimi-k3",
+        Vercel_Kimi_K3 = "gateway-moonshotai/kimi-k3",
         "Vercel_Kimi_K3.1_Pro" = "gateway-moonshotai/kimi-k3.1-pro",
-        "Vercel_Gemma_4_31B" = "gateway-google/gemma-4-31b-it",
-        "Vercel_Inkling" = "gateway-thinkingmachines/inkling",
-        "Vercel_Inkling_Small" = "gateway-thinkingmachines/inkling-small",
-        "Vercel_DeepSeek_V4_Flash" = "gateway-deepseek/deepseek-v4-flash",
+        Vercel_Gemma_4_31B = "gateway-google/gemma-4-31b-it",
+        Vercel_Inkling = "gateway-thinkingmachines/inkling",
+        Vercel_Inkling_2_Small = "gateway-thinkingmachines/inkling-2-small",
+        Vercel_DeepSeek_V4_Flash = "gateway-deepseek/deepseek-v4-flash",
         "Vercel_DeepSeek_V4.1_Flash" = "gateway-deepseek/deepseek-v4.1-flash",
-        "Vercel_DeepSeek_V4_Pro" = "gateway-deepseek/deepseek-v4-pro-0813",
+        Vercel_DeepSeek_V4_Pro = "gateway-deepseek/deepseek-v4-pro-0813",
         "Vercel_Qwen3.8_Max" = "gateway-alibaba/qwen3.8-max",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_Haiku_4.5" = "anthropic-claude-4-5-haiku",
+        /** @deprecated Use `AI.Model["Anthropic_Claude_Fable_5.2"]` instead */
+        "Anthropic_Claude_Fable_5.1" = "anthropic-claude-fable-5-1",
         /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
-        "Mistral_Nemo" = "mistral-open-mistral-nemo",
+        Mistral_Nemo = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_3.7_Flash" = "google-gemini-3.7-flash",
+        /** @deprecated Use `AI.Model["Vercel_Inkling"]` instead */
+        Vercel_Inkling_Small = "gateway-thinkingmachines/inkling",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
         "OpenAI_GPT-5.3_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
@@ -613,7 +623,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Google_Gemini_3.5_Flash_Lite"]` instead */
         "Google_Gemini_3.1_Flash_Lite" = "google-gemini-3.5-flash-lite",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
-        "Google_Gemini_3_Flash" = "google-gemini-3.8-flash",
+        Google_Gemini_3_Flash = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
         "xAI_Grok-4.5" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
@@ -653,7 +663,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
         "OpenAI_GPT-5" = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
-        "OpenAI_o3" = "openai-gpt-5.6-terra",
+        OpenAI_o3 = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
         "Anthropic_Claude_Sonnet_4.5" = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
@@ -663,7 +673,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-6.1_Sol"]` instead */
         "OpenAI_GPT-5.2_Instant" = "openai-gpt-6.1-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
-        "OpenAI_o1" = "openai-gpt-5.6-terra",
+        OpenAI_o1 = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
         "Groq_Llama_3.3_70B" = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_20b"]` instead */
@@ -675,13 +685,13 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Vercel_GLM-5.2"]` instead */
         "Baseten_GLM-5.2" = "gateway-zai/glm-5.2",
         /** @deprecated Use `AI.Model["Vercel_DeepSeek_V4_Pro"]` instead */
-        "Baseten_DeepSeek_V4_Pro" = "gateway-deepseek/deepseek-v4-pro-0813",
+        Baseten_DeepSeek_V4_Pro = "gateway-deepseek/deepseek-v4-pro-0813",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
         "xAI_Grok-3_Mini_Beta" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Vercel_GLM-5.2"]` instead */
         "Baseten_GLM-5" = "gateway-zai/glm-5.2",
         /** @deprecated Use `AI.Model["Vercel_Kimi_K3"]` instead */
-        "Gateway_Kimi_K3" = "gateway-moonshotai/kimi-k3",
+        Gateway_Kimi_K3 = "gateway-moonshotai/kimi-k3",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.5_Instant"]` instead */
         "OpenAI_GPT-5.1_Instant" = "openai-gpt-5.5-instant",
         /** @deprecated Use `AI.Model["Vercel_Kimi_K3"]` instead */
@@ -691,31 +701,31 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
         "Anthropic_Claude_Opus_4.6" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Groq_Llama_4_Scout" = "groq-openai/gpt-oss-120b",
+        Groq_Llama_4_Scout = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Vercel_DeepSeek_V4_Pro"]` instead */
         "Baseten_MiniMax_M2.5" = "gateway-deepseek/deepseek-v4-pro-0813",
         /** @deprecated Use `AI.Model["Vercel_Kimi_K3"]` instead */
         "Baseten_Kimi_K2.5" = "gateway-moonshotai/kimi-k3",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_4.6"]` instead */
-        "Anthropic_Claude_Sonnet_4" = "anthropic-claude-sonnet-4-6",
+        Anthropic_Claude_Sonnet_4 = "anthropic-claude-sonnet-4-6",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_3.5_Haiku" = "anthropic-claude-4-5-haiku",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_4.5_Haiku" = "anthropic-claude-4-5-haiku",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_4.6"]` instead */
-        "Anthropic_Claude_4_Sonnet" = "anthropic-claude-sonnet-4-6",
+        Anthropic_Claude_4_Sonnet = "anthropic-claude-sonnet-4-6",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
         "Anthropic_Claude_4.5_Sonnet" = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_4_Opus" = "anthropic-claude-opus-5",
+        Anthropic_Claude_4_Opus = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
         "Anthropic_Claude_4.1_Opus" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Together_AI_Llama_3.1_405B" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
-        "Mistral_Small_3" = "mistral-mistral-small-latest",
+        Mistral_Small_3 = "mistral-mistral-small-latest",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Groq_Kimi_K2_Instruct" = "groq-openai/gpt-oss-120b",
+        Groq_Kimi_K2_Instruct = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_2.0_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
@@ -729,7 +739,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
         "xAI_Grok-4_Fast" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_Code_Fast_1" = "xai-grok-4.6",
+        xAI_Grok_Code_Fast_1 = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
         "xAI_Grok-3_Beta" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
@@ -739,21 +749,21 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT3.5-turbo-instruct" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_Opus" = "anthropic-claude-opus-5",
+        Anthropic_Claude_Opus = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_2.0_Flash_Thinking" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Llama2_70B" = "groq-openai/gpt-oss-120b",
+        Llama2_70B = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Perplexity_Sonar"]` instead */
-        "Perplexity_Sonar_Medium_Online" = "perplexity-sonar",
+        Perplexity_Sonar_Medium_Online = "perplexity-sonar",
         /** @deprecated Use `AI.Model["Perplexity_Sonar"]` instead */
-        "Perplexity_Sonar_Small_Online" = "perplexity-sonar",
+        Perplexity_Sonar_Small_Online = "perplexity-sonar",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Codellama_70B_instruct" = "groq-openai/gpt-oss-120b",
+        Codellama_70B_instruct = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Perplexity_Sonar"]` instead */
-        "Perplexity_Llama3_Sonar_Large" = "perplexity-sonar",
+        Perplexity_Llama3_Sonar_Large = "perplexity-sonar",
         /** @deprecated Use `AI.Model["Perplexity_Sonar"]` instead */
-        "Perplexity_Llama3_Sonar_Small" = "perplexity-sonar",
+        Perplexity_Llama3_Sonar_Small = "perplexity-sonar",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT3.5-turbo" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
@@ -765,19 +775,19 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Perplexity_Sonar"]` instead */
         "Perplexity_Llama3.1_Sonar_Small" = "perplexity-sonar",
         /** @deprecated Use `AI.Model["Mistral_Large"]` instead */
-        "Mistral_Large2" = "mistral-mistral-large-latest",
+        Mistral_Large2 = "mistral-mistral-large-latest",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Groq_DeepSeek_R1_Distill_Llama_3.3_70B" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
-        "Together_DeepSeek_R1" = "openai-gpt-5.4-mini",
+        Together_DeepSeek_R1 = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
-        "MixtraL_8x7B" = "mistral-open-mistral-nemo",
+        MixtraL_8x7B = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_1.5_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_1.5_Pro" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
-        "Mixtral_8x7B" = "mistral-open-mistral-nemo",
+        Mixtral_8x7B = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "Qwen_2.5_32B" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
@@ -785,25 +795,25 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_o1-mini" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Llama3_70B" = "groq-openai/gpt-oss-120b",
+        Llama3_70B = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
         "Anthropic_Claude_Sonnet_3.7" = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
-        "Anthropic_Claude_Sonnet" = "anthropic-claude-sonnet-5",
+        Anthropic_Claude_Sonnet = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["Perplexity_Sonar_Pro"]` instead */
-        "Perplexity_Sonar_Reasoning" = "perplexity-sonar-pro",
+        Perplexity_Sonar_Reasoning = "perplexity-sonar-pro",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_20b"]` instead */
-        "OpenAI_GPT_OSS_20b" = "groq-openai/gpt-oss-20b",
+        OpenAI_GPT_OSS_20b = "groq-openai/gpt-oss-20b",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "OpenAI_GPT_OSS_120b" = "groq-openai/gpt-oss-120b",
+        OpenAI_GPT_OSS_120b = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
-        "OpenAI_GPT5" = "openai-gpt-5.6-terra",
+        OpenAI_GPT5 = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "OpenAI_GPT5-mini" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT5-nano" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
-        "OpenAI_GPT4" = "openai-gpt-6-sol",
+        OpenAI_GPT4 = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
         "OpenAI_GPT4-turbo" = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
@@ -813,11 +823,11 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT4.1-mini" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
-        "OpenAI_GPT4o" = "openai-gpt-6-sol",
+        OpenAI_GPT4o = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT4o-mini" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
-        "Anthropic_Claude_Haiku" = "anthropic-claude-4-5-haiku",
+        Anthropic_Claude_Haiku = "anthropic-claude-4-5-haiku",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
         "Llama3.3_70B" = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_20b"]` instead */
@@ -825,23 +835,23 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Llama3.1_405B" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Llama4_Scout" = "groq-openai/gpt-oss-120b",
+        Llama4_Scout = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
-        "DeepSeek_R1" = "openai-gpt-5.4-mini",
+        DeepSeek_R1 = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
-        "DeepSeek_V3" = "openai-gpt-5.4-mini",
+        DeepSeek_V3 = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_2" = "xai-grok-4.6",
+        xAI_Grok_2 = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_3" = "xai-grok-4.6",
+        xAI_Grok_3 = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_4" = "xai-grok-4.6",
+        xAI_Grok_4 = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_3_Mini" = "xai-grok-4.6",
+        xAI_Grok_3_Mini = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
-        "Groq_Qwen3_32B" = "groq-openai/gpt-oss-120b",
+        Groq_Qwen3_32B = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
-        "Groq_Qwen3_235B_A22B_Instruct_2507_tput" = "openai-gpt-5.4-mini",
+        Groq_Qwen3_235B_A22B_Instruct_2507_tput = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_4.6"]` instead */
         "Anthropic_Claude_4.6_Sonnet" = "anthropic-claude-sonnet-4-6",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
@@ -855,7 +865,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
         "xAI_Grok-4.1_Fast" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Google_Gemini_3.1_Pro"]` instead */
-        "Google_Gemini_3_Pro" = "google-gemini-3.1-pro",
+        Google_Gemini_3_Pro = "google-gemini-3.1-pro",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
         "OpenAI_GPT-5_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["Google_Gemini_3.5_Flash_Lite"]` instead */

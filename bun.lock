@@ -116,7 +116,7 @@
     "packages/shared-deps": {
       "name": "@blastlauncher/shared-deps",
       "dependencies": {
-        "@raycast/utils": "2.3.2",
+        "@raycast/utils": "2.3.3",
         "axios": "1.20.0",
         "cheerio": "1.2.0",
         "cross-fetch": "4.1.0",
@@ -535,7 +535,7 @@
 
     "@raycast/api": ["@raycast/api@2.8.2", "", { "dependencies": { "@oclif/core": "^4.11.4", "@oclif/plugin-autocomplete": "^3.2.50", "@oclif/plugin-help": "^6.2.50", "@oclif/plugin-not-found": "^3.2.87", "@types/node": "22.19.17", "@types/react": "19.0.10", "esbuild": "^0.28.0", "react": "19.0.0" }, "peerDependencies": { "react-devtools": "6.1.1" }, "optionalPeers": ["react-devtools"], "bin": { "ray": "bin/run.js" } }, "sha512-lJ9586eWj0z+DRi9BiiR9d7FDuB1FhMwblfIl/yHl1hKwg8gZz+HtSPzw9XqnG7qytHULy2EqqweJRLvCQdzJA=="],
 
-    "@raycast/utils": ["@raycast/utils@2.3.2", "", { "dependencies": { "dequal": "^2.0.3" }, "peerDependencies": { "@raycast/api": ">=1.99.4", "react": ">=19.0.0" }, "optionalPeers": ["react"] }, "sha512-AKXH/V0o5LuSXbnHn+Mwfl5tG/im5covBhhZwSnedpqZTPmLoZJC9U6+0iz1NkTPGW4ynH32Ivvs2U+nUA4hYA=="],
+    "@raycast/utils": ["@raycast/utils@2.3.3", "", { "dependencies": { "dequal": "^2.0.3" }, "peerDependencies": { "@raycast/api": ">=1.99.4", "react": ">=19.0.0" }, "optionalPeers": ["react"] }, "sha512-qtnuoRijFD+NDC4XEgoAyrmuIuqwYtl73RYPwuk/drhRNp0ywktNbb7wI58ZM9vPj+253iF/F5tr0TYwTuz0Fg=="],
 
     "@shikijs/core": ["@shikijs/core@4.6.0", "", { "dependencies": { "@shikijs/primitive": "4.6.0", "@shikijs/types": "4.6.0", "@shikijs/vscode-textmate": "^10.1.0", "@types/hast": "^3.0.5", "hast-util-to-html": "^9.0.6" } }, "sha512-bfd4OKgvoyXYiYmMRuleA656P4V7M/Du9lcTl38Ngm6KszMj7bq4J1IGZwSYR4c95Tv5UQALtYNWUwaI9UT3xw=="],
 
