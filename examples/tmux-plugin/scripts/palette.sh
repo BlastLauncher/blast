@@ -36,8 +36,10 @@ if ! command -v bun >/dev/null 2>&1; then
   fi
 fi
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 blast_command="$(option @blast-command 'bunx @blastlauncher/tui@next')"
 blast_cache_dir="$(option @blast-cache-dir "$HOME/.local/share/blast/tui")"
+blast_update_interval="$(option @blast-update-interval 3600)"
 blast_theme="$(option @blast-theme system)"
 blast_builtin="$(option @blast-builtin on)"
 blast_config="$(option @blast-config "$HOME/.config/blast/tmux.json")"
@@ -53,10 +55,14 @@ if [ "${height%\%}" = "$height" ] && [ "$height" -gt "$client_height" ]; then he
 
 # bunx resolves the package metadata on every invocation. Keep the default TUI
 # in a local install so only the first launch needs the network; later popups
-# execute the cached entrypoint directly. Explicit @blast-command values keep
-# their existing behavior.
+# execute the cached entrypoint directly and refresh `@next` in the background
+# once `@blast-update-interval` seconds have passed. Explicit @blast-command
+# values keep their existing behavior.
 if [ "$blast_command" = 'bunx @blastlauncher/tui@next' ]; then
-  tui_entry="$blast_cache_dir/node_modules/@blastlauncher/tui/dist/main.js"
+  tui_entry="$blast_cache_dir/current/node_modules/@blastlauncher/tui/dist/main.js"
+  if [ ! -f "$tui_entry" ]; then
+    tui_entry="$blast_cache_dir/node_modules/@blastlauncher/tui/dist/main.js"
+  fi
   tui_spec="$blast_cache_dir/.blast-spec"
   if [ ! -f "$tui_entry" ] || [ "$(cat "$tui_spec" 2>/dev/null || true)" != "$blast_command" ]; then
     mkdir -p "$blast_cache_dir"
@@ -66,7 +72,23 @@ if [ "$blast_command" = 'bunx @blastlauncher/tui@next' ]; then
       message "Could not install Blast TUI; check your network connection"
       exit 0
     fi
+    tui_entry="$blast_cache_dir/node_modules/@blastlauncher/tui/dist/main.js"
     printf '%s\n' "$blast_command" > "$tui_spec"
+    date +%s > "$blast_cache_dir/.blast-checked"
+  else
+    case "$blast_update_interval" in
+      '' | *[!0-9]*) blast_update_interval=3600 ;;
+    esac
+    if [ "$blast_update_interval" -gt 0 ]; then
+      last_checked="$(cat "$blast_cache_dir/.blast-checked" 2>/dev/null || printf '0')"
+      case "$last_checked" in
+        '' | *[!0-9]*) last_checked=0 ;;
+      esac
+      now="$(date +%s)"
+      if [ $((now - last_checked)) -ge "$blast_update_interval" ] && [ -x "$script_dir/update-tui.sh" ]; then
+        "$script_dir/update-tui.sh" "$blast_cache_dir" "$blast_command" >/dev/null 2>&1 &
+      fi
+    fi
   fi
   blast_command="bun $(quote "$tui_entry")"
 fi
