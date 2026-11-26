@@ -47,9 +47,10 @@ decision, perf baseline, embedder view patches, a fresh `latest` release.
 - [x] 0191 `@raycast/api` 2.14.0 and `@raycast/utils` 2.3.3 denominator
 - [x] 0192 Decision record for scene patches and the runtime pool; architecture doc
 - [x] 0193 `bench` script with a recorded perf baseline
-- [ ] 0194 Embedder view patches for `blast serve`, or a measured no
-- [ ] 0195 Release `alpha.10` and move the npm `latest` tag
+- [x] 0194 Embedder protocol 2: view patches from `blast serve` (+ decision 0020; one PR with 0196)
+- [x] 0196 Swift, Go and Python examples speak embedder protocol 2
 - [x] 0197 Runtime scene patches always on, including the browser host
+- [ ] 0195 Release `alpha.10` and move the npm `latest` tag
 
 ## Later (not scheduled)
 
@@ -88,3 +89,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-17: Sandbox network may go through an embedder-hosted CORS proxy; ours is a Worker that stores nothing (`0017`).
 - 2026-11-19: `@blastlauncher/native` hosts a loopback companion-extension WebSocket server for real `BrowserExtension` tabs and content (`0018`).
 - 2026-11-26: Runtime sends opt-in `scene.patch` updates; the engine keeps one pre-warmed standby runtime (`0019`).
+- 2026-11-26: Embedder protocol 2 replaces 1: full view, then generic set/delete/splice patches with strict revisions; scenes on request (`0020`).

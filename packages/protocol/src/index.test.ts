@@ -9,6 +9,8 @@ const API = [
   "EMBEDDER_PROTOCOL_SCHEMA",
   "EMBEDDER_METHODS",
   "parseEmbedderMessage",
+  "diffView",
+  "applyViewPatch",
   "DEFAULT_MAX_LINE_BYTES",
   "CAPABILITIES",
   "isCapabilityName",
@@ -50,6 +52,7 @@ test("the package has no dependencies and its source imports nothing from node",
     "preference-fields.ts",
     "provider-codec.ts",
     "provider.ts",
+    "view-patch.ts",
   ]);
   for (const name of sources) {
     const source = readFileSync(join(import.meta.dir, name), "utf8");

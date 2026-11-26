@@ -63,15 +63,17 @@ npx -p @blastlauncher/serve@next blast-serve
 ```
 
 ```json
-{"type":"hello","protocol":1,"capabilities":[],"views":{"platform":"macOS"}}
+{"type":"hello","protocol":2,"capabilities":[],"views":{"platform":"macOS"}}
 {"type":"request","id":"1","method":"extension.open","params":{"dir":"../raycast-extensions/extensions/android-versions"}}
 {"type":"request","id":"2","method":"root.open","params":{}}
 ```
 
-The server answers with `root.view` events carrying the command list and
+The server answers with an initial `root.view` (`revision: 1`) carrying the
+command list, incremental `root.view.patch` updates thereafter, and
 `{"root":"1"}`. Send `root.input` with `{"type":"primary"}` to launch the
-selected command; draw the `session.view` events of the session named in
-`root.launched` and send it `session.input` until `session.exited`. The
+selected command; draw `session.view` and apply `session.view.patch` for the
+session named in `root.launched` and send it `session.input` until
+`session.exited`. The
 [Go](../examples/go-embedder/) and [Python](../examples/python-embedder/)
 examples are complete standard-library clients. Run the Python one against an
 installed server, from `quickstart-js`:

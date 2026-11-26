@@ -5,9 +5,10 @@ See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
 An AppKit launcher that runs Raycast-compatible extensions through `blast serve`.
 The package has three layers:
 
-- **BlastKit** — a Foundation-only client for the embedder protocol: NDJSON over
+- **BlastKit** — a Foundation-only client for embedder protocol v2: NDJSON over
   stdio, the `hello`/`welcome` handshake, request/response correlation, typed
-  events, `ControllerView`/`ControllerInput` models, capability forwarding.
+  events, `*.view.patch` application with revision-gap resync,
+  `ControllerView`/`ControllerInput` models, capability forwarding.
 - **BlastPresenter** — pure Swift (Foundation + BlastKit, never AppKit). It
   turns a `ControllerView` into `LauncherDisplay` values (rows with title,
   subtitle, icon text and selection; search text and placeholder; action rows

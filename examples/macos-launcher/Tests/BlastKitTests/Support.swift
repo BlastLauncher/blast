@@ -138,7 +138,7 @@ final class FakeTransport: BlastTransport, @unchecked Sendable {
     }
 }
 
-func welcomeJSON(protocolVersion: Int = 1, engineVersion: String = "0.0.0-test") -> JSONValue {
+func welcomeJSON(protocolVersion: Int = 2, engineVersion: String = "0.0.0-test") -> JSONValue {
     .object([
         "type": .string("welcome"),
         "protocol": .number(Double(protocolVersion)),
@@ -295,6 +295,13 @@ final class EventRecorder: @unchecked Sendable {
         events.compactMap { event in
             guard case .view(let session, let view) = event else { return nil }
             return (session, view)
+        }
+    }
+
+    var rootViews: [(root: String, view: ControllerView)] {
+        events.compactMap { event in
+            guard case .rootView(let root, let view) = event else { return nil }
+            return (root, view)
         }
     }
 }

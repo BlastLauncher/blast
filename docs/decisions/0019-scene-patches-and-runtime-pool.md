@@ -30,10 +30,9 @@ re-serializing unchanged subtrees per commit, and paying Node, React and
    `baseRevision !== current.revision`, `revision !== baseRevision + 1`,
    unknown ID, or non-root op on `null` root. With no resync message, both
    hosts treat apply errors as fatal `PROTOCOL_ERROR` and terminate the runtime.
-4. **Embedder protocol unchanged.** `session.scenes()` yields full reconstructed
-   `SceneMessage`s, so `blast serve` (`packages/serve/src/serve.ts`) still emits
-   whole `session.scene`, `session.view`, and `root.view` events under
-   `embedder-v1` (`packages/protocol/schema/embedder-v1.schema.json`).
+4. **Embedder protocol separate.** `session.scenes()` yields full reconstructed
+   `SceneMessage`s; incremental view patches and opt-in scenes for `blast serve`
+   are specified separately in decision 0020 (`embedder-v2.schema.json`).
 5. **Single-slot standby pool** (`packages/host/src/runtime-pool.ts`).
    `createEngine` (`packages/host/src/engine.ts`) owns one pool, warms it on
    `engine.root()`, shares it with engine-opened extensions
@@ -55,4 +54,4 @@ one clean standby hides startup without sharing state.
 
 - Stable `SceneNode` identity aids caching; mismatches terminate the session.
 - `engine.root()` keeps one idle child until `engine.close()`; custom `env` or
-  differing `dataDir`/`inheritEnv` miss it. `blast serve` stays whole-view.
+  differing `dataDir`/`inheritEnv` miss it. `blast serve` view patches are in 0020.

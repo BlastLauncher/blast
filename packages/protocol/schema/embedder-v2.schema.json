@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://blastlauncher.dev/schema/embedder-v1.schema.json",
-  "title": "Blast embedder protocol v1",
-  "description": "NDJSON messages of `blast serve` (decision 0011). Each validated instance is one line: an embedder -> server or a server -> embedder message.",
+  "$id": "https://blastlauncher.dev/schema/embedder-v2.schema.json",
+  "title": "Blast embedder protocol v2",
+  "description": "NDJSON messages of `blast serve` (decisions 0011, 0020). Each validated instance is one line: an embedder -> server or a server -> embedder message.",
   "oneOf": [
     {
       "$ref": "#/$defs/embedderMessages"
@@ -370,6 +370,88 @@
       "additionalProperties": {
         "$ref": "#/$defs/jsonValue"
       }
+    },
+    "viewPatchOp": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "set"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "value": {
+              "$ref": "#/$defs/jsonValue"
+            }
+          },
+          "required": [
+            "op",
+            "path",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "delete"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "op",
+            "path"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "splice"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "at": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "remove": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "insert": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/jsonValue"
+              }
+            }
+          },
+          "required": [
+            "op",
+            "path",
+            "at",
+            "remove",
+            "insert"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "jsonValue": {
       "type": [
@@ -1120,6 +1202,41 @@
     "result.root.input": {
       "type": "null"
     },
+    "request.root.resync": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "root.resync"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "root"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.root.resync": {
+      "type": "null"
+    },
     "request.root.close": {
       "type": "object",
       "properties": {
@@ -1192,6 +1309,41 @@
       "additionalProperties": false
     },
     "result.session.input": {
+      "type": "null"
+    },
+    "request.session.resync": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "session.resync"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "session"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.session.resync": {
       "type": "null"
     },
     "request.session.event": {
@@ -1350,10 +1502,16 @@
           "$ref": "#/$defs/request.root.input"
         },
         {
+          "$ref": "#/$defs/request.root.resync"
+        },
+        {
           "$ref": "#/$defs/request.root.close"
         },
         {
           "$ref": "#/$defs/request.session.input"
+        },
+        {
+          "$ref": "#/$defs/request.session.resync"
         },
         {
           "$ref": "#/$defs/request.session.event"
@@ -1481,6 +1639,9 @@
               "const": false
             }
           ]
+        },
+        "scenes": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -1692,13 +1853,55 @@
             },
             "view": {
               "$ref": "#/$defs/controllerView"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
             }
           },
           "required": [
             "type",
             "event",
             "root",
-            "view"
+            "view",
+            "revision"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "root.view.patch"
+            },
+            "root": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "baseRevision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "ops": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/viewPatchOp"
+              }
+            }
+          },
+          "required": [
+            "type",
+            "event",
+            "root",
+            "revision",
+            "baseRevision",
+            "ops"
           ],
           "additionalProperties": false
         },
@@ -1762,13 +1965,55 @@
             },
             "view": {
               "$ref": "#/$defs/controllerView"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
             }
           },
           "required": [
             "type",
             "event",
             "session",
-            "view"
+            "view",
+            "revision"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "session.view.patch"
+            },
+            "session": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "baseRevision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "ops": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/viewPatchOp"
+              }
+            }
+          },
+          "required": [
+            "type",
+            "event",
+            "session",
+            "revision",
+            "baseRevision",
+            "ops"
           ],
           "additionalProperties": false
         },

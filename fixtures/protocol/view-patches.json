@@ -1,0 +1,1997 @@
+{
+  "cases": [
+    {
+      "name": "selection-move",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 1,
+        "revision": 2,
+        "ops": [
+          {
+            "op": "set",
+            "path": ["selectedId"],
+            "value": "r2"
+          },
+          {
+            "op": "splice",
+            "path": ["rows"],
+            "at": 0,
+            "remove": 2,
+            "insert": [
+              {
+                "id": "r1",
+                "kind": "item",
+                "title": "apple",
+                "subtitle": "crisp",
+                "accessories": "red",
+                "icon": false,
+                "count": null,
+                "selected": false,
+                "iconLabel": "",
+                "text": "apple crisp red"
+              },
+              {
+                "id": "r2",
+                "kind": "item",
+                "title": "banana",
+                "subtitle": "sweet",
+                "accessories": "yellow",
+                "icon": false,
+                "count": null,
+                "selected": true,
+                "iconLabel": "",
+                "text": "banana sweet yellow"
+              }
+            ]
+          },
+          {
+            "op": "set",
+            "path": ["primary", "title"],
+            "value": "Copy banana"
+          },
+          {
+            "op": "set",
+            "path": ["actions", "rows"],
+            "value": [
+              {
+                "id": "copy",
+                "kind": "action",
+                "title": "Copy banana",
+                "shortcut": "↵",
+                "selected": true
+              }
+            ]
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r2",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy banana",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy banana",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "one-row-edit",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 2,
+        "revision": 3,
+        "ops": [
+          {
+            "op": "splice",
+            "path": ["rows"],
+            "at": 1,
+            "remove": 1,
+            "insert": [
+              {
+                "id": "r2",
+                "kind": "item",
+                "title": "banana (pinned)",
+                "subtitle": "sweet",
+                "accessories": "pinned",
+                "icon": false,
+                "count": null,
+                "selected": false,
+                "iconLabel": "",
+                "text": "banana (pinned) sweet pinned"
+              }
+            ]
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana (pinned)",
+            "subtitle": "sweet",
+            "accessories": "pinned",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana (pinned) sweet pinned"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "search-filter",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 3,
+        "revision": 4,
+        "ops": [
+          {
+            "op": "set",
+            "path": ["search", "text"],
+            "value": "a"
+          },
+          {
+            "op": "splice",
+            "path": ["rows"],
+            "at": 2,
+            "remove": 2,
+            "insert": []
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "a",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "search-filter-empty",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "a",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 4,
+        "revision": 5,
+        "ops": [
+          {
+            "op": "set",
+            "path": ["search", "text"],
+            "value": "zzz"
+          },
+          {
+            "op": "set",
+            "path": ["selectedId"],
+            "value": null
+          },
+          {
+            "op": "set",
+            "path": ["rows"],
+            "value": []
+          },
+          {
+            "op": "set",
+            "path": ["empty"],
+            "value": {
+              "title": "No fruits",
+              "description": "Try a shorter query",
+              "iconLabel": "",
+              "iconTint": null
+            }
+          },
+          {
+            "op": "set",
+            "path": ["primary", "title"],
+            "value": "Run"
+          },
+          {
+            "op": "set",
+            "path": ["primary", "enabled"],
+            "value": false
+          },
+          {
+            "op": "set",
+            "path": ["actions", "rows"],
+            "value": [
+              {
+                "id": "copy",
+                "kind": "action",
+                "title": "Run",
+                "shortcut": "↵",
+                "selected": true
+              }
+            ]
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "zzz",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": null,
+        "rows": [],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": {
+          "title": "No fruits",
+          "description": "Try a shorter query",
+          "iconLabel": "",
+          "iconTint": null
+        },
+        "detail": "",
+        "primary": {
+          "title": "Run",
+          "shortcut": "↵",
+          "enabled": false
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Run",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "null-to-object",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 5,
+        "revision": 6,
+        "ops": [
+          {
+            "op": "set",
+            "path": ["actions", "breadcrumb"],
+            "value": ["Items"]
+          },
+          {
+            "op": "set",
+            "path": ["dropdown"],
+            "value": {
+              "label": "Color",
+              "tooltip": "Filter by color",
+              "open": true,
+              "query": "",
+              "options": [
+                {
+                  "value": "all",
+                  "title": "All",
+                  "section": "",
+                  "current": true,
+                  "selected": true
+                },
+                {
+                  "value": "red",
+                  "title": "Red",
+                  "section": "",
+                  "current": false,
+                  "selected": false
+                }
+              ],
+              "selectedIndex": 0
+            }
+          },
+          {
+            "op": "set",
+            "path": ["feedback", "toast"],
+            "value": {
+              "style": "animated",
+              "title": "Copying",
+              "message": "apple",
+              "actions": [
+                {
+                  "title": "Cancel",
+                  "shortcut": "Esc"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": ["Items"],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": {
+          "label": "Color",
+          "tooltip": "Filter by color",
+          "open": true,
+          "query": "",
+          "options": [
+            {
+              "value": "all",
+              "title": "All",
+              "section": "",
+              "current": true,
+              "selected": true
+            },
+            {
+              "value": "red",
+              "title": "Red",
+              "section": "",
+              "current": false,
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "feedback": {
+          "toast": {
+            "style": "animated",
+            "title": "Copying",
+            "message": "apple",
+            "actions": [
+              {
+                "title": "Cancel",
+                "shortcut": "Esc"
+              }
+            ]
+          },
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "object-to-null",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": ["Items"],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": {
+          "label": "Color",
+          "tooltip": "Filter by color",
+          "open": true,
+          "query": "",
+          "options": [
+            {
+              "value": "all",
+              "title": "All",
+              "section": "",
+              "current": true,
+              "selected": true
+            },
+            {
+              "value": "red",
+              "title": "Red",
+              "section": "",
+              "current": false,
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "feedback": {
+          "toast": {
+            "style": "animated",
+            "title": "Copying",
+            "message": "apple",
+            "actions": [
+              {
+                "title": "Cancel",
+                "shortcut": "Esc"
+              }
+            ]
+          },
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 6,
+        "revision": 7,
+        "ops": [
+          {
+            "op": "set",
+            "path": ["actions", "breadcrumb"],
+            "value": []
+          },
+          {
+            "op": "set",
+            "path": ["dropdown"],
+            "value": null
+          },
+          {
+            "op": "set",
+            "path": ["feedback", "toast"],
+            "value": null
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "optional-key-delete",
+      "prev": {
+        "kind": "empty",
+        "title": "Before",
+        "iconTint": "#ff0000",
+        "empty": {
+          "title": "Nothing yet",
+          "iconTint": "#00ff00"
+        }
+      },
+      "patch": {
+        "baseRevision": 7,
+        "revision": 8,
+        "ops": [
+          {
+            "op": "delete",
+            "path": ["iconTint"]
+          },
+          {
+            "op": "set",
+            "path": ["title"],
+            "value": "After"
+          },
+          {
+            "op": "delete",
+            "path": ["empty", "iconTint"]
+          },
+          {
+            "op": "set",
+            "path": ["empty", "iconMask"],
+            "value": "circle"
+          }
+        ]
+      },
+      "next": {
+        "kind": "empty",
+        "title": "After",
+        "empty": {
+          "title": "Nothing yet",
+          "iconMask": "circle"
+        }
+      }
+    },
+    {
+      "name": "array-prepend-and-append",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": ["Items"],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": {
+          "label": "Color",
+          "tooltip": "Filter by color",
+          "open": true,
+          "query": "",
+          "options": [
+            {
+              "value": "all",
+              "title": "All",
+              "section": "",
+              "current": true,
+              "selected": true
+            },
+            {
+              "value": "red",
+              "title": "Red",
+              "section": "",
+              "current": false,
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "feedback": {
+          "toast": {
+            "style": "animated",
+            "title": "Copying",
+            "message": "apple",
+            "actions": [
+              {
+                "title": "Cancel",
+                "shortcut": "Esc"
+              }
+            ]
+          },
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 8,
+        "revision": 9,
+        "ops": [
+          {
+            "op": "splice",
+            "path": ["actions", "breadcrumb"],
+            "at": 0,
+            "remove": 0,
+            "insert": ["Root"]
+          },
+          {
+            "op": "splice",
+            "path": ["feedback", "toast", "actions"],
+            "at": 1,
+            "remove": 0,
+            "insert": [
+              {
+                "title": "Retry",
+                "shortcut": "⌘R"
+              }
+            ]
+          }
+        ]
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": ["Root", "Items"],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": {
+          "label": "Color",
+          "tooltip": "Filter by color",
+          "open": true,
+          "query": "",
+          "options": [
+            {
+              "value": "all",
+              "title": "All",
+              "section": "",
+              "current": true,
+              "selected": true
+            },
+            {
+              "value": "red",
+              "title": "Red",
+              "section": "",
+              "current": false,
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "feedback": {
+          "toast": {
+            "style": "animated",
+            "title": "Copying",
+            "message": "apple",
+            "actions": [
+              {
+                "title": "Cancel",
+                "shortcut": "Esc"
+              },
+              {
+                "title": "Retry",
+                "shortcut": "⌘R"
+              }
+            ]
+          },
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    },
+    {
+      "name": "root-null-to-object",
+      "prev": null,
+      "patch": {
+        "baseRevision": 9,
+        "revision": 10,
+        "ops": [
+          {
+            "op": "set",
+            "path": [],
+            "value": {
+              "kind": "empty",
+              "title": "Ready"
+            }
+          }
+        ]
+      },
+      "next": {
+        "kind": "empty",
+        "title": "Ready"
+      }
+    },
+    {
+      "name": "noop-empty-ops",
+      "prev": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      },
+      "patch": {
+        "baseRevision": 10,
+        "revision": 11,
+        "ops": []
+      },
+      "next": {
+        "kind": "list",
+        "title": "Fruits",
+        "loading": false,
+        "navigation": {
+          "canGoBack": false
+        },
+        "search": {
+          "text": "",
+          "placeholder": "Search fruits..."
+        },
+        "selectedId": "r1",
+        "rows": [
+          {
+            "id": "r1",
+            "kind": "item",
+            "title": "apple",
+            "subtitle": "crisp",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": true,
+            "iconLabel": "",
+            "text": "apple crisp red"
+          },
+          {
+            "id": "r2",
+            "kind": "item",
+            "title": "banana",
+            "subtitle": "sweet",
+            "accessories": "yellow",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "banana sweet yellow"
+          },
+          {
+            "id": "r3",
+            "kind": "item",
+            "title": "cherry",
+            "subtitle": "tart",
+            "accessories": "red",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "cherry tart red"
+          },
+          {
+            "id": "r4",
+            "kind": "item",
+            "title": "date",
+            "subtitle": "chewy",
+            "accessories": "brown",
+            "icon": false,
+            "count": null,
+            "selected": false,
+            "iconLabel": "",
+            "text": "date chewy brown"
+          }
+        ],
+        "grid": null,
+        "emptyText": "No results",
+        "empty": null,
+        "detail": "",
+        "primary": {
+          "title": "Copy apple",
+          "shortcut": "↵",
+          "enabled": true
+        },
+        "actions": {
+          "open": false,
+          "title": "Actions",
+          "query": "",
+          "breadcrumb": [],
+          "rows": [
+            {
+              "id": "copy",
+              "kind": "action",
+              "title": "Copy apple",
+              "shortcut": "↵",
+              "selected": true
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "dropdown": null,
+        "feedback": {
+          "toast": null,
+          "hud": null,
+          "alert": null
+        },
+        "menuBar": null,
+        "form": null,
+        "requests": {
+          "quit": false,
+          "clearSearch": false
+        }
+      }
+    }
+  ]
+}

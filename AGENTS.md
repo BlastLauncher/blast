@@ -146,10 +146,10 @@ Independent tasks run in parallel on their own task branches; land one at a
 time. Regenerate conflicting `compat/` files and `bun.lock` (`bun install`),
 never hand-merge. UI tasks get before/after screenshots in the PR body.
 
-In T3 Code use `delegate_task` with `isolation: "worktree"`, `mode: "async"`,
-a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
-until the completion notification arrives. Model guidance (re-check with
-`orchestrator_capabilities`; names change):
+In T3 Code use `delegate_task` (`isolation: "worktree"`, `mode: "async"`, stable
+`clientRequestId` per round, e.g. `task-0001-r1`) and end the turn until it completes.
+Landing (`tasks:merge`, `tasks:land`) also runs in a delegated child that links its PR,
+so merges settle that child, never the orchestrator thread. Models (names change):
 
 | Use                                 | Provider instance      | Model                                                                                         |
 | ----------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- |

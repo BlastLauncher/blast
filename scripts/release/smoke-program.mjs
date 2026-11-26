@@ -55,7 +55,7 @@ let sawScene = false;
 try {
   // Drive the hello/open/launch transcript through pipes, waiting for opaque
   // handles rather than assuming their values or racing EOF against rendering.
-  send({ type: "hello", protocol: 1, capabilities: [] });
+  send({ type: "hello", protocol: 2, capabilities: [], scenes: true });
   for await (const line of createInterface({ input: serve.stdout })) {
     const message = JSON.parse(line);
     assert.notEqual(message.type, "error", line);

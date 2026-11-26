@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 import { EMBEDDER_PROTOCOL_SCHEMA } from "../../packages/protocol/src/embedder-schema.ts";
 
-export const SCHEMA_FILE = "packages/protocol/schema/embedder-v1.schema.json";
+export const SCHEMA_FILE = "packages/protocol/schema/embedder-v2.schema.json";
 
 export function serialize(): string {
   return `${JSON.stringify(EMBEDDER_PROTOCOL_SCHEMA, null, 2)}\n`;

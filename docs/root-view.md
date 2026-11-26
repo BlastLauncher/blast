@@ -10,19 +10,21 @@ action. Over stdio it is `root.open`; in process it is `engine.root`.
 ## Over stdio
 
 `root.open {views?}` returns `{root}`; `views` defaults to the hello's and one
-of the two is required. `root.view` carries the whole list again after every
-change, including extensions opened, closed or edited later. `root.input`
+of the two is required. `root.view` sends the initial list (`revision: 1`), and
+changes thereafter arrive as `root.view.patch` events (including extensions
+opened, closed or edited later); send `root.resync {root}` to request a fresh
+full `root.view`. `root.input`
 takes the usual semantic inputs (`search`, `move`, `select`, `primary`,
 `openActions`, `back`, …); others are ignored.
 
 A `primary` starts the selected command as a normal session and reports it
 with `root.launched {root, session}`. From then on draw that session's
-`session.view` events and send `session.input`. A launch with missing
+`session.view` / `session.view.patch` events and send `session.input`. A launch with missing
 preferences, arguments or dependencies shows the
 [launch prompts](launch-prompts.md) as that session's views; any other
 failure stays on the root with a failure toast. `back` at the command's root
-closes it; after `session.exited` the root resumes with a fresh `root.view`
-and its search cleared. The actions panel (⌘⇧,) has Configure Command, which
+closes it; after `session.exited` the root resumes with its search cleared
+(emitting a `root.view.patch` when the view changed). The actions panel (⌘⇧,) has Configure Command, which
 opens the command's preferences form as a session (`extension.configure`).
 `root.close` releases the root.
 

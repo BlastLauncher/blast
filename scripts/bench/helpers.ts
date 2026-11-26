@@ -1,7 +1,9 @@
 import { createElement as h } from "../../packages/tui/src/testing.ts";
 import { createController, type ControllerView } from "../../packages/client-core/src/index.ts";
 import {
+  applyViewPatch,
   createScenePatchApplier,
+  diffView,
   encodeMessage,
   type SceneMessage,
   type ScenePatchMessage,
@@ -31,6 +33,8 @@ export type LargeListWireRow = {
   runtimePatchBytes: number;
   runtimePatchOps: number;
   embedderViewBytes: number;
+  embedderPatchBytes: number;
+  embedderPatchOps: number;
   embedderSceneBytes: number;
 };
 
@@ -194,10 +198,15 @@ function scenesEqual(a: SceneMessage, b: SceneMessage): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+function viewsJsonEqual(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 /**
  * Measures runtime -> host NDJSON bytes (`scene` vs `scene.patch`) and
- * `blast serve` embedder NDJSON bytes (`session.view` + `session.scene`)
- * for large synthetic `List` updates.
+ * `blast serve` embedder NDJSON bytes (protocol 2 `session.view.patch` vs
+ * whole `session.view`, plus opt-in `session.scene`) for large synthetic `List`
+ * updates.
  */
 export function measureLargeListWire(
   itemCounts: readonly number[] = [1_000, 10_000],
@@ -251,6 +260,10 @@ export function measureLargeListWire(
         throw new Error(`Initial scene mismatch for ${count} items`);
       }
       controller.scene(initialFull);
+      const initialView = views.at(-1);
+      if (!initialView) {
+        throw new Error(`Controller did not emit an initial view for ${count} items`);
+      }
 
       // Update 1: one-item prop change (pin/rename item 0).
       const editedItems = baseItems.slice();
@@ -278,6 +291,15 @@ export function measureLargeListWire(
       if (!editView) {
         throw new Error(`Controller did not emit a view after one-item edit for ${count} items`);
       }
+      const editViewOps = diffView(initialView, editView);
+      const editViewPatched = applyViewPatch(
+        initialView,
+        { revision: 2, baseRevision: 1, ops: editViewOps },
+        1,
+      );
+      if (!viewsJsonEqual(editView, editViewPatched)) {
+        throw new Error(`Patched view mismatch after one-item edit for ${count} items`);
+      }
       rows.push({
         items: count,
         update: "one-item-prop",
@@ -286,7 +308,13 @@ export function measureLargeListWire(
         runtimeFullBytes: wireBytes(editFull),
         runtimePatchBytes: wireBytes(editPatch),
         runtimePatchOps: editPatch.ops.length,
-        embedderViewBytes: embedderEventBytes("session.view", { view: editView }),
+        embedderViewBytes: embedderEventBytes("session.view", { view: editView, revision: 2 }),
+        embedderPatchBytes: embedderEventBytes("session.view.patch", {
+          revision: 2,
+          baseRevision: 1,
+          ops: editViewOps,
+        }),
+        embedderPatchOps: editViewOps.length,
         embedderSceneBytes: embedderEventBytes("session.scene", { scene: editFull }),
       });
 
@@ -297,6 +325,15 @@ export function measureLargeListWire(
       if (!moveView) {
         throw new Error(`Controller did not emit a view after selection move for ${count} items`);
       }
+      const moveViewOps = diffView(editView, moveView);
+      const moveViewPatched = applyViewPatch(
+        editView,
+        { revision: 3, baseRevision: 2, ops: moveViewOps },
+        2,
+      );
+      if (!viewsJsonEqual(moveView, moveViewPatched)) {
+        throw new Error(`Patched view mismatch after selection move for ${count} items`);
+      }
       rows.push({
         items: count,
         update: "selection-move",
@@ -305,7 +342,13 @@ export function measureLargeListWire(
         runtimeFullBytes: 0,
         runtimePatchBytes: 0,
         runtimePatchOps: 0,
-        embedderViewBytes: embedderEventBytes("session.view", { view: moveView }),
+        embedderViewBytes: embedderEventBytes("session.view", { view: moveView, revision: 3 }),
+        embedderPatchBytes: embedderEventBytes("session.view.patch", {
+          revision: 3,
+          baseRevision: 2,
+          ops: moveViewOps,
+        }),
+        embedderPatchOps: moveViewOps.length,
         embedderSceneBytes: 0,
       });
 
@@ -330,6 +373,15 @@ export function measureLargeListWire(
       if (!filterView) {
         throw new Error(`Controller did not emit a view after search filter for ${count} items`);
       }
+      const filterViewOps = diffView(moveView, filterView);
+      const filterViewPatched = applyViewPatch(
+        moveView,
+        { revision: 4, baseRevision: 3, ops: filterViewOps },
+        3,
+      );
+      if (!viewsJsonEqual(filterView, filterViewPatched)) {
+        throw new Error(`Patched view mismatch after search filter for ${count} items`);
+      }
       rows.push({
         items: count,
         update: "search-filter",
@@ -338,7 +390,13 @@ export function measureLargeListWire(
         runtimeFullBytes: wireBytes(filterFull),
         runtimePatchBytes: wireBytes(filterPatch),
         runtimePatchOps: filterPatch.ops.length,
-        embedderViewBytes: embedderEventBytes("session.view", { view: filterView }),
+        embedderViewBytes: embedderEventBytes("session.view", { view: filterView, revision: 4 }),
+        embedderPatchBytes: embedderEventBytes("session.view.patch", {
+          revision: 4,
+          baseRevision: 3,
+          ops: filterViewOps,
+        }),
+        embedderPatchOps: filterViewOps.length,
         embedderSceneBytes: embedderEventBytes("session.scene", { scene: filterFull }),
       });
     } finally {
@@ -437,17 +495,18 @@ export function formatBenchReport(report: BenchReport): string {
 
   sections.push(
     "",
-    `3. blast serve embedder wire bytes (whole views, filter="${wire.query}")`,
+    `3. blast serve embedder wire bytes (protocol 2 view.patch vs whole view, filter="${wire.query}")`,
     formatTable(
-      ["Items", "Update", "session.view", "session.scene", "Total (views on)"],
+      ["Items", "Update", "Full view", "view.patch", "Savings", "scene (opt-in)"],
       wire.rows.map((row) => [
         row.items.toLocaleString("en-US"),
         row.label,
         formatBytes(row.embedderViewBytes),
+        formatBytes(row.embedderPatchBytes),
+        formatReduction(row.embedderViewBytes, row.embedderPatchBytes),
         row.embedderSceneBytes > 0 ? formatBytes(row.embedderSceneBytes) : "—",
-        formatBytes(row.embedderViewBytes + row.embedderSceneBytes),
       ]),
-      [true, false, true, true, true],
+      [true, false, true, true, true, true],
     ),
   );
 

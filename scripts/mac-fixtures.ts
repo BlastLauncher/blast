@@ -11,6 +11,7 @@ import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/pr
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyViewPatch, type ViewPatchOp } from "../packages/protocol/src/index.ts";
 
 export const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const FIXTURE_DIRECTORY = "examples/macos-launcher/Tests/Fixtures";
@@ -45,6 +46,8 @@ class ServeSession {
   private readonly messages: Message[] = [];
   private readonly views: View[] = [];
   private readonly rootViews: View[] = [];
+  private readonly sessionState = new Map<string, { view: View; revision: number }>();
+  private readonly rootState = new Map<string, { view: View; revision: number }>();
   private readonly stderr: string[] = [];
   private buffer = "";
   private consumed = 0;
@@ -157,7 +160,7 @@ class ServeSession {
   }
 
   private async handshake(): Promise<void> {
-    this.send({ type: "hello", protocol: 1, capabilities: [] });
+    this.send({ type: "hello", protocol: 2, capabilities: [] });
     await this.waitFor(
       () => (this.messages.some((message) => message.type === "welcome") ? true : undefined),
       "the welcome message",
@@ -187,11 +190,45 @@ class ServeSession {
   private receive(line: string): void {
     const message = JSON.parse(line) as Message;
     this.messages.push(message);
-    if (message.type === "event" && message.event === "session.view") {
-      this.views.push(message.view as View);
-    }
-    if (message.type === "event" && message.event === "root.view") {
-      this.rootViews.push(message.view as View);
+    if (message.type !== "event") return;
+    if (message.event === "session.view") {
+      const view = message.view as View;
+      this.sessionState.set(String(message.session), { view, revision: Number(message.revision) });
+      this.views.push(view);
+    } else if (message.event === "session.view.patch") {
+      const key = String(message.session);
+      const current = this.sessionState.get(key);
+      if (!current) throw new Error(`session.view.patch before session.view for ${key}`);
+      const next = applyViewPatch<View>(
+        current.view,
+        {
+          revision: Number(message.revision),
+          baseRevision: Number(message.baseRevision),
+          ops: message.ops as ViewPatchOp[],
+        },
+        current.revision,
+      );
+      this.sessionState.set(key, { view: next, revision: Number(message.revision) });
+      this.views.push(next);
+    } else if (message.event === "root.view") {
+      const view = message.view as View;
+      this.rootState.set(String(message.root), { view, revision: Number(message.revision) });
+      this.rootViews.push(view);
+    } else if (message.event === "root.view.patch") {
+      const key = String(message.root);
+      const current = this.rootState.get(key);
+      if (!current) throw new Error(`root.view.patch before root.view for ${key}`);
+      const next = applyViewPatch<View>(
+        current.view,
+        {
+          revision: Number(message.revision),
+          baseRevision: Number(message.baseRevision),
+          ops: message.ops as ViewPatchOp[],
+        },
+        current.revision,
+      );
+      this.rootState.set(key, { view: next, revision: Number(message.revision) });
+      this.rootViews.push(next);
     }
   }
 
