@@ -240,3 +240,36 @@ test("engine root: Configure Command reaches a launch hook as configure", async 
   await until(root, () => targets.length === 1);
   expect(targets).toEqual([{ command: "index", configure: true }]);
 });
+
+test("engine root: coalesces parallel manifest loads across many extensions into minimal view emissions", async () => {
+  const { instance, dataDir } = await engine();
+  let watcherCreations = 0;
+  const watcher: ExtensionWatcherFactory = () => {
+    watcherCreations++;
+    const handle = { on: () => handle, close() {} };
+    return handle;
+  };
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    const dir = join(dataDir, `ext-${i}`);
+    await cp(hello, dir, { recursive: true });
+    const manifest = JSON.parse(await readFile(join(dir, "package.json"), "utf8"));
+    manifest.name = `ext-${i}`;
+    await writeFile(join(dir, "package.json"), JSON.stringify(manifest));
+    const handle = instance.openExtension({ extensionDir: dir, watcher });
+    // Second subscriber shares the same OS watcher per handle.
+    handle.watch(() => {});
+  }
+  const root = instance.root({ views });
+  let emissions = 0;
+  const stop = root.subscribe(() => {
+    emissions++;
+  });
+  await root.ready();
+  stop();
+  expect(items(root.view())).toHaveLength(count);
+  // One watcher per extension handle (shared across root + extra subscriber).
+  expect(watcherCreations).toBe(count);
+  // Coalesced: initial empty subscribe + at most a few batched flushes (never 1 + count).
+  expect(emissions).toBeLessThan(count);
+});

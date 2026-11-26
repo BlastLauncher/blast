@@ -1,5 +1,6 @@
 import {
   createLineDecoder,
+  createScenePatchApplier,
   encodeMessage,
   parseHostMessage,
   parseRuntimeMessage,
@@ -19,6 +20,7 @@ import { fileURLToPath } from "node:url";
 import { createAIRouter } from "./ai.ts";
 import type { Broker } from "./broker.ts";
 import type { BundledCommand } from "./bundle.ts";
+import type { RuntimePool } from "./runtime-pool.ts";
 import { createStorage, defaultDataDir, storageFile } from "./storage.ts";
 
 export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
@@ -44,6 +46,8 @@ export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
   inheritEnv?: InheritEnv;
   /** Oldest log entries are dropped beyond this many. */
   maxLogs?: number;
+  /** Optional engine-owned standby worker pool (still one fresh process per command). */
+  runtimePool?: RuntimePool;
 };
 
 // Variables a Node program needs to behave normally. Everything else in the
@@ -86,40 +90,56 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   const ai = options.mode === "model-provider" ? undefined : createAIRouter(options);
   const capabilities = new Map<string, AbortController>();
   const entry = resolve(options.entry);
+  const resolvedDataDir = resolve(options.dataDir ?? defaultDataDir());
   const supportPath =
     options.environment?.supportPath ??
     join(
-      resolve(options.dataDir ?? defaultDataDir()),
+      resolvedDataDir,
       "support",
       basename(storageFile("", options.extensionName), ".json").replace(/^\.{1,2}$/, (name) =>
         name.replaceAll(".", "%2e"),
       ),
     );
-  await mkdir(supportPath, { recursive: true });
-  // A stored Form draft is read before spawning, like preferences, so the
-  // command's first render already has `LaunchProps.draftValues` — the
-  // runtime never blocks its first scene on a capability round trip for it.
-  let draftValues: Record<string, JsonValue> | undefined;
-  if (options.mode === "view") {
-    const internal = createStorage({
-      extensionName: options.extensionName,
-      dataDir: join(options.dataDir ?? defaultDataDir(), "internal"),
-    });
-    const stored = await internal.get(`blast:draft:${options.commandName}`);
-    if (typeof stored === "string") {
-      try {
-        const parsed: unknown = JSON.parse(stored);
-        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-          draftValues = parsed as Record<string, JsonValue>;
-        }
-      } catch {
-        // A corrupt draft must not block the launch; it is best-effort recall.
-      }
-    }
-  }
+  const childNodePath = options.nodePath ?? "node";
+  const childEnv = options.env ?? {
+    ...runtimeEnvironment(process.env, options.inheritEnv),
+    // Production React/reconciler bundles avoid dev-mode fiber checks (~2.8x faster commits).
+    NODE_ENV: "production",
+    NODE_COMPILE_CACHE: join(resolvedDataDir, "compile-cache"),
+  };
+
+  // Run support directory creation and draft recall in parallel so launch I/O
+  // doesn't serialize before the runtime receives `init`.
+  const draftPromise: Promise<Record<string, JsonValue> | undefined> =
+    options.mode === "view"
+      ? (async () => {
+          const internal = createStorage({
+            extensionName: options.extensionName,
+            dataDir: join(options.dataDir ?? defaultDataDir(), "internal"),
+          });
+          const stored = await internal.get(`blast:draft:${options.commandName}`);
+          if (typeof stored === "string") {
+            try {
+              const parsed: unknown = JSON.parse(stored);
+              if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+                return parsed as Record<string, JsonValue>;
+              }
+            } catch {
+              // A corrupt draft must not block the launch; it is best-effort recall.
+            }
+          }
+          return undefined;
+        })()
+      : Promise.resolve(undefined);
+
+  const [, draftValues] = await Promise.all([
+    mkdir(supportPath, { recursive: true }),
+    draftPromise,
+  ]);
   const init: HostMessage = {
     type: "init",
     protocol: PROTOCOL_VERSION,
+    scenePatches: true,
     command: {
       entry,
       extension: options.extensionName,
@@ -146,19 +166,16 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   };
   const checked = parseHostMessage(init);
   if (!checked.ok) throw new Error(checked.error);
-  const child = spawn(
-    options.nodePath ?? "node",
-    [fileURLToPath(import.meta.resolve("@blastlauncher/runtime/main"))],
-    {
-      stdio: ["pipe", "pipe", "pipe"],
-      // The runtime is TypeScript Node strips on every start; with its
-      // compile cache a warm runtime loads in ~90 ms instead of ~300 ms.
-      env: options.env ?? {
-        ...runtimeEnvironment(process.env, options.inheritEnv),
-        NODE_COMPILE_CACHE: join(resolve(options.dataDir ?? defaultDataDir()), "compile-cache"),
-      },
-    },
-  );
+  const child =
+    options.runtimePool && !options.env
+      ? options.runtimePool.acquire({ nodePath: childNodePath, env: childEnv })
+      : spawn(childNodePath, [fileURLToPath(import.meta.resolve("@blastlauncher/runtime/main"))], {
+          stdio: ["pipe", "pipe", "pipe"],
+          // The runtime is TypeScript Node strips on every start; with its
+          // compile cache a warm runtime loads in ~55 ms instead of ~300 ms.
+          env: childEnv,
+        });
+  const patchApplier = createScenePatchApplier();
   let ready = false;
   let closed = false;
   let failure: Error | undefined;
@@ -224,8 +241,16 @@ export async function startCommand(options: StartOptions): Promise<Session> {
         case "ready":
           return protocolError("Duplicate ready handshake");
         case "scene":
-          latestScene = message;
-          for (const listener of listeners) listener(message);
+          latestScene = patchApplier.reset(message);
+          for (const listener of listeners) listener(latestScene);
+          break;
+        case "scene.patch":
+          try {
+            latestScene = patchApplier.apply(message);
+          } catch (error) {
+            return protocolError(error instanceof Error ? error.message : String(error));
+          }
+          for (const listener of listeners) listener(latestScene);
           break;
         case "log":
           addLog(message);

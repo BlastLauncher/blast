@@ -61,9 +61,15 @@ export function createRootController(
   let actionIndex = 0;
   let failure: { title: string; message: string } | null = null;
   const listeners = new Set<(view: ControllerView) => void>();
+  let cachedCatalog: RootCommand[] | undefined;
+  let cachedQuery: string | undefined;
+  let cachedVisible: RootCommand[] = [];
+  let cachedVisibleById = new Map<string, number>();
+  let cachedView: ControllerView | undefined;
 
   // Sections are extensions in catalog order; a query orders items by score inside each.
   const visible = (): RootCommand[] => {
+    if (cachedCatalog === catalog && cachedQuery === query) return cachedVisible;
     const byExtension = new Map<string, RootCommand[]>();
     for (const command of catalog) {
       const items = byExtension.get(command.extension);
@@ -74,7 +80,7 @@ export function createRootController(
       section,
       items,
     }));
-    return rankGroups(
+    const result = rankGroups(
       groups,
       query,
       (c) =>
@@ -88,14 +94,34 @@ export function createRootController(
         ),
       { enabled: true, keepSectionOrder: true },
     ).flatMap((group) => group.items);
+    const byId = new Map<string, number>();
+    for (let i = 0; i < result.length; i++) {
+      const id = commandId(result[i]!);
+      if (!byId.has(id)) byId.set(id, i);
+    }
+    cachedCatalog = catalog;
+    cachedQuery = query;
+    cachedVisible = result;
+    cachedVisibleById = byId;
+    return result;
   };
   // The chosen command, falling back to the first when it disappeared (live catalog).
-  const chosen = (items: RootCommand[]): RootCommand | undefined =>
-    items.find((c) => commandId(c) === selectedId) ?? items[0];
+  const chosen = (items: RootCommand[]): RootCommand | undefined => {
+    if (selectedId !== null) {
+      const idx = cachedVisibleById.get(selectedId);
+      if (idx !== undefined) return items[idx];
+    }
+    return items[0];
+  };
 
-  const view = (): ControllerView => {
+  const buildView = (): ControllerView => {
     const items = visible();
     const current = chosen(items);
+    const sectionCounts = new Map<string, number>();
+    for (let i = 0; i < items.length; i++) {
+      const ext = items[i]!.extension;
+      sectionCounts.set(ext, (sectionCounts.get(ext) ?? 0) + 1);
+    }
     const rows: RowView[] = [];
     let section: string | undefined;
     for (const command of items) {
@@ -109,7 +135,7 @@ export function createRootController(
           subtitle: "",
           accessories: "",
           icon: false,
-          count: items.filter((c) => c.extension === section).length,
+          count: sectionCounts.get(section) ?? 0,
           selected: false,
           iconLabel: "",
           text: title,
@@ -180,9 +206,10 @@ export function createRootController(
       requests: { quit: false, clearSearch: false },
     };
   };
+  const view = (): ControllerView => (cachedView ??= buildView());
   const notify = () => {
-    const next = view();
-    for (const listener of listeners) listener(next);
+    cachedView = buildView();
+    for (const listener of listeners) listener(cachedView);
   };
   const run = (type: RootEffect["type"]): RootResult => {
     const current = chosen(visible());

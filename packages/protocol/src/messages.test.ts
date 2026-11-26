@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { createLineDecoder, encodeMessage } from "./framing.ts";
 import {
   PROTOCOL_VERSION,
+  createScenePatchApplier,
   parseHostMessage,
   parseRuntimeMessage,
   type CommandMode,
@@ -9,6 +10,8 @@ import {
   type InitCommand,
   type InitEnvironment,
   type RuntimeMessage,
+  type SceneMessage,
+  type ScenePatchMessage,
 } from "./messages.ts";
 
 const command: InitCommand = {
@@ -517,4 +520,86 @@ test("fallback text is optional, preserves empty strings and rejects non-string 
       error: "command.fallbackText: expected string",
     });
   }
+});
+
+test("scene.patch parses, validates rejections, and applies with structural sharing", () => {
+  const initWithPatches: HostMessage = { ...init, scenePatches: true };
+  expect(parseHostMessage(initWithPatches)).toEqual({ ok: true, message: initWithPatches });
+  expect(parseHostMessage({ ...init, scenePatches: "yes" })).toEqual({
+    ok: false,
+    error: "scenePatches: expected boolean",
+  });
+
+  const base: SceneMessage = {
+    type: "scene",
+    revision: 1,
+    root: {
+      id: "1",
+      type: "List",
+      props: { isLoading: true },
+      children: [
+        { id: "2", type: "List.Item", props: { title: "alpha" }, children: [] },
+        { id: "3", type: "List.Item", props: { title: "beta" }, children: [] },
+      ],
+    },
+  };
+  const patch: ScenePatchMessage = {
+    type: "scene.patch",
+    revision: 2,
+    baseRevision: 1,
+    ops: [
+      { op: "props", id: "1", props: { isLoading: false } },
+      { op: "props", id: "2", props: { title: "alpha-updated" } },
+      {
+        op: "children",
+        id: "1",
+        children: [
+          "3",
+          "2",
+          { id: "4", type: "List.Item", props: { title: "gamma" }, children: [] },
+        ],
+      },
+    ],
+  };
+  expect(parseRuntimeMessage(wireRoundTrip(patch))).toEqual({ ok: true, message: patch });
+  expect(
+    parseRuntimeMessage({
+      type: "scene.patch",
+      revision: 2,
+      baseRevision: 1,
+      ops: [{ op: "bogus" }],
+    }),
+  ).toEqual({ ok: false, error: 'ops[0].op: unknown patch op "bogus"' });
+
+  const applier = createScenePatchApplier();
+  applier.reset(base);
+  const next = applier.apply(patch);
+  expect(next.revision).toBe(2);
+  expect(next.root?.props).toEqual({ isLoading: false });
+  expect(next.root?.children.map((c) => [c.id, c.props.title])).toEqual([
+    ["3", "beta"],
+    ["2", "alpha-updated"],
+    ["4", "gamma"],
+  ]);
+  // Untouched sibling node keeps exact reference identity.
+  expect(next.root?.children[0]).toBe(base.root!.children[1]);
+  // Original scene remains immutable.
+  expect(base.root?.props).toEqual({ isLoading: true });
+  expect(base.root?.children[0]?.props.title).toBe("alpha");
+
+  const cleared = applier.apply({
+    type: "scene.patch",
+    revision: 3,
+    baseRevision: 2,
+    ops: [{ op: "root", root: null }],
+  });
+  expect(cleared).toEqual({ type: "scene", revision: 3, root: null });
+  expect(() =>
+    applier.apply({
+      type: "scene.patch",
+      revision: 4,
+      baseRevision: 1,
+      ops: [],
+    }),
+  ).toThrow("baseRevision");
 });

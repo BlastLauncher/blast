@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { createElement as h, useState } from "react";
-import { createSceneRoot, type SceneSnapshot } from "./index.ts";
+import { createScenePatchApplier, type SceneMessage } from "@blastlauncher/protocol";
+import { createSceneRoot, type ScenePatch, type SceneSnapshot } from "./index.ts";
 
 const list = (keys: string[]) =>
   h("List", null, ...keys.map((key) => h("List.Item", { key, title: key })));
@@ -229,4 +230,118 @@ test("array omissions preserve indices, including sparse entries and callback pa
   expect(latest().props.values).toEqual([null, null, { $handler: "values[2]" }, {}]);
   expect(root.dispatch(latest().id, "values[2]", [])).toBe("third");
   root.unmount();
+});
+
+test("incremental scene patches match full snapshots across prop updates, reorders, covers, and unmount", () => {
+  const fullScenes: SceneMessage[] = [];
+  const patchedScenes: SceneMessage[] = [];
+  const patches: ScenePatch[] = [];
+  const applier = createScenePatchApplier();
+
+  const fullRoot = createSceneRoot({
+    publish: (scene) => fullScenes.push({ type: "scene", ...scene }),
+  });
+  const patchRoot = createSceneRoot({
+    publish: (scene) => patchedScenes.push(applier.reset({ type: "scene", ...scene })),
+    publishPatch: (patch) => {
+      patches.push(patch);
+      patchedScenes.push(applier.apply({ type: "scene.patch", ...patch }));
+    },
+  });
+
+  const renders = [
+    h(
+      "Navigation",
+      null,
+      h(
+        "Navigation.Entry",
+        { key: "e1", active: true },
+        h(
+          "List",
+          { isLoading: true },
+          h("List.Item", { key: "a", title: "Alpha" }),
+          h("List.Item", { key: "b", title: "Beta" }),
+          h("List.Item", { key: "c", title: "Gamma" }),
+        ),
+      ),
+    ),
+    // Prop-only update on 1 item + List: should emit only 2 `props` ops.
+    h(
+      "Navigation",
+      null,
+      h(
+        "Navigation.Entry",
+        { key: "e1", active: true },
+        h(
+          "List",
+          { isLoading: false },
+          h("List.Item", { key: "a", title: "Alpha-2" }),
+          h("List.Item", { key: "b", title: "Beta" }),
+          h("List.Item", { key: "c", title: "Gamma" }),
+        ),
+      ),
+    ),
+    // Reorder + insert + remove.
+    h(
+      "Navigation",
+      null,
+      h(
+        "Navigation.Entry",
+        { key: "e1", active: true },
+        h(
+          "List",
+          { isLoading: false },
+          h("List.Item", { key: "c", title: "Gamma" }),
+          h("List.Item", { key: "d", title: "Delta" }),
+          h("List.Item", { key: "a", title: "Alpha-2" }),
+        ),
+      ),
+    ),
+    // Cover first entry and push a second active entry.
+    h(
+      "Navigation",
+      null,
+      h(
+        "Navigation.Entry",
+        { key: "e1", active: false },
+        h(
+          "List",
+          { isLoading: false },
+          h("List.Item", { key: "c", title: "Gamma" }),
+          h("List.Item", { key: "d", title: "Delta" }),
+          h("List.Item", { key: "a", title: "Alpha-2" }),
+        ),
+      ),
+      h("Navigation.Entry", { key: "e2", active: true }, h("Detail", { markdown: "# Hi" })),
+    ),
+    // Pop back to first entry.
+    h(
+      "Navigation",
+      null,
+      h(
+        "Navigation.Entry",
+        { key: "e1", active: true },
+        h(
+          "List",
+          { isLoading: false },
+          h("List.Item", { key: "c", title: "Gamma" }),
+          h("List.Item", { key: "d", title: "Delta" }),
+          h("List.Item", { key: "a", title: "Alpha-2" }),
+        ),
+      ),
+    ),
+  ];
+
+  for (const element of renders) {
+    fullRoot.render(element);
+    patchRoot.render(element);
+  }
+  fullRoot.unmount();
+  patchRoot.unmount();
+
+  expect(patchedScenes).toEqual(fullScenes);
+  // First patch is strictly prop updates on List + item a (no children op).
+  expect(patches[0]!.ops.map((op) => op.op)).toEqual(["props", "props"]);
+  // Unmount sends a root=null patch.
+  expect(patches.at(-1)!.ops).toEqual([{ op: "root", root: null }]);
 });

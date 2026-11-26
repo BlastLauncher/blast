@@ -51,9 +51,15 @@ export function openBundleCache<Result>(
       }
       if (stored.key !== keyText || !Array.isArray(stored.inputs)) return undefined;
       const current = await Promise.all(stored.inputs.map(([path]) => fingerprint(path)));
-      const fresh = current.every(
-        (now, index) => JSON.stringify(now) === JSON.stringify(stored.inputs[index]),
-      );
+      let fresh = true;
+      for (let i = 0; i < current.length; i++) {
+        const now = current[i];
+        const prev = stored.inputs[i];
+        if (!now || !prev || now[0] !== prev[0] || now[1] !== prev[1] || now[2] !== prev[2]) {
+          fresh = false;
+          break;
+        }
+      }
       return fresh ? stored.result : undefined;
     },
     async stage() {

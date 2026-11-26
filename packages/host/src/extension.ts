@@ -1,5 +1,5 @@
 import { watch as watchDirectory } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { bundleCommand, MissingDependencyError, type Preference } from "./bundle.ts";
 import {
@@ -16,6 +16,7 @@ import {
   type DependencyInstaller,
 } from "./install-dependencies.ts";
 import { createPreferenceStore } from "./preferences.ts";
+import type { RuntimePool } from "./runtime-pool.ts";
 import { startCommand, type InheritEnv, type StartOptions } from "./session.ts";
 import { defaultDataDir, type StorageItems } from "./storage.ts";
 import type { CapabilityHandler } from "./broker.ts";
@@ -102,8 +103,10 @@ export function createExtensionHandle(
   options: OpenExtensionOptions,
   engineHandlers: () => Record<string, CapabilityHandler> = () => ({}),
   defaultInstallDependencies = false,
+  runtimePool?: RuntimePool,
 ) {
   const extensionDir = resolve(options.extensionDir);
+  const manifestPath = join(extensionDir, "package.json");
   const dataDir = options.dataDir ?? defaultDataDir();
   const dependencyOptions = { extensionDir, dataDir };
   const watcherFactory = options.watcher ?? ((path, listener) => watchDirectory(path, listener));
@@ -116,17 +119,42 @@ export function createExtensionHandle(
   let closed = false;
   let closing: Promise<void> | undefined;
   let queue: Promise<unknown> = Promise.resolve();
+  let cachedManifest: { size: bigint; mtimeNs: bigint; value: ExtensionManifest } | undefined;
+  let inFlightManifest: Promise<ExtensionManifest> | undefined;
+  const watchListeners = new Set<(update: ExtensionManifest | Error) => void>();
+  let sharedWatcher: ExtensionWatcher | undefined;
+  let sharedWatchTimer: unknown;
   const subscriptions = new Set<() => void>();
   const sessions = new Set<{ close(): Promise<void> }>();
   const launches = new Set<Promise<unknown>>();
   const ensureOpen = () => {
     if (closed) throw new Error("Extension handle is closed");
   };
-  const manifest = async (): Promise<ExtensionManifest> => {
-    ensureOpen();
+  const stopSharedWatcher = () => {
+    if (sharedWatchTimer !== undefined) {
+      debounce.cancel(sharedWatchTimer);
+      sharedWatchTimer = undefined;
+    }
+    if (sharedWatcher) {
+      sharedWatcher.close();
+      sharedWatcher = undefined;
+    }
+  };
+  const readManifestNow = async (): Promise<ExtensionManifest> => {
     try {
-      return parseManifest(JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8")));
+      const info = await stat(manifestPath, { bigint: true });
+      if (
+        cachedManifest &&
+        cachedManifest.size === info.size &&
+        cachedManifest.mtimeNs === info.mtimeNs
+      ) {
+        return cachedManifest.value;
+      }
+      const parsed = parseManifest(JSON.parse(await readFile(manifestPath, "utf8")));
+      cachedManifest = { size: info.size, mtimeNs: info.mtimeNs, value: parsed };
+      return parsed;
     } catch (error) {
+      cachedManifest = undefined;
       throw new Error(
         `Invalid extension manifest: ${error instanceof Error ? error.message : error}`,
         {
@@ -135,14 +163,27 @@ export function createExtensionHandle(
       );
     }
   };
+  const manifest = async (): Promise<ExtensionManifest> => {
+    ensureOpen();
+    if (inFlightManifest) return inFlightManifest;
+    const pending = readManifestNow().finally(() => {
+      if (inFlightManifest === pending) inFlightManifest = undefined;
+    });
+    inFlightManifest = pending;
+    return pending;
+  };
   const commandManifest = async (name: string) => {
     const extension = await manifest();
     const command = extension.commands.find((c) => c.name === name);
     if (!command) throw new Error(`Unknown extension command: ${name}`);
     return { extension, command };
   };
-  const preferences = async (name: string, scope?: "extension" | "command") => {
-    const { extension, command } = await commandManifest(name);
+  const readPreferences = async (
+    extension: ExtensionManifest,
+    command: ExtensionManifest["commands"][number],
+    name: string,
+    scope?: "extension" | "command",
+  ) => {
     const store = createPreferenceStore({ extensionName: extension.name, dataDir });
     const stored = await store.read();
     const values =
@@ -156,6 +197,10 @@ export function createExtensionHandle(
       values,
       missing: missingPreferences(fields, values),
     };
+  };
+  const preferences = async (name: string, scope?: "extension" | "command") => {
+    const { extension, command } = await commandManifest(name);
+    return readPreferences(extension, command, name, scope);
   };
   // A failed install remains observable to its caller but does not poison the
   // queue: commands may still bundle against the shared dependency fallback.
@@ -171,14 +216,15 @@ export function createExtensionHandle(
   const launch = async (name: string, launchOptions: ExtensionLaunchOptions = {}) => {
     ensureOpen();
     await queue;
-    const { command } = await commandManifest(name);
-    const prefs = await preferences(name);
+    const { extension, command } = await commandManifest(name);
+    const [prefs, initialDependencyStatus] = await Promise.all([
+      readPreferences(extension, command, name),
+      checkExtensionDependencies({ ...dependencyOptions }),
+    ]);
     const args = missingRequired(command.arguments, launchOptions.argumentValues ?? {});
     if (prefs.missing.length || args.length)
       throw new MissingLaunchValuesError(prefs.missing, args);
-    let dependencyStatus = await checkExtensionDependencies({
-      ...dependencyOptions,
-    });
+    let dependencyStatus = initialDependencyStatus;
     const installDependencies = launchOptions.installDependencies ?? defaultInstallDependencies;
     if (dependencyStatus.unresolved.length && installDependencies) {
       await installExtensionDependencies({
@@ -265,6 +311,7 @@ export function createExtensionHandle(
         ? {}
         : { launchContext: launchOptions.launchContext }),
       ...(options.inheritEnv === undefined ? {} : { inheritEnv: options.inheritEnv }),
+      ...(runtimePool === undefined ? {} : { runtimePool }),
       broker: createSessionBroker(
         { extensionName: bundled.extensionName, dataDir },
         { handlers: { ...engineHandlers(), ...options.handlers, ...launchOptions.handlers } },
@@ -293,33 +340,35 @@ export function createExtensionHandle(
     manifest,
     watch(listener: (update: ExtensionManifest | Error) => void) {
       ensureOpen();
-      let active = true;
-      let timer: unknown;
-      const reload = async () => {
-        let update: ExtensionManifest | Error;
-        try {
-          update = await manifest();
-        } catch (error) {
-          update = error instanceof Error ? error : new Error(String(error));
-        }
-        if (active) listener(update);
-      };
-      // Directory watching also observes manifests replaced via atomic rename.
-      const watcher = watcherFactory(extensionDir, (_event, file) => {
-        if (file && file !== "package.json" && file !== "package-lock.json") return;
-        if (timer !== undefined) debounce.cancel(timer);
-        timer = debounce.schedule(() => {
-          void reload();
-        }, 100);
-      });
-      watcher.on("error", (error) => {
-        if (active) listener(error);
-      });
+      if (!sharedWatcher) {
+        const reload = async () => {
+          let update: ExtensionManifest | Error;
+          try {
+            update = await manifest();
+          } catch (error) {
+            update = error instanceof Error ? error : new Error(String(error));
+          }
+          for (const subscriber of Array.from(watchListeners)) subscriber(update);
+        };
+        // Share one OS directory watcher per extension handle across all
+        // subscribers (e.g. engine root + launcher error banner).
+        sharedWatcher = watcherFactory(extensionDir, (_event, file) => {
+          if (file && file !== "package.json" && file !== "package-lock.json") return;
+          if (sharedWatchTimer !== undefined) debounce.cancel(sharedWatchTimer);
+          sharedWatchTimer = debounce.schedule(() => {
+            sharedWatchTimer = undefined;
+            void reload();
+          }, 100);
+        });
+        sharedWatcher.on("error", (error) => {
+          for (const subscriber of Array.from(watchListeners)) subscriber(error);
+        });
+      }
+      watchListeners.add(listener);
       const unsubscribe = () => {
-        active = false;
-        if (timer !== undefined) debounce.cancel(timer);
-        watcher.close();
+        if (!watchListeners.delete(listener)) return;
         subscriptions.delete(unsubscribe);
+        if (watchListeners.size === 0) stopSharedWatcher();
       };
       subscriptions.add(unsubscribe);
       return unsubscribe;

@@ -473,15 +473,37 @@ function fallbackLabel(source: string): string {
   return label.length <= 12 ? label : `${titleCase(words.slice(0, 9))}…`;
 }
 
+const stringIconCache = new Map<string, IconView>();
+const MAX_STRING_ICON_CACHE = 2048;
+
 /** Convert a Raycast image/icon value to a terminal label plus a drawable source. */
 export function iconView(value: JsonValue | undefined, options: IconOptions = {}): IconView {
-  const { source, fileIcon, tint, mask, image } = parse(value, options.appearance ?? "light");
+  const appearance = options.appearance ?? "light";
+  const assetsDir = options.assetsDir;
+  if (typeof value === "string") {
+    const cacheKey = `${appearance}\0${assetsDir ?? ""}\0${value}`;
+    const cached = stringIconCache.get(cacheKey);
+    if (cached) return cached;
+    const computed = computeIconView(value, appearance, assetsDir);
+    if (stringIconCache.size >= MAX_STRING_ICON_CACHE) stringIconCache.clear();
+    stringIconCache.set(cacheKey, computed);
+    return computed;
+  }
+  return computeIconView(value, appearance, assetsDir);
+}
+
+function computeIconView(
+  value: JsonValue | undefined,
+  appearance: IconAppearance,
+  assetsDir: string | undefined,
+): IconView {
+  const { source, fileIcon, tint, mask, image } = parse(value, appearance);
   const drawable: IconSource | undefined =
     fileIcon !== undefined
       ? { kind: "fileIcon", path: fileIcon }
       : source === undefined
         ? undefined
-        : sourceOf(source, options.assetsDir);
+        : sourceOf(source, assetsDir);
   const extras = {
     ...(tint ? { tint } : {}),
     ...(drawable ? { source: drawable } : {}),

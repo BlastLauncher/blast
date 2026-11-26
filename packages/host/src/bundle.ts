@@ -553,7 +553,8 @@ async function bundleEntryWithSignal(
 ): Promise<Omit<BundledCommand, "bundleMs">> {
   signal.throwIfAborted();
   const extensionDir = resolve(options.extensionDir);
-  const manifest = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
+  const manifestRaw = await readFile(join(extensionDir, "package.json"), "utf8");
+  const manifest = JSON.parse(manifestRaw);
   const command = options.modelProvider
     ? { name: manifest.ai?.modelProvider, mode: "model-provider" }
     : manifest.commands?.find((item: { name: string }) => item.name === options.command);
@@ -582,25 +583,30 @@ async function bundleEntryWithSignal(
       `Missing source for ${entryName}: no src/${entryName}.{tsx,ts,jsx,js} in ${extensionDir}` +
         " (a sparse checkout that only has package.json? fetch the whole extension directory)",
     );
-  const shared = await abortable(loadSharedDependencies(options.sharedDependencies), signal);
-  const aliases = await loadTsconfigAliases(extensionDir);
+  const useCache = Boolean(options.cacheDir && !options.outDir && !options.sharedDependencies);
+  const [shared, aliases, install, realExtDir, bundler] = await Promise.all([
+    abortable(loadSharedDependencies(options.sharedDependencies), signal),
+    loadTsconfigAliases(extensionDir),
+    options.installedDependencies === false
+      ? Promise.resolve(undefined)
+      : checkExtensionDependencies(options),
+    useCache ? realpath(extensionDir) : Promise.resolve(extensionDir),
+    useCache ? bundlerFingerprint() : Promise.resolve(""),
+  ]);
   for (const warning of aliases?.warnings ?? []) console.warn(warning);
-  const install =
-    options.installedDependencies === false ? undefined : await checkExtensionDependencies(options);
-  const cache =
-    options.cacheDir && !options.outDir && !options.sharedDependencies
-      ? openBundleCache<Omit<BundledCommand, "bundleMs">>(
-          resolve(options.cacheDir),
-          `${await realpath(extensionDir)}\0${entryName}`,
-          {
-            bundler: await bundlerFingerprint(),
-            source,
-            manifest: await readFile(join(extensionDir, "package.json"), "utf8"),
-            aliases: aliases ?? null,
-            install: install ?? null,
-          },
-        )
-      : undefined;
+  const cache = useCache
+    ? openBundleCache<Omit<BundledCommand, "bundleMs">>(
+        resolve(options.cacheDir!),
+        `${realExtDir}\0${entryName}`,
+        {
+          bundler,
+          source,
+          manifest: manifestRaw,
+          aliases: aliases ?? null,
+          install: install ?? null,
+        },
+      )
+    : undefined;
   const cached = await cache?.read();
   if (cached) return cached;
   const base = join(tmpdir(), "blast", "builds");

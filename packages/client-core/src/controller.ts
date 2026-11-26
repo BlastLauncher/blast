@@ -1,6 +1,14 @@
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { event, handler, handlerEvent, selectionId, text, type OutboundEvent } from "./nodes.ts";
-import { activeNode, actionRows, defaultActionShortcut, panelRows, sceneToView } from "./view.ts";
+import {
+  activeNode,
+  actionRows,
+  buildBaseView,
+  defaultActionShortcut,
+  panelRows,
+  selectFromBase,
+  type BaseView,
+} from "./view.ts";
 import { contentGlyph, contentIcon, gridMove } from "./grid.ts";
 import {
   iconFields,
@@ -220,6 +228,71 @@ const clamp = (value: number, length: number) => Math.max(0, Math.min(length - 1
 const runName = (node: SceneNode | undefined) =>
   handler(node?.props.onAction) ? "onAction" : "onSubmit";
 
+/** Fast structural equality for JSON-shaped values; short-circuits on identical refs. */
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (a === null || b === null || typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], b[i])) return false;
+    return true;
+  }
+  if (Array.isArray(b)) return false;
+  const ao = a as Record<string, unknown>;
+  const bo = b as Record<string, unknown>;
+  let aCount = 0;
+  for (const key in ao) {
+    if (!Object.hasOwn(ao, key) || ao[key] === undefined) continue;
+    aCount++;
+    if (!Object.hasOwn(bo, key) || !deepEqual(ao[key], bo[key])) return false;
+  }
+  let bCount = 0;
+  for (const key in bo) {
+    if (!Object.hasOwn(bo, key) || bo[key] === undefined) continue;
+    bCount++;
+  }
+  return aCount === bCount;
+}
+
+function viewsEqual(a: ControllerView | undefined, b: ControllerView): boolean {
+  if (!a) return false;
+  if (a === b) return true;
+  // Compare cheap scalar fields first so selection/search/loading changes
+  // reject immediately without touching large row arrays.
+  if (
+    a.kind !== b.kind ||
+    a.selectedId !== b.selectedId ||
+    a.loading !== b.loading ||
+    a.title !== b.title ||
+    a.search.text !== b.search.text ||
+    a.search.placeholder !== b.search.placeholder ||
+    a.navigation.canGoBack !== b.navigation.canGoBack ||
+    a.detail !== b.detail ||
+    a.emptyText !== b.emptyText ||
+    a.requests.quit !== b.requests.quit ||
+    a.requests.clearSearch !== b.requests.clearSearch ||
+    a.primary.title !== b.primary.title ||
+    a.primary.shortcut !== b.primary.shortcut ||
+    a.primary.enabled !== b.primary.enabled ||
+    a.actions.open !== b.actions.open ||
+    a.actions.selectedIndex !== b.actions.selectedIndex ||
+    a.actions.query !== b.actions.query ||
+    a.actions.title !== b.actions.title
+  )
+    return false;
+  if (a.rows !== b.rows && !deepEqual(a.rows, b.rows)) return false;
+  return (
+    deepEqual(a.grid, b.grid) &&
+    deepEqual(a.empty, b.empty) &&
+    deepEqual(a.actions.breadcrumb, b.actions.breadcrumb) &&
+    deepEqual(a.actions.rows, b.actions.rows) &&
+    deepEqual(a.dropdown, b.dropdown) &&
+    deepEqual(a.feedback, b.feedback) &&
+    deepEqual(a.menuBar, b.menuBar) &&
+    deepEqual(a.form, b.form)
+  );
+}
+
 export function createController(options: ControllerOptions): Controller {
   const { platform } = options;
   const icons: IconOptions = {
@@ -259,7 +332,15 @@ export function createController(options: ControllerOptions): Controller {
   let serial = 0;
   const deferred = new Map<string, { token: string; event: OutboundEvent }>();
   const listeners = new Set<(view: ControllerView) => void>();
-  let lastJson = "";
+  let lastView: ControllerView | undefined;
+  let cachedBaseScene: SceneMessage | undefined;
+  let cachedBaseSearch: string | undefined;
+  let cachedBase: BaseView | undefined;
+  let cachedUnselectedRowsBase: BaseView | undefined;
+  let cachedUnselectedRows: RowView[] = [];
+  let cachedSelectedRowsBase: BaseView | undefined;
+  let cachedSelectedRowId: string | undefined;
+  let cachedSelectedRows: RowView[] = [];
 
   const quit = (out: ControllerResult) => {
     if (quitRequested) return;
@@ -281,13 +362,20 @@ export function createController(options: ControllerOptions): Controller {
     out.effects.push({ type: "schedule", ms: value.delayMs, token });
   };
 
-  const base = () =>
-    sceneToView(current, {
+  const baseView = (): BaseView => {
+    if (cachedBase && cachedBaseScene === current && cachedBaseSearch === searchText) {
+      return cachedBase;
+    }
+    cachedBaseScene = current;
+    cachedBaseSearch = searchText;
+    cachedBase = buildBaseView(current, {
       searchText,
-      selectedId,
       ...(options.fallbackTitle ? { fallbackTitle: options.fallbackTitle } : {}),
       icons,
     });
+    return cachedBase;
+  };
+  const base = () => selectFromBase(baseView(), selectedId);
   type Base = ReturnType<typeof base>;
   const isMenu = (view: Base) => view.list?.type === "MenuBarExtra";
   const panelNodeOf = (view: Base) => {
@@ -477,7 +565,7 @@ export function createController(options: ControllerOptions): Controller {
     if (view.list?.type === "Form") return;
     if (!vertical && !view.grid) return;
     const id = selectionId(view.selected);
-    const index = view.items.findIndex((item) => item.id === view.selected?.id);
+    const index = view.selected ? (view.itemIndexByNodeId.get(view.selected.id) ?? -1) : -1;
     choose(
       out,
       view,
@@ -624,8 +712,7 @@ export function createController(options: ControllerOptions): Controller {
         return move(out, action.direction);
       case "select": {
         if (level !== "base" || isMenu(view)) return;
-        if (view.items.some((item) => selectionId(item) === action.id))
-          choose(out, view, action.id);
+        if (view.itemIndexBySelectionId.has(action.id)) choose(out, view, action.id);
         return;
       }
       case "primary":
@@ -679,16 +766,53 @@ export function createController(options: ControllerOptions): Controller {
   function settle(out: ControllerResult): ControllerResult {
     reconcile(out);
     const next = snapshot();
-    const json = JSON.stringify(next);
-    if (json !== lastJson) {
-      lastJson = json;
+    if (!viewsEqual(lastView, next)) {
+      lastView = next;
       for (const listener of listeners) listener(next);
     }
     return out;
   }
 
+  function listRowViews(bv: BaseView, selectedNodeId: string | undefined): RowView[] {
+    if (cachedSelectedRowsBase === bv && cachedSelectedRowId === selectedNodeId) {
+      return cachedSelectedRows;
+    }
+    if (cachedUnselectedRowsBase !== bv) {
+      cachedUnselectedRowsBase = bv;
+      cachedUnselectedRows = bv.rows.map((row) => {
+        const item = row.item;
+        return {
+          id: item ? (selectionId(row.node) ?? row.node.id) : row.node.id,
+          kind: item ? "item" : row.unsupported ? "unsupported" : "section",
+          title: row.title ?? row.text,
+          subtitle: row.subtitle ?? "",
+          accessories: row.accessories ?? "",
+          icon: row.icon === true,
+          iconLabel: row.iconView?.label ?? "",
+          ...iconFields(row.iconView),
+          count: row.count ?? null,
+          selected: false,
+          text: row.text,
+        };
+      });
+    }
+    let rows = cachedUnselectedRows;
+    if (selectedNodeId !== undefined) {
+      const rowIndex = bv.rowIndexByNodeId.get(selectedNodeId);
+      if (rowIndex !== undefined) {
+        rows = cachedUnselectedRows.slice();
+        rows[rowIndex] = { ...rows[rowIndex]!, selected: true };
+      }
+    }
+    cachedSelectedRowsBase = bv;
+    cachedSelectedRowId = selectedNodeId;
+    cachedSelectedRows = rows;
+    return rows;
+  }
+
   function snapshot(): ControllerView {
-    const list = base();
+    const bv = baseView();
+    const list = selectFromBase(bv, selectedId);
     const feedback = feedbackState(current);
     const level = mode(list, !!feedback.alert);
     const kind: ViewKind = !list.list
@@ -703,22 +827,6 @@ export function createController(options: ControllerOptions): Controller {
               ? "menu-bar"
               : "list";
     const selected = selectionId(list.selected);
-    const rowView = (row: (typeof list.rows)[number]): RowView => {
-      const item = row.item;
-      return {
-        id: item ? (selectionId(row.node) ?? row.node.id) : row.node.id,
-        kind: item ? "item" : row.unsupported ? "unsupported" : "section",
-        title: row.title ?? row.text,
-        subtitle: row.subtitle ?? "",
-        accessories: row.accessories ?? "",
-        icon: row.icon === true,
-        iconLabel: row.iconView?.label ?? "",
-        ...iconFields(row.iconView),
-        count: row.count ?? null,
-        selected: item && row.node.id === list.selected?.id,
-        text: row.text,
-      };
-    };
     const actions = panelState(list);
     const dropdown = dropdownState(list);
     const bar = menuBarView(current, { path: menuPath, selectedId }, platform, icons);
@@ -745,7 +853,7 @@ export function createController(options: ControllerOptions): Controller {
         text: searchText,
         placeholder: text(list.list?.props.searchBarPlaceholder) || "Search…",
       },
-      rows: kind === "list" ? list.rows.map(rowView) : [],
+      rows: kind === "list" ? listRowViews(bv, list.selected?.id) : [],
       grid: list.grid
         ? list.grid.rows.map((row) => ({
             id: row.node ? row.node.id : null,
@@ -886,7 +994,7 @@ export function createController(options: ControllerOptions): Controller {
         }
       return settle(out);
     },
-    view: snapshot,
+    view: () => (lastView ??= snapshot()),
     subscribe(listener) {
       listeners.add(listener);
       return () => void listeners.delete(listener);
