@@ -20,7 +20,9 @@ no external users of protocol 1, so it is replaced, not extended.
    `root.view.patch` / `session.view.patch` with
    `{ revision, baseRevision, ops }`. `revision` starts at 1 and increases by
    exactly 1 per event of either kind; `baseRevision = revision - 1`. An update
-   with no ops sends nothing and does not consume a revision.
+   with no ops sends nothing and does not consume a revision. Views are state,
+   not replies: a client keeps the last view per root and draws it again when a
+   session exits; it never waits for an event to confirm its own input.
 3. **Ops are a small generic JSON patch,** independent of view fields, so a
    client in any language applies them in a few dozen lines. `path` is an array
    of object keys from the view root (never array indices):
@@ -44,16 +46,14 @@ no external users of protocol 1, so it is replaced, not extended.
 
 ## Why
 
-Views stay the only drawing contract and stay self-describing; the diff is
-generic, so adding a view field never changes the protocol. Prefix/suffix
-splices cover the cases that dominate traffic — a row edit, a selection move
-(two adjacent rows), a filtered list — without a tree diff in every client
+Views stay the only, self-describing drawing contract; the diff is generic, so
+a new view field never changes the protocol. Prefix/suffix splices cover a row
+edit, a selection move and a filter without a tree diff in every client
 language. Strict revisions make lost or reordered events detectable.
 
 ## Consequences
 
-- Every embedder must implement the three ops and resync; a full view is
-  always a valid recovery point.
+- Every embedder implements the three ops and resync; a full view always recovers.
 - Serve holds one previous view per root/session in memory.
 - Per-row `selected` flags stay: a selection move costs two small row patches.
-- Reordering many rows (rare) degrades to one large splice, never worse than a full view.
+- Reordering many rows degrades to one large splice, never worse than a full view.
