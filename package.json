@@ -10,6 +10,7 @@
   "type": "module",
   "scripts": {
     "verify": "bun scripts/verify.ts",
+    "bench": "bun scripts/bench/index.ts",
     "fmt": "bun scripts/fmt.ts",
     "fmt:check": "bun scripts/fmt.ts --check",
     "lint": "oxlint --deny-warnings --ignore-pattern 'compat/raycast-api/**'",

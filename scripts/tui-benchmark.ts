@@ -54,7 +54,7 @@ function fakeSession(scene: SceneMessage): Session {
   } satisfies Session;
 }
 
-async function helloListFirstFrameMs(): Promise<number> {
+export async function helloListFirstFrameMs(): Promise<number> {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-benchmark-"));
   const started = performance.now();
   const opened = await openCommand(resolve(root, "fixtures/extensions/hello-list"), "index", {
@@ -78,7 +78,7 @@ async function helloListFirstFrameMs(): Promise<number> {
   }
 }
 
-async function listKeyLatencyMs(samples = 20): Promise<number> {
+export async function listKeyLatenciesMs(samples = 20): Promise<number[]> {
   const scene = listScene(10_000);
   let terminal!: Awaited<ReturnType<typeof testRender>>;
   await act(async () => {
@@ -96,10 +96,15 @@ async function listKeyLatencyMs(samples = 20): Promise<number> {
       await terminal.waitForFrame((frame) => frame.includes(`Item ${index}`), { maxPasses: 500 });
       timings.push(performance.now() - started);
     }
-    return timings.reduce((sum, value) => sum + value, 0) / timings.length;
+    return timings;
   } finally {
     await act(async () => terminal.dispose());
   }
+}
+
+export async function listKeyLatencyMs(samples = 20): Promise<number> {
+  const timings = await listKeyLatenciesMs(samples);
+  return timings.reduce((sum, value) => sum + value, 0) / timings.length;
 }
 
 /**
@@ -141,7 +146,9 @@ async function startupSample(dataDir: string): Promise<{ root: number; command: 
   }
 }
 
-function startup(dataDir: string): { root: number; command: number } {
+export type StartupSample = { root: number; command: number };
+
+function startup(dataDir: string): StartupSample {
   const child = spawnSync(process.execPath, [import.meta.filename, "--startup-sample", dataDir], {
     encoding: "utf8",
   });
@@ -149,38 +156,47 @@ function startup(dataDir: string): { root: number; command: number } {
   return JSON.parse(child.stdout.trim().split("\n").at(-1)!);
 }
 
+export async function tuiStartupSamples(
+  samples = 5,
+): Promise<{ cold: StartupSample[]; warm: StartupSample[] }> {
+  const cold: StartupSample[] = [];
+  const warm: StartupSample[] = [];
+  for (let index = 0; index < samples; index++) {
+    const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-startup-"));
+    try {
+      cold.push(startup(dataDir));
+      warm.push(startup(dataDir));
+    } finally {
+      await rm(dataDir, { recursive: true, force: true });
+    }
+  }
+  return { cold, warm };
+}
+
 const median = (values: number[]) => values.toSorted((a, b) => a - b)[values.length >> 1]!;
 
-if (process.argv[2] === "--startup-sample") {
-  console.log(JSON.stringify(await startupSample(process.argv[3]!)));
-  process.exit(0);
-}
-
-const samples = 5;
-const cold: { root: number; command: number }[] = [];
-const warm: { root: number; command: number }[] = [];
-for (let index = 0; index < samples; index++) {
-  const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-startup-"));
-  try {
-    cold.push(startup(dataDir));
-    warm.push(startup(dataDir));
-  } finally {
-    await rm(dataDir, { recursive: true, force: true });
+if (import.meta.main) {
+  if (process.argv[2] === "--startup-sample") {
+    console.log(JSON.stringify(await startupSample(process.argv[3]!)));
+    process.exit(0);
   }
-}
-for (const [name, runs] of [
-  ["cold", cold],
-  ["warm", warm],
-] as const) {
-  const rootMs = median(runs.map((run) => run.root));
-  const commandMs = median(runs.map((run) => run.command));
-  console.log(
-    `${name} start-up (median of ${samples}): root ${rootMs.toFixed(0)} ms, ` +
-      `hello-list command ${commandMs.toFixed(0)} ms`,
-  );
-}
 
-const firstFrame = await helloListFirstFrameMs();
-const keyLatency = await listKeyLatencyMs();
-console.log(`hello-list time to first frame: ${firstFrame.toFixed(2)} ms`);
-console.log(`10,000-item list mean keystroke latency: ${keyLatency.toFixed(2)} ms`);
+  const samples = 5;
+  const { cold, warm } = await tuiStartupSamples(samples);
+  for (const [name, runs] of [
+    ["cold", cold],
+    ["warm", warm],
+  ] as const) {
+    const rootMs = median(runs.map((run) => run.root));
+    const commandMs = median(runs.map((run) => run.command));
+    console.log(
+      `${name} start-up (median of ${samples}): root ${rootMs.toFixed(0)} ms, ` +
+        `hello-list command ${commandMs.toFixed(0)} ms`,
+    );
+  }
+
+  const firstFrame = await helloListFirstFrameMs();
+  const keyLatency = await listKeyLatencyMs();
+  console.log(`hello-list time to first frame: ${firstFrame.toFixed(2)} ms`);
+  console.log(`10,000-item list mean keystroke latency: ${keyLatency.toFixed(2)} ms`);
+}

@@ -194,6 +194,5 @@ carry pagination `pageSize`/`hasMore`; Quick Look props carry file metadata.
 
 ## Debugging extensions
 
-`bun run blast run <extensionDir> <command>` is the headless debug client;
-its flags, headless capability answers, script commands and exit codes are
-in `docs/cli.md`.
+`bun run blast run <extensionDir> <command>` is the headless debug client; flags, capability answers, scripts and exit codes are in `docs/cli.md`.
+Performance benchmarks and the recorded baseline live in `docs/performance.md` (`bun run bench`).
