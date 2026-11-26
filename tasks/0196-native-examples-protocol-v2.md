@@ -66,19 +66,17 @@ Shares one PR with task 0194 (same branch `task/0194-embedder-protocol-v2`).
 
 ## Handoff
 
-Filled in by the worker when finishing:
+Filled in by the worker when finishing (round 2):
 
 ```
-Branch/commit: t3/native-examples-protocol-v2 @ 4ef95c58 (plus this handoff commit)
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 103.2s; `go test ./...` PASS (7 tests); `bun run example:python` PASS (9 tests); `swift test` PASS (54 tests in 8 suites)
+Branch/commit: t3/native-examples-protocol-v2-fixes @ 59881d48 (plus this handoff commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 104.6s; `go test -race ./...` PASS (7 tests); `bun run example:python` PASS (10 tests); `swift test` PASS (93 tests in 14 suites across 3 targets)
 Done:
-- Added `scripts/protocol/generate-view-patch-fixtures.ts`, generated `fixtures/protocol/view-patches.json` (10 cases covering selection move, one-row edit, search filter, empty filter, null<->object, optional key delete, array prepend/append, root replace, no-op), and added staleness/round-trip test `scripts/protocol/view-patch-fixtures.test.ts`.
-- Ported Go (`examples/go-embedder/patch.go`, `main.go`, `main_test.go`, `README.md`) to embedder protocol 2: generic JSON patch applier (`set`/`delete`/`splice`), per-root/session revision tracking, `*.resync` on revision gap or apply error while dropping patches until the next full view, shared fixture tests, and resync unit tests.
-- Ported Python (`examples/python-embedder/embedder.py`, `test_embedder.py`, `README.md`) to embedder protocol 2 with pure `apply_view_patch`, thread-safe resync on revision gap or apply error, shared fixture tests, and resync unit tests.
-- Ported Swift (`examples/macos-launcher/Sources/BlastKit/ViewPatch.swift`, `Client.swift`, `README.md`, and `Tests/BlastKitTests/*`) to embedder protocol 2, dropped unused `session.scene` handling, added `ViewPatchTests` against the shared fixture, and added resync/recovery tests in `ClientTests`.
-- Updated `examples/browser-demo/highlight.test.ts` sample strings from `"protocol":1` to `"protocol":2` so `git grep -n '"protocol": *1' examples/` is empty.
+- Cached the last root view per root and redrew it on `session.exited` across all three clients per decision 0020: Swift `LauncherRouter` (`rootViews` dictionary returned on `.exited`), Go `Client` (`viewStreamState.view`, `sessionRoot`, redraw before appending `session.exited`), and Python `Client` (`_session_root`, redraw before appending `session.exited`); suppressed background root redraws while a session is active.
+- Reverted the round-1 search workaround in Go (`examples/go-embedder/main_test.go`) and Python (`examples/python-embedder/test_embedder.py`) back to clearing search to `""`, asserting the cached root view is redrawn after `session.exited` with no new root view event; added the matching `LauncherRouterTests.redrawsCachedRootOnSessionExit` test in Swift.
+- Guarded Python `Client._send_resync` against `OSError`/`ValueError` and wrapped `Client._read` in `try`/`finally` so stdin closing never prevents `self.closed = True` / `notify_all()`; added `test_resync_after_stdin_closed_reaches_reader_shutdown` covering closed `StringIO` and `BrokenPipeError`.
+- Fixed splice remove bounds against integer overflow in Go (`remove > len(array)-at` in `examples/go-embedder/patch.go`) and Swift (`remove <= array.count - at` in `examples/macos-launcher/Sources/BlastKit/ViewPatch.swift`), and added `math.MaxInt` / `Int.max` tests in both suites.
 Not done / risks:
-- No new dependencies added.
-- In Go and Python end-to-end flow tests, narrowed root search to `"hello"` before launching instead of clearing to `""` beforehand, because protocol 2 suppresses no-op updates when the root clears an already-empty search on session exit.
-- Deleted `examples/macos-launcher/.build` after running `swift test` to keep disk usage minimal.
+- No new dependencies added; pre-existing Python state mutation outside `self.ready` left untouched as requested.
+- Deleted `examples/macos-launcher/.build` after running `swift test` (worktree disk usage ~682 MB).
 ```
