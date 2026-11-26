@@ -21,10 +21,10 @@ launch returns its session id at once and the session's views are:
 ```text
 ← {"type":"request","id":"7","method":"extension.launch","params":{"extension":"1","command":"index","prompts":true}}
 → {"type":"response","id":"7","ok":true,"result":{"session":"4"}}
-→ {"type":"event","event":"session.view","session":"4","view":{"kind":"form",...}}
+→ {"type":"event","event":"session.view","session":"4","revision":1,"view":{"kind":"form",...}}
 ← {"type":"request","id":"8","method":"session.input","params":{"session":"4","input":{"type":"setValue","id":"token","value":"..."}}}
 ← {"type":"request","id":"9","method":"session.input","params":{"session":"4","input":{"type":"primary"}}}
-→ {"type":"event","event":"session.view","session":"4","view":{"kind":"list",...}}
+→ {"type":"event","event":"session.view.patch","session":"4","revision":3,"baseRevision":2,"ops":[...]}
 ```
 
 `prompts` needs views (the hello's or the launch's) and ignores

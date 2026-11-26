@@ -16,6 +16,7 @@ const ref = (name: string): Schema => ({ $ref: `#/$defs/${name}` });
 const json = ref("jsonValue");
 const string: Schema = { type: "string" };
 const integer: Schema = { type: "integer" };
+const positiveInteger: Schema = { type: "integer", minimum: 1 };
 const embedderError = ref("embedderError");
 const nullResult: Schema = { type: "null" };
 
@@ -55,9 +56,11 @@ const RESULTS: Record<keyof EmbedderParams, Schema> = {
   "extension.close": nullResult,
   "root.open": envelope(["root"], { root: string }),
   "root.input": nullResult,
+  "root.resync": nullResult,
   "root.close": nullResult,
   "session.event": nullResult,
   "session.input": nullResult,
+  "session.resync": nullResult,
   "session.close": nullResult,
   "engine.shutdown": nullResult,
 };
@@ -108,8 +111,10 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
   },
   "root.open": { views },
   "root.input": { root: string, input: ref("controllerInput") },
+  "root.resync": { root: string },
   "root.close": { root: string },
   "session.input": { session: string, input: ref("controllerInput") },
+  "session.resync": { session: string },
   "session.event": {
     session: string,
     node: string,
@@ -147,17 +152,31 @@ const EVENT_PROPERTIES: Record<string, Schema> = {
   "manifest.changed": { extension: string, manifest: json },
   "manifest.error": { extension: string, error: embedderError },
   "dependencies.log": { extension: string, message: string },
-  "root.view": { root: string, view: ref("controllerView") },
+  "root.view": { root: string, view: ref("controllerView"), revision: positiveInteger },
+  "root.view.patch": {
+    root: string,
+    revision: positiveInteger,
+    baseRevision: positiveInteger,
+    ops: { type: "array", items: ref("viewPatchOp") },
+  },
   "root.launched": { root: string, session: string },
   "session.scene": { session: string, scene: ref("sceneMessage") },
-  "session.view": { session: string, view: ref("controllerView") },
+  "session.view": { session: string, view: ref("controllerView"), revision: positiveInteger },
+  "session.view.patch": {
+    session: string,
+    revision: positiveInteger,
+    baseRevision: positiveInteger,
+    ops: { type: "array", items: ref("viewPatchOp") },
+  },
   "session.log": { session: string, log: ref("logMessage") },
   "session.exited": { session: string, code: integer, error: embedderError },
 };
 
 const EVENT_REQUIRED: Record<string, string[]> = {
-  "session.view": ["session", "view"],
-  "root.view": ["root", "view"],
+  "session.view": ["session", "view", "revision"],
+  "session.view.patch": ["session", "revision", "baseRevision", "ops"],
+  "root.view": ["root", "view", "revision"],
+  "root.view.patch": ["root", "revision", "baseRevision", "ops"],
   "root.launched": ["root", "session"],
 };
 
@@ -211,10 +230,10 @@ const sceneNode: Schema = {
 /** The whole embedder protocol schema, serialized verbatim by the generator. */
 export const EMBEDDER_PROTOCOL_SCHEMA: Schema = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://blastlauncher.dev/schema/embedder-v1.schema.json",
+  $id: "https://blastlauncher.dev/schema/embedder-v2.schema.json",
   title: `Blast embedder protocol v${EMBEDDER_PROTOCOL_VERSION}`,
   description:
-    "NDJSON messages of `blast serve` (decision 0011). Each validated instance " +
+    "NDJSON messages of `blast serve` (decisions 0011, 0020). Each validated instance " +
     "is one line: an embedder -> server or a server -> embedder message.",
   oneOf: [ref("embedderMessages"), ref("serverMessages")],
   $defs: {
@@ -270,6 +289,26 @@ export const EMBEDDER_PROTOCOL_SCHEMA: Schema = {
       type: "object",
       additionalProperties: json,
     },
+    viewPatchOp: {
+      oneOf: [
+        envelope(["op", "path", "value"], {
+          op: { const: "set" },
+          path: { type: "array", items: string },
+          value: json,
+        }),
+        envelope(["op", "path"], {
+          op: { const: "delete" },
+          path: { type: "array", items: string },
+        }),
+        envelope(["op", "path", "at", "remove", "insert"], {
+          op: { const: "splice" },
+          path: { type: "array", items: string },
+          at: { type: "integer", minimum: 0 },
+          remove: { type: "integer", minimum: 0 },
+          insert: { type: "array", items: json },
+        }),
+      ],
+    },
     jsonValue: {
       type: ["string", "number", "boolean", "null", "array", "object"],
       items: json,
@@ -318,6 +357,7 @@ export const EMBEDDER_PROTOCOL_SCHEMA: Schema = {
       protocol: integer,
       capabilities: { type: "array", items: string },
       views: { anyOf: [views, { const: false }] },
+      scenes: { type: "boolean" },
     }),
     embedderMessages: {
       oneOf: [

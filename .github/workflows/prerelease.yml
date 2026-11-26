@@ -76,7 +76,7 @@ jobs:
         run: |
           mkdir -p .cache/release/artifact
           cp -R .cache/release/tarballs .cache/release/artifact/tarballs
-          cp packages/protocol/schema/embedder-v1.schema.json .cache/release/artifact/embedder-v1.schema.json
+          cp packages/protocol/schema/embedder-v2.schema.json .cache/release/artifact/embedder-v2.schema.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: blast-v3-${{ steps.plan.outputs.version }}
@@ -135,4 +135,4 @@ jobs:
             --generate-notes \
             --title "Blast ${VERSION}" \
             .cache/release/artifact/tarballs/*.tgz \
-            .cache/release/artifact/embedder-v1.schema.json
+            .cache/release/artifact/embedder-v2.schema.json

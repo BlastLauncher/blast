@@ -1172,7 +1172,7 @@ test("--bundle-timeout accepts zero and a limit, and rejects invalid millisecond
 }, 15_000);
 
 test("blast serve speaks the embedder protocol on stdio", async () => {
-  const hello = JSON.stringify({ type: "hello", protocol: 1, capabilities: [] });
+  const hello = JSON.stringify({ type: "hello", protocol: 2, capabilities: [] });
   const request = JSON.stringify({
     type: "request",
     id: "1",
@@ -1185,7 +1185,7 @@ test("blast serve speaks the embedder protocol on stdio", async () => {
     .trim()
     .split("\n")
     .map((line) => JSON.parse(line));
-  expect(lines[0]).toMatchObject({ type: "welcome", protocol: 1 });
+  expect(lines[0]).toMatchObject({ type: "welcome", protocol: 2 });
   expect(lines[1]).toMatchObject({ type: "response", id: "1", ok: true });
   expect((await runCli(["serve", "--dependencies", "bogus"])).code).toBe(3);
 });

@@ -17,6 +17,7 @@ import {
   CAPABILITIES,
   DEFAULT_MAX_LINE_BYTES,
   EMBEDDER_PROTOCOL_VERSION,
+  diffView,
   parseEmbedderMessage,
   type EmbedderParams,
   type EmbedderRequest,
@@ -42,12 +43,20 @@ const engineVersion = (() => {
 })();
 // The hello's `views`: what a launch without its own `views` gets.
 let defaultViews: EmbedderViews | undefined;
+// Opt-in raw `session.scene` debugging events (`hello.scenes === true`; decision 0020).
+let sendScenes = false;
 const extensionDirs = new Map<string, string>();
 const extensions = new Map<string, ExtensionHandle>();
 const watches = new Map<string, () => void>();
 const sessions = new Map<string, { close(): Promise<void> }>();
 const extensionSessions = new Map<string, Set<string>>();
 const roots = new Map<string, Root>();
+type ViewStream = {
+  push(view: unknown): void;
+  resync(): void;
+};
+const rootStreams = new Map<string, ViewStream>();
+const sessionStreams = new Map<string, ViewStream>();
 // Sessions still in their launch prompts: input goes to the flow, not a controller.
 const flows = new Map<string, LaunchFlow>();
 const controllers = new Map<string, ReturnType<typeof createController>>();
@@ -124,6 +133,37 @@ const protocolError = (message: string, code = "invalid_message") =>
   send({ type: "error", error: { code, message } });
 const event = (eventName: string, values: Record<string, JsonValue>) =>
   send({ type: "event", event: eventName, ...values });
+function createViewStream(
+  kind: "root" | "session",
+  key: string,
+  current: () => unknown,
+): ViewStream {
+  let revision = 0;
+  let lastView: JsonValue | undefined;
+  const emitFull = (view: JsonValue) => {
+    revision += 1;
+    lastView = view;
+    event(`${kind}.view`, { [kind]: key, view, revision });
+  };
+  return {
+    push(raw) {
+      const next = json(raw);
+      if (lastView === undefined) {
+        emitFull(next);
+        return;
+      }
+      const ops = diffView(lastView, next);
+      if (ops.length === 0) return;
+      const baseRevision = revision;
+      revision += 1;
+      lastView = next;
+      event(`${kind}.view.patch`, { [kind]: key, revision, baseRevision, ops });
+    },
+    resync() {
+      emitFull(lastView !== undefined ? lastView : json(current()));
+    },
+  };
+}
 async function stop(code = 0) {
   if (stopping) return;
   stopping = true;
@@ -218,16 +258,27 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     });
     roots.set(key, root);
     await root.ready();
-    root.subscribe((view) => event("root.view", { root: key, view: json(view) }));
+    const viewStream = createViewStream("root", key, () => root.view());
+    rootStreams.set(key, viewStream);
+    root.subscribe((view) => viewStream.push(view));
     return { root: key };
   }
   if (message.method === "root.input") {
     get(roots, message.params.root).input(message.params.input);
     return null;
   }
+  if (message.method === "root.resync") {
+    get(rootStreams, message.params.root).resync();
+    return null;
+  }
   if (message.method === "root.close") {
     await get(roots, message.params.root).close();
     roots.delete(message.params.root);
+    rootStreams.delete(message.params.root);
+    return null;
+  }
+  if (message.method === "session.resync") {
+    get(sessionStreams, message.params.session).resync();
     return null;
   }
   if (message.method === "session.close") {
@@ -352,9 +403,16 @@ async function launchSession(
       ...(exit.error ? { error: errorInfo(exit.error) } : {}),
     });
     sessions.delete(key);
+    sessionStreams.delete(key);
     extensionSessions.get(extensionKey)?.delete(key);
     ended.resolve();
   };
+  const viewStream = createViewStream(
+    "session",
+    key,
+    () => controllers.get(key)?.view() ?? flow.view(),
+  );
+  sessionStreams.set(key, viewStream);
   flows.set(key, flow);
   track({ close: async () => flow.cancel() });
   started?.(key);
@@ -362,7 +420,7 @@ async function launchSession(
   let current = true;
   const stopViews = flow.subscribe((view) => {
     if (current) current = false;
-    else event("session.view", { session: key, view: json(view) });
+    else viewStream.push(view);
   });
   const settled = () => {
     stopViews();
@@ -373,7 +431,9 @@ async function launchSession(
       settled();
       if (!opened) return end({ code: 0 });
       track(opened);
-      void stream(extensionKey, key, opened, views, undefined, true).then(ended.resolve);
+      void stream(extensionKey, key, opened, views, undefined, true, viewStream).then(
+        ended.resolve,
+      );
     },
     (error: unknown) => {
       settled();
@@ -390,6 +450,7 @@ async function stream(
   views: EmbedderViews | undefined,
   started?: (session: string) => void,
   announce = false,
+  existingStream?: ViewStream,
 ): Promise<void> {
   liveSessions.set(key, opened.session);
   started?.(key);
@@ -399,18 +460,18 @@ async function stream(
         assetsDir: join(extensionDirs.get(extensionKey) ?? "", "assets"),
       })
     : undefined;
+  let viewStream: ViewStream | undefined;
   if (controller) {
     controllers.set(key, controller);
     sessionTimers.set(key, new Set());
+    viewStream = existingStream ?? createViewStream("session", key, () => controller.view());
+    sessionStreams.set(key, viewStream);
   }
-  const stopViews = controller?.subscribe((view) =>
-    event("session.view", { session: key, view: json(view) }),
-  );
+  const stopViews = controller?.subscribe((view) => viewStream?.push(view));
   // After prompts the embedder is still drawing the last prompt view: replace it.
-  if (announce && controller)
-    event("session.view", { session: key, view: json(controller.view()) });
+  if (announce && controller) viewStream?.push(controller.view());
   const unsubscribe = opened.session.scenes((scene) => {
-    event("session.scene", { session: key, scene: json(scene) });
+    if (sendScenes) event("session.scene", { session: key, scene: json(scene) });
     if (controller && controllers.has(key)) apply(key, controller.scene(scene));
   });
   // Logs that arrived during startup are replayed once, then streamed.
@@ -430,6 +491,7 @@ async function stream(
   });
   await opened.close();
   sessions.delete(key);
+  sessionStreams.delete(key);
   liveSessions.delete(key);
   extensionSessions.get(extensionKey)?.delete(key);
 }
@@ -457,6 +519,7 @@ function receive(value: unknown) {
     }
     capabilities = message.capabilities;
     defaultViews = message.views || undefined;
+    sendScenes = message.scenes === true;
     ready = true;
     send({
       type: "welcome",

@@ -21,39 +21,27 @@ newline-delimited JSON. Stdout carries protocol output only. Ask for views in
 the hello, open extensions, then open the root and draw what it sends:
 
 ```text
-← {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
-→ {"type":"welcome","protocol":1,"engine":{"version":"…"},"catalog":{…}}
+← {"type":"hello","protocol":2,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
+→ {"type":"welcome","protocol":2,"engine":{"version":"…"},"catalog":{…}}
 ← {"type":"request","id":"1","method":"extension.open","params":{"dir":"./myext"}}
 → {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}
 ← {"type":"request","id":"2","method":"root.open","params":{}}
-→ {"type":"event","event":"root.view","root":"1","view":{"kind":"list","title":"Commands",…}}
+→ {"type":"event","event":"root.view","root":"1","revision":1,"view":{"kind":"list","title":"Commands",…}}
 → {"type":"response","id":"2","ok":true,"result":{"root":"1"}}
 ← {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}
 → {"type":"event","event":"root.launched","root":"1","session":"3"}
-→ {"type":"event","event":"session.view","session":"3","view":{"kind":"list",…}}
+→ {"type":"event","event":"session.view","session":"3","revision":1,"view":{"kind":"list",…}}
 ← {"type":"request","id":"4","method":"session.input","params":{"session":"3","input":{"type":"search","text":"ap"}}}
-→ {"type":"event","event":"session.view","session":"3","view":{…}}
+→ {"type":"event","event":"session.view.patch","session":"3","revision":2,"baseRevision":1,"ops":[{"op":"set","path":["search","text"],"value":"ap"},…]}
 ← {"type":"request","id":"5","method":"session.input","params":{"session":"3","input":{"type":"back"}}}
 → {"type":"event","event":"session.exited","session":"3","code":0}
-→ {"type":"event","event":"root.view","root":"1","view":{…}}
 ```
 
-Send input to the session from `root.launched` until its `session.exited`,
-then to the root again. The root lists every opened extension's commands;
-launching runs [launch prompts](launch-prompts.md) for missing preferences,
-arguments and dependencies as that session's views. Details:
-[root-view.md](root-view.md). The [Go](../examples/go-embedder/) and
-[Python](../examples/python-embedder/) examples are complete standard-library
-clients of exactly this flow.
+Each root and session sends one full `root.view` / `session.view` (`revision: 1`), then incremental `root.view.patch` / `session.view.patch` events (`revision`, `baseRevision`, `ops`: `set`, `delete`, `splice` over object-key paths). `revision` increments by 1 per event; no-op updates send nothing. On a `baseRevision` mismatch, send `root.resync {root}` or `session.resync {session}` and ignore patches until the next full view (decision 0020). `@blastlauncher/protocol` exports `diffView` and `applyViewPatch`.
 
-The hello's `views` (`platform`: `macOS`, `Windows` or `Linux`; optional
-`appearance`: `light` or `dark`) apply to the root and every launch that does
-not pass its own; `"views":false` or omitting it keeps raw scenes. Icons in
-rows, grid cells, menu rows and the empty view carry `iconLabel` (text
-fallback) plus optional `iconSource` (`builtin` name, `url`, absolute `file`
-path under the extension's `assets/`, or `fileIcon`), `iconTint` and
-`iconMask`, already resolved for the appearance. `blast serve` installs
-missing dependencies by default (`--dependencies manual` to opt out).
+Send input to the session from `root.launched` until its `session.exited`, then to the root again. The root lists every opened extension's commands; launching runs [launch prompts](launch-prompts.md) for missing preferences, arguments and dependencies as that session's views ([root-view.md](root-view.md)). The [Go](../examples/go-embedder/) and [Python](../examples/python-embedder/) examples are complete standard-library clients of this flow.
+
+The hello's `views` (`platform`: `macOS`, `Windows` or `Linux`; optional `appearance`: `light` or `dark`) apply to the root and every launch that does not pass its own; `"views":false` or omitting it leaves views off by default. Raw `session.scene` events are off unless the hello passes `"scenes":true`. Icons in rows, grid cells, menu rows and the empty view carry `iconLabel` (text fallback) plus optional `iconSource` (`builtin` name, `url`, absolute `file` path under the extension's `assets/`, or `fileIcon`), `iconTint` and `iconMask`, already resolved for the appearance. `blast serve` installs missing dependencies by default (`--dependencies manual` to opt out).
 
 ### Client rules
 
@@ -74,7 +62,7 @@ Capability forwarding uses `capability.request {id,session,name,params}` and
 an answering `capability.result` (`ok:true,value` or `ok:false,error`);
 progress uses `capability.progress`, cancellation `capability.cancel`.
 Unregistered or ungranted capabilities are denied. Every message is in the
-[schema](../packages/protocol/schema/embedder-v1.schema.json).
+[schema](../packages/protocol/schema/embedder-v2.schema.json).
 
 ### Lower level: one command, or raw scenes
 
@@ -82,7 +70,7 @@ Unregistered or ungranted capabilities are denied. Every message is in the
 add `"prompts":true` to get the launch prompts instead of `missing_values` or
 `missing_dependencies` errors, and `views` to override the hello's.
 `extension.configure {extension, command}` shows a command's preferences form.
-Without views, a session streams its React tree instead:
+Pass `"scenes":true` in `hello` to opt into raw `session.scene` debugging events:
 
 ```text
 → {"type":"event","event":"session.scene","session":"3","scene":{…}}
@@ -130,7 +118,7 @@ symbols. Grant handlers receive `(params, context)`, may be async, can report
 `createNativeHandlers()` in `@blastlauncher/native` for optional clipboard,
 open, file-manager and trash handlers; otherwise register only your own grants.
 
-The protocol is version 1. Additive changes stay on version 1; breaking changes
+The protocol is version 2. Additive changes stay on version 2; breaking changes
 use a new schema and negotiation version. `bun run protocol:check` verifies the
 checked-in schema.
 
