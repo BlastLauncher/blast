@@ -95,7 +95,7 @@ if [ ! -f "$target_dir/node_modules/@blastlauncher/tui/dist/main.js" ]; then
   stage_dir="$releases_dir/.stage-$$"
   mkdir -p "$stage_dir"
   printf '%s\n' '{"name":"blast-tmux-cache","private":true,"type":"module"}' > "$stage_dir/package.json"
-  bun add --cwd "$stage_dir" --registry="$registry" --exact --no-save "@blastlauncher/tui@${latest}" >/dev/null
+  bun add --no-cache --cwd "$stage_dir" --registry="$registry" --exact --no-save "@blastlauncher/tui@${latest}" >/dev/null
   rm -rf "$target_dir"
   mv "$stage_dir" "$target_dir"
   stage_dir=""

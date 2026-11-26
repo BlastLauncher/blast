@@ -79,7 +79,7 @@ if [ "$blast_command" = 'bunx @blastlauncher/tui@next' ]; then
     mkdir -p "$blast_cache_dir"
     printf '%s\n' '{"name":"blast-tmux-cache","private":true,"type":"module"}' > "$blast_cache_dir/package.json"
     message "Installing Blast TUI (first launch)…"
-    if ! bun add --cwd "$blast_cache_dir" --exact --no-save '@blastlauncher/tui@next'; then
+    if ! bun add --no-cache --cwd "$blast_cache_dir" --exact --no-save '@blastlauncher/tui@next'; then
       message "Could not install Blast TUI; check your network connection"
       exit 0
     fi
@@ -146,7 +146,7 @@ daemon_target_file="$daemon_dir/target"
 printf '%s\n' "$target" > "$daemon_dir/.target.$$"
 mv -f "$daemon_dir/.target.$$" "$daemon_target_file"
 
-daemon_key="${blast_command}${us}${resolved_release}${us}${blast_theme}${us}${builtin_flag}${us}${blast_config}${us}${extensions}"
+daemon_key="v2${us}${blast_command}${us}${resolved_release}${us}${blast_theme}${us}${builtin_flag}${us}${blast_config}${us}${extensions}"
 stored_key="$(cat "$daemon_key_file" 2>/dev/null || true)"
 daemon_pid="$(cat "$daemon_pid_file" 2>/dev/null || true)"
 
@@ -172,15 +172,19 @@ if [ "${init_h%\%}" != "$init_h" ]; then init_h="$client_height"; fi
 daemon_cmd="export BLAST_OUTER_TMUX=$(quote "$outer_tmux") BLAST_OUTER_PID=$(quote "$outer_pid") BLAST_POPUP_SOCKET=$(quote "$daemon_sock") BLAST_POPUP_PID_FILE=$(quote "$daemon_pid_file") BLAST_TMUX_TARGET_FILE=$(quote "$daemon_target_file") BLAST_THEME=$(quote "$blast_theme") BLAST_TMUX_CONFIG=$(quote "$blast_config") BLAST_TMUX_BUILTIN=$(quote "$builtin_flag") PATH=$(quote "$PATH");"
 daemon_cmd="$daemon_cmd exec $blast_command --popup-daemon$extensions"
 
+# Disable VT100 startup queries (`XT@` + non-CSI `clear` prefix) on the private
+# inner server: an outer tmux popup never answers every startup query (e.g.
+# OSC 10/11 / Kitty graphics), which otherwise causes tmux's tty-keys.c to
+# override `escape-time` to 500 ms for the first 5 s of every attach.
 if TMUX= tmux -f /dev/null -S "$daemon_sock" \
      new-session -d -s blast -x "$init_w" -y "$init_h" /bin/sh -c "$daemon_cmd" \; \
      set -g status off \; \
-     set -g escape-time 0 \; \
+     set -s escape-time 0 \; \
      set -g prefix None \; \
      unbind-key -a \; \
      set -g window-size latest \; \
      set -g default-terminal tmux-256color \; \
-     set -ga terminal-overrides ',*:Tc' \; \
+     set -sa terminal-overrides ',*:Tc:XT@:clear=\r\E[H\E[2J' \; \
      set -g set-titles off 2>/dev/null; then
   if tmux display-popup -E -c "$client" -t "$pane" -w "$width" -h "$height" \
        env -u TMUX tmux -S "$daemon_sock" attach-session -t blast \
