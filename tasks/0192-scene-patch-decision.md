@@ -66,8 +66,15 @@ patches do not exist.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/implement-scene-patch-decision @ 1bcfb9f5f0c67988e5d3dd6092c3c212e89d5316
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 101.4s
 Done:
+- Added `docs/decisions/0019-scene-patches-and-runtime-pool.md` (59 lines) documenting opt-in `scene.patch` negotiation, patch ops (`props`, `children`, `replace`, `root`), revision/fallback/mismatch rules, unchanged `blast serve` whole-view/scene embedder protocol, and the single-slot standby runtime pool's lifetime and isolation rules.
+- Updated `docs/architecture.md` (189 lines) to describe `scenePatches: true` negotiation, host `scene.patch` reconstruction (`createScenePatchApplier`), and the engine-owned standby runtime pool (`runtime-pool.ts`).
+- Added a one-line pointer to `0019-scene-patches-and-runtime-pool.md` in `docs/decisions/0001-process-and-scene-model.md` Consequences without changing 0001's decision text.
 Not done / risks:
+- `createScenePatchApplier().apply()` in `packages/protocol/src/messages.ts` checks `baseRevision === current.revision` (plus baseline existence, node IDs, and non-null root) but does not assert `revision > baseRevision`; the reconciler always increments by 1, and `0019` documents only the enforced checks.
+- `ScenePatchOp` defines `{ op: "replace", id, node }` (validated and applied in `packages/protocol/src/messages.ts`), though `packages/runtime/src/reconciler/index.ts` does not emit `replace` ops yet; documented as such.
+- `packages/host/src/runtime-pool.ts` holds at most one standby child total (not one per spawn spec simultaneously), replacing it on spec changes; documented accurately in `0019`.
+- `PLAN.md` decision log left untouched per task instructions (orchestrator-owned).
 ```
