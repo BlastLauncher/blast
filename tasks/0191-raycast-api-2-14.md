@@ -60,7 +60,7 @@ shared `@raycast/utils` pin is `2.3.3`, and non-deprecated coverage is back to
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/47ed6d54 @ ce3282fd2f3a9a4f5423109a9ed40b87723b630d
+Branch/commit: t3/47ed6d54 @ 2854fc3e5527af5d8cf1929350e9b0bc58f4f83c
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 83.9s
 Done:
 - Upgraded the vendored @raycast/api denominator and generated inventory, enums, stubs, coverage report, and source metadata to 2.14.0; non-deprecated coverage is 1546/1546 (100.0%), with 0 partial and 0 missing.
