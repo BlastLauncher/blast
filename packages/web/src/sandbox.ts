@@ -1,4 +1,4 @@
-import { installFetchProxy } from "../sandbox/fetch-proxy.ts";
+import { installFetchProxy } from "./fetch-proxy.ts";
 import { loadPrebuiltRuntime } from "./prebuilt.ts";
 
 export type SandboxRuntime = {
