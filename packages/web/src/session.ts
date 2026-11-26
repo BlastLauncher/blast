@@ -8,7 +8,13 @@ import {
   type RootCommand,
   type RootController,
 } from "@blastlauncher/client-core";
-import type { CommandMode, SceneMessage } from "@blastlauncher/protocol";
+import {
+  createScenePatchApplier,
+  parseRuntimeMessage,
+  type CommandMode,
+  type SceneMessage,
+  type ScenePatchMessage,
+} from "@blastlauncher/protocol";
 import { bundleForBrowser, type BrowserBundleFile, type BrowserEsbuild } from "./browser-bundle.ts";
 import { installForBrowser } from "./browser-install.ts";
 import { aliases } from "./bundle-config.ts";
@@ -128,6 +134,7 @@ export type WebMount = {
 
 type RuntimeMessage =
   | SceneMessage
+  | ScenePatchMessage
   | { type: "ready" }
   | { type: "capability.request"; id: string; name: string; params: unknown }
   | { type: "exit"; code: number }
@@ -473,21 +480,51 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         if (!result.ok) setStatus(result.error.message, true);
       };
 
+      const patchApplier = createScenePatchApplier();
       const channel = new MessageChannel();
       port = channel.port1;
       port.start();
       let firstScene: { resolve(): void; reject(error: unknown): void } | undefined;
+      const applyScene = (next: SceneMessage) => {
+        if (!controller) return;
+        scene = next;
+        const result = controller.scene(next);
+        if (firstScene) setStatus("Ready");
+        firstScene?.resolve();
+        firstScene = undefined;
+        draw(controller.view());
+        handle(result);
+      };
+      const protocolError = (message: string) => {
+        const error = Object.assign(new Error(`PROTOCOL_ERROR: ${message}`), {
+          code: "PROTOCOL_ERROR",
+        });
+        firstScene?.reject(error);
+        firstScene = undefined;
+        fail(error);
+      };
       const onMessage = (message: RuntimeMessage) => {
         if (!current()) return;
-        if (message.type === "scene") {
-          if (!controller) return;
-          scene = message;
-          const result = controller.scene(message);
-          if (firstScene) setStatus("Ready");
-          firstScene?.resolve();
-          firstScene = undefined;
-          draw(controller.view());
-          handle(result);
+        if (message.type === "scene" || message.type === "scene.patch") {
+          const parsed = parseRuntimeMessage(message);
+          if (
+            !parsed.ok ||
+            (parsed.message.type !== "scene" && parsed.message.type !== "scene.patch")
+          ) {
+            protocolError(parsed.ok ? `Unexpected message ${parsed.message.type}` : parsed.error);
+            return;
+          }
+          let next: SceneMessage;
+          try {
+            next =
+              parsed.message.type === "scene"
+                ? patchApplier.reset(parsed.message)
+                : patchApplier.apply(parsed.message);
+          } catch (error) {
+            protocolError(error instanceof Error ? error.message : String(error));
+            return;
+          }
+          applyScene(next);
         } else if (message.type === "capability.request") {
           answer(message).catch((error: unknown) => {
             if (!current()) return;

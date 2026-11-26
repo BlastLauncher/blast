@@ -523,13 +523,6 @@ test("fallback text is optional, preserves empty strings and rejects non-string 
 });
 
 test("scene.patch parses, validates rejections, and applies with structural sharing", () => {
-  const initWithPatches: HostMessage = { ...init, scenePatches: true };
-  expect(parseHostMessage(initWithPatches)).toEqual({ ok: true, message: initWithPatches });
-  expect(parseHostMessage({ ...init, scenePatches: "yes" })).toEqual({
-    ok: false,
-    error: "scenePatches: expected boolean",
-  });
-
   const base: SceneMessage = {
     type: "scene",
     revision: 1,
@@ -602,4 +595,14 @@ test("scene.patch parses, validates rejections, and applies with structural shar
       ops: [],
     }),
   ).toThrow("baseRevision");
+  for (const badRevision of [2, 3, 5]) {
+    expect(() =>
+      applier.apply({
+        type: "scene.patch",
+        revision: badRevision,
+        baseRevision: 3,
+        ops: [],
+      }),
+    ).toThrow("baseRevision + 1");
+  }
 });

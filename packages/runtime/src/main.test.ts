@@ -59,15 +59,19 @@ test("Node handshake, shared React hooks, events, clipboard results, logs and sh
     message: "Assertion failed: fixture assertion",
   });
   action(runtime, first.root!, "Increment");
-  const second = await runtime.next("scene");
-  expect(second.revision).toBeGreaterThan(first.revision);
+  const secondPatch = await runtime.next("scene.patch");
+  expect(secondPatch.baseRevision).toBe(first.revision);
+  expect(secondPatch.revision).toBe(first.revision + 1);
+  const second = runtime.scenes.at(-1)!;
+  expect(second.revision).toBe(first.revision + 1);
   expect(second.root!.children[0]!.children[0]!.props.navigationTitle).toBe("1:false");
   action(runtime, second.root!, "Copy to Clipboard");
   const request = await runtime.next("capability.request");
   expect(request.name).toBe("clipboard.copy");
   expect(request.params).toEqual({ text: "hello" });
   runtime.send({ type: "capability.result", id: request.id, ok: true, value: null });
-  const copied = await runtime.next("scene");
+  await runtime.next("scene.patch");
+  const copied = runtime.scenes.at(-1)!;
   expect(copied.root!.children[0]!.children[0]!.props.navigationTitle).toBe("1:true");
   action(runtime, copied.root!, "Copy to Clipboard");
   const denied = await runtime.next("capability.request");
@@ -82,16 +86,23 @@ test("Node handshake, shared React hooks, events, clipboard results, logs and sh
   action(runtime, copied.root!, "Throw");
   expect(await runtime.next("error")).toMatchObject({ fatal: false, message: "handler failed" });
   action(runtime, copied.root!, "Increment");
-  expect((await runtime.next("scene")).root!.children[0]!.children[0]!.props.navigationTitle).toBe(
+  await runtime.next("scene.patch");
+  expect(runtime.scenes.at(-1)!.root!.children[0]!.children[0]!.props.navigationTitle).toBe(
     "2:true",
   );
   runtime.send({ type: "shutdown" });
   expect(await runtime.exited).toBe(0);
   expect(runtime.messages).toContainEqual({ type: "log", level: "info", message: "unmounted" });
-  expect(runtime.messages.filter((message) => message.type === "scene").at(-1)).toMatchObject({
+  expect(runtime.scenes.at(-1)).toMatchObject({
     type: "scene",
     root: null,
   });
+  expect(runtime.messages.filter((message) => message.type === "scene.patch").at(-1)).toMatchObject(
+    {
+      type: "scene.patch",
+      ops: [{ op: "root", root: null }],
+    },
+  );
 });
 
 for (const [title, message] of [
@@ -187,7 +198,7 @@ test("no-view rejection is fatal", async () => {
 test("menu-bar renders inside Navigation, publishes feedback beside the menu and shuts down", async () => {
   const runtime = start();
   runtime.init({ fixture: "menu-bar.js", mode: "menu-bar" });
-  const first = await runtime.next("scene");
+  const first = await runtime.nextScene();
   expect(first.root?.type).toBe("Navigation");
   expect(activeContent(first.root)).toMatchObject({
     type: "MenuBarExtra",
@@ -197,18 +208,18 @@ test("menu-bar renders inside Navigation, publishes feedback beside the menu and
     const node = find(first.root!, "Click")!;
     const ref = node.props.onAction as { $handler: string };
     runtime.send({ type: "event", node: node.id, handler: ref.$handler, args: [{ type }] });
-    const next = await runtime.next("scene");
+    const next = await runtime.nextScene();
     expect(activeContent(next.root)?.props).toMatchObject({ title: type, isLoading: false });
   }
   action(runtime, first.root!, "HUD");
-  const withHud = await runtime.next("scene");
+  const withHud = await runtime.nextScene();
   // Feedback is a sibling of the entry, not a replacement for the menu.
   expect(activeContent(withHud.root)?.type).toBe("MenuBarExtra");
   expect(withHud.root?.children.find((child) => child.type === "HUD")?.props.title).toBe(
     "Menu HUD",
   );
   action(runtime, first.root!, "Hide");
-  const hidden = await runtime.next("scene");
+  const hidden = await runtime.nextScene();
   expect(hidden.root?.type).toBe("Navigation");
   expect(activeContent(hidden.root)).toBeUndefined();
   runtime.send({ type: "shutdown" });
@@ -256,7 +267,7 @@ test("stdin EOF unmounts and exits cleanly", async () => {
   await runtime.next("scene");
   runtime.child.stdin.end();
   expect(await runtime.exited).toBe(0);
-  expect(runtime.messages.filter((message) => message.type === "scene").at(-1)).toMatchObject({
+  expect(runtime.scenes.at(-1)).toMatchObject({
     type: "scene",
     root: null,
   });
@@ -301,7 +312,7 @@ for (const fixture of ["async-view.js", "thenable-view.js"]) {
     expect(
       runtime.messages.filter((m) => m.type === "log" && m.message === "called once"),
     ).toHaveLength(1);
-    const scenes = runtime.messages.filter((m) => m.type === "scene");
+    const scenes = runtime.scenes;
     expect(scenes.some((m) => m.root?.children.some((node) => node.type === "Toast"))).toBe(true);
     if (fixture === "async-view.js") {
       expect(scenes.some((m) => m.root?.children.some((node) => node.type === "HUD"))).toBe(true);
@@ -322,9 +333,9 @@ test("promise-returning view rejection is fatal", async () => {
 test("React use waits behind the loading scene and publishes the settled view", async () => {
   const runtime = start();
   runtime.init({ fixture: "suspense-use.js" });
-  const loading = await runtime.next("scene");
+  const loading = await runtime.nextScene();
   expect(loading.root!.children[0]!.children[0]!.props).toMatchObject({ isLoading: true });
-  const settled = await runtime.next("scene");
+  const settled = await runtime.nextScene();
   expect(settled.root!.children[0]!.children[0]!.props.navigationTitle).toBe("settled");
   expect(find(settled.root!, "settled command")).toBeDefined();
   runtime.send({ type: "shutdown" });

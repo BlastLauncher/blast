@@ -32,8 +32,8 @@ extension code (unmodified, bundled)
 
 ## Message flow
 
-1. host → `init` (protocol version, command, preferences, environment: identity, owner/author, paths, appearance, text size, optional `scenePatches: true`; runtime derives `entryPoint*` before importing the command)
-2. runtime → `ready`, then initial `scene` and incremental `scene.patch` updates when negotiated (full `scene` on root changes or without opt-in; decision 0019)
+1. host → `init` (protocol version, command, preferences, environment: identity, owner/author, paths, appearance, text size; runtime derives `entryPoint*` before importing the command)
+2. runtime → `ready`, then initial `scene` and incremental `scene.patch` updates (full `scene` on root kind or root-id changes; decision 0019)
 3. host → `event` for user input (handler reference + args)
 4. runtime → `capability.request` / `capability.cancel`; host → `capability.progress` / `capability.result`
 5. host → `shutdown`, or the process exits/crashes and the host reports it
@@ -126,7 +126,7 @@ extension's provider, reuses it until command exit and streams each text chunk.
 AI.refreshModels re-lists that provider, or does nothing when none is declared.
 Both own-extension operations need no grant (decision 0006).
 
-Startup resolves after the version handshake. The Node host opts into `scenePatches: true` and applies `scene.patch` via `createScenePatchApplier` (terminating with `PROTOCOL_ERROR` on mismatch; `packages/web` keeps full scenes and `blast serve` still emits whole views/scenes). `session.scenes(callback)` subscribes and replays the latest reconstructed scene; its return value unsubscribes. `latestScene`, `logs`, `sendEvent(node, handler, args)` and `exited` support headless clients. Runtime errors appear in logs; fatal and protocol errors also appear in `exited.error`.
+Startup resolves after the version handshake. Both the Node host and `packages/web` apply `scene.patch` via `createScenePatchApplier` (terminating with `PROTOCOL_ERROR` on mismatch; `blast serve` still emits whole views/scenes). `session.scenes(callback)` subscribes and replays the latest reconstructed scene; its return value unsubscribes. `latestScene`, `logs`, `sendEvent(node, handler, args)` and `exited` support headless clients. Runtime errors appear in logs; fatal and protocol errors also appear in `exited.error`.
 `shutdown({ timeoutMs })` sends shutdown, then SIGTERM after the timeout, then SIGKILL after another timeout. Exit resolves after stdio closes.
 
 Broker grants are explicit; missing handlers return `denied`, thrown handlers
