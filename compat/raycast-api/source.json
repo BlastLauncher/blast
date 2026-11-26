@@ -1,8 +1,8 @@
 {
   "package": "@raycast/api",
-  "version": "2.11.1",
+  "version": "2.14.0",
   "license": "MIT",
-  "tarball": "https://registry.npmjs.org/@raycast/api/-/api-2.11.1.tgz",
-  "integrity": "sha512-O9tCR9QlCa0BhSidkkcNHHii+Y4H8nUO/MRkwpQMXsW0Z/jgSh+GsjG0QeeKS4WHbyhcFPWr7lPbTcr27pRo9A==",
-  "sha256": "779bd6399374f32c8187c6f49f594d32c619edb82b2cf5e5be312a1b7ed4ba2c"
+  "tarball": "https://registry.npmjs.org/@raycast/api/-/api-2.14.0.tgz",
+  "integrity": "sha512-Zh6m2trmbg4fk/oBeVGNIr8XRu8IlIkL7EXyZAlFckCOC6YGmrU6kW1Dznfpn1cGs3g+AUe0wozAZd97zR16OA==",
+  "sha256": "19bb8d5b28a0d0a859cc438cb09e8ac184a030da08fbf0479344d513e685193b"
 }
