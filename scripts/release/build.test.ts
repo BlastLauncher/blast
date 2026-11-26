@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readFile, readdir } from "node:fs/promises";
+import { dirname, join, relative, resolve } from "node:path";
 import { packages, releaseManifest, root } from "./build.ts";
 
 test("release manifests expose JS with declarations and resolve only release workspace names", async () => {
@@ -38,4 +38,29 @@ test("release manifests expose JS with declarations and resolve only release wor
           : ["dist", "schema", "LICENSE", "README.md"],
     );
   }
+});
+
+test("release package sources do not import relative code modules outside their src/ directory", async () => {
+  const escapes: string[] = [];
+  async function walk(dir: string, srcRoot: string) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const file = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(file, srcRoot);
+        continue;
+      }
+      if (!/\.(?:tsx?|js)$/.test(entry.name) || /\.test\.|test-helper\./.test(entry.name)) continue;
+      const source = await readFile(file, "utf8");
+      for (const match of source.matchAll(
+        /(?:from|import)\s*\(?["'](\.\.?\/[^"']+\.(?:tsx?|m?js))["']\)?/g,
+      )) {
+        const target = resolve(dirname(file), match[1]!);
+        if (relative(srcRoot, target).startsWith(".."))
+          escapes.push(`${relative(root, file)} -> ${match[1]}`);
+      }
+    }
+  }
+  for (const pkg of packages)
+    await walk(join(root, "packages", pkg, "src"), join(root, "packages", pkg, "src"));
+  expect(escapes).toEqual([]);
 });
