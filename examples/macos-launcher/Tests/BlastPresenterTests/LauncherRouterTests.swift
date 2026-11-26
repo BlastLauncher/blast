@@ -66,6 +66,33 @@ struct LauncherRouterTests {
         #expect(stale == nil)
     }
 
+    @Test("redraws the cached root view on session exit when no new root event arrives")
+    func redrawsCachedRootOnSessionExit() throws {
+        var router = LauncherRouter()
+        let rootView = try Fixtures.view("root")
+        let commandView = try Fixtures.view("form")
+
+        // Serve sends the initial root view before root.open resolves.
+        #expect(router.receive(.rootView(root: "r1", view: rootView)) == nil)
+        #expect(router.open(root: "r1") == rootView)
+
+        #expect(router.receive(.rootLaunched(root: "r1", session: "s1")) == nil)
+        #expect(router.receive(.view(session: "s1", view: commandView)) == commandView)
+
+        // Protocol 2 sends no root.view when the root view is unchanged on exit.
+        let redrawn = router.receive(.exited(session: "s1", code: 0, error: nil))
+        #expect(redrawn == rootView)
+        #expect(router.session == nil)
+        #expect(router.inputTarget == .root("r1"))
+
+        // If the root updates while a later session runs, exit redraws the latest root view.
+        let updatedRootView = try Fixtures.view("list")
+        #expect(router.receive(.rootLaunched(root: "r1", session: "s2")) == nil)
+        #expect(router.receive(.rootView(root: "r1", view: updatedRootView)) == nil)
+        let redrawnUpdated = router.receive(.exited(session: "s2", code: 0, error: nil))
+        #expect(redrawnUpdated == updatedRootView)
+    }
+
     @Test("ignores events for other roots and sessions")
     func otherHandles() throws {
         var router = LauncherRouter()

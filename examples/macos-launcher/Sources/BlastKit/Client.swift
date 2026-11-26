@@ -19,7 +19,6 @@ public enum BlastEvent: Equatable, Sendable {
     case view(session: String, view: ControllerView)
     case rootView(root: String, view: ControllerView)
     case rootLaunched(root: String, session: String)
-    case scene(session: String, scene: JSONValue)
     case log(session: String, log: JSONValue)
     case exited(session: String, code: Int?, error: EmbedderError?)
     case dependenciesLog(extension: String, message: String)
@@ -44,13 +43,21 @@ public enum ViewPlatform: String, Codable, Sendable {
 /// handler may safely start another request. The class is safe to share, which
 /// `@unchecked Sendable` asserts for the lock-protected storage.
 public final class BlastClient: @unchecked Sendable {
-    public static let protocolVersion = 1
+    public static let protocolVersion = 2
+
+    private struct ViewStreamState {
+        var rawView: JSONValue?
+        var revision: Int
+        var resyncing: Bool
+    }
 
     public let transport: any BlastTransport
 
     private let lock = NSLock()
     private var requestSequence = 0
     private var pending: [String: CheckedContinuation<JSONValue, Error>] = [:]
+    private var rootViews: [String: ViewStreamState] = [:]
+    private var sessionViews: [String: ViewStreamState] = [:]
     private var welcomeWaiter: CheckedContinuation<Welcome, Error>?
     private var welcomeInfo: Welcome?
     private var started = false
@@ -113,7 +120,7 @@ public final class BlastClient: @unchecked Sendable {
         return welcomeInfo
     }
 
-    /// Sends `hello` and waits for a protocol-1 `welcome`.
+    /// Sends `hello` and waits for a protocol-2 `welcome`.
     @discardableResult
     public func start(capabilities: [String] = []) async throws -> Welcome {
         let hello = JSONValue.object([
@@ -241,6 +248,8 @@ public final class BlastClient: @unchecked Sendable {
     public func close() {
         lock.lock()
         closed = true
+        rootViews.removeAll()
+        sessionViews.removeAll()
         lock.unlock()
         transport.close()
         failAll(BlastError.closed)
@@ -329,12 +338,9 @@ public final class BlastClient: @unchecked Sendable {
         }
         switch name {
         case "root.view":
-            guard let root = object["root"]?.stringValue, let value = object["view"] else {
-                report(.malformedMessage("root.view is missing root or view"))
-                return
-            }
-            do { emit(.rootView(root: root, view: try value.decode(ControllerView.self))) }
-            catch { report(.malformedMessage("root.view could not be decoded: \(error)")) }
+            receiveFullView(object, isRoot: true)
+        case "root.view.patch":
+            receiveViewPatch(object, isRoot: true)
         case "root.launched":
             guard let root = object["root"]?.stringValue, let session = object["session"]?.stringValue else {
                 report(.malformedMessage("root.launched is missing root or session"))
@@ -342,21 +348,9 @@ public final class BlastClient: @unchecked Sendable {
             }
             emit(.rootLaunched(root: root, session: session))
         case "session.view":
-            guard let session = object["session"]?.stringValue, let value = object["view"] else {
-                report(.malformedMessage("session.view is missing session or view"))
-                return
-            }
-            do {
-                emit(.view(session: session, view: try value.decode(ControllerView.self)))
-            } catch {
-                report(.malformedMessage("session.view could not be decoded: \(error)"))
-            }
-        case "session.scene":
-            guard let session = object["session"]?.stringValue, let scene = object["scene"] else {
-                report(.malformedMessage("session.scene is missing session or scene"))
-                return
-            }
-            emit(.scene(session: session, scene: scene))
+            receiveFullView(object, isRoot: false)
+        case "session.view.patch":
+            receiveViewPatch(object, isRoot: false)
         case "session.log":
             guard let session = object["session"]?.stringValue, let log = object["log"] else {
                 report(.malformedMessage("session.log is missing session or log"))
@@ -368,6 +362,7 @@ public final class BlastClient: @unchecked Sendable {
                 report(.malformedMessage("session.exited is missing session"))
                 return
             }
+            lock.withLock { _ = sessionViews.removeValue(forKey: session) }
             emit(
                 .exited(
                     session: session,
@@ -402,6 +397,95 @@ public final class BlastClient: @unchecked Sendable {
         default:
             emit(.other(name: name, payload: .object(object)))
         }
+    }
+
+    private func receiveFullView(_ object: [String: JSONValue], isRoot: Bool) {
+        let kind = isRoot ? "root" : "session"
+        guard
+            let handle = object[kind]?.stringValue,
+            let value = object["view"],
+            let revision = object["revision"]?.intValue,
+            revision >= 1
+        else {
+            report(.malformedMessage("\(kind).view is missing \(kind), view or revision"))
+            return
+        }
+        let decoded: ControllerView
+        do {
+            decoded = try value.decode(ControllerView.self)
+        } catch {
+            report(.malformedMessage("\(kind).view could not be decoded: \(error)"))
+            return
+        }
+        lock.withLock {
+            let state = ViewStreamState(rawView: value, revision: revision, resyncing: false)
+            if isRoot { rootViews[handle] = state } else { sessionViews[handle] = state }
+        }
+        emit(isRoot ? .rootView(root: handle, view: decoded) : .view(session: handle, view: decoded))
+    }
+
+    private func receiveViewPatch(_ object: [String: JSONValue], isRoot: Bool) {
+        let kind = isRoot ? "root" : "session"
+        guard let handle = object[kind]?.stringValue else {
+            report(.malformedMessage("\(kind).view.patch is missing \(kind)"))
+            return
+        }
+        let existing: ViewStreamState? = lock.withLock {
+            isRoot ? rootViews[handle] : sessionViews[handle]
+        }
+        if existing?.resyncing == true {
+            return
+        }
+        func triggerResync() {
+            lock.withLock {
+                let state = ViewStreamState(rawView: nil, revision: 0, resyncing: true)
+                if isRoot { rootViews[handle] = state } else { sessionViews[handle] = state }
+            }
+            sendResync(kind: kind, handle: handle)
+        }
+        guard
+            let state = existing,
+            let currentRaw = state.rawView,
+            let revision = object["revision"]?.intValue,
+            let baseRevision = object["baseRevision"]?.intValue,
+            revision >= 1,
+            baseRevision >= 1,
+            baseRevision == state.revision,
+            revision == baseRevision + 1
+        else {
+            triggerResync()
+            return
+        }
+        let nextRaw: JSONValue
+        let decoded: ControllerView
+        do {
+            let patch = try ViewPatch(json: .object(object))
+            nextRaw = try patch.apply(to: currentRaw, currentRevision: state.revision)
+            decoded = try nextRaw.decode(ControllerView.self)
+        } catch {
+            triggerResync()
+            return
+        }
+        lock.withLock {
+            let nextState = ViewStreamState(rawView: nextRaw, revision: revision, resyncing: false)
+            if isRoot { rootViews[handle] = nextState } else { sessionViews[handle] = nextState }
+        }
+        emit(isRoot ? .rootView(root: handle, view: decoded) : .view(session: handle, view: decoded))
+    }
+
+    private func sendResync(kind: String, handle: String) {
+        let id: String = lock.withLock {
+            requestSequence += 1
+            return String(requestSequence)
+        }
+        let message = JSONValue.object([
+            "type": .string("request"),
+            "id": .string(id),
+            "method": .string("\(kind).resync"),
+            "params": .object([kind: .string(handle)]),
+        ])
+        guard let encoded = try? Self.encode(message) else { return }
+        try? transport.send(encoded)
     }
 
     private func receiveCapabilityRequest(_ object: [String: JSONValue]) {

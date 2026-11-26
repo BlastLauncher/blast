@@ -49,14 +49,14 @@ Shares one PR with task 0194 (same branch `task/0194-embedder-protocol-v2`).
 
 ## Acceptance
 
-- [ ] `go test ./...` in `examples/go-embedder` passes.
-- [ ] `bun run example:python` passes.
-- [ ] `swift test` in `examples/macos-launcher` passes.
-- [ ] Each language has a test that applies every case in the shared fixture,
+- [x] `go test ./...` in `examples/go-embedder` passes.
+- [x] `bun run example:python` passes.
+- [x] `swift test` in `examples/macos-launcher` passes.
+- [x] Each language has a test that applies every case in the shared fixture,
       and a test that a revision gap triggers a resync request.
-- [ ] `git grep -n embedder-v1` and `git grep -n '"protocol": *1'` in
+- [x] `git grep -n embedder-v1` and `git grep -n '"protocol": *1'` in
       `examples/` are empty.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -66,11 +66,17 @@ Shares one PR with task 0194 (same branch `task/0194-embedder-protocol-v2`).
 
 ## Handoff
 
-Filled in by the worker when finishing:
+Filled in by the worker when finishing (round 2):
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/native-examples-protocol-v2-fixes @ 59881d48 (plus this handoff commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 104.6s; `go test -race ./...` PASS (7 tests); `bun run example:python` PASS (10 tests); `swift test` PASS (93 tests in 14 suites across 3 targets)
 Done:
+- Cached the last root view per root and redrew it on `session.exited` across all three clients per decision 0020: Swift `LauncherRouter` (`rootViews` dictionary returned on `.exited`), Go `Client` (`viewStreamState.view`, `sessionRoot`, redraw before appending `session.exited`), and Python `Client` (`_session_root`, redraw before appending `session.exited`); suppressed background root redraws while a session is active.
+- Reverted the round-1 search workaround in Go (`examples/go-embedder/main_test.go`) and Python (`examples/python-embedder/test_embedder.py`) back to clearing search to `""`, asserting the cached root view is redrawn after `session.exited` with no new root view event; added the matching `LauncherRouterTests.redrawsCachedRootOnSessionExit` test in Swift.
+- Guarded Python `Client._send_resync` against `OSError`/`ValueError` and wrapped `Client._read` in `try`/`finally` so stdin closing never prevents `self.closed = True` / `notify_all()`; added `test_resync_after_stdin_closed_reaches_reader_shutdown` covering closed `StringIO` and `BrokenPipeError`.
+- Fixed splice remove bounds against integer overflow in Go (`remove > len(array)-at` in `examples/go-embedder/patch.go`) and Swift (`remove <= array.count - at` in `examples/macos-launcher/Sources/BlastKit/ViewPatch.swift`), and added `math.MaxInt` / `Int.max` tests in both suites.
 Not done / risks:
+- No new dependencies added; pre-existing Python state mutation outside `self.ready` left untouched as requested.
+- Deleted `examples/macos-launcher/.build` after running `swift test` (worktree disk usage ~682 MB).
 ```

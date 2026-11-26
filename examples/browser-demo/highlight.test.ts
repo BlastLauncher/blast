@@ -44,7 +44,7 @@ describe("build-time syntax highlighter", () => {
       ["go", 'client, _ := Start("main.ts", os.Stdout) // start'],
       ["python", "from embedder import Client # comment\nclient = Client()"],
       ["swift", "let root = try await blast.openRoot(views: .macOS)"],
-      ["json", '{"type":"hello","protocol":1,"ok":true}'],
+      ["json", '{"type":"hello","protocol":2,"ok":true}'],
       ["sh", 'npm install @blastlauncher/engine@next\nblast run "$EXT"'],
     ];
     const usedColors = new Set<string>();
@@ -74,7 +74,7 @@ describe("build-time syntax highlighter", () => {
 
   test("highlights NDJSON lines with sent/received prefix classes and JSON tokens", () => {
     const transcript = [
-      '→ {"type":"hello","protocol":1}',
+      '→ {"type":"hello","protocol":2}',
       '← {"type":"welcome","engine":{…}}',
     ].join("\n");
     const html = highlightNdjson(transcript);

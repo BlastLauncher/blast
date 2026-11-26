@@ -13,9 +13,10 @@ public enum LauncherInputTarget: Equatable, Sendable {
 public struct LauncherRouter: Equatable, Sendable {
     public private(set) var root: String?
     public private(set) var session: String?
-    /// `root.subscribe` draws at once, so serve writes the first `root.view`
-    /// before the `root.open` response that names the root.
-    private var pendingRootViews: [String: ControllerView] = [:]
+    /// Last view received per root. Covers both the initial `root.view` serve
+    /// writes before `root.open` returns and redrawing the root when a launched
+    /// session exits without changing the root view (decision 0020).
+    private var rootViews: [String: ControllerView] = [:]
 
     public init() {}
 
@@ -29,19 +30,16 @@ public struct LauncherRouter: Equatable, Sendable {
     public mutating func open(root: String) -> ControllerView? {
         self.root = root
         session = nil
-        let view = pendingRootViews[root]
-        pendingRootViews = [:]
-        return view
+        return rootViews[root]
     }
 
-    /// Records lifecycle events and returns the view to draw, if this event carries one.
+    /// Records lifecycle events and returns the view to draw, if this event carries one
+    /// or restores the cached root view after the active session exits.
     public mutating func receive(_ event: BlastEvent) -> ControllerView? {
         switch event {
         case .rootView(let eventRoot, let view):
-            guard let root else {
-                pendingRootViews[eventRoot] = view
-                return nil
-            }
+            rootViews[eventRoot] = view
+            guard let root else { return nil }
             return eventRoot == root && session == nil ? view : nil
         case .rootLaunched(let eventRoot, let launched):
             if root != nil, eventRoot == root { session = launched }
@@ -49,8 +47,9 @@ public struct LauncherRouter: Equatable, Sendable {
         case .view(let eventSession, let view):
             return session != nil && eventSession == session ? view : nil
         case .exited(let eventSession, _, _):
-            if session != nil, eventSession == session { session = nil }
-            return nil
+            guard session != nil, eventSession == session else { return nil }
+            session = nil
+            return root.flatMap { rootViews[$0] }
         default:
             return nil
         }
