@@ -151,13 +151,13 @@ a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
 until the completion notification arrives. Model guidance (re-check with
 `orchestrator_capabilities`; names change):
 
-| Use                                 | Provider instance    | Model                                                                                         |
-| ----------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
-| Well-specified, mechanical tasks    | `opencode_opencode2` | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash`, free `opencode/*-free` models |
-| Harder implementation, review       | `codex`              | `gpt-6.1-sol`                                                                                 |
-| Large migrations; fallback          | `claudeAgent`        | `claude-sonnet-5-5`                                                                           |
-| Interface and visual design         | `antigravity`        | `gemini-4-hydrogen-high`                                                                      |
-| Orchestration, design, final review | `claudeAgent`        | `claude-opus-5-5`                                                                             |
+| Use                                 | Provider instance      | Model                                                                                         |
+| ----------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- |
+| Well-specified, mechanical tasks    | `opencode_2`           | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash`, free `opencode/*-free` models |
+| Harder implementation, review       | `codex`; `antigravity` | `gpt-6.1-sol`; `gemini-4-neon` or `gemini-4-hydrogen` (`thought_level: high`)                 |
+| Large migrations; fallback          | `claudeAgent`          | `claude-sonnet-5-5`                                                                           |
+| Interface and visual design         | `antigravity`          | `gemini-4-hydrogen`, `thought_level: high`                                                    |
+| Orchestration, design, final review | `claudeAgent`          | `claude-opus-5-5`                                                                             |
 
 Cheap models get tasks whose Acceptance is fully mechanical. If a cheap model
 fails a task twice, escalate the model rather than loosening the task.
