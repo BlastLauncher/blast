@@ -1,5 +1,5 @@
 // Command go-embedder shows a non-JS app embedding Blast on the engine-owned
-// flow: it spawns `blast serve`, speaks embedder protocol v1 over NDJSON
+// flow: it spawns `blast serve`, speaks embedder protocol v2 over NDJSON
 // stdio (docs/embedding.md), opens the extension directories given on the
 // command line, draws the engine's root search views, maps terminal keys to
 // `root.input`/`session.input`, and answers `clipboard.copy` by printing the
@@ -10,7 +10,7 @@
 //	go run . [-serve ../../packages/serve/src/main.ts] <extensionDir>...
 //
 // The Go standard library only; the message structs below are hand-written
-// against packages/protocol/schema/embedder-v1.schema.json.
+// against packages/protocol/schema/embedder-v2.schema.json.
 package main
 
 import (
@@ -32,7 +32,7 @@ import (
 const defaultServePath = "../../packages/serve/src/main.ts"
 
 const (
-	protocolVersion = 1
+	protocolVersion = 2
 	maxLineBytes    = 8 << 20
 	handshakeWait   = 30 * time.Second
 	shutdownWait    = 10 * time.Second
@@ -73,9 +73,17 @@ type rootInputParams struct {
 	Input controllerInput `json:"input"`
 }
 
+type rootResyncParams struct {
+	Root string `json:"root"`
+}
+
 type sessionInputParams struct {
 	Session string          `json:"session"`
 	Input   controllerInput `json:"input"`
+}
+
+type sessionResyncParams struct {
+	Session string `json:"session"`
 }
 
 type controllerInput struct {
@@ -173,13 +181,23 @@ type responseMessage struct {
 }
 
 type eventMessage struct {
-	Type    string          `json:"type"`
-	Event   string          `json:"event"`
-	Root    string          `json:"root,omitempty"`
-	Session string          `json:"session,omitempty"`
-	View    *controllerView `json:"view,omitempty"`
-	Error   *embedderError  `json:"error,omitempty"`
-	Code    *int            `json:"code,omitempty"`
+	Type         string          `json:"type"`
+	Event        string          `json:"event"`
+	Root         string          `json:"root,omitempty"`
+	Session      string          `json:"session,omitempty"`
+	RawView      json.RawMessage `json:"view,omitempty"`
+	Revision     *int            `json:"revision,omitempty"`
+	BaseRevision *int            `json:"baseRevision,omitempty"`
+	Ops          []viewPatchOp   `json:"ops,omitempty"`
+	View         *controllerView `json:"-"`
+	Error        *embedderError  `json:"error,omitempty"`
+	Code         *int            `json:"code,omitempty"`
+}
+
+type viewStreamState struct {
+	raw       any
+	revision  int
+	resyncing bool
 }
 
 type capabilityRequestMessage struct {
@@ -242,13 +260,15 @@ type Client struct {
 
 	stdinOnce sync.Once
 
-	mu        sync.Mutex
-	seq       int
-	pending   map[string]chan *responseMessage
-	welcome   *welcomeMessage
-	rootID    string
-	sessionID string // set by root.launched; keys go to root.input until then
-	events    []*eventMessage
+	mu           sync.Mutex
+	seq          int
+	pending      map[string]chan *responseMessage
+	welcome      *welcomeMessage
+	rootID       string
+	sessionID    string // set by root.launched; keys go to root.input until then
+	rootViews    map[string]*viewStreamState
+	sessionViews map[string]*viewStreamState
+	events       []*eventMessage
 
 	welcomed chan *welcomeMessage
 	done     chan struct{}
@@ -271,6 +291,7 @@ func Start(servePath string, out io.Writer) (*Client, error) {
 	}
 	c := &Client{
 		cmd: cmd, stdin: stdin, out: out, pending: map[string]chan *responseMessage{},
+		rootViews: map[string]*viewStreamState{}, sessionViews: map[string]*viewStreamState{},
 		welcomed: make(chan *welcomeMessage, 1), done: make(chan struct{}),
 	}
 	go func() {
@@ -458,20 +479,139 @@ func (c *Client) handle(message *serverMessage) {
 	}
 }
 
-func (c *Client) handleEvent(event *eventMessage) {
-	c.mu.Lock()
-	c.events = append(c.events, event)
-	switch event.Event {
-	case "root.launched":
-		c.sessionID = event.Session
-	case "session.exited":
-		c.sessionID = ""
+func decodeControllerView(raw any) (*controllerView, error) {
+	encoded, err := json.Marshal(raw)
+	if err != nil {
+		return nil, err
 	}
+	var view controllerView
+	if err := json.Unmarshal(encoded, &view); err != nil {
+		return nil, err
+	}
+	return &view, nil
+}
+
+func (c *Client) sendResync(kind, handle string) {
+	if c.stdin == nil || handle == "" {
+		return
+	}
+	c.mu.Lock()
+	c.seq++
+	id := strconv.Itoa(c.seq)
 	c.mu.Unlock()
-	if event.Event == "root.view" || event.Event == "session.view" {
-		if event.View != nil {
-			c.printView(event.View)
+	var params any
+	if kind == "root" {
+		params = rootResyncParams{Root: handle}
+	} else {
+		params = sessionResyncParams{Session: handle}
+	}
+	if err := c.send(requestMessage{Type: "request", ID: id, Method: kind + ".resync", Params: params}); err != nil {
+		c.printf("# cannot send %s.resync for %s: %v\n", kind, handle, err)
+	}
+}
+
+func (c *Client) viewStoreLocked(kind string) map[string]*viewStreamState {
+	if kind == "root" {
+		if c.rootViews == nil {
+			c.rootViews = map[string]*viewStreamState{}
 		}
+		return c.rootViews
+	}
+	if c.sessionViews == nil {
+		c.sessionViews = map[string]*viewStreamState{}
+	}
+	return c.sessionViews
+}
+
+func (c *Client) handleEvent(event *eventMessage) {
+	switch event.Event {
+	case "root.view", "session.view":
+		kind, handle := "root", event.Root
+		if event.Event == "session.view" {
+			kind, handle = "session", event.Session
+		}
+		if handle == "" || len(event.RawView) == 0 || event.Revision == nil || *event.Revision < 1 {
+			c.printf("# malformed %s event\n", event.Event)
+			return
+		}
+		var raw any
+		if err := json.Unmarshal(event.RawView, &raw); err != nil {
+			c.printf("# invalid %s JSON: %v\n", event.Event, err)
+			return
+		}
+		view, err := decodeControllerView(raw)
+		if err != nil {
+			c.printf("# invalid %s view: %v\n", event.Event, err)
+			return
+		}
+		event.View = view
+		c.mu.Lock()
+		c.viewStoreLocked(kind)[handle] = &viewStreamState{
+			raw:       raw,
+			revision:  *event.Revision,
+			resyncing: false,
+		}
+		c.events = append(c.events, event)
+		c.mu.Unlock()
+		c.printView(view)
+
+	case "root.view.patch", "session.view.patch":
+		kind, handle := "root", event.Root
+		if event.Event == "session.view.patch" {
+			kind, handle = "session", event.Session
+		}
+		if handle == "" {
+			return
+		}
+		c.mu.Lock()
+		store := c.viewStoreLocked(kind)
+		state := store[handle]
+		if state != nil && state.resyncing {
+			c.mu.Unlock()
+			return
+		}
+		triggerResync := func() {
+			store[handle] = &viewStreamState{resyncing: true}
+			c.mu.Unlock()
+			c.sendResync(kind, handle)
+		}
+		if state == nil || event.Revision == nil || event.BaseRevision == nil || event.Ops == nil ||
+			*event.BaseRevision != state.revision || *event.Revision != *event.BaseRevision+1 {
+			triggerResync()
+			return
+		}
+		nextRaw, err := applyViewPatch(state.raw, viewPatch{
+			Revision:     event.Revision,
+			BaseRevision: event.BaseRevision,
+			Ops:          event.Ops,
+		}, state.revision)
+		if err != nil {
+			triggerResync()
+			return
+		}
+		view, err := decodeControllerView(nextRaw)
+		if err != nil {
+			triggerResync()
+			return
+		}
+		state.raw = nextRaw
+		state.revision = *event.Revision
+		event.View = view
+		c.events = append(c.events, event)
+		c.mu.Unlock()
+		c.printView(view)
+
+	default:
+		c.mu.Lock()
+		c.events = append(c.events, event)
+		switch event.Event {
+		case "root.launched":
+			c.sessionID = event.Session
+		case "session.exited":
+			c.sessionID = ""
+			delete(c.sessionViews, event.Session)
+		}
+		c.mu.Unlock()
 	}
 }
 

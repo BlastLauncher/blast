@@ -4,9 +4,10 @@ See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
 
 A minimal non-JS embedder of Blast, in Python 3.10+ with the standard library
 only (`subprocess`, `json`, `threading`). It spawns `blast serve` and speaks
-embedder protocol v1 over NDJSON stdio (`docs/embedding.md`): it opts into
+embedder protocol v2 over NDJSON stdio (`docs/embedding.md`): it opts into
 views in the hello, opens the extension directories given on the command line,
-draws the engine's root search view and forwards semantic input. It answers
+draws the engine's root search view (applying `*.view.patch` updates and
+resyncing on any revision gap) and forwards semantic input. It answers
 the `clipboard.copy` capability by printing the copied text.
 
 ## Run

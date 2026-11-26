@@ -12,12 +12,12 @@ struct ClientTests {
         let start = Task { try await client.start(capabilities: ["clipboard.copy"]) }
         let hello = try await eventually("the hello message") { transport.sentMessages.first }
         #expect(hello["type"] == .string("hello"))
-        #expect(hello["protocol"]?.intValue == 1)
+        #expect(hello["protocol"]?.intValue == 2)
         #expect(hello["capabilities"] == .array([.string("clipboard.copy")]))
 
         transport.emit(welcomeJSON(engineVersion: "9.9.9"))
         let welcome = try await start.value
-        #expect(welcome.protocolVersion == 1)
+        #expect(welcome.protocolVersion == 2)
         #expect(welcome.engineVersion == "9.9.9")
         #expect(welcome.catalog["clipboard.copy"]?["scope"] == .string("grant"))
         #expect(client.welcome == welcome)
@@ -42,12 +42,12 @@ struct ClientTests {
         let client = BlastClient(transport: transport)
         let start = Task { try await client.start() }
         _ = try await eventually("the hello message") { transport.sentMessages.isEmpty ? nil : true }
-        transport.emit(welcomeJSON(protocolVersion: 2))
+        transport.emit(welcomeJSON(protocolVersion: 1))
         do {
             _ = try await start.value
             Issue.record("expected a version mismatch")
         } catch {
-            #expect((error as? BlastError) == .versionMismatch(expected: 1, received: 2))
+            #expect((error as? BlastError) == .versionMismatch(expected: 2, received: 1))
         }
     }
 
@@ -112,7 +112,7 @@ struct ClientTests {
         let launch = Task { try await client.launchExtension(extension: "1", command: "index") }
         let id = try await eventually("the launch request") { transport.requestIDs.first }
         transport.emit(
-            eventJSON("session.view", ["session": .string("2"), "view": minimalViewJSON()])
+            eventJSON("session.view", ["session": .string("2"), "revision": .number(1), "view": minimalViewJSON()])
         )
         transport.emit(response(id: id, result: .object(["session": .string("2")])))
 
@@ -130,7 +130,9 @@ struct ClientTests {
         client.onEvent = { recorder.record($0) }
         _ = try await connect(client, over: transport)
 
-        transport.emit(eventJSON("session.view", ["session": .string("3"), "view": minimalViewJSON(kind: "grid")]))
+        transport.emit(
+            eventJSON("session.view", ["session": .string("3"), "revision": .number(1), "view": minimalViewJSON(kind: "grid")])
+        )
         transport.emit(
             eventJSON("session.exited", [
                 "session": .string("3"),
@@ -344,6 +346,156 @@ struct ClientTests {
             #expect((error as? BlastError) == .closed)
         }
         #expect(transport.closeCalls == 1)
+    }
+
+    @Test("view patches update root and session views")
+    func viewPatchUpdates() async throws {
+        let transport = FakeTransport()
+        let client = BlastClient(transport: transport)
+        let recorder = EventRecorder()
+        client.onEvent = { recorder.record($0) }
+        _ = try await connect(client, over: transport)
+
+        transport.emit(
+            eventJSON("session.view", ["session": .string("s1"), "revision": .number(1), "view": minimalViewJSON()])
+        )
+        transport.emit(
+            eventJSON("session.view.patch", [
+                "session": .string("s1"),
+                "baseRevision": .number(1),
+                "revision": .number(2),
+                "ops": .array([
+                    .object([
+                        "op": .string("set"),
+                        "path": .array([.string("title")]),
+                        "value": .string("Updated"),
+                    ]),
+                ]),
+            ])
+        )
+
+        let views = try await eventually("two session views") {
+            recorder.views.count == 2 ? recorder.views : nil
+        }
+        #expect(views[0].view.title == "Test")
+        #expect(views[1].view.title == "Updated")
+    }
+
+    @Test("a revision gap triggers resync, drops patches until the next full view, and recovers")
+    func revisionGapTriggersResync() async throws {
+        let transport = FakeTransport()
+        let client = BlastClient(transport: transport)
+        let recorder = EventRecorder()
+        client.onEvent = { recorder.record($0) }
+        _ = try await connect(client, over: transport)
+
+        transport.emit(
+            eventJSON("root.view", ["root": .string("r1"), "revision": .number(1), "view": minimalViewJSON()])
+        )
+        // Gap: baseRevision 2 != 1 -> send root.resync and drop this patch.
+        transport.emit(
+            eventJSON("root.view.patch", [
+                "root": .string("r1"),
+                "baseRevision": .number(2),
+                "revision": .number(3),
+                "ops": .array([
+                    .object([
+                        "op": .string("set"),
+                        "path": .array([.string("title")]),
+                        "value": .string("Skipped"),
+                    ]),
+                ]),
+            ])
+        )
+        // Another patch while resyncing -> dropped without sending a second resync.
+        transport.emit(
+            eventJSON("root.view.patch", [
+                "root": .string("r1"),
+                "baseRevision": .number(3),
+                "revision": .number(4),
+                "ops": .array([
+                    .object([
+                        "op": .string("set"),
+                        "path": .array([.string("title")]),
+                        "value": .string("AlsoSkipped"),
+                    ]),
+                ]),
+            ])
+        )
+
+        let resyncs = try await eventually("root.resync request") {
+            let matching = transport.requests.filter { $0["method"] == .string("root.resync") }
+            return matching.isEmpty ? nil : matching
+        }
+        #expect(resyncs.count == 1)
+        #expect(resyncs[0]["params"]?["root"] == .string("r1"))
+        #expect(recorder.rootViews.count == 1)
+
+        // Full view clears resync state; subsequent matching patch applies cleanly.
+        var fresh = minimalViewJSON()
+        if case .object(var dict) = fresh {
+            dict["title"] = .string("Resynced")
+            fresh = .object(dict)
+        }
+        transport.emit(eventJSON("root.view", ["root": .string("r1"), "revision": .number(5), "view": fresh]))
+        transport.emit(
+            eventJSON("root.view.patch", [
+                "root": .string("r1"),
+                "baseRevision": .number(5),
+                "revision": .number(6),
+                "ops": .array([
+                    .object([
+                        "op": .string("set"),
+                        "path": .array([.string("title")]),
+                        "value": .string("Recovered"),
+                    ]),
+                ]),
+            ])
+        )
+        let recovered = try await eventually("recovered root view") {
+            recorder.rootViews.count == 3 ? recorder.rootViews : nil
+        }
+        #expect(recovered[1].view.title == "Resynced")
+        #expect(recovered[2].view.title == "Recovered")
+
+        // Apply error on session.view.patch triggers session.resync and drops patches until full view.
+        transport.emit(
+            eventJSON("session.view", ["session": .string("s1"), "revision": .number(1), "view": minimalViewJSON()])
+        )
+        transport.emit(
+            eventJSON("session.view.patch", [
+                "session": .string("s1"),
+                "baseRevision": .number(1),
+                "revision": .number(2),
+                "ops": .array([
+                    .object([
+                        "op": .string("delete"),
+                        "path": .array([.string("nonexistent")]),
+                    ]),
+                ]),
+            ])
+        )
+        transport.emit(
+            eventJSON("session.view.patch", [
+                "session": .string("s1"),
+                "baseRevision": .number(2),
+                "revision": .number(3),
+                "ops": .array([
+                    .object([
+                        "op": .string("set"),
+                        "path": .array([.string("title")]),
+                        "value": .string("Ignored"),
+                    ]),
+                ]),
+            ])
+        )
+        let sessionResyncs = try await eventually("session.resync request") {
+            let matching = transport.requests.filter { $0["method"] == .string("session.resync") }
+            return matching.isEmpty ? nil : matching
+        }
+        #expect(sessionResyncs.count == 1)
+        #expect(sessionResyncs[0]["params"]?["session"] == .string("s1"))
+        #expect(recorder.views.count == 1)
     }
 }
 

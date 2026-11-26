@@ -33,7 +33,7 @@ struct ProcessIntegrationTests {
         defer { client.close() }
 
         let welcome = try await client.start(capabilities: ["clipboard.copy"])
-        #expect(welcome.protocolVersion == 1)
+        #expect(welcome.protocolVersion == 2)
         #expect(welcome.catalog["clipboard.copy"]?["scope"] == .string("grant"))
 
         let extensionID = try await client.openExtension(

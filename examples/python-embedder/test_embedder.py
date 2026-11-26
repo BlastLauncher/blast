@@ -1,27 +1,36 @@
 #!/usr/bin/env python3
-"""Flow tests for embedder.py against the real server (`bun run example:python`).
+"""Flow and protocol-2 view-patch tests for embedder.py (`bun run example:python`).
 
 Covers handshake, root search, launch, the 0157 prompt-form fixture, primary
-action, the clipboard round trip, protocol errors and shutdown.
+action, the clipboard round trip, shared view-patch fixtures, revision-gap
+resync, protocol errors and shutdown.
 """
 
 from __future__ import annotations
 
+import copy
 import glob
+import io
 import json
 import os
 import shutil
 import sys
 import tempfile
+import threading
 import time
+import types
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # python3 -I keeps the script dir off sys.path
-from embedder import OUT, DEFAULT_SERVE, Client, key_inputs  # noqa: E402
+from embedder import OUT, DEFAULT_SERVE, PROTOCOL_VERSION, Client, apply_view_patch, key_inputs  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 HELLO = os.path.join(REPO, "fixtures", "extensions", "hello-list")
 ENGINE_HANDLE = os.path.join(REPO, "fixtures", "extensions", "engine-handle")
+PATCH_FIXTURES = os.path.join(REPO, "fixtures", "protocol", "view-patches.json")
+
+ROOT_VIEW_EVENTS = ("root.view", "root.view.patch")
+SESSION_VIEW_EVENTS = ("session.view", "session.view.patch")
 
 
 def wait(client: Client, match, timeout: float = 30.0) -> dict:
@@ -45,6 +54,140 @@ def stop(client: Client) -> None:
     client.child.wait()
 
 
+class ViewPatchTests(unittest.TestCase):
+    def test_shared_view_patch_fixtures(self) -> None:
+        with open(PATCH_FIXTURES) as handle:
+            data = json.load(handle)
+        cases = data["cases"]
+        self.assertGreater(len(cases), 0)
+        for case in cases:
+            with self.subTest(case=case["name"]):
+                prev_snapshot = copy.deepcopy(case["prev"])
+                patched = apply_view_patch(
+                    case["prev"], case["patch"], case["patch"]["baseRevision"]
+                )
+                self.assertEqual(patched, case["next"])
+                self.assertEqual(case["prev"], prev_snapshot)
+
+    def test_apply_view_patch_errors(self) -> None:
+        base = {
+            "title": "a",
+            "empty": None,
+            "search": {"text": ""},
+            "rows": [{"id": "1"}],
+        }
+        bad_patches = [
+            ({"ops": [{"op": "set", "path": ["missing", "child"], "value": 1}]}, None),
+            ({"ops": [{"op": "set", "path": ["empty", "title"], "value": "x"}]}, None),
+            ({"ops": [{"op": "set", "path": ["rows", "0"], "value": "x"}]}, None),
+            ({"ops": [{"op": "delete", "path": ["nonexistent"]}]}, None),
+            ({"ops": [{"op": "delete", "path": []}]}, None),
+            ({"ops": [{"op": "splice", "path": ["missing"], "at": 0, "remove": 0, "insert": []}]}, None),
+            ({"ops": [{"op": "splice", "path": ["title"], "at": 0, "remove": 0, "insert": []}]}, None),
+            ({"ops": [{"op": "splice", "path": ["rows"], "at": 2, "remove": 0, "insert": []}]}, None),
+            ({"ops": [{"op": "splice", "path": ["rows"], "at": 0, "remove": 2, "insert": []}]}, None),
+            ({"ops": [{"op": "splice", "path": ["rows"], "at": True, "remove": 0, "insert": []}]}, None),
+            ({"baseRevision": 2, "revision": 3, "ops": []}, 1),
+            ({"baseRevision": 1, "revision": 4, "ops": []}, 1),
+            ({"ops": []}, 1),
+        ]
+        for patch, current in bad_patches:
+            with self.assertRaises(ValueError):
+                apply_view_patch(base, patch, current)
+
+    def test_revision_gap_and_apply_error_trigger_resync(self) -> None:
+        client = object.__new__(Client)
+        stdin = io.StringIO()
+        client.child = types.SimpleNamespace(stdin=stdin)
+        client.pending = {}
+        client.events = []
+        client._root_views = {}
+        client._session_views = {}
+        client._write_lock = threading.Lock()
+        client.seq, client.root, client.session = 0, "", ""
+        client.protocol, client.version, client.catalog, client.closed = PROTOCOL_VERSION, "", {}, False
+        client.ready = threading.Condition()
+
+        # Root: full view rev 1, then gap patch (baseRevision 2 -> resync), then another dropped patch.
+        client._handle_message(
+            {"type": "event", "event": "root.view", "root": "r1", "revision": 1, "view": {"title": "Root", "rows": []}}
+        )
+        client._handle_message(
+            {
+                "type": "event",
+                "event": "root.view.patch",
+                "root": "r1",
+                "baseRevision": 2,
+                "revision": 3,
+                "ops": [{"op": "set", "path": ["title"], "value": "Skipped"}],
+            }
+        )
+        client._handle_message(
+            {
+                "type": "event",
+                "event": "root.view.patch",
+                "root": "r1",
+                "baseRevision": 3,
+                "revision": 4,
+                "ops": [{"op": "set", "path": ["title"], "value": "AlsoSkipped"}],
+            }
+        )
+
+        sent = [json.loads(line) for line in stdin.getvalue().splitlines() if line.strip()]
+        self.assertEqual(len(sent), 1)
+        self.assertEqual(sent[0]["type"], "request")
+        self.assertEqual(sent[0]["method"], "root.resync")
+        self.assertEqual(sent[0]["params"], {"root": "r1"})
+        self.assertEqual(len(client.events), 1)
+
+        # Full view clears resync state; matching patch applies cleanly.
+        client._handle_message(
+            {"type": "event", "event": "root.view", "root": "r1", "revision": 5, "view": {"title": "Resynced", "rows": []}}
+        )
+        client._handle_message(
+            {
+                "type": "event",
+                "event": "root.view.patch",
+                "root": "r1",
+                "baseRevision": 5,
+                "revision": 6,
+                "ops": [{"op": "set", "path": ["title"], "value": "Recovered"}],
+            }
+        )
+        self.assertEqual(client.events[-1]["view"]["title"], "Recovered")
+
+        # Session: apply error triggers session.resync and drops patches until full view.
+        stdin.seek(0)
+        stdin.truncate(0)
+        client._handle_message(
+            {"type": "event", "event": "session.view", "session": "s1", "revision": 1, "view": {"title": "Session"}}
+        )
+        client._handle_message(
+            {
+                "type": "event",
+                "event": "session.view.patch",
+                "session": "s1",
+                "baseRevision": 1,
+                "revision": 2,
+                "ops": [{"op": "delete", "path": ["missing"]}],
+            }
+        )
+        client._handle_message(
+            {
+                "type": "event",
+                "event": "session.view.patch",
+                "session": "s1",
+                "baseRevision": 2,
+                "revision": 3,
+                "ops": [{"op": "set", "path": ["title"], "value": "Ignored"}],
+            }
+        )
+        session_sent = [json.loads(line) for line in stdin.getvalue().splitlines() if line.strip()]
+        self.assertEqual(len(session_sent), 1)
+        self.assertEqual(session_sent[0]["method"], "session.resync")
+        self.assertEqual(session_sent[0]["params"], {"session": "s1"})
+
+
 class EmbedderFlow(unittest.TestCase):
     def setUp(self) -> None:
         self.data = tempfile.TemporaryDirectory(prefix="blast-python-")
@@ -60,7 +203,7 @@ class EmbedderFlow(unittest.TestCase):
         self.assertEqual(self.client.shutdown(), 0)
 
     def test_handshake(self) -> None:
-        self.assertEqual(self.client.protocol, 1)
+        self.assertEqual(self.client.protocol, PROTOCOL_VERSION)
         self.assertEqual(self.client.version, "0.0.0-dev")
         self.assertIn("clipboard.copy", self.client.catalog)
         self.shutdown()
@@ -91,16 +234,22 @@ class EmbedderFlow(unittest.TestCase):
         self.client.request("extension.open", {"dir": HELLO})
         root = self.client.request("root.open", {})["root"]
         self.client.root = root
-        listed = wait(self.client, lambda m: m.get("event") == "root.view" and m["view"].get("rows"))
+        listed = wait(self.client, lambda m: m.get("event") in ROOT_VIEW_EVENTS and m["view"].get("rows"))
         items = [row["id"] for row in listed["view"]["rows"] if row.get("kind") == "item"]
         self.assertEqual(items, ["hello-list:index"])
         self.client.events.clear()
         self.client.request("root.input", {"root": root, "input": {"type": "search", "text": "zzz"}})
-        empty = wait(self.client, lambda m: m.get("event") == "root.view" and not m["view"].get("rows"))
+        empty = wait(self.client, lambda m: m.get("event") in ROOT_VIEW_EVENTS and not m["view"].get("rows"))
+        self.assertEqual(empty["event"], "root.view.patch")
         self.assertEqual(empty["view"]["search"]["text"], "zzz")
         self.client.events.clear()
-        self.client.request("root.input", {"root": root, "input": {"type": "search", "text": ""}})
-        wait(self.client, lambda m: m.get("event") == "root.view" and m["view"].get("rows"))
+        self.client.request("root.input", {"root": root, "input": {"type": "search", "text": "hello"}})
+        wait(
+            self.client,
+            lambda m: m.get("event") in ROOT_VIEW_EVENTS
+            and m["view"].get("rows")
+            and m["view"].get("search", {}).get("text") == "hello",
+        )
         self.client.events.clear()
         self.client.input({"type": "primary"})
         launched = wait(self.client, lambda m: m.get("event") == "root.launched")
@@ -108,7 +257,7 @@ class EmbedderFlow(unittest.TestCase):
         session = launched["session"]
         view = wait(
             self.client,
-            lambda m: m.get("event") == "session.view"
+            lambda m: m.get("event") in SESSION_VIEW_EVENTS
             and m.get("session") == session
             and m["view"].get("rows"),
         )
@@ -118,10 +267,11 @@ class EmbedderFlow(unittest.TestCase):
         self.client.request("session.input", {"session": session, "input": {"type": "primary"}})
         copied = wait(
             self.client,
-            lambda m: m.get("event") == "session.view"
+            lambda m: m.get("event") in SESSION_VIEW_EVENTS
             and m.get("session") == session
             and "copied apple" in m["view"].get("title", ""),
         )
+        self.assertEqual(copied["event"], "session.view.patch")
         self.assertIn("copied apple", copied["view"]["title"])
         self.assertTrue(
             any(line.startswith("capability.request clipboard.copy") for line in OUT), list(OUT)
@@ -135,7 +285,7 @@ class EmbedderFlow(unittest.TestCase):
         self.assertEqual(exited.get("code"), 0)
         resumed = wait(
             self.client,
-            lambda m: m.get("event") == "root.view"
+            lambda m: m.get("event") in ROOT_VIEW_EVENTS
             and m["view"].get("rows")
             and m["view"].get("search", {}).get("text", "") == "",
         )
@@ -181,7 +331,7 @@ class EmbedderFlow(unittest.TestCase):
         session = launched["session"]
         form = wait(
             self.client,
-            lambda m: m.get("event") == "session.view"
+            lambda m: m.get("event") in SESSION_VIEW_EVENTS
             and m.get("session") == session
             and m["view"].get("kind") == "form",
         )["view"]
@@ -190,7 +340,7 @@ class EmbedderFlow(unittest.TestCase):
         self.client.request("session.input", {"session": session, "input": {"type": "primary"}})
         invalid = wait(
             self.client,
-            lambda m: m.get("event") == "session.view"
+            lambda m: m.get("event") in SESSION_VIEW_EVENTS
             and m.get("session") == session
             and m["view"].get("form", {}).get("fields", [{}])[0].get("error"),
         )["view"]
@@ -204,14 +354,14 @@ class EmbedderFlow(unittest.TestCase):
         )
         wait(
             self.client,
-            lambda m: m.get("event") == "session.view"
+            lambda m: m.get("event") in SESSION_VIEW_EVENTS
             and m.get("session") == session
             and m["view"].get("form", {}).get("fields", [{}])[0].get("hasValue"),
         )
         self.client.request("session.input", {"session": session, "input": {"type": "primary"}})
         command = wait(
             self.client,
-            lambda m: m.get("event") == "session.view"
+            lambda m: m.get("event") in SESSION_VIEW_EVENTS
             and m.get("session") == session
             and m["view"].get("rows"),
         )["view"]
