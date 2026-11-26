@@ -148,9 +148,11 @@ const SAMPLE_PARAMS: Record<string, JsonValue> = {
   "extension.configure": { extension: "1", command: "index", views: { platform: "Linux" } },
   "root.open": { views: { platform: "Linux" } },
   "root.input": { root: "3", input: { type: "primary" } },
+  "root.resync": { root: "3" },
   "root.close": { root: "3" },
   "session.event": { session: "2", node: "n1", handler: "onAction", args: [["a", 1, null]] },
   "session.input": { session: "2", input: { type: "primary" } },
+  "session.resync": { session: "2" },
   "session.close": { session: "2" },
   "engine.shutdown": {},
 };
@@ -218,15 +220,25 @@ const launch = (views: unknown) => ({
   params: { extension: "1", command: "index", views },
 });
 
-test("hello views default validates and rejects bad shapes", () => {
+test("hello views and scenes defaults validate and reject bad shapes", () => {
   for (const views of [
     { platform: "Linux" },
     { platform: "macOS", appearance: "dark" },
     false,
   ] as const) {
-    const hello = { type: "hello", protocol: 1, capabilities: [], views };
+    const hello = { type: "hello", protocol: EMBEDDER_PROTOCOL_VERSION, capabilities: [], views };
     expect(parseEmbedderMessage(hello).ok).toBe(true);
     expect(schemaOf(hello)).toBeNull();
+  }
+  for (const scenes of [true, false]) {
+    const hello = { type: "hello", protocol: EMBEDDER_PROTOCOL_VERSION, capabilities: [], scenes };
+    expect(parseEmbedderMessage(hello).ok).toBe(true);
+    expect(schemaOf(hello)).toBeNull();
+  }
+  for (const scenes of [1, "true", null, {}]) {
+    const hello = { type: "hello", protocol: EMBEDDER_PROTOCOL_VERSION, capabilities: [], scenes };
+    expect(parseEmbedderMessage(hello).ok).toBe(false);
+    expect(schemaOf(hello)).not.toBeNull();
   }
   for (const views of [
     true,
@@ -235,7 +247,7 @@ test("hello views default validates and rejects bad shapes", () => {
     { platform: "other" },
     { platform: "Linux", appearance: "x" },
   ]) {
-    const hello = { type: "hello", protocol: 1, capabilities: [], views };
+    const hello = { type: "hello", protocol: EMBEDDER_PROTOCOL_VERSION, capabilities: [], views };
     expect(parseEmbedderMessage(hello).ok).toBe(false);
     expect(schemaOf(hello)).not.toBeNull();
   }
@@ -245,7 +257,10 @@ test("hello views default validates and rejects bad shapes", () => {
 });
 
 test("handshake messages validate", () => {
-  expect(schemaOf({ type: "hello", protocol: 1, capabilities: [] })).toBeNull();
+  expect(EMBEDDER_PROTOCOL_VERSION).toBe(2);
+  expect(
+    schemaOf({ type: "hello", protocol: EMBEDDER_PROTOCOL_VERSION, capabilities: [] }),
+  ).toBeNull();
   expect(schemaOf(SERVED)).toBeNull();
   expect(
     schemaOf({
@@ -411,9 +426,11 @@ test("every method has a request and a result schema entry", () => {
         "extension.close",
         "extension.savePreferences",
         "root.input",
+        "root.resync",
         "root.close",
         "session.event",
         "session.input",
+        "session.resync",
         "session.close",
         "engine.shutdown",
       ].includes(method)
@@ -521,17 +538,48 @@ test("views launch options and every semantic input agree with boundary validati
   }
 });
 
-test("session.view requires a session and opaque JSON object view", () => {
+test("session.view and session.view.patch validate revisions and ops", () => {
   const message = {
     type: "event",
     event: "session.view",
     session: "2",
+    revision: 1,
     view: { kind: "list", rows: [{ title: "apple", selected: true }] },
   };
   expect(schemaOf(message)).toBeNull();
   for (const view of [null, [], "list"]) expect(schemaOf({ ...message, view })).not.toBeNull();
-  expect(schemaOf({ type: "event", event: "session.view", session: "2" })).not.toBeNull();
-  expect(schemaOf({ type: "event", event: "session.view", view: {} })).not.toBeNull();
+  expect(schemaOf({ ...message, revision: 0 })).not.toBeNull();
+  expect(schemaOf({ ...message, revision: 1.5 })).not.toBeNull();
+  expect(schemaOf({ type: "event", event: "session.view", session: "2", view: {} })).not.toBeNull();
+  expect(
+    schemaOf({ type: "event", event: "session.view", session: "2", revision: 1 }),
+  ).not.toBeNull();
+  expect(schemaOf({ type: "event", event: "session.view", view: {}, revision: 1 })).not.toBeNull();
+
+  const patch = {
+    type: "event",
+    event: "session.view.patch",
+    session: "2",
+    revision: 2,
+    baseRevision: 1,
+    ops: [
+      { op: "set", path: ["title"], value: "updated" },
+      { op: "delete", path: ["empty"] },
+      { op: "splice", path: ["rows"], at: 0, remove: 1, insert: [{ id: "a", selected: true }] },
+    ],
+  };
+  expect(schemaOf(patch)).toBeNull();
+  expect(schemaOf({ ...patch, baseRevision: 0 })).not.toBeNull();
+  expect(schemaOf({ ...patch, revision: 0 })).not.toBeNull();
+  expect(
+    schemaOf({ ...patch, ops: [{ op: "splice", path: ["rows"], at: -1, remove: 0, insert: [] }] }),
+  ).not.toBeNull();
+  expect(
+    schemaOf({ ...patch, ops: [{ op: "splice", path: ["rows"], at: 0, remove: -1, insert: [] }] }),
+  ).not.toBeNull();
+  expect(schemaOf({ ...patch, ops: [{ op: "delete", path: ["a"], value: 1 }] })).not.toBeNull();
+  expect(schemaOf({ ...patch, ops: [{ op: "set", path: ["a"] }] })).not.toBeNull();
+  expect(schemaOf({ ...patch, ops: [{ op: "replace", path: ["a"], value: 1 }] })).not.toBeNull();
 });
 
 const rootOpen = (params: unknown) => ({
@@ -541,7 +589,7 @@ const rootOpen = (params: unknown) => ({
   params,
 });
 
-test("root.open views are optional; root events require their ids and payload", () => {
+test("root.open views are optional; root events and resync requests validate", () => {
   expect(schemaOf(rootOpen({}))).toBeNull();
   expect(schemaOf(rootOpen({ views: { platform: "macOS", appearance: "dark" } }))).toBeNull();
   expect(schemaOf(rootOpen({ views: { platform: "Plan9" } }))).not.toBeNull();
@@ -555,10 +603,44 @@ test("root.open views are optional; root events require their ids and payload", 
       params: { root: "3", input: { type: "move", direction: "down" } },
     }).ok,
   ).toBe(true);
-  const view = { type: "event", event: "root.view", root: "3", view: { kind: "list" } };
+  for (const resync of [
+    { type: "request", id: "1", method: "root.resync", params: { root: "3" } },
+    { type: "request", id: "2", method: "session.resync", params: { session: "2" } },
+  ]) {
+    expect(parseEmbedderMessage(resync).ok).toBe(true);
+    expect(schemaOf(resync)).toBeNull();
+  }
+  for (const bad of [
+    { type: "request", id: "1", method: "root.resync", params: {} },
+    { type: "request", id: "1", method: "root.resync", params: { root: "3", extra: 1 } },
+    { type: "request", id: "2", method: "session.resync", params: {} },
+    { type: "request", id: "2", method: "session.resync", params: { session: 2 } },
+  ]) {
+    expect(parseEmbedderMessage(bad).ok).toBe(false);
+    expect(schemaOf(bad)).not.toBeNull();
+  }
+  const view = {
+    type: "event",
+    event: "root.view",
+    root: "3",
+    revision: 1,
+    view: { kind: "list" },
+  };
   expect(schemaOf(view)).toBeNull();
   expect(schemaOf({ ...view, root: undefined })).not.toBeNull();
   expect(schemaOf({ ...view, view: [] })).not.toBeNull();
+  expect(schemaOf({ ...view, revision: undefined })).not.toBeNull();
+  const rootPatch = {
+    type: "event",
+    event: "root.view.patch",
+    root: "3",
+    revision: 2,
+    baseRevision: 1,
+    ops: [{ op: "set", path: ["selectedId"], value: "a" }],
+  };
+  expect(schemaOf(rootPatch)).toBeNull();
+  expect(schemaOf({ ...rootPatch, root: undefined })).not.toBeNull();
+  expect(schemaOf({ ...rootPatch, baseRevision: undefined })).not.toBeNull();
   const launched = { type: "event", event: "root.launched", root: "3", session: "4" };
   expect(schemaOf(launched)).toBeNull();
   expect(schemaOf({ ...launched, session: undefined })).not.toBeNull();

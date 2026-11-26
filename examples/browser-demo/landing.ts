@@ -63,16 +63,17 @@ _ = try await blast.openExtension(dir: "./my-extension")
 let root = try await blast.openRoot(views: .macOS)
 try await blast.sendInput(.search("ap"), root: root)
 try await blast.sendInput(.primary, root: root)`,
-  ndjson: `→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
-← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
+  ndjson: `→ {"type":"hello","protocol":2,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
+← {"type":"welcome","protocol":2,"engine":{…},"catalog":{…}}
 → {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
 ← {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}
 → {"type":"request","id":"2","method":"root.open","params":{}}
-← {"type":"event","event":"root.view","root":"1","view":{"kind":"list","rows":[…]}}
+← {"type":"event","event":"root.view","root":"1","revision":1,"view":{"kind":"list","rows":[…]}}
 ← {"type":"response","id":"2","ok":true,"result":{"root":"1"}}
 → {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}
 ← {"type":"event","event":"root.launched","root":"1","session":"3"}
-← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}
+← {"type":"event","event":"session.view","session":"3","revision":1,"view":{"kind":"list","rows":[…]}}
+← {"type":"event","event":"session.view.patch","session":"3","revision":2,"baseRevision":1,"ops":[…]}
 ← {"type":"capability.request","id":"4","session":"3","name":"clipboard.copy","params":{…}}
 → {"type":"capability.result","id":"4","ok":true,"value":null}`,
 } as const;

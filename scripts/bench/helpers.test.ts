@@ -94,19 +94,24 @@ describe("measureLargeListWire", () => {
     expect(prop1k.runtimePatchBytes).toBeLessThan(500);
     expect(prop1k.runtimeFullBytes).toBeGreaterThan(200_000);
     expect(prop1k.embedderViewBytes).toBeGreaterThan(100_000);
+    expect(prop1k.embedderPatchBytes).toBeLessThan(1_024);
+    expect(prop1k.embedderPatchOps).toBeGreaterThan(0);
     expect(prop1k.embedderSceneBytes).toBeGreaterThan(prop1k.runtimeFullBytes);
 
     const move1k = first.find((row) => row.items === 1_000 && row.update === "selection-move")!;
     expect(move1k.runtimeFullBytes).toBe(0);
     expect(move1k.runtimePatchBytes).toBe(0);
     expect(move1k.embedderSceneBytes).toBe(0);
-    // Selection move still re-serializes all 1,000 rows in `session.view`.
     expect(move1k.embedderViewBytes).toBeGreaterThan(100_000);
+    expect(move1k.embedderPatchBytes).toBeLessThan(1_024);
+    expect(move1k.embedderPatchOps).toBeGreaterThan(0);
 
     const filter1k = first.find((row) => row.items === 1_000 && row.update === "search-filter")!;
     expect(filter1k.matchingItems).toBe(20);
     expect(filter1k.runtimePatchBytes).toBeLessThan(filter1k.runtimeFullBytes / 5);
     expect(filter1k.embedderViewBytes).toBeLessThan(prop1k.embedderViewBytes / 10);
+    expect(filter1k.embedderPatchBytes).toBeLessThan(prop1k.embedderViewBytes / 10);
+    expect(filter1k.embedderPatchOps).toBeGreaterThan(0);
   });
 });
 

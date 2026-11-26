@@ -1,6 +1,6 @@
 import type { JsonValue } from "./messages.ts";
 
-export const EMBEDDER_PROTOCOL_VERSION = 1;
+export const EMBEDDER_PROTOCOL_VERSION = 2;
 export type EmbedderError = { code: string; message: string; data?: JsonValue };
 /** Structural wire counterpart of client-core's ControllerInput; no runtime dependency. */
 export type EmbedderControllerInput =
@@ -91,8 +91,10 @@ export type EmbedderParams = {
    */
   "root.open": { views?: EmbedderViews };
   "root.input": { root: string; input: EmbedderControllerInput };
+  "root.resync": { root: string };
   "root.close": { root: string };
   "session.input": { session: string; input: EmbedderControllerInput };
+  "session.resync": { session: string };
   "session.event": { session: string; node: string; handler: string; args: JsonValue[] };
   "session.close": { session: string };
   "engine.shutdown": Record<string, never>;
@@ -110,8 +112,10 @@ export type EmbedderMessage =
       type: "hello";
       protocol: number;
       capabilities: string[];
-      /** Views for every launch that does not set its own; `false` keeps scenes only. */
+      /** Views for every launch that does not set its own; `false` disables default views. */
       views?: EmbedderViews | false;
+      /** Opt in to raw `session.scene` debugging events (default false; decision 0020). */
+      scenes?: boolean;
     }
   | EmbedderRequest
   | { type: "capability.result"; id: string; ok: true; value: JsonValue }
@@ -160,8 +164,10 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
   "extension.configure": ["extension", "command", "scope?", "views?"],
   "root.open": ["views?"],
   "root.input": ["root", "input"],
+  "root.resync": ["root"],
   "root.close": ["root"],
   "session.input": ["session", "input"],
+  "session.resync": ["session"],
   "session.event": ["session", "node", "handler", "args"],
   "session.close": ["session"],
   "engine.shutdown": [],
@@ -192,14 +198,16 @@ const viewsOptions = (y: unknown) =>
 function valid(v: unknown): boolean {
   if (!object(v)) return false;
   if (v.type === "hello")
-    return fields(v, ["type", "protocol", "capabilities", "views?"], (k, x) =>
+    return fields(v, ["type", "protocol", "capabilities", "views?", "scenes?"], (k, x) =>
       k === "protocol"
         ? Number.isSafeInteger(x)
         : k === "capabilities"
           ? Array.isArray(x) && x.every(string)
           : k === "views"
             ? x === false || viewsOptions(x)
-            : string(x),
+            : k === "scenes"
+              ? typeof x === "boolean"
+              : string(x),
     );
   if (v.type === "capability.progress")
     return fields(v, ["type", "id", "value"], (k, x) => (k === "value" ? json(x) : string(x)));
