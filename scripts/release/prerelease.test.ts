@@ -4,6 +4,7 @@ import {
   assertTrustedPublishingNpm,
   bootstrapCommands,
   buildPublishPlan,
+  canaryVersion,
   orderByDependencies,
   tagForVersion,
   validatePrereleaseVersion,
@@ -111,4 +112,23 @@ test("release planning refuses an existing version tag", () => {
   expect(() => assertTagAvailable("3.0.0-alpha.1", (tag) => tag === "v3.0.0-alpha.1")).toThrow(
     "Release tag already exists",
   );
+});
+
+test("canary versions derive valid monotonic v3 semver from commit SHA and UTC timestamp", () => {
+  const version = canaryVersion("04eb4793c1234567890abcdef", 1_795_658_660);
+  expect(version).toBe("3.0.0-canary.20261126020420.g04eb479");
+  expect(validatePrereleaseVersion(version)).toBe(version);
+  // All-digit SHAs with leading zero remain valid SemVer because of the `g` prefix.
+  expect(canaryVersion("0012345abcdef", 1_795_658_660)).toBe(
+    "3.0.0-canary.20261126020420.g0012345",
+  );
+  for (const bad of [
+    "3.0.0-canary.20261126020420.04eb479",
+    "3.0.0-canary.00261126020420.g04eb479",
+    "3.0.0-canary.123.g04eb479",
+    "3.0.0-canary.20261126020420.g123",
+  ])
+    expect(() => validatePrereleaseVersion(bad)).toThrow();
+  expect(() => canaryVersion("not-hex", 1_795_658_660)).toThrow();
+  expect(() => canaryVersion("04eb479", -1)).toThrow();
 });

@@ -13,15 +13,57 @@ export type ReleasePackage = {
 export type PublishPlanEntry = ReleasePackage & { alreadyPublished: boolean };
 
 const VERSION_PATTERN =
-  /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)-(?<channel>alpha|beta|rc)\.(?<number>0|[1-9]\d*)(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+  /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)-(?:(?<channel>alpha|beta|rc)\.(?<number>0|[1-9]\d*)|(?<canary>canary)\.(?<stamp>[1-9]\d{13})\.g(?<sha>[0-9a-f]{7,40}))(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 export function validatePrereleaseVersion(version: string): string {
   const match = VERSION_PATTERN.exec(version);
   if (!match || Number(match.groups?.major) !== 3)
     throw new Error(
-      `Version must be a v3 semver pre-release such as 3.0.0-alpha.1, got: ${version}`,
+      `Version must be a v3 semver pre-release such as 3.0.0-alpha.1 or 3.0.0-canary.20261126020420.g04eb479, got: ${version}`,
     );
   return version;
+}
+
+/**
+ * Deterministic, monotonically increasing v3 canary version for a commit on
+ * `main`. Uses UTC `YYYYMMDDHHMMSS` plus a `g`-prefixed 7-char lowercase hex
+ * SHA so all-digit hashes stay alphanumeric and valid SemVer 2.0.
+ */
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
+export function canaryVersion(
+  commitSha: string,
+  commitTimestampSeconds: number,
+  base = "3.0.0",
+): string {
+  const sha = commitSha.trim().toLowerCase();
+  if (!/^[0-9a-f]{7,40}$/.test(sha))
+    throw new Error(`Invalid commit SHA for canary version: ${commitSha}`);
+  if (!Number.isSafeInteger(commitTimestampSeconds) || commitTimestampSeconds < 0)
+    throw new Error(`Invalid commit timestamp for canary version: ${commitTimestampSeconds}`);
+  const date = new Date(commitTimestampSeconds * 1000);
+  const stamp = [
+    String(date.getUTCFullYear()).padStart(4, "0"),
+    pad2(date.getUTCMonth() + 1),
+    pad2(date.getUTCDate()),
+    pad2(date.getUTCHours()),
+    pad2(date.getUTCMinutes()),
+    pad2(date.getUTCSeconds()),
+  ].join("");
+  return validatePrereleaseVersion(`${base}-canary.${stamp}.g${sha.slice(0, 7)}`);
+}
+
+export function readHeadCommit(): { sha: string; timestampSeconds: number } {
+  const result = spawnSync("git", ["show", "-s", "--format=%H%n%ct", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0)
+    throw new Error(`Unable to read HEAD commit: ${result.stderr.trim() || "git failed"}`);
+  const [sha, rawTimestamp] = result.stdout.trim().split("\n");
+  if (!sha || !rawTimestamp) throw new Error("Unexpected git show output for HEAD");
+  return { sha, timestampSeconds: Number(rawTimestamp) };
 }
 
 export function tagForVersion(version: string): string {
@@ -183,6 +225,7 @@ async function main() {
     allowPositionals: true,
     options: {
       version: { type: "string" },
+      canary: { type: "boolean", default: false },
       output: { type: "string" },
     },
   });
@@ -201,11 +244,21 @@ async function main() {
     console.log(bootstrapCommands(plan, version).join("\n"));
     return;
   }
-  const version = values.version;
-  if (typeof version !== "string") throw new Error("--version is required");
-  const tag = assertTagAvailable(version, remoteTagExists);
+  let version: string;
+  let tag = "";
+  let createRelease = true;
+  if (values.canary) {
+    if (values.version !== undefined) throw new Error("--canary and --version are exclusive");
+    const head = readHeadCommit();
+    version = canaryVersion(head.sha, head.timestampSeconds);
+    createRelease = false;
+  } else {
+    if (typeof values.version !== "string") throw new Error("--version or --canary is required");
+    version = values.version;
+    tag = assertTagAvailable(version, remoteTagExists);
+  }
   if (mode === "validate") {
-    console.log(`version=${version}\ntag=${tag}`);
+    console.log(`version=${version}\ntag=${tag}\ncreate_release=${createRelease}`);
     return;
   }
   if (mode !== "plan") throw new Error(`Unknown release mode: ${mode}`);
@@ -213,7 +266,12 @@ async function main() {
     npmVersionExists(name, value),
   );
   const publish = plan.filter((entry) => !entry.alreadyPublished).map((entry) => entry.name);
-  const lines = [`version=${version}`, `tag=${tag}`, `publish_packages=${publish.join(" ")}`];
+  const lines = [
+    `version=${version}`,
+    `tag=${tag}`,
+    `create_release=${createRelease}`,
+    `publish_packages=${publish.join(" ")}`,
+  ];
   if (typeof values.output === "string") await writeFile(values.output, `${lines.join("\n")}\n`);
   console.log(lines.join("\n"));
 }

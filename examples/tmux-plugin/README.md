@@ -41,18 +41,19 @@ Set options before the `@plugin` / `run-shell` line, then reload tmux
 
 ## Options
 
-| Option                | Default                        | Meaning                                                                    |
-| --------------------- | ------------------------------ | -------------------------------------------------------------------------- |
-| `@blast-key`          | `C-Space`                      | Key that opens the palette; `off` binds nothing.                           |
-| `@blast-key-table`    | `root`                         | `root` (no prefix) or `prefix` (press the tmux prefix first).              |
-| `@blast-extensions`   | _(none)_                       | Space-separated Raycast extension directories to list as well (`~/` ok).   |
-| `@blast-popup-width`  | `90`                           | Popup columns, or a percentage such as `80%`.                              |
-| `@blast-popup-height` | `28`                           | Popup rows, or a percentage.                                               |
-| `@blast-command`      | `bunx @blastlauncher/tui@next` | Command that starts the Blast TUI; `--popup` and the extensions are added. |
-| `@blast-theme`        | `system`                       | `system`, `dark`, `light`, or `mono` palette colours.                      |
-| `@blast-builtin`      | `on`                           | Set to `off` to hide the builtin tmux commands.                            |
-| `@blast-config`       | `~/.config/blast/tmux.json`    | Persistent extension and builtin state.                                    |
-| `@blast-cache-dir`    | `~/.local/share/blast/tui`     | Local cached TUI install used by the default command.                      |
+| Option                   | Default                        | Meaning                                                                       |
+| ------------------------ | ------------------------------ | ----------------------------------------------------------------------------- |
+| `@blast-key`             | `C-Space`                      | Key that opens the palette; `off` binds nothing.                              |
+| `@blast-key-table`       | `root`                         | `root` (no prefix) or `prefix` (press the tmux prefix first).                 |
+| `@blast-extensions`      | _(none)_                       | Space-separated Raycast extension directories to list as well (`~/` ok).      |
+| `@blast-popup-width`     | `90`                           | Popup columns, or a percentage such as `80%`.                                 |
+| `@blast-popup-height`    | `28`                           | Popup rows, or a percentage.                                                  |
+| `@blast-command`         | `bunx @blastlauncher/tui@next` | Command that starts the Blast TUI; `--popup` and the extensions are added.    |
+| `@blast-theme`           | `system`                       | `system`, `dark`, `light`, or `mono` palette colours.                         |
+| `@blast-builtin`         | `on`                           | Set to `off` to hide the builtin tmux commands.                               |
+| `@blast-config`          | `~/.config/blast/tmux.json`    | Persistent extension and builtin state.                                       |
+| `@blast-cache-dir`       | `~/.local/share/blast/tui`     | Local cached TUI install used by the default command.                         |
+| `@blast-update-interval` | `3600`                         | Seconds between background `@next` update checks (`0` disables auto-updates). |
 
 Below 80 columns the popup fills the client; a fixed size larger than the
 client does too. `C-Space` in the root table shadows it for programs inside
@@ -69,7 +70,11 @@ set -g @plugin 'BlastLauncher/tmux-blast'
 ## How it works
 
 `blast.tmux` binds the key to `run-shell -b scripts/palette.sh`, which checks
-for Bun and opens `display-popup -E` running `@blast-command --popup`. The
+for Bun and opens `display-popup -E` running `@blast-command --popup`. With the
+default command, the popup launches immediately from the local cache and checks
+npm in the background via `scripts/update-tui.sh` once `@blast-update-interval`
+seconds have elapsed, atomically swapping in newer `@next` builds for the next
+popup. Run `scripts/update-tui.sh` directly to force an immediate check. The
 popup exports `BLAST_TMUX_TARGET` (`session:window.pane` of the pane the key was
 pressed in), so commands act on that pane rather than on the popup. The Blast
 TUI exits when a command finishes or on <kbd>Esc</kbd>, which closes the popup.

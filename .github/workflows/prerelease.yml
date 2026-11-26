@@ -1,6 +1,14 @@
 name: v3 prerelease
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "scripts/release/**"
+      - ".github/workflows/prerelease.yml"
+      - "package.json"
+      - "bun.lock"
   workflow_dispatch:
     inputs:
       version:
@@ -14,7 +22,7 @@ on:
         type: boolean
 
 concurrency:
-  group: prerelease-${{ inputs.version }}
+  group: prerelease-${{ github.event_name == 'workflow_dispatch' && inputs.version || 'main' }}
   cancel-in-progress: false
 
 jobs:
@@ -27,6 +35,8 @@ jobs:
     permissions:
       contents: read
     outputs:
+      version: ${{ steps.plan.outputs.version }}
+      create_release: ${{ steps.plan.outputs.create_release }}
       publish_packages: ${{ steps.plan.outputs.publish_packages }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -41,11 +51,17 @@ jobs:
       # script text, so a crafted version cannot run before it is validated.
       - id: plan
         env:
+          EVENT_NAME: ${{ github.event_name }}
           VERSION: ${{ inputs.version }}
-        run: bun scripts/release/prerelease.ts plan --version "$VERSION" --output "$GITHUB_OUTPUT"
+        run: |
+          if [ "$EVENT_NAME" = "push" ]; then
+            bun scripts/release/prerelease.ts plan --canary --output "$GITHUB_OUTPUT"
+          else
+            bun scripts/release/prerelease.ts plan --version "$VERSION" --output "$GITHUB_OUTPUT"
+          fi
       - run: bun run verify
       - env:
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ steps.plan.outputs.version }}
         run: bun run release:build --version "$VERSION"
       - run: bun run release:smoke
       - name: Install Chromium
@@ -63,12 +79,12 @@ jobs:
           cp packages/protocol/schema/embedder-v1.schema.json .cache/release/artifact/embedder-v1.schema.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: blast-v3-${{ inputs.version }}
+          name: blast-v3-${{ steps.plan.outputs.version }}
           path: .cache/release/artifact
           if-no-files-found: error
 
   publish:
-    if: ${{ inputs.dry_run == false }}
+    if: ${{ (github.event_name == 'push' || inputs.dry_run == false) && needs.build.outputs.publish_packages != '' }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -89,12 +105,12 @@ jobs:
         run: bun scripts/release/prerelease.ts require-npm
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: blast-v3-${{ inputs.version }}
+          name: blast-v3-${{ needs.build.outputs.version }}
           path: .cache/release/artifact
       - name: Publish packages under next
         env:
           PUBLISH_PACKAGES: ${{ needs.build.outputs.publish_packages }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
           for package in $PUBLISH_PACKAGES; do
             tarball_name="${package#@}"
@@ -105,9 +121,10 @@ jobs:
             npm publish "$tarball" --tag next --access public
           done
       - name: Tag and create GitHub prerelease
+        if: ${{ needs.build.outputs.create_release == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
