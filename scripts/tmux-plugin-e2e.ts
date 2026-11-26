@@ -51,17 +51,25 @@ async function paletteSplitsThePane() {
     host,
   );
   const warmMs = Math.round(performance.now() - tWarm);
+  host.tmux(["send-keys", "-t", "host", "Down"]);
+  await waitFor(
+    "arrow navigation in the warm palette",
+    () => screen(host).includes("› ▣ Split Vertical"),
+    host,
+  );
+  const tEsc = performance.now();
   host.tmux(["send-keys", "-t", "host", "Escape"]);
   await waitFor(
     "the warm popup to detach on Esc",
     () => extraChildren(server).length === 0 && !screen(host).includes("Split Vertical"),
     host,
   );
+  const escMs = Math.round(performance.now() - tEsc);
   // Daemon socket must not add any phantom session to the user's tmux server.
   if (server.tmux(["list-sessions"]).split("\n").length !== 1)
     throw new Error("Expected only the user's single tmux session");
   console.log(
-    `ok: the palette split the pane, reopened warm in ${warmMs} ms with clean search, and closed`,
+    `ok: the palette split the pane, reopened warm in ${warmMs} ms, and detached on Esc in ${escMs} ms`,
   );
 }
 
