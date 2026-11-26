@@ -1,15 +1,28 @@
 # v3 prereleases
 
+## Continuous `main` prereleases (automatic)
+
+Every push to `main` that touches `packages/`, `scripts/release/`,
+`.github/workflows/prerelease.yml`, `package.json`, or `bun.lock` runs
+**v3 prerelease** automatically. It computes a monotonic commit version
+`3.0.0-canary.<YYYYMMDDHHMMSS>.g<sha7>` (from `HEAD`'s UTC commit timestamp
+and 7-char SHA), verifies, builds, smoke-tests, and publishes all packages to
+the `next` npm dist-tag **without** creating a git tag or GitHub release.
+Concurrency is serialized (`cancel-in-progress: false`), so rapid merges publish
+atomically and never leave `@next` half-published.
+
+## Tagged prereleases (manual)
+
 Run **v3 prerelease** from the repository's GitHub Actions tab and enter a
-version such as `3.0.0-alpha.3`, `3.0.0-beta.2`, or `3.0.0-rc.1`. Leave
+version such as `3.0.0-alpha.10`, `3.0.0-beta.1`, or `3.0.0-rc.1`. Leave
 **dry_run** enabled to verify, build, smoke-test (including the web tarball's
-browser e2e), and retain the nine npm tarballs plus the embedder schema as a
-workflow artifact. A real run clears that checkbox and publishes only versions
-that are not already on npm.
+browser e2e), and retain the npm tarballs plus the embedder schema as a
+workflow artifact. A real run clears that checkbox, publishes only versions
+that are not already on npm under `next`, tags the commit as `v<version>`, and
+creates a GitHub prerelease with generated notes.
 
 Prereleases use the `next` npm dist-tag and do not move `latest`, which stays
-on Blast v1. The workflow tags the commit as `v<version>` and creates a GitHub
-prerelease with generated notes. After publishing,
+on Blast v1. After publishing,
 `bun run release:web:e2e --from-npm <version>` checks the web package as npm
 serves it.
 
