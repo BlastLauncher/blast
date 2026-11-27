@@ -96,8 +96,31 @@ do not expose `docs/alfred.md` on the docs site.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/alfred-docs-landing @ d1aa7c25 (implementation; Handoff in the next commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 61.1s
 Done:
+- README: Raycast + Alfred intro and "What Blast handles" bullet, measured Alfred
+  numbers in "Receipts and status" (links docs/alfred.md and #139), `alfred` row
+  in Packages; `3.0.0-alpha.10` line unchanged.
+- Docs: quickstart (115 lines) says extensionDir / extension.open take a workflow
+  dir or .alfredworkflow and that Alfred support ships in @next until the next
+  release (alpha.10 predates M21); embedding (137) links alfred.md; alfred.md
+  (125) gains the measured-status paragraph with #139.
+- Docs site: `alfred` chapter between tui and architecture, overview names both;
+  new docs-site test checks order, overview, #139 link and chapter links.
+- Landing: title/description, pill → /docs/alfred/, h1 "Raycast & Alfred, inside
+  your app.", lede, first flow card, 2×2 facts with `alfred objects` 97.7%
+  (exported `alfredExecutionCoverage`), inst-note link; tmuxRepoUrl import and
+  its now-unused export in site-chrome.ts removed; version badge no longer wraps
+  on phones. site.test.ts asserts all of it; site-e2e.ts checks /docs/alfred/ at 360px.
+- .github/workflows/site.yml: post-deploy title grep updated to the new <title>
+  (it would otherwise fail after merge).
+- bun run site:build OK; bun test examples/browser-demo/ 96 pass; bun run site:e2e
+  pass (Playwright installed; needed PLAYWRIGHT_BROWSERS_PATH pointing at the main
+  checkout's .cache/ms-playwright, chromium-1208). Screenshots at 1440/390 reviewed.
 Not done / risks:
+- The hero install line still shows the tmux plugin command while the pill now
+  announces Alfred; left as is (out of scope), worth a design pass later.
+- 97.7% / 242-workflow numbers are hardcoded from the task, not generated;
+  refresh them when alfred:analyze is rerun.
 ```
