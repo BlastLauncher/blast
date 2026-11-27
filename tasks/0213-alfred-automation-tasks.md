@@ -270,8 +270,37 @@ dependencies and zero protocol changes:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/6affa5f4 @ 36f239ea (code; this Handoff is the next commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 40.7s — 1621 pass, 1 skip, 0 fail
 Done:
+- packages/alfred/src/automation-tasks.ts: all 35 taskuids, zero deps, erasable TS
+  (loads under plain Node 24.20). Exported from index.ts, along with windowRect/presetRect.
+- graph.ts: GraphCapability gains trash, applications.frontmost, browser.tabs,
+  window.active/desktops/setBounds; "automation.task" handler; compareCondition now
+  0 == / 1 != / 2 > / 3 < / 4 regex / 5 is true / 6 is false (exported isTrue);
+  new compareFilter (0 == / 1 != / 2 regex) for utility.filter. Unknown taskuid
+  warns "... (uid) task <taskuid> is not supported; that branch stops here";
+  missing taskuid uses the generic "... (uid) is not supported" form.
+- support.ts: AUTOMATION_TASK, SUPPORTED_AUTOMATION_TASKS (35), classifyAlfredObject;
+  automation.task stays out of SUPPORTED_OBJECT_TYPES. support.test.ts checks every
+  listed taskuid runs, the list equals the implemented keys, unknown/missing are unsupported.
+- analyze.ts classifies via classifyAlfredObject; unsupported tasks are labelled
+  alfred.workflow.automation.task:<taskuid> (bare type when taskuid is absent).
+- Tests: automation-tasks.test.ts (31 tests, every taskuid), graph.test.ts (new modes,
+  isTrue, compareFilter, 3 end-to-end chains + unknown/missing taskuid), analyze.test.ts;
+  docs/alfred.md updated at exactly 120 lines.
 Not done / risks:
+- Real-plist setting names/values were taken from the task spec; no corpus was read
+  in this session. Unknown sort_order/preset/metric/out_format/period values throw a
+  named error rather than guessing.
+- Choices beyond the spec: blank x/y/width/height in bounds.set.custom keep the current
+  value; "centre" keeps the window size (clamped to the desktop); screen.change cycles
+  distinct screenIds (moving to the target screen's active Space), not every desktop;
+  argument.matching without regex is a substring match; file.uti.matching drops missing
+  files in both normal and invert modes; finder.move/copy require save_in to exist and
+  check the source exists before an overwrite removes the destination.
+- Desktops carry no origin in the protocol, so preset bounds are desktop-relative
+  (origin 0,0); multi-screen absolute coordinates depend on the host's setBounds.
+- Existing workflows that relied on the old (wrong) Conditional modes 2/3/5/6 or
+  Filter mode 4 now behave differently (Filter mode 4 now warns "unknown filter mode").
 ```
