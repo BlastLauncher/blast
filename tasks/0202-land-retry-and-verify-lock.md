@@ -66,8 +66,12 @@ take turns instead of starving each other.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-verify-lock-retry @ 41aa1ec6
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 83.6s` (`BLAST_VERIFY_JOBS=1 bun run verify -- --seed=17`; 1,287 passed / 1 skipped).
 Done:
-Not done / risks:
+- `tasks:land` retries an unchanged cancelled workflow once, ignores the old cancelled check while the rerun is pending, restricts fallback runs by workflow and head SHA, and stops on a distinct or confirmed second cancel.
+- `verify` publishes complete lock records atomically, reclaims only dead holders, logs live holders, releases on failure and signals, kills active child steps on signals, and honors `BLAST_VERIFY_LOCK=0`.
+- Added retry and lock tests, including release after a failing run; documented both behaviors in `docs/performance.md`.
+- Two-checkout demonstration: both summaries were `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`; the waiting checkout logged `acquired lock after 84.4s`. Wall time was 166s. `uptime` load averages were 2.58/7.66/24.28 before and 4.75/6.51/20.87 after.
+Not done / risks: The host was heavily loaded during an earlier unconstrained run; the recorded passing verification and demonstration used the supported `BLAST_VERIFY_JOBS=1` override.
 ```
