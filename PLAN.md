@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M18 done: CI 123 → 99 s, release 243 → 160 s, local verify 88 → ~33 s; docs rewritten.
-Next milestone not planned yet.
+M19 in progress: loop feedback — task scripts that never move the primary checkout,
+infra-retry and a shared verify lock, standard briefs and cleanup.
 
 ## Milestones
 
@@ -57,6 +57,12 @@ Next milestone not planned yet.
 - [x] 0198 Measure and cut CI, release and local verify time
 - [x] 0199 Trim and rewrite the docs for readability
 - [x] 0200 Measured CI and release numbers in `docs/performance.md`
+
+### M19 — Loop feedback
+
+- [ ] 0201 Task scripts work from their own worktree and never move the primary checkout
+- [ ] 0202 `tasks:land` retries infrastructure-cancelled jobs; machine-wide verify lock
+- [ ] 0203 `tasks:brief` and `tasks:clean`; AGENTS.md delegation loop updated
 
 ## Later (not scheduled)
 
