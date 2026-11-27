@@ -5,7 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M20: landing page current for alpha.10 and polished on mobile.
+M21: Alfred workflow compatibility (#47) — first-class engine support for
+unpacked workflows and `.alfredworkflow` archives in a dedicated runtime.
 
 ## Milestones
 
@@ -25,47 +26,23 @@ M20: landing page current for alpha.10 and polished on mobile.
 - [x] M11 tmux palette: popup TUI, `tmux` extension, `@blastlauncher/tui`, plugin (0174–0179)
 - [x] M12 Site as a library: `/docs/` pages, landing redesign and craft pass (0180–0182)
 - [x] M13 Product landing: hero with the live demo, real blast-tui recording (0183–0184)
+- [x] M14 Work through PRs: one-PR task scripts, build-time highlighting (0185–0186)
+- [x] M15 CORS proxy: Worker, `fetchProxy` in `@blastlauncher/web`, demo refresh (0187–0189)
+- [x] M16 Browser bridge: loopback WebSocket for real `BrowserExtension` tabs (0190)
+- [x] M17 Current and measured: `@raycast/api` 2.14.0, scene patches, runtime pool,
+      embedder protocol 2, examples, `alpha.10` on `latest` (0191–0197)
+- [x] M18 Faster loop, readable docs: CI/verify speedups, docs trim, perf numbers (0198–0200)
+- [x] M19 Loop feedback: worktree-only task scripts, verify lock, briefs & clean (0201–0203)
+- [x] M20 Landing polish: landing page current for alpha.10 and mobile polish (0204)
 
-### M14 — Work through PRs
+### M21 — Alfred workflow compatibility
 
-- [x] 0185 Task scripts work through one pull request per task
-- [x] 0186 Build-time syntax highlighting; docs pages in the landing design
-
-### M15 — CORS proxy
-
-- [x] 0187 CORS proxy Worker (`packages/cors-proxy`) and decision 0017
-- [x] 0188 `fetchProxy` in `@blastlauncher/web`: sandbox fetch and XHR through the proxy
-- [x] 0189 Demo on the deployed proxy, policy notice, sweep and catalog refresh
-
-### M16 — Browser bridge
-
-- [x] 0190 Browser bridge for real `BrowserExtension` tabs and content (+ decision 0018)
-
-### M17 — Current and measured
-
-- [x] 0191 `@raycast/api` 2.14.0 and `@raycast/utils` 2.3.3 denominator
-- [x] 0192 Decision record for scene patches and the runtime pool; architecture doc
-- [x] 0193 `bench` script with a recorded perf baseline
-- [x] 0194 Embedder protocol 2: view patches from `blast serve` (+ decision 0020; one PR with 0196)
-- [x] 0196 Swift, Go and Python examples speak embedder protocol 2
-- [x] 0197 Runtime scene patches always on, including the browser host
-- [x] 0195 Release `alpha.10` and move the npm `latest` tag
-
-### M18 — Faster loop, readable docs
-
-- [x] 0198 Measure and cut CI, release and local verify time
-- [x] 0199 Trim and rewrite the docs for readability
-- [x] 0200 Measured CI and release numbers in `docs/performance.md`
-
-### M19 — Loop feedback
-
-- [x] 0201 Task scripts work from their own worktree and never move the primary checkout
-- [x] 0202 `tasks:land` retries infrastructure-cancelled jobs; machine-wide verify lock
-- [x] 0203 `tasks:brief` and `tasks:clean`; AGENTS.md delegation loop updated
-
-### M20 — Landing polish
-
-- [x] 0204 Landing page current for alpha.10, and polished on mobile
+- [ ] 0205 Decision 0021, `@blastlauncher/alfred` package, plist parser, and archive extractor
+- [ ] 0206 Workflow IR, `info.plist` → `ExtensionManifest` mapper, and Script Filter output parser
+- [ ] 0207 Alfred script runner, dynamic placeholders, and workflow graph execution engine
+- [ ] 0208 `@blastlauncher/alfred/main` protocol v1 runtime and scene renderer (List, Detail, Grid, Alert, modifiers, rerun, cache)
+- [ ] 0209 Host, CLI, TUI, `blast serve`, and release integration + docs
+- [ ] 0210 Real-world Alfred workflow verification, edge-case fixes, and measured coverage
 
 ## Later (not scheduled)
 
@@ -106,3 +83,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-26: Runtime sends opt-in `scene.patch` updates; the engine keeps one pre-warmed standby runtime (`0019`).
 - 2026-11-26: Embedder protocol 2 replaces 1: full view, then generic set/delete/splice patches with strict revisions; scenes on request (`0020`).
 - 2026-11-27: `3.0.0-alpha.10` published; npm `latest` now tracks v3 on every package, including `cli` and `runtime`.
+- 2026-11-27: Alfred workflows run first-class in Blast via `@blastlauncher/alfred` as a dedicated protocol-v1 runtime child (`0021`).
