@@ -74,7 +74,8 @@ frame, 10k-item keystroke latency, and cold/warm `--popup` startup using
   by best item unless `keepSectionOrder`; `filtering: false` or `onSearchTextChange`
   disables it, and `throttle` delays search events by 200 ms.
 - `List` and `Grid` share selection, filtering, and pagination (`onLoadMore`
-  fires once per item-count change at the last item/row when `hasMore` is set).
+  fires once per item-count change at the last item, or last Grid cell, when
+  `hasMore` is set).
   Grid uses `columns` (default 5) and ignores `aspectRatio`, `fit`, and `inset`.
   `List.EmptyView` and `Grid.EmptyView` show icon, title, and description,
   falling back to `No results` when omitted.
@@ -92,8 +93,8 @@ frame, 10k-item keystroke latency, and cold/warm `--popup` startup using
 - Non-animated toasts auto-dismiss after `3 s`; `animated` toasts stay until
   updated, and a HUD line shows for `2.5 s`. Errors show the message, last log
   line, and `R Relaunch · Esc/B Back`. Unknown nodes show
-  `Unsupported view: <type>` (`Unsupported field: <type>` in forms) and log once
-  on stderr.
+  `Unsupported view: <type>` and log once on stderr; unknown form fields show
+  `Unsupported field: <type>`.
 
 ## Forms
 

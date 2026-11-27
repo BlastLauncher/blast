@@ -25,7 +25,7 @@ extension code (unmodified, bundled)
 | `packages/host`        | engine, bundling, sessions, broker, root    | protocol, client-core, esbuild           |
 | `packages/client-core` | framework-free view model and input reducer | protocol                                 |
 | `packages/native`      | optional OS handlers and browser bridge     | protocol                                 |
-| `packages/cli`         | `blast` debug CLI and headless handlers     | host, protocol                           |
+| `packages/cli`         | `blast` debug CLI and headless handlers     | host, native, protocol, serve, shared-deps |
 | `packages/tui`         | Bun OpenTUI client and tmux palette         | client-core, cli, host, protocol, native |
 | `packages/web`         | browser runtime and sandbox host (`mount`)  | client-core, protocol                    |
 | `packages/cors-proxy`  | optional Cloudflare Worker proxy for web    | nothing                                  |

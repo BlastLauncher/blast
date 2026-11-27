@@ -77,7 +77,6 @@ crash, bundle failure (`MISSING_DEPENDENCY`), or protocol error.
 
 Only `--ai-answer`, `--browser-tabs`, and `--browser-bridge` set
 `environment.canAccess`; `--ai-decide` and bare `--grant` do not.
-Extension-provided AI model selectors reject with an explicit error.
 
 ## Scripts
 
