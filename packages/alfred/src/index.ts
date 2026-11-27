@@ -7,4 +7,5 @@ export * from "./runtime.ts";
 export * from "./scene.ts";
 export * from "./script-filter.ts";
 export * from "./scripts.ts";
+export * from "./support.ts";
 export * from "./workflow.ts";
