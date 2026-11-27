@@ -101,8 +101,38 @@ compatibility measurement script, and document Alfred support in
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/alfred-verification-coverage @ abec4fd4 (code); the Handoff commit follows it
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 40.2s — 1515 pass, 1 skip, 0 fail
 Done:
+- runtime.ts: `MAX_SCENE_ITEMS = 200` plus exported `filterItems` / `sceneItems`. Lists over the cap in
+  List Filter, client-filtered Script Filter and Grid views are filtered in the runtime (multi-word,
+  case-insensitive, over title/subtitle/match; title prefix, then substring, rank first unless
+  `fixedorder`), sliced to 200 and sent with `filtering: false`. A pending debounce counts as
+  `isLoading`. `init.environment.appearance` now reaches `buildWorkflowEnv({ theme })`.
+- scripts.ts: `resolveInterpreterPath` plus an optional `InterpreterLookup` argument to
+  `resolveScriptCommand`. A missing fixed interpreter is looked up on the script's `PATH` (absolute
+  entries only), then in `/opt/homebrew/bin` and `/usr/local/bin` on darwin. If nothing is found, the
+  original path is kept. External `scriptfile` scripts are never looked up. Only `runWorkflowScript`
+  passes the real `existsSync`. Pure calls stay deterministic.
+- support.ts (re-exported from index.ts): `SUPPORTED_OBJECT_TYPES` (27 types) and
+  `PASSIVE_TRIGGER_TYPES` (6). support.test.ts checks every listed type against the graph executor,
+  and checks that unlisted types still warn.
+- scripts/alfred/analyze.ts (`bun run alfred:analyze <dir> [--json] [--top N]`) with
+  `analyzeWorkflowDirectory` / `formatAnalysis`. It reads archives in memory with `readZipEntries`,
+  so nothing is extracted or executed. It validates manifests through the host's `parseManifest`. It
+  reports workflows, parsed, runnable, fully supported, object counts, execution coverage (passive
+  triggers excluded; `null` when there is nothing to count) and the top unsupported types. Its tests
+  use synthetic fixtures only.
+- docs/alfred.md (116 lines), linked from docs/architecture.md (158 lines).
 Not done / risks:
+- Capping also slices (without filtering) Script Filters that filter themselves and non-filterable
+  Grids when they return more than 200 items, since the same line cap applies. The task only named
+  the client-filtered case.
+- Pre-existing, not fixed (out of scope): `output.callexternaltrigger` with an empty trigger id
+  matches the first object without `inboundConfig.externalid` (e.g. the Keyword), because
+  `plistString(undefined) === ""`. Found while writing support.test.ts; worth a small follow-up.
+- About 940 changed lines, mostly tests and docs, which is over the ~600 guideline. Product code is
+  about 200 lines.
+- The analyzer has not been run against a real Alfred Gallery corpus here (no third-party workflows
+  in the repo); only the synthetic tests and a smoke run on an empty directory.
 ```
