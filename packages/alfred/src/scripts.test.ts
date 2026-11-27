@@ -45,6 +45,12 @@ function workflow(): AlfredWorkflow {
 
 const argv = (type: number, script = "S") => ({ type, script, scriptargtype: 1 });
 
+/** An interpreter lookup where exactly `found` exists; never touches the disk. */
+const lookup = (found: string[], PATH = ["relative", "/custom/bin"].join(delimiter)) => ({
+  env: { PATH },
+  exists: (path: string) => found.includes(path),
+});
+
 describe("resolveScriptCommand", () => {
   test("maps every interpreter type", () => {
     const table: [number, string, string[]][] = [
@@ -108,10 +114,6 @@ describe("resolveScriptCommand", () => {
     const usrLocal = join("/usr", "local", "bin", "php");
     const custom = join("/custom", "bin", "php");
     const homebrew = join("/opt", "homebrew", "bin", "php");
-    const lookup = (found: string[], PATH = ["relative", "/custom/bin"].join(delimiter)) => ({
-      env: { PATH },
-      exists: (path: string) => found.includes(path),
-    });
     const php = (platform: string, found: string[], PATH?: string) =>
       resolveScriptCommand(argv(1), dir, "q", platform, lookup(found, PATH)).command;
 

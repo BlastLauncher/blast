@@ -71,7 +71,7 @@ async function launch(
   const messages: RuntimeMessage[] = [];
   const scripts: { uid: string; query: string; request: GraphScriptRequest }[] = [];
   const capabilities: { name: string; params: JsonValue }[] = [];
-  const roots: SceneNode[] = [];
+  const roots: (SceneNode | null)[] = [];
   const applier = createScenePatchApplier();
   const controller = createController({ platform: "macOS" });
   let scene: SceneMessage | undefined;
@@ -501,7 +501,7 @@ describe("Script Filter", () => {
     expect(find(session.root, (node) => node.type === "List")!.props.isLoading).toBe(true);
     expect(session.view().loading).toBe(true);
     await session.until(() => titles(session.view())[0] === "Done", "results");
-    const lists = session.roots.map((root) => find(root, (node) => node.type === "List")!);
+    const lists = session.roots.map((scene) => find(scene, (node) => node.type === "List")!);
     const firstWithItems = lists.findIndex((list) => list.children.length > 0);
     expect(firstWithItems).toBeGreaterThan(0);
     for (const list of lists.slice(0, firstWithItems)) expect(list.props.isLoading).toBe(true);
@@ -551,6 +551,10 @@ describe("Script Filter", () => {
   });
 });
 
+const pad = (n: number) => String(n).padStart(3, "0");
+// Letters only, so digit searches match titles alone: 0 → "aa", 7 → "ah".
+const code = (n: number) => String.fromCharCode(97 + Math.floor(n / 26), 97 + (n % 26));
+
 describe("List Filter", () => {
   test("renders expanded static items and runs the graph downstream", async () => {
     const items = JSON.stringify([
@@ -578,9 +582,6 @@ describe("List Filter", () => {
   });
 
   test(`more than MAX_SCENE_ITEMS items are filtered in the runtime and capped`, async () => {
-    const pad = (n: number) => String(n).padStart(3, "0");
-    // Letters only, so digit searches match titles alone: 0 → "aa", 7 → "ah".
-    const code = (n: number) => String.fromCharCode(97 + Math.floor(n / 26), 97 + (n % 26));
     const items = JSON.stringify(
       Array.from({ length: 500 }, (_, n) => ({
         title: `Item ${pad(n)}`,

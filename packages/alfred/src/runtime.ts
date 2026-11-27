@@ -119,7 +119,7 @@ export function filterItems(
   };
   return matches
     .map((item, index) => ({ item, index, rank: rank(item) }))
-    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .toSorted((a, b) => a.rank - b.rank || a.index - b.index)
     .map((entry) => entry.item);
 }
 

@@ -45,7 +45,7 @@ const unsupported = (warnings: string[]) =>
 describe("SUPPORTED_OBJECT_TYPES", () => {
   test("every listed type is handled by the graph executor", async () => {
     // Keywords are entry points only; the graph never visits one mid-flow.
-    for (const type of SUPPORTED_OBJECT_TYPES.filter((type) => type !== KEYWORD)) {
+    for (const type of SUPPORTED_OBJECT_TYPES.filter((candidate) => candidate !== KEYWORD)) {
       expect({ type, unsupported: unsupported(await visit(type)) }).toEqual({
         type,
         unsupported: false,
