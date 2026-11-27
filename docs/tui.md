@@ -9,6 +9,8 @@ bun run tui --version
 The root view lists commands from every given extension plus the built-in `tmux`
 extension (and `tpm` when TPM is detected; `--no-builtin` omits built-ins). One
 directory plus a `<command>` name (not a directory) opens that command directly.
+A source may be an Alfred workflow directory or `.alfredworkflow` file, which
+counts as a source like a directory (decision 0021).
 `--popup` quits when a command closes the window; `--popup-daemon` detaches
 inside its inner tmux server (`@blastlauncher/tui` installs `blast-tui`, Bun
 required). `--native` enables real OS handlers; without it, clipboard ops are

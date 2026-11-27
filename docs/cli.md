@@ -12,6 +12,11 @@ a text tree (handler props as `[onAction]`). `# log` and `# capability` lines
 interleave for logs and capabilities (token payloads in `oauth.tokens.*` are
 redacted). `--json` emits protocol messages as NDJSON.
 
+`<extensionDir>` may also be an Alfred workflow directory or `.alfredworkflow`
+file (decision 0021): no bundle or dependencies; archives extract once into
+`<dataDir>/workflows/`; commands are the workflow's keyword entries, and a
+Keyword's `query` is an `--argument`.
+
 ## Extension dependencies
 
 `blast deps <extensionDir> [--data-dir <dir>]` installs production dependencies
