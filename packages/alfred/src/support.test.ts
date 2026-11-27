@@ -58,7 +58,7 @@ describe("SUPPORTED_OBJECT_TYPES", () => {
   });
 
   test("unlisted types are reported unsupported, so the check above is not vacuous", async () => {
-    for (const type of ["alfred.workflow.input.filefilter", ...PASSIVE_TRIGGER_TYPES]) {
+    for (const type of ["alfred.workflow.automation.task", ...PASSIVE_TRIGGER_TYPES]) {
       expect({ type, unsupported: unsupported(await visit(type)) }).toEqual({
         type,
         unsupported: true,
@@ -71,5 +71,6 @@ describe("SUPPORTED_OBJECT_TYPES", () => {
       [],
     );
     expect(new Set(SUPPORTED_OBJECT_TYPES).size).toBe(SUPPORTED_OBJECT_TYPES.length);
+    expect(SUPPORTED_OBJECT_TYPES).toHaveLength(39);
   });
 });
