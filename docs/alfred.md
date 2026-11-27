@@ -17,12 +17,10 @@ bun run blast:serve --native        # then extension.open {"dir": "<workflow>"}
 
 - `blast run` prints scenes as text (`--json` for NDJSON); see [cli.md](cli.md).
 - `blast-tui` lists workflow commands in the root view; see [tui.md](tui.md).
-- `blast serve` takes a workflow path in `extension.open` like an extension
-  directory; see [embedding.md](embedding.md).
-- In-process, `createEngine().openExtension({ extensionDir })` takes a workflow
-  path and returns the same handle as for an extension.
+- `blast serve` (`extension.open`, [embedding.md](embedding.md)) and in-process
+  `createEngine().openExtension({ extensionDir })` take a workflow path.
 
-Commands are the workflow's entry objects: Keywords, Script Filters and List
+Commands are the workflow's entry objects: Keywords, Script, List and File
 Filters with a keyword; failing that, inputs nothing connects into; failing
 that, External Triggers. A Keyword's text arrives as the `query` argument
 (required when its argument is required, absent when it takes none).
@@ -34,7 +32,7 @@ that, External Triggers. A Keyword's text arrives as the `query` argument
 
 | Group          | Types                                                                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Inputs         | Keyword, Script Filter, List Filter, External Trigger                                                                                                  |
+| Inputs         | Keyword, Script Filter, List Filter, File Filter, External Trigger                                                                                     |
 | User interface | Text View, Grid View, Image View                                                                                                                       |
 | Actions        | Run Script, Run NSAppleScript, Open URL, Open File, Reveal in Finder, Launch Apps/Files, Default Web Search                                            |
 | Automation     | Run Shortcut                                                                                                                                           |
@@ -44,9 +42,9 @@ that, External Triggers. A Keyword's text arrives as the `query` argument
 Hotkey, Universal Action, File Action, Fallback Search, Snippet and Remote
 triggers (`PASSIVE_TRIGGER_TYPES`) are ignored: only Alfred can fire them, and
 the objects they lead to stay reachable from other entries. Anything else
-(File Filter, Automation Tasks, …) stops its branch with a named warning
-toast; the host never crashes. Expression evaluates arithmetic (`+ - * / % ^`,
-`pi`, `e`, `sqrt`, `min`, …) with its own parser, never JavaScript `eval`.
+(Automation Tasks, …) stops its branch with a named warning toast; the host
+never crashes. Expression evaluates arithmetic (`+ - * / % ^`, `pi`, `sqrt`,
+…) with its own parser, never JavaScript `eval`.
 
 Script Filters follow Alfred's JSON and legacy XML output, `rerun`, `cache`
 (with `loosereload`), `variables`, modifiers, `autocomplete`, `quicklookurl`,
@@ -54,8 +52,12 @@ Script Filters follow Alfred's JSON and legacy XML output, `rerun`, `cache`
 results". A pending queue delay shows a loading state rather than "No
 Results". Lists over `MAX_SCENE_ITEMS` (200) items are filtered in the runtime
 (every word must appear in the title, subtitle or `match`; title matches rank
-first unless `fixedorder`) and only the best 200 are sent, so huge List
-Filters stay well under the protocol line cap.
+first unless `fixedorder`) and only the best 200 are sent.
+
+File Filters ask Spotlight (`mdfind -onlyin`) on macOS; elsewhere, or when it
+fails or finds nothing in an existing (unindexed) scope, a bounded folder walk
+answers. Both honour scopes (`~`, `{var:…}`, `config` overrides), UTIs with
+supertypes, `not` field filters, date range, sort mode and limit (≤ 200).
 
 ## Preferences
 
@@ -93,10 +95,9 @@ placeholder), `open.url`, `open.path` and `finder.show`. See
 - AppleScript and JavaScript for Automation scripts, Run NSAppleScript and Run
   Shortcut (`shortcuts run`) need macOS; elsewhere they fail with a named
   reason. Play Sound (`afplay`) and Speak (`say`) only log a warning there.
-- Interpreters use Alfred's fixed paths (`/usr/bin/php`, `/usr/bin/python3`,
-  …). One that is missing (newer macOS ships no PHP or Python 2) is looked up
-  on the script's `PATH`, then `/opt/homebrew/bin` and `/usr/local/bin` on
-  macOS.
+- Interpreters use Alfred's fixed paths (`/usr/bin/php`, …). One that is
+  missing (newer macOS ships no PHP or Python 2) is looked up on the script's
+  `PATH`, then `/opt/homebrew/bin` and `/usr/local/bin` on macOS.
 - Archives are read with zip-slip, symlink, entry-count and size limits;
   executable bits survive so external scripts run.
 
