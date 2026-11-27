@@ -40,7 +40,7 @@ M23: Docs and landing page refresh for Alfred workflow status (#47 closed, #139 
 
 ### M23 — Docs and landing page refresh
 
-- [ ] 0214 Update docs, README, and landing page for Alfred workflow status
+- [x] 0214 Update docs, README, and landing page for Alfred workflow status
 
 ## Later (not scheduled)
 
