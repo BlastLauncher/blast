@@ -42,7 +42,7 @@ unpacked workflows and `.alfredworkflow` archives in a dedicated runtime.
 - [x] 0207 Alfred script runner, dynamic placeholders, and workflow graph execution engine
 - [x] 0208 `@blastlauncher/alfred/main` protocol v1 runtime and scene renderer (List, Detail, Grid, Alert, modifiers, rerun, cache)
 - [x] 0209 Host, CLI, TUI, `blast serve`, and release integration + docs
-- [ ] 0210 Real-world Alfred workflow verification, edge-case fixes, and measured coverage
+- [x] 0210 Real-world Alfred workflow verification, edge-case fixes, and measured coverage
 
 ## Later (not scheduled)
 

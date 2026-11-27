@@ -556,6 +556,7 @@ export async function executeWorkflowGraph(
 
     "output.callexternaltrigger": async ({ config, flow, expand }) => {
       const id = (await expand(plistString(config.externaltriggerid))).trim();
+      if (!id) throw new Error("Call External Trigger has no trigger id");
       const bundle = plistString(config.workflowbundleid).trim();
       if (bundle && bundle !== "self" && bundle !== workflow.bundleId) {
         throw new Error(`triggers in other workflows (${bundle}) are not supported`);

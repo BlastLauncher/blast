@@ -4,7 +4,8 @@
 // cancel kills everything it started, not just the interpreter.
 
 import { spawn } from "node:child_process";
-import { basename, isAbsolute, join, relative, resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { basename, delimiter, isAbsolute, join, relative, resolve } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { userConfigDefault } from "./manifest.ts";
 import type { PlistValue } from "./plist.ts";
@@ -133,6 +134,40 @@ export function escapeQuery(query: string, mask: number): string {
   return out;
 }
 
+/** How {@link resolveScriptCommand} finds an interpreter missing from its fixed path. */
+export type InterpreterLookup = {
+  /** The script's environment; its `PATH` is searched. */
+  env: Record<string, string | undefined>;
+  exists(path: string): boolean;
+};
+
+// Where Homebrew installs interpreters that newer macOS no longer ships.
+const DARWIN_EXTRA_PATHS = ["/opt/homebrew/bin", "/usr/local/bin"];
+
+/**
+ * Alfred's interpreters live at fixed paths, but macOS dropped `/usr/bin/php`
+ * and `/usr/bin/python`; users install them elsewhere. A missing one is looked
+ * up by name on `PATH` (plus Homebrew's prefixes on macOS); when nothing is
+ * found the original path stays, so the spawn error still names it.
+ */
+export function resolveInterpreterPath(
+  command: string,
+  lookup: InterpreterLookup,
+  platform: string = process.platform,
+): string {
+  if (lookup.exists(command)) return command;
+  const dirs = (lookup.env.PATH ?? "").split(delimiter);
+  if (platform === "darwin") dirs.push(...DARWIN_EXTRA_PATHS);
+  const name = basename(command);
+  for (const dir of new Set(dirs)) {
+    // A relative entry would resolve against the workflow folder.
+    if (!isAbsolute(dir)) continue;
+    const candidate = join(dir, name);
+    if (lookup.exists(candidate)) return candidate;
+  }
+  return command;
+}
+
 // `php -r` rejects the open tag that inline Alfred PHP scripts often carry.
 function stripPhpTags(script: string): string {
   return script.replace(/^\s*<\?php\b/, "").replace(/\?>\s*$/, "");
@@ -141,13 +176,15 @@ function stripPhpTags(script: string): string {
 /**
  * The command line Alfred would run for a script object. `config.scriptargtype`
  * 1 passes the query as positional arguments; anything else substitutes
- * `{query}` (escaped with `config.escaping`) into the script text.
+ * `{query}` (escaped with `config.escaping`) into the script text. With a
+ * `lookup`, a missing interpreter falls back to one found on `PATH`.
  */
 export function resolveScriptCommand(
   config: PlistDict,
   workflowDir: string,
   query: string | string[],
   platform: string = process.platform,
+  lookup?: InterpreterLookup,
 ): ResolvedScriptCommand {
   const type = integer(config.type, 0);
   const interpreter = scriptInterpreter(type);
@@ -180,7 +217,9 @@ export function resolveScriptCommand(
       escapeQuery(queryText(query), integer(config.escaping, 0)),
     );
   }
-  const { command } = interpreter;
+  const command = lookup
+    ? resolveInterpreterPath(interpreter.command, lookup, platform)
+    : interpreter.command;
   switch (interpreter.mode) {
     case "shell":
       // `--` becomes `$0`, so `$1` / `$@` hold the arguments as in Alfred.
@@ -309,6 +348,7 @@ export async function runWorkflowScript(options: RunScriptOptions): Promise<Scri
     options.workflowDir,
     options.query,
     options.platform,
+    { env: options.env, exists: existsSync },
   );
   const posix = process.platform !== "win32";
   const limit = options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES;
