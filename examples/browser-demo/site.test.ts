@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readdir, readFile, stat } from "node:fs/promises";
-import { landingSnippets } from "./landing.ts";
+import { landingSnippets, releaseVersion } from "./landing.ts";
 import { rootModel, rootSections, validateCatalog } from "./root.ts";
 import {
   buildSite,
@@ -86,13 +86,21 @@ function expectLandingSnippets(html: string) {
     expect(text).not.toContain(stale);
   expect(text).not.toContain('"type":"init"');
   expect(text).not.toContain("new Engine");
-  // Install: the published packages from npm `next`, nothing from source.
-  expect(html).toContain("npm install @blastlauncher/engine@next");
-  expect(html).toContain("npx -p @blastlauncher/serve@next blast-serve");
-  expect(html).toContain("npm install @blastlauncher/web@next");
-  expect(html).toContain("<code>3.0.0-alpha.9</code>");
-  for (const stale of ["alpha.1", "alpha.2", "alpha.3", "From Source", "release:build"])
-    expect(html).not.toContain(stale);
+  // Install: plain package names (`latest`), no `@next` in install commands, and current release version.
+  const instBlock = html.match(/<div class="inst">([\s\S]*?)<\/div>\s*<p class="inst-note">/)?.[1];
+  expect(instBlock).toBeDefined();
+  expect(instBlock).toContain("npm install @blastlauncher/engine");
+  expect(instBlock).toContain("npx -p @blastlauncher/serve blast-serve");
+  expect(instBlock).toContain("npm install @blastlauncher/web");
+  expect(instBlock).not.toContain("@next");
+  expect(html).toContain(`<b>${releaseVersion}</b>`);
+  expect(html).toContain(`<code>${releaseVersion}</code> is <code>latest</code> on npm`);
+  expect(html).toContain("<code>@next</code> is the canary from <code>main</code>");
+  expect(html).toContain("session.view.patch");
+  // Any other version string on the page is stale.
+  for (const version of html.match(/\b\d+\.\d+\.\d+-[a-z]+\.\d+\b/g) ?? [])
+    expect(version).toBe(releaseVersion);
+  for (const stale of ["From Source", "release:build"]) expect(html).not.toContain(stale);
   // Release pill links to the tmux plugin.
   expect(html).toContain('<a class="pill" href="https://github.com/BlastLauncher/tmux-blast">');
   expect(html).toContain("The tmux palette is out");
@@ -188,6 +196,13 @@ describe("site build helpers", () => {
     expect(html).toContain("90.0%");
     expect(html).toContain("1,250");
     expect(html).toContain("1,500");
+  });
+  test("landing releaseVersion matches README.md and docs/quickstart.md", async () => {
+    for (const rel of ["../../README.md", "../../docs/quickstart.md"]) {
+      const markdown = await readFile(new URL(rel, import.meta.url), "utf8");
+      const match = markdown.match(/`([^`]+)` is `latest` on npm/);
+      expect(match?.[1]).toBe(releaseVersion);
+    }
   });
   test("the production catalog opens with the Showcase section, in manifest order", async () => {
     const catalog = validateCatalog(await siteCatalog());
