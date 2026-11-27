@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createRuntimePool } from "./runtime-pool.ts";
 import { defaultNodePath } from "./session.ts";
+import { waitForScene } from "./test-helper.ts";
 import {
   bundleCommand,
   createBroker,
@@ -50,14 +51,7 @@ test("runtime pool prewarms one standby child, serves isolated processes per com
       runtimePool: pool,
       broker: createBroker({}),
     });
-    await new Promise<void>((done) => {
-      const stop = session.scenes((scene) => {
-        if (scene.root) {
-          stop();
-          done();
-        }
-      });
-    });
+    await waitForScene(session);
     await session.shutdown();
   } finally {
     pool.close();

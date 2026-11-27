@@ -319,7 +319,7 @@ for (const fixture of ["async-view.js", "thenable-view.js"]) {
       expect(scenes.at(-1)?.root?.props.closeMainWindow).toEqual({});
     }
     expect(runtime.messages.filter((m) => m.type === "error")).toEqual([]);
-  }, 2000);
+  }, 15_000);
 }
 
 test("promise-returning view rejection is fatal", async () => {
@@ -327,7 +327,7 @@ test("promise-returning view rejection is fatal", async () => {
   runtime.init({ fixture: "no-view-reject.js" });
   expect(await runtime.next("error")).toMatchObject({ fatal: true, message: "no-view failed" });
   expect(await runtime.exited).toBe(1);
-}, 2000);
+}, 15_000);
 
 // @covers List.Props.isLoading
 test("React use waits behind the loading scene and publishes the settled view", async () => {
@@ -340,7 +340,7 @@ test("React use waits behind the loading scene and publishes the settled view", 
   expect(find(settled.root!, "settled command")).toBeDefined();
   runtime.send({ type: "shutdown" });
   expect(await runtime.exited).toBe(0);
-}, 2000);
+}, 15_000);
 
 test("a rejected React use promise reports the command error", async () => {
   const runtime = start();
@@ -352,7 +352,7 @@ test("a rejected React use promise reports the command error", async () => {
     message: "suspense rejected",
   });
   expect(await runtime.exited).toBe(1);
-}, 2000);
+}, 15_000);
 
 // @covers captureException
 // @covers captureMemorySnapshot

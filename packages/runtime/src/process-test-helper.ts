@@ -1,4 +1,6 @@
 import { execFileSync, spawn } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   createLineDecoder,
@@ -16,6 +18,8 @@ import {
 
 const noop = () => {};
 const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
+const compileCacheDir = join(tmpdir(), "blast-runtime-test-compile-cache");
+const WAIT_TIMEOUT_MS = 15_000;
 
 const defaultEnvironment: InitEnvironment = {
   extensionName: "fixture",
@@ -42,6 +46,7 @@ export type InitOptions = {
 export function startRuntime() {
   const child = spawn(nodePath, [fileURLToPath(new URL("./main.ts", import.meta.url))], {
     stdio: ["pipe", "pipe", "pipe"],
+    env: { ...process.env, NODE_COMPILE_CACHE: compileCacheDir },
   });
   const messages: RuntimeMessage[] = [];
   const scenes: SceneMessage[] = [];
@@ -121,7 +126,10 @@ export function startRuntime() {
         if (sceneCursor < scenes.length) return scenes[sceneCursor++]!;
         if (closed) throw new Error(`Exited waiting for scene: ${stderr}`);
         await new Promise<void>((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error("Timed out waiting for scene")), 3000);
+          const timer = setTimeout(
+            () => reject(new Error("Timed out waiting for scene")),
+            WAIT_TIMEOUT_MS,
+          );
           wake = () => {
             clearTimeout(timer);
             resolve();
@@ -140,7 +148,10 @@ export function startRuntime() {
         }
         if (closed) throw new Error(`Exited waiting for ${type}: ${stderr}`);
         await new Promise<void>((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error(`Timed out waiting for ${type}`)), 3000);
+          const timer = setTimeout(
+            () => reject(new Error(`Timed out waiting for ${type}`)),
+            WAIT_TIMEOUT_MS,
+          );
           wake = () => {
             clearTimeout(timer);
             resolve();

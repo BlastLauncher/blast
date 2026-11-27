@@ -26,6 +26,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Fails closed before `publish`: reuses a passing CI `verify` check run for
+  # this commit SHA, fails fast if CI verify failed, and runs `bun run verify`
+  # locally in this job as the fallback gate on any other path.
   verify-ci:
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -308,18 +308,25 @@ function waitForScene(session: Session, after: number): Promise<SceneMessage> {
   const latest = session.latestScene;
   if (latest && latest.revision > after) return Promise.resolve(latest);
   return new Promise((resolve, reject) => {
-    const unsubscribe = session.scenes((scene) => {
-      if (scene.revision > after) {
-        unsubscribe();
-        resolve(scene);
-      }
+    let settled = false;
+    let unsubscribe: (() => void) | undefined;
+    const finish = (settle: () => void) => {
+      if (settled) return;
+      settled = true;
+      unsubscribe?.();
+      settle();
+    };
+    unsubscribe = session.scenes((scene) => {
+      if (scene.revision > after) finish(() => resolve(scene));
     });
+    if (settled) unsubscribe();
     void session.exited.then((exit) => {
-      unsubscribe();
-      if (exit.error) reject(new RunError(exit.error.message));
-      else if (exit.code === 0 && exit.signal === null) {
-        reject(new CleanExit("runtime exited without publishing the awaited scene"));
-      } else reject(new RunError(`runtime exited with code ${exit.code ?? exit.signal}`));
+      finish(() => {
+        if (exit.error) reject(new RunError(exit.error.message));
+        else if (exit.code === 0 && exit.signal === null) {
+          reject(new CleanExit("runtime exited without publishing the awaited scene"));
+        } else reject(new RunError(`runtime exited with code ${exit.code ?? exit.signal}`));
+      });
     });
   });
 }

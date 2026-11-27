@@ -1,7 +1,9 @@
 // Reuses CI's `verify` check run for the exact same commit SHA instead of
-// running `bun run verify` a second time inside `prerelease.yml`. Always fails
-// safe to `run_local=true` if CI has not run, was cancelled, or the API errors;
-// fails fast if CI's `verify` already failed on this commit.
+// running `bun run verify` a second time inside `prerelease.yml`. Fails closed:
+// if CI's `verify` already failed on this commit it throws immediately; on any
+// other non-success path (no CI run, cancelled/skipped, timeout, or API error)
+// it returns `run_local=true` so the `verify-ci` job runs `bun run verify`
+// locally as the fallback gate before `publish` can run.
 import { spawnSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";

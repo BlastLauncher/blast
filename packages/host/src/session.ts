@@ -352,7 +352,14 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     },
     scenes(callback) {
       if (!closed) listeners.add(callback);
-      if (latestScene) callback(latestScene);
+      if (latestScene) {
+        try {
+          callback(latestScene);
+        } catch (error) {
+          listeners.delete(callback);
+          throw error;
+        }
+      }
       return () => {
         listeners.delete(callback);
       };

@@ -11,6 +11,7 @@ import {
   type Session,
 } from "./index.ts";
 import { loadTsconfigAliases } from "./tsconfig-paths.ts";
+import { waitForScene } from "./test-helper.ts";
 
 const fixture = fileURLToPath(
   new URL("../../../fixtures/extensions/tsconfig-paths", import.meta.url),
@@ -25,23 +26,10 @@ afterEach(async () => {
 
 /** Waits for the rendered scene to contain `title`, resolving with its JSON. */
 async function renderedJson(session: Session, title: string): Promise<string> {
-  if (session.latestScene?.root && JSON.stringify(session.latestScene.root).includes(title))
-    return JSON.stringify(session.latestScene.root);
-  return new Promise((resolve, reject) => {
-    let unsubscribe: () => void;
-    const accept = (snapshot: { root?: unknown }) => {
-      const json = JSON.stringify(snapshot.root);
-      if (json.includes(title)) {
-        resolve(json);
-        unsubscribe?.();
-      }
-    };
-    unsubscribe = session.scenes(accept);
-    void session.exited.then((exit) => {
-      unsubscribe();
-      reject(exit.error ?? new Error("Exited before scene"));
-    });
-  });
+  const scene = await waitForScene(session, (snapshot) =>
+    JSON.stringify(snapshot.root).includes(title),
+  );
+  return JSON.stringify(scene.root);
 }
 
 test("tsconfig baseUrl and paths aliases bundle and render unmodified", async () => {

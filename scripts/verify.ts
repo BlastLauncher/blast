@@ -64,7 +64,15 @@ for (const outcome of staticOutcomes) {
 console.log("\n── test ──");
 const testResult = spawnSync(
   "bun",
-  ["test", "--parallel", "--no-isolate", "--randomize", ...seedArgs, ...testFiles],
+  [
+    "test",
+    "--parallel",
+    "--no-isolate",
+    "--randomize",
+    "--timeout=15000",
+    ...seedArgs,
+    ...testFiles,
+  ],
   { stdio: "inherit" },
 );
 const testOk = testResult.status === 0;

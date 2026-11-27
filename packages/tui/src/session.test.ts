@@ -66,9 +66,18 @@ test("openCommand resolves a matching installed dependency using its data direct
     const opened = await openCommand(extensionDir, "index", { dataDir });
     try {
       const scene = await new Promise((resolve, reject) => {
-        opened.session.scenes(resolve);
+        let settled = false;
+        let stop: (() => void) | undefined;
+        const finish = (settle: () => void) => {
+          if (settled) return;
+          settled = true;
+          stop?.();
+          settle();
+        };
+        stop = opened.session.scenes((next) => finish(() => resolve(next)));
+        if (settled) stop();
         void opened.session.exited.then((exit) =>
-          reject(exit.error ?? new Error("Exited before scene")),
+          finish(() => reject(exit.error ?? new Error("Exited before scene"))),
         );
       });
       expect(JSON.stringify(scene)).toContain("Installed offline dependency");
