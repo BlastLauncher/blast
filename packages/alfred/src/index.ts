@@ -1,4 +1,5 @@
 export * from "./archive.ts";
+export * from "./automation-tasks.ts";
 export * from "./catalogs.ts";
 export * from "./expressions.ts";
 export * from "./file-filter.ts";

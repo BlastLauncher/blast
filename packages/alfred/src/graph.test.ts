@@ -1,11 +1,13 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { WEB_SEARCHERS } from "./catalogs.ts";
 import {
   compareCondition,
+  compareFilter,
   executeWorkflowGraph,
+  isTrue,
   type GraphExecutionOptions,
   type GraphHost,
   type GraphScriptRequest,
@@ -311,7 +313,7 @@ describe("utilities", () => {
 
   test("filter passes only matching input", async () => {
     const wf = workflow(
-      [KEYWORD, ["F", "utility.filter", { matchmode: 4, matchstring: "^\\d+$" }], COPY()],
+      [KEYWORD, ["F", "utility.filter", { matchmode: 2, matchstring: "^\\d+$" }], COPY()],
       [
         ["IN", "F"],
         ["F", "COPY"],
@@ -377,18 +379,46 @@ describe("utilities", () => {
 });
 
 describe("conditional", () => {
-  test("compareCondition covers modes 0-6 and case sensitivity", () => {
+  test("compareCondition covers Alfred's modes 0-6 and case sensitivity", () => {
     expect(compareCondition("A", 0, "a", false)).toBe(true);
     expect(compareCondition("A", 0, "a", true)).toBe(false);
     expect(compareCondition("A", 1, "b", false)).toBe(true);
-    expect(compareCondition("9", 2, "10", false)).toBe(true);
-    expect(compareCondition("b", 2, "a", false)).toBe(false);
-    expect(compareCondition("10", 3, "9", false)).toBe(true);
+    // 2 is greater than, numerically when both sides are numbers.
+    expect(compareCondition("10", 2, "9", false)).toBe(true);
+    expect(compareCondition("9", 2, "10", false)).toBe(false);
+    expect(compareCondition("b", 2, "a", false)).toBe(true);
+    // 3 is less than.
+    expect(compareCondition("9", 3, "10", false)).toBe(true);
+    expect(compareCondition("10", 3, "9", false)).toBe(false);
+    expect(compareCondition("5", 3, "5", false)).toBe(false);
     expect(compareCondition("ABC", 4, "^a", false)).toBe(true);
     expect(compareCondition("ABC", 4, "^a", true)).toBe(false);
-    expect(compareCondition("5", 5, "5", false)).toBe(true);
-    expect(compareCondition("4", 6, "5", false)).toBe(false);
+    // 5 is true and 6 is false ignore the match string.
+    expect(compareCondition("1", 5, "", false)).toBe(true);
+    expect(compareCondition(" YES ", 5, "no", false)).toBe(true);
+    expect(compareCondition("0", 5, "", false)).toBe(false);
+    expect(compareCondition("false", 6, "", false)).toBe(true);
+    expect(compareCondition("true", 6, "", false)).toBe(false);
     expect(() => compareCondition("a", 9, "b", false)).toThrow("unknown match mode 9");
+  });
+
+  test("isTrue reads values the way NSString.boolValue does", () => {
+    for (const yes of ["true", "TRUE", "yes", "Y", "t", "1", "-2", "0.5", " 1 "]) {
+      expect({ yes, value: isTrue(yes) }).toEqual({ yes, value: true });
+    }
+    for (const no of ["", "false", "no", "0", "0.0", "nope", "NaN", "Infinity"]) {
+      expect({ no, value: isTrue(no) }).toEqual({ no, value: false });
+    }
+  });
+
+  test("compareFilter covers modes 0-2", () => {
+    expect(compareFilter("A", 0, "a", false)).toBe(true);
+    expect(compareFilter("A", 0, "a", true)).toBe(false);
+    expect(compareFilter("A", 1, "a", false)).toBe(false);
+    expect(compareFilter("A", 1, "b", false)).toBe(true);
+    expect(compareFilter("x42", 2, "\\d+", false)).toBe(true);
+    expect(compareFilter("ABC", 2, "^a", true)).toBe(false);
+    expect(() => compareFilter("a", 4, "b", false)).toThrow("unknown filter mode 4");
   });
 
   const conditional = workflow(
@@ -400,7 +430,7 @@ describe("conditional", () => {
         {
           conditions: [
             { inputstring: "{query}", matchmode: 0, matchstring: "yes", uid: "C1" },
-            { inputstring: "{var:n}", matchmode: 3, matchstring: "5", uid: "C2" },
+            { inputstring: "{var:n}", matchmode: 2, matchstring: "5", uid: "C2" },
           ],
         },
       ],
@@ -1423,6 +1453,155 @@ describe("more outputs", () => {
     );
     expect(empty.warnings).toEqual([
       "alfred: alfred.workflow.output.playsound (EMPTY) failed: Play Sound has no sound",
+    ]);
+  });
+});
+
+describe("automation tasks", () => {
+  const TASK = "alfred.workflow.automation.task";
+  const FILES = "com.alfredapp.automation.core/files-and-folders/";
+  const ARGS = "com.alfredapp.automation.core/argument-processing/";
+  let dir = "";
+  beforeAll(async () => {
+    dir = await mkdtemp(join(tmpdir(), "blast-alfred-graph-tasks-"));
+  });
+  afterAll(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  const task = (
+    uid: string,
+    taskuid: string,
+    tasksettings: Record<string, PlistValue> = {},
+  ): Node => [uid, TASK, { taskuid, tasksettings }];
+
+  test("path.exists feeds a Conditional's is true / is false modes", async () => {
+    await writeFile(join(dir, "here.txt"), "");
+    const wf = workflow(
+      [
+        KEYWORD,
+        task("EX", `${FILES}path.exists`),
+        [
+          "C",
+          "utility.conditional",
+          {
+            conditions: [
+              { inputstring: "{query}", matchmode: 5, matchstring: "", uid: "T" },
+              { inputstring: "{var:skip}", matchmode: 6, matchstring: "", uid: "F" },
+            ],
+          },
+        ],
+        COPY("YES", "yes"),
+        COPY("NOSKIP", "missing, not skipped"),
+        COPY("ELSE", "else"),
+      ],
+      [
+        ["IN", "EX"],
+        ["EX", "C"],
+        ["C", "YES", { sourceoutputuid: "T" }],
+        ["C", "NOSKIP", { sourceoutputuid: "F" }],
+        ["C", "ELSE"],
+      ],
+    );
+    const found = host();
+    await run(wf, found, { input: join(dir, "here.txt"), variables: { skip: "1" } });
+    expect(found.calls).toEqual([["clipboard.copy", { text: "yes" }]]);
+    // A checkbox variable reads "0" when unticked.
+    const missing = host();
+    await run(wf, missing, { input: join(dir, "gone.txt"), variables: { skip: "0" } });
+    expect(missing.calls).toEqual([["clipboard.copy", { text: "missing, not skipped" }]]);
+    const skipped = host();
+    await run(wf, skipped, { input: join(dir, "gone.txt"), variables: { skip: "1" } });
+    expect(skipped.calls).toEqual([["clipboard.copy", { text: "else" }]]);
+  });
+
+  test("children.sort → uti.matching → finder.move moves only the images", async () => {
+    const downloads = join(dir, "downloads");
+    const pictures = join(dir, "pictures");
+    await mkdir(downloads);
+    await mkdir(pictures);
+    for (const name of ["b.png", "a.JPG", "notes.txt"]) await writeFile(join(downloads, name), "");
+    const h = host();
+    const result = await run(
+      workflow(
+        [
+          KEYWORD,
+          task("LS", `${FILES}directory.children.sort`, { target_path: "{var:from}" }),
+          task("IMG", `${FILES}file.uti.matching`, { match_string: "public.image" }),
+          task("MV", `${FILES}finder.move`, { save_in: "{var:to}" }),
+          COPY(),
+        ],
+        [
+          ["IN", "LS"],
+          ["LS", "IMG"],
+          ["IMG", "MV"],
+          ["MV", "COPY"],
+        ],
+      ),
+      h,
+      { input: "", variables: { from: downloads, to: pictures } },
+    );
+    expect(result.warnings).toEqual([]);
+    expect(h.calls).toEqual([
+      ["clipboard.copy", { text: `${join(pictures, "a.JPG")}\t${join(pictures, "b.png")}` }],
+    ]);
+    expect((await readdir(downloads)).toSorted()).toEqual(["notes.txt"]);
+    expect((await readdir(pictures)).toSorted()).toEqual(["a.JPG", "b.png"]);
+  });
+
+  test("argument.matching → argument.count → Conditional greater than", async () => {
+    const wf = workflow(
+      [
+        KEYWORD,
+        task("M", `${ARGS}argument.matching`, { match_string: "^a", regex: true }),
+        task("N", `${ARGS}argument.count`),
+        [
+          "C",
+          "utility.conditional",
+          { conditions: [{ inputstring: "{query}", matchmode: 2, matchstring: "1", uid: "MANY" }] },
+        ],
+        COPY("MANY", "{query} matches"),
+        COPY("FEW", "few"),
+      ],
+      [
+        ["IN", "M"],
+        ["M", "N"],
+        ["N", "C"],
+        ["C", "MANY", { sourceoutputuid: "MANY" }],
+        ["C", "FEW"],
+      ],
+    );
+    const many = host();
+    await run(wf, many, { input: ["apple", "Avocado", "cherry"] });
+    expect(many.calls).toEqual([["clipboard.copy", { text: "2 matches" }]]);
+    const few = host();
+    await run(wf, few, { input: ["apple", "cherry"] });
+    expect(few.calls).toEqual([["clipboard.copy", { text: "few" }]]);
+  });
+
+  test("an unknown or missing taskuid stops the branch with a warning", async () => {
+    const h = host();
+    const result = await run(
+      workflow(
+        [
+          KEYWORD,
+          task("Q", "com.alfredapp.automation.core/macOS/app.quit"),
+          ["BARE", TASK, {}],
+          COPY(),
+        ],
+        [
+          ["IN", "Q"],
+          ["IN", "BARE"],
+          ["Q", "COPY"],
+          ["BARE", "COPY"],
+        ],
+      ),
+      h,
+    );
+    expect(h.calls).toEqual([]);
+    expect(result.warnings).toEqual([
+      `alfred: ${TASK} (Q) task com.alfredapp.automation.core/macOS/app.quit is not supported; that branch stops here`,
+      `alfred: ${TASK} (BARE) is not supported; that branch stops here`,
     ]);
   });
 });
