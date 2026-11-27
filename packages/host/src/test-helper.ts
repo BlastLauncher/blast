@@ -86,8 +86,8 @@ export function waitForScene(
 
 /**
  * A two-command Alfred workflow under `<root>/workflow`, also packed as
- * `<root>/Greeter.alfredworkflow`: the `greet` Script Filter echoes its query
- * and the required `token` preference and copies the query on Enter; the
+ * `<root>/Greeter.alfredworkflow`: the `greet` Script Filter echoes its search
+ * and the required `token` preference and copies the search on Enter; the
  * `site` Keyword (required query) opens `https://example.com/<query>`.
  */
 export async function writeAlfredFixture(root: string): Promise<{ dir: string; archive: string }> {
@@ -101,7 +101,9 @@ export async function writeAlfredFixture(root: string): Promise<{ dir: string; a
           keyword: "greet",
           title: "Greet",
           subtext: "Say hello",
-          argumenttype: 1,
+          // Required: no run until a search, so every client sees one scene
+          // first and then exactly a loading and a result scene per search.
+          argumenttype: 0,
           queuedelaymode: 1,
           type: 0,
           scriptargtype: 1,

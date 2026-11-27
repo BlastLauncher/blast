@@ -146,10 +146,10 @@ for (const [kind, path] of sources) {
     expect(form.form?.fields.map((f) => f.id)).toEqual(["token"]);
     root.input({ type: "setValue", id: "token", value: "abc" });
     root.input({ type: "primary" });
-    await until(root, (v) => row(v, "Hello ")?.subtitle === "token abc");
+    await until(root, (v) => v.kind === "list" && v.title === "Greet");
     expect((await handle.preferences("greet")).values).toEqual({ token: "abc" });
     root.input({ type: "search", text: "world" });
-    await until(root, (v) => row(v, "Hello world") !== undefined);
+    await until(root, (v) => row(v, "Hello world")?.subtitle === "token abc");
     root.input({ type: "primary" });
     // The copy closes the window, and the root comes back.
     await until(root, (v) => v.title === "Commands");
@@ -157,7 +157,7 @@ for (const [kind, path] of sources) {
 
     // Persisted: the next launch skips the prompt.
     root.input({ type: "primary" });
-    await until(root, (v) => row(v, "Hello ")?.subtitle === "token abc");
+    await until(root, (v) => v.kind === "list" && v.title === "Greet");
   });
 
   test(`launch flow (${kind}): a Keyword asks for its query and opens the URL`, async () => {

@@ -41,6 +41,32 @@ test("one dir plus a name that is not a directory opens that command", () => {
   });
 });
 
+test(".alfredworkflow files are extension sources like directories", () => {
+  // Archives are files, never directories: the suffix alone makes them sources.
+  expect(parse("Greeter.alfredworkflow")).toEqual({
+    kind: "root",
+    extensionDirs: ["Greeter.alfredworkflow"],
+    popup: false,
+    daemon: false,
+    native: false,
+  });
+  expect(parse("ext-a", "Greeter.AlfredWorkflow")).toMatchObject({
+    kind: "root",
+    extensionDirs: ["ext-a", "Greeter.AlfredWorkflow"],
+  });
+  expect(parse("--popup", "One.alfredworkflow", "Two.alfredworkflow", "ext-b")).toMatchObject({
+    kind: "root",
+    extensionDirs: ["One.alfredworkflow", "Two.alfredworkflow", "ext-b"],
+    popup: true,
+  });
+  expect(parse("Greeter.alfredworkflow", "greet", "--native")).toEqual({
+    kind: "command",
+    extensionDir: "Greeter.alfredworkflow",
+    command: "greet",
+    native: true,
+  });
+});
+
 test("missing dirs, unknown options and --popup with a command print usage", () => {
   expect(parse()).toEqual({
     kind: "root",
