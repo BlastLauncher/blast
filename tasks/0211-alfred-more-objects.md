@@ -112,8 +112,33 @@ raising measured execution coverage across real workflows.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/d36bd9c3 @ c7b367a1 (this Handoff is the next commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 37.9s
 Done:
+- expressions.ts: recursive-descent arithmetic (no eval/new Function), own-key
+  lookups only; catalogs.ts: 15 FourCC web searchers + UTI table.
+- graph.ts: joinargs, random (0/1/2), expression, file, launchfiles,
+  applescript (alfred_script(q) runner, type 6 via host.runScript),
+  systemwebsearch, playsound, speak, automation.runshortcut; image is a view.
+- system.ts: macOS afplay/say/shortcuts defaults with injectable spawn;
+  runtime.ts wires them (overridable via `system`) and adds an Image View
+  Detail (Continue, Open File, Copy Path, Back); manifest UI_TYPES has image.
+- SUPPORTED_OBJECT_TYPES has 38 entries; support.test.ts stubs the sound,
+  speech and Shortcuts hooks, so it never spawns afplay/say/shortcuts.
+- Tests: expressions, graph (all 10 objects + image handoff), system (fake
+  spawn), runtime (Image View, system hooks), manifest (image = view);
+  docs/alfred.md is 119 lines.
 Not done / risks:
+- No Alfred corpus available locally: plist keys for random (min/max/words),
+  playsound (sound/systemsound), file (path, defaults to {query}) and
+  runshortcut (inputmode/outputmode) follow the task text, not real exports.
+  inputmode is forwarded to the host, but the default helper sends any
+  non-empty argument as input.
+- Not run on a real Mac: `shortcuts run --input-path/--output-path
+  --output-type public.plain-text`, afplay and say. Shortcut names starting
+  with "-" are rejected so they cannot parse as flags.
+- Choices: `log` is base 10 (`ln` added); results are rounded to 15
+  significant digits; an AppleScript non-zero exit stops the branch (Run
+  Script warns and continues); missing File paths warn and stop the branch.
+- Diff is ~616 product/docs lines + ~938 test lines, above the ~600 guideline.
 ```
