@@ -62,7 +62,7 @@ infra-retry and a shared verify lock, standard briefs and cleanup.
 
 - [x] 0201 Task scripts work from their own worktree and never move the primary checkout
 - [x] 0202 `tasks:land` retries infrastructure-cancelled jobs; machine-wide verify lock
-- [ ] 0203 `tasks:brief` and `tasks:clean`; AGENTS.md delegation loop updated
+- [x] 0203 `tasks:brief` and `tasks:clean`; AGENTS.md delegation loop updated
 
 ## Later (not scheduled)
 

@@ -39,6 +39,8 @@
     "tasks:start": "bun scripts/tasks.ts start",
     "tasks:merge": "bun scripts/tasks.ts merge",
     "tasks:land": "bun scripts/tasks.ts land",
+    "tasks:brief": "bun scripts/tasks.ts brief",
+    "tasks:clean": "bun scripts/tasks.ts clean",
     "tui": "bun packages/tui/src/main.tsx",
     "blast:serve": "node packages/serve/src/main.ts",
     "release:build": "bun scripts/release/build.ts",
