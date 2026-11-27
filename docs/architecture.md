@@ -29,6 +29,7 @@ extension code (unmodified, bundled)
 | `packages/tui`         | Bun OpenTUI client and tmux palette         | client-core, cli, host, protocol, native   |
 | `packages/web`         | browser runtime and sandbox host (`mount`)  | client-core, protocol                      |
 | `packages/cors-proxy`  | optional Cloudflare Worker proxy for web    | nothing                                    |
+| `packages/alfred`      | Alfred plist parsing, safe archive extract  | nothing (decision 0021)                    |
 
 `host` only spawns `runtime`; it never imports runtime source. See
 [embedding.md](embedding.md) for the embedder API and protocol,
