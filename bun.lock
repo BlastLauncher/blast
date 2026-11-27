@@ -80,6 +80,7 @@
     "packages/host": {
       "name": "@blastlauncher/host",
       "dependencies": {
+        "@blastlauncher/alfred": "workspace:*",
         "@blastlauncher/client-core": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@blastlauncher/runtime": "workspace:*",

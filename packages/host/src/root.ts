@@ -1,4 +1,3 @@
-import { join } from "node:path";
 import {
   createController,
   createRootController,
@@ -51,7 +50,6 @@ export type RootSource = {
   onChange(
     listener: (change: { type: "open" | "close"; handle: ExtensionHandle }) => void,
   ): () => void;
-  dirOf(handle: ExtensionHandle): string | undefined;
 };
 
 type Opened = Awaited<ReturnType<ExtensionHandle["launch"]>>;
@@ -153,7 +151,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     for (const handle of tracked) {
       const manifest = manifests.get(handle);
       if (!manifest) continue;
-      const assetsDir = join(source.dirOf(handle) ?? "", "assets");
+      const assetsDir = handle.assetsDir();
       for (const command of manifest.commands) {
         const icon = command.icon ?? manifest.icon;
         commands.push({
@@ -277,7 +275,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
       const controller = createController({
         ...options.views,
         fallbackTitle: command.title,
-        assetsDir: join(source.dirOf(handle) ?? "", "assets"),
+        assetsDir: handle.assetsDir(),
       });
       active = { view: () => controller.view(), ...drive(opened, controller) };
       controller.subscribe(emit);

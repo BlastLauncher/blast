@@ -48,6 +48,12 @@ export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
   maxLogs?: number;
   /** Optional engine-owned standby worker pool (still one fresh process per command). */
   runtimePool?: RuntimePool;
+  /**
+   * The runtime program the child runs; defaults to `@blastlauncher/runtime/main`.
+   * Another runtime (an Alfred workflow's) skips `runtimePool`, which only
+   * prewarms the default one.
+   */
+  runtimeEntry?: string;
 };
 
 // Variables a Node program needs to behave normally. Everything else in the
@@ -184,14 +190,21 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   const checked = parseHostMessage(init);
   if (!checked.ok) throw new Error(checked.error);
   const child =
-    options.runtimePool && !options.env
+    options.runtimePool && !options.env && options.runtimeEntry === undefined
       ? options.runtimePool.acquire({ nodePath: childNodePath, env: childEnv })
-      : spawn(childNodePath, [fileURLToPath(import.meta.resolve("@blastlauncher/runtime/main"))], {
-          stdio: ["pipe", "pipe", "pipe"],
-          // The runtime is TypeScript Node strips on every start; with its
-          // compile cache a warm runtime loads in ~55 ms instead of ~300 ms.
-          env: childEnv,
-        });
+      : spawn(
+          childNodePath,
+          [
+            options.runtimeEntry ??
+              fileURLToPath(import.meta.resolve("@blastlauncher/runtime/main")),
+          ],
+          {
+            stdio: ["pipe", "pipe", "pipe"],
+            // The runtime is TypeScript Node strips on every start; with its
+            // compile cache a warm runtime loads in ~55 ms instead of ~300 ms.
+            env: childEnv,
+          },
+        );
   const patchApplier = createScenePatchApplier();
   let ready = false;
   let closed = false;

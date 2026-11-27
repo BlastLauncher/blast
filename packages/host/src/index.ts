@@ -19,6 +19,13 @@ export {
   type ExtensionWatcher,
   type ExtensionWatcherFactory,
 } from "./extension.ts";
+export {
+  isAlfredWorkflowPath,
+  prepareAlfredWorkflow,
+  readAlfredManifest,
+  loadAlfredCommand,
+  type AlfredCommand,
+} from "./alfred.ts";
 export * from "./extension-manifest.ts";
 export * from "./engine.ts";
 export type { Root, RootOptions } from "./root.ts";

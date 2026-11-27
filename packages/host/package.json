@@ -4,6 +4,7 @@
   "type": "module",
   "exports": "./src/index.ts",
   "dependencies": {
+    "@blastlauncher/alfred": "workspace:*",
     "@blastlauncher/client-core": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
     "@blastlauncher/runtime": "workspace:*",

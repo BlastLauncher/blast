@@ -2,77 +2,8 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtemp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { deflateRawSync } from "node:zlib";
-import { crc32, EXTRACTED_MARKER, extractWorkflowArchive, readZipEntries } from "./archive.ts";
-
-interface Spec {
-  name: string;
-  data?: string | Uint8Array;
-  method?: number;
-  mode?: number;
-  madeBy?: number;
-  flags?: number;
-  crc?: number;
-  size?: number;
-}
-
-const u16 = (out: number[], v: number) => out.push(v & 0xff, (v >>> 8) & 0xff);
-const u32 = (out: number[], v: number) =>
-  out.push(v & 0xff, (v >>> 8) & 0xff, (v >>> 16) & 0xff, (v >>> 24) & 0xff);
-
-// Minimal ZIP writer for fixtures; fields can be overridden to forge
-// malformed or hostile archives.
-function zip(specs: Spec[], comment = ""): Uint8Array {
-  const local: number[] = [];
-  const central: number[] = [];
-  for (const spec of specs) {
-    const name = new TextEncoder().encode(spec.name);
-    const data =
-      typeof spec.data === "string"
-        ? new TextEncoder().encode(spec.data)
-        : (spec.data ?? new Uint8Array());
-    const method = spec.method ?? 0;
-    const body = method === 8 ? new Uint8Array(deflateRawSync(data)) : data;
-    const crc = spec.crc ?? crc32(data);
-    const size = spec.size ?? data.length;
-    const offset = local.length;
-    const header = (out: number[], isCentral: boolean) => {
-      u32(out, isCentral ? 0x02014b50 : 0x04034b50);
-      if (isCentral) u16(out, ((spec.madeBy ?? 3) << 8) | 20);
-      u16(out, 20);
-      u16(out, spec.flags ?? 0);
-      u16(out, method);
-      u32(out, 0); // DOS time and date
-      u32(out, crc);
-      u32(out, body.length);
-      u32(out, size);
-      u16(out, name.length);
-      u16(out, 0); // extra
-      if (isCentral) {
-        u16(out, 0); // comment
-        u16(out, 0); // disk
-        u16(out, 0); // internal attributes
-        u32(out, ((spec.mode ?? 0o100644) << 16) >>> 0);
-        u32(out, offset);
-      }
-      out.push(...name);
-    };
-    header(local, false);
-    local.push(...body);
-    header(central, true);
-  }
-  const end: number[] = [];
-  u32(end, 0x06054b50);
-  u16(end, 0);
-  u16(end, 0);
-  u16(end, specs.length);
-  u16(end, specs.length);
-  u32(end, central.length);
-  u32(end, local.length);
-  u16(end, comment.length);
-  end.push(...new TextEncoder().encode(comment));
-  return new Uint8Array([...local, ...central, ...end]);
-}
+import { EXTRACTED_MARKER, extractWorkflowArchive, readZipEntries } from "./archive.ts";
+import { zip } from "./test-workflow.ts";
 
 const text = (bytes: Uint8Array) => new TextDecoder().decode(bytes);
 
