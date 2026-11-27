@@ -5,8 +5,7 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M19 in progress: loop feedback — task scripts that never move the primary checkout,
-infra-retry and a shared verify lock, standard briefs and cleanup.
+M20: landing page current for alpha.10 and polished on mobile.
 
 ## Milestones
 
@@ -63,6 +62,10 @@ infra-retry and a shared verify lock, standard briefs and cleanup.
 - [x] 0201 Task scripts work from their own worktree and never move the primary checkout
 - [x] 0202 `tasks:land` retries infrastructure-cancelled jobs; machine-wide verify lock
 - [x] 0203 `tasks:brief` and `tasks:clean`; AGENTS.md delegation loop updated
+
+### M20 — Landing polish
+
+- [ ] 0204 Landing page current for alpha.10, and polished on mobile
 
 ## Later (not scheduled)
 
