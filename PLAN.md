@@ -56,7 +56,7 @@ Next milestone not planned yet.
 
 - [x] 0198 Measure and cut CI, release and local verify time
 - [x] 0199 Trim and rewrite the docs for readability
-- [ ] 0200 Measured CI and release numbers in `docs/performance.md`
+- [x] 0200 Measured CI and release numbers in `docs/performance.md`
 
 ## Later (not scheduled)
 
