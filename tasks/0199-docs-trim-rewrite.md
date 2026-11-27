@@ -1,7 +1,7 @@
 ---
 id: "0199"
 title: Trim and rewrite the docs for readability
-status: doing
+status: review
 milestone: M18
 depends: []
 ---
@@ -40,15 +40,15 @@ true of the code today.
 
 ## Acceptance
 
-- [ ] Each of `README.md` and `docs/*.md` (not `docs/decisions/`) is shorter
+- [x] Each of `README.md` and `docs/*.md` (not `docs/decisions/`) is shorter
       or equal in lines; `docs/architecture.md` ≤ 150 lines.
-- [ ] No prose line over 100 columns outside code fences and tables
+- [x] No prose line over 100 columns outside code fences and tables
       (report the check command you used and its output in Handoff).
-- [ ] `git grep -n '\.md#'` links all resolve to existing headings (say how
+- [x] `git grep -n '\.md#'` links all resolve to existing headings (say how
       you checked).
-- [ ] No stale claims: `git grep -n -i 'embedder-v1\|protocol 1\|alpha\.9\|scenePatches'`
+- [x] No stale claims: `git grep -n -i 'embedder-v1\|protocol 1\|alpha\.9\|scenePatches'`
       in `README.md` and `docs/` (excluding `docs/decisions/`) is empty.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -62,8 +62,13 @@ true of the code today.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-docs-trim-facts @ 342671b6 (plus handoff commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 109.5s
 Done:
+- Fixed all 6 blocking facts across the trimmed docs: `hello.scenes` gates only `session.scene` (`session.log` is always sent) in `docs/embedding.md`; only `--ai-answer`, `--browser-tabs`, and `--browser-bridge` set `environment.canAccess` in `docs/cli.md`; `availableAPIs` sits under `init.environment` in `docs/architecture.md`; `Ctrl-P` opens a dropdown when present and otherwise moves up in a List in `docs/tui.md`; `preferences.open` is denied by the engine unless an embedder handles it in `docs/capabilities.md`; and `⌘⇧,` (`Ctrl+Shift+,` off macOS) is Configure Command's shortcut in `docs/root-view.md`.
+- Fixed all 6 nits and restored dropped details: `tpm` detection, `no-view` close/return vs `--popup`/direct quit, 3 s non-animated toast auto-dismiss (animated stays), exit code 1 only if last launched command crashed, and `List.EmptyView`/`Grid.EmptyView` `No results` fallback in `docs/tui.md`; `revision` +1 per event, `root.resync {root}` / `session.resync {session}`, out-of-order responses, and `missing_values`/`missing_dependencies` errors in `docs/embedding.md`; `{ "type": "noul", "noul": 0.8 }` shape in `docs/cli.md`; `launch(target)` resolving to `{ exited }` in `docs/root-view.md`; `openExtension`'s `savePreferences` & `MissingLaunchValuesError`, `bundleCommand`'s `os.tmpdir()/blast/builds` default & cache invalidation, `LaunchProps.draftValues` hydration + shutdown form flush, and `blast deps` two-pass peer repair in `docs/architecture.md`.
+- Line-count & width check: Python check across `README.md`, `docs/*.md` (excluding `performance.md`, `release.md`), and `docs/walkthroughs/*.md` reported `bad_counts: []` and `bad_lines: []` (> 100 cols); `docs/architecture.md` 147 (≤ 150, was 188), `docs/capabilities.md` 100 (was 138), `docs/cli.md` 112 (was 119), `docs/embedding.md` 136 (was 137), `docs/root-view.md` 44 (was 45), `docs/tui.md` 111 (was 116).
+- Anchor & stale-term check: `git grep -n '\.md#' -- README.md 'docs/' ':!docs/decisions/'` returned only `README.md:47:[tmux palette](./docs/tui.md#tmux-palette)`; `git grep -n -i 'embedder-v1\|protocol 1\|alpha\.9\|scenePatches' -- README.md 'docs/' ':!docs/decisions/'` returned nothing.
 Not done / risks:
+- `docs/performance.md` and `docs/release.md` were left untouched (owned by parallel task 0198).
 ```

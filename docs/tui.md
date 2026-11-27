@@ -1,116 +1,112 @@
 # Terminal client (`packages/tui`)
 
 ```bash
-bun run tui [--popup] [--native] [--no-builtin] <extensionDir>...
+bun run tui [--popup | --popup-daemon] [--native] [--no-builtin] <extensionDir>...
 bun run tui [--native] <extensionDir> <command>
+bun run tui --version
 ```
 
-The engine's root view lists the commands of every given extension plus the built-in `tmux` extension (see tmux palette; `--no-builtin` leaves it out); one directory plus a `<command>` name (not an existing directory) opens that command directly. `--popup` quits once a command is done (see Launcher), for `tmux display-popup -E`. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash. The npm package `@blastlauncher/tui` installs the same client as `blast-tui` (Bun required).
+The root view lists commands from every given extension plus the built-in `tmux`
+extension (and `tpm` when TPM is detected; `--no-builtin` omits built-ins). One
+directory plus a `<command>` name (not a directory) opens that command directly.
+`--popup` quits when a command closes the window; `--popup-daemon` detaches
+inside its inner tmux server (`@blastlauncher/tui` installs `blast-tui`, Bun
+required). `--native` enables real OS handlers; without it, clipboard ops are
+session-local and `open.url` only records URLs.
 
 ## tmux palette
 
-The [tmux-blast](https://github.com/BlastLauncher/tmux-blast) plugin opens `blast-tui --popup` in a `display-popup` on <kbd>Ctrl</kbd>+<kbd>Space</kbd> (tmux 3.2+). It runs `@blastlauncher/tui@next` from npm (`3.0.0-alpha.3` or later, the first release with popup mode) and needs Bun. With [TPM](https://github.com/tmux-plugins/tpm), add `set -g @plugin 'BlastLauncher/tmux-blast'` to `~/.tmux.conf` and press <kbd>prefix</kbd> <kbd>I</kbd>. Options (`@blast-key`, `@blast-key-table`, `@blast-extensions`, `@blast-popup-width`, `@blast-popup-height`, `@blast-command`) are in the [plugin README](../examples/tmux-plugin/README.md).
+[tmux-blast](https://github.com/BlastLauncher/tmux-blast) opens `blast-tui` on
+<kbd>Ctrl</kbd>+<kbd>Space</kbd> (tmux 3.2+, Bun required, runs
+`bunx @blastlauncher/tui@next`). With
+[TPM](https://github.com/tmux-plugins/tpm), add
+`set -g @plugin 'BlastLauncher/tmux-blast'` to `~/.tmux.conf` and press
+<kbd>prefix</kbd> <kbd>I</kbd>. Options (`@blast-key`, `@blast-daemon`,
+`@blast-theme`, …) live in the [plugin README](../examples/tmux-plugin/README.md).
 
-The built-in `tmux` extension (`packages/tui/extensions/tmux`) acts on the pane the key was pressed in (`BLAST_TMUX_TARGET`, else tmux's `{last}` pane). Close Other Panes, Close Window and Kill Session confirm first.
-
-- **Panes:** Split Horizontal, Split Vertical, Close Pane, Close Other Panes, Next / Previous Pane, Display Pane Numbers, Cycle Pane Layout, Swap Pane Up / Down, Zoom / Unzoom, Enter Copy Mode, Break to New Window, Find Pane (switch, zoom or kill), Move Pane to…, Rename Pane.
-- **Windows:** New Window, Next / Previous / Last Window, Close Window, Rename Window.
-- **Sessions:** Next / Previous Session, Detach, Kill Session, Rename Session, New Session, Choose Session (switch, rename, kill or create).
-- **System:** Reload Config.
-- **TPM (auto-detected when installed):** Manage TPM Plugins (inspect git status, update individual/all plugins, clear stale `index.lock`), Install TPM Plugins, Update All TPM Plugins, Clean Unused TPM Plugins.
+The built-in `tmux` extension (`packages/tui/extensions/tmux`) targets the pane
+where the key was pressed (`BLAST_TMUX_TARGET`, else tmux `{last}`). Built-in
+commands cover panes (split, close, swap, zoom, break, find, move, rename),
+windows (new, next/prev/last, close, rename), sessions (new, choose, detach,
+rename, kill), config reload, and TPM plugin management (`install`, `update`,
+`clean`, `manage`). Destructive actions confirm first.
 
 ## Keys
 
-| Key             | Effect                                                                |
-| --------------- | --------------------------------------------------------------------- |
-| typing          | search text (client filtering or the List's search handler)           |
-| ↑ / ↓           | move the selection                                                    |
-| ← / →           | move within a Grid row; open (→) or close (←) a Submenu in a menu bar |
-| Enter           | run the selected item's first action (or the view's own)              |
-| Ctrl-K          | open the action panel; type to filter, Enter runs or opens a submenu  |
-| Ctrl-P          | open the search-bar dropdown accessory; type to filter its options    |
-| Esc             | close dropdown/submenu/panel, else pop the view, else quit at root    |
-| Ctrl-C          | quit (shuts the runtime child down)                                   |
-| Enter / Esc     | confirm / dismiss an open Alert                                       |
-| Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
-
-## Raycast parity checklist (0104)
-
-- **Toasts** — done: success/failure dismiss after 3 seconds; animated stays until updated.
-- **Action panels** — done: sections and labels; Ctrl-K opens, Ctrl-Enter runs the second action; Ctrl-C always quits, so copy actions run from the panel.
-- **Form presentation** — done: `Description`, `Separator`, and `LinkAccessory` are non-focusable text (targets shown).
-- **Navigation** — done: `navigationTitle` and `‹` back affordance; Esc performs semantic back.
-- **Native window/clipboard** — terminal limitation; these remain embedder capabilities.
-- **Pointer, animation, desktop layout** — not planned for this terminal client.
+| Key             | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| typing          | search text (client filtering or List search handler)                                           |
+| ↑ / ↓           | move selection (List also maps `Ctrl-K` up, `Ctrl-P` up if no dropdown, `Ctrl-N`/`Ctrl-J` down) |
+| ← / →           | move within a Grid row; open (`→`) or close (`←`) a menu-bar Submenu                            |
+| Enter           | run primary action (`Ctrl-Enter` / `Cmd-Enter` runs second action)                              |
+| Ctrl-A          | open the action panel; type to filter, `Enter` runs or opens submenu                            |
+| Ctrl-P          | open search-bar dropdown when present (wins over List `Ctrl-P` up)                              |
+| Ctrl-E          | open **Configure &lt;command&gt;** at the root                                                  |
+| Esc             | close alert/dropdown/submenu/panel, else pop view, else quit at root                            |
+| Ctrl-C          | quit (copy actions run from the action panel)                                                   |
+| Enter / Esc     | confirm / dismiss an open Alert                                                                 |
+| Ctrl-T / Ctrl-Y | toast primary / secondary action                                                                |
 
 ## Launcher
 
-`bun run tui <extensionDir>...` draws the engine's root view (`engine.root`, decision 0014) over every directory:
-commands with `title`, `subtitle` (else `description`) and mode. The engine ranks, prompts and installs; the TUI draws its views.
+`bun run tui <extensionDir>...` draws `engine.root` (decision 0014):
 
-- Typing searches title, subtitle and name; ↑ / ↓ move; Enter opens; Ctrl-K
-  lists Open / Configure Command; Ctrl-E (⌃⇧, / ⌘⇧, where delivered) opens
-  **Configure <command>**, saved without launching. Esc / Ctrl-C quit.
-- Manifests are re-read while open (debounced `fs.watch`): edits show up live; a broken
-  manifest shows `Manifest: …` (prefixed with its directory when there are several) and keeps the last good list.
+- Manifests reload live via `fs.watch`; broken JSON shows `Manifest: …` and
+  keeps the last good command list.
 - Launching runs `startLaunchFlow`: missing required preferences and arguments
-  become one **Set up <command>** form; dependencies install as a progress
-  view with Retry on failure (under `<dataDir>/deps/`, decision 0002).
-- Esc at a command's root, a no-view command finishing and the crash screen
-  return to the root, selection kept; the crash screen offers R to relaunch
-  with the same arguments. `open*Preferences` returns and opens Configure.
-  Ctrl-C quits from anywhere; the process exits 1 only if the last launched
-  command crashed. `--native` handlers reach every launched command.
-- `--popup` (decision 0016): `closeMainWindow()` and a no-view command finishing after its HUD quit with exit 0 instead of returning; Esc at a command's root still returns, Esc at the root quits.
+  open one **Set up** form; dependencies install under `<dataDir>/deps/` with a
+  progress toast and Retry on error.
+- `Esc` at a command's root, a finished `no-view` command, or the crash screen
+  (`R` relaunches) returns to the root with selection kept. In `--popup` mode,
+  `closeMainWindow()` or a finished `no-view` command exits `0`. `Ctrl-C` quits
+  from anywhere; the process exits `1` only if the last launched command crashed
+  (direct-command mode exits `1` on crash).
+- Saved preferences live in `<dataDir>/preferences/<encoded-name>.json`
+  (plaintext, mode 0600; `<dataDir>` defaults to `$XDG_DATA_HOME/blast`).
 
-Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing. It also times start-up: fresh `--popup` processes over two fixtures, median of 5 from process start to the root's first frame and to the launched `hello-list` command's, with an empty (cold) or reused (warm) data dir. Warm launches reuse the bundle in `<dataDir>/bundles/` and Node's compile cache in `<dataDir>/compile-cache/`, and Bun asks Node for its builtin list only when it bundles. On a Linux arm64 VM (task 0174), root / command went from cold 274 / 580 ms and warm 278 / 585 ms to cold 225 / 582 ms and warm 224 / 378 ms; the root is mostly module loading (OpenTUI ~85 ms), a warm launch ~90 ms to spawn the runtime plus ~40 ms to its first scene.
+`bun scripts/tui-benchmark.ts` (outside `verify`) benchmarks `hello-list` first
+frame, 10k-item keystroke latency, and cold/warm `--popup` startup using
+`<dataDir>/bundles/` and `<dataDir>/compile-cache/`.
 
 ## Rendering
 
-- Client filtering ranks matches (title, keywords, subtitle) and orders sections by best item unless `keepSectionOrder`; `filtering: false` disables it, a search handler owns filtering, and `throttle` delays the event by 200 ms.
-- `List` and `Grid` share selection, filtering and primary-action handling; the active view's root type picks the renderer. Grid lays items out in rows of `columns` (default 5; a section's `columns` overrides it) with a header line per section; a cell shows its `content` as short text above title/subtitle, and `aspectRatio`, `fit` and `inset` are ignored.
-- A `searchBarAccessory` dropdown (`List.Dropdown` / `Grid.Dropdown`) shows the current value's title next to the search bar; Ctrl-P opens its options (sections included) in a filterable panel, Enter sends `onChange` with the chosen value and Esc closes. The runtime owns the dropdown value.
-- Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })` and `clearSearchBar()` clear the input; `closeMainWindow()` leaves the command (back to the root, or quits with `--popup`).
-- `menu-bar` commands render their `MenuBarExtra` as a navigable menu: `title`/`tooltip` head the window, Sections are headers, and Items (title, subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc closes it; Enter on an Item runs `onAction` with a `left-click` event, and Items without one render dimmed. Toasts and the HUD share the footer, and alerts open over the menu.
-- `no-view` commands render only feedback (alert, toast, HUD). When runtime
-  exits 0, client quits after HUD (2.5 s). Errors offer relaunch or back;
-  direct exits 1.
-- `List`/`Grid` pagination sends one `onLoadMore` per item-count change when the
-  selection reaches the last loaded item (or Grid row) and `hasMore` is set;
-  `isLoading` shows the loading line.
-- `Detail` and `List.Item.Detail` render terminal markdown: headings, emphasis,
-  lists, quotes, inline/fenced code and links (text plus a dimmed URL); other
-  syntax stays visible as source. Metadata lines follow the detail.
-- `List.EmptyView` and `Grid.EmptyView` show icon, title and description; without one an empty view says `No results`.
-- Raycast `Icon.*` names map to compact glyphs (`✓`, `⚙`, `★`, …); unknown icons
-  and images fall back to a short label or `▣`, and images are never fetched.
-  Icon tints resolve through the theme palette; `NO_COLOR` drops all attributes.
-- Alerts stay while mounted; a HUD line shows for 2.5 s.
-- Loading uses one `◌ Loading…` footer indicator; a runtime failure shows the
-  message, the last log line (or `No runtime log output.`) and `R Relaunch ·
-  Esc/B Back` (or `Press Esc/B to go back` for a direct command).
-- Unknown node types render as a dimmed `Unsupported view: <type>` notice (Form
-  fields: `Unsupported field: <type>`); the raw `[Unsupported: <type>]` text
-  stays in client-core row `text` and is logged once per type on stderr.
+- Client filtering ranks matches (title, keywords, subtitle) and orders sections
+  by best item unless `keepSectionOrder`; `filtering: false` or `onSearchTextChange`
+  disables it, and `throttle` delays search events by 200 ms.
+- `List` and `Grid` share selection, filtering, and pagination (`onLoadMore`
+  fires once per item-count change at the last item, or last Grid cell, when
+  `hasMore` is set).
+  Grid uses `columns` (default 5) and ignores `aspectRatio`, `fit`, and `inset`.
+  `List.EmptyView` and `Grid.EmptyView` show icon, title, and description,
+  falling back to `No results` when omitted.
+- `List.Dropdown` / `Grid.Dropdown` (`searchBarAccessory`) opens with `Ctrl-P`;
+  the runtime owns the selected value.
+- `menu-bar` commands render `MenuBarExtra` as a navigable menu; items without
+  `onAction` render dimmed. `no-view` commands show feedback only and close
+  after their HUD (`2.5 s`), returning to the root (or quitting in `--popup`
+  or direct-command mode).
+- `Detail` and `List.Item.Detail` render terminal Markdown (headings, emphasis,
+  lists, quotes, code, links) followed by metadata.
+- Raycast `Icon.*` names map to compact glyphs (`✓`, `⚙`, `★`, …); unknown
+  icons and images fall back to a short label, `◇`, or `▣` (images are never
+  fetched). `NO_COLOR` disables all color attributes.
+- Non-animated toasts auto-dismiss after `3 s`; `animated` toasts stay until
+  updated, and a HUD line shows for `2.5 s`. Errors show the message, last log
+  line, and `R Relaunch · Esc/B Back`. Unknown nodes show
+  `Unsupported view: <type>` and log once on stderr; unknown form fields show
+  `Unsupported field: <type>`.
 
 ## Forms
 
-Forms show labels, help and errors. Tab / Shift-Tab move through fields; ↑ / ↓
-do the same outside TextArea. Scene focus requests reach the runtime.
+`Tab` / `Shift-Tab` move through fields (`↑` / `↓` do the same outside
+`TextArea`); `Ctrl-S` or `Ctrl-Enter` submits from any field, and `Ctrl-A`
+opens the form's action panel. `Enter` submits outside `TextArea` and pickers.
 
-- TextField edits one line; TextArea uses Enter for newlines and ↑ / ↓ for
-  its cursor. Ctrl-Enter or Ctrl-S submits from any field.
-- Enter runs the primary action outside TextArea and pickers. Ctrl-K opens
-  the form's action panel; Enter there runs the chosen action.
-- Space toggles Checkbox. In Dropdown / TagPicker, ← / → moves the option
-  cursor and Enter / Space selects; TagPicker toggles multiple values.
-- DatePicker accepts an ISO date or date/time (empty clears); invalid text
-  shows an error and never reaches the extension. FilePicker accepts paths
-  separated by commas; single-selection fields keep the first path.
-- PasswordField always shows a fixed mask when set and never echoes typed
-  characters. Typing replaces an existing runtime-only password because its
-  prior value is unavailable to the client; Backspace edits the new input.
-- Runtime values own field state, including controlled values, stored values
-  and restored drafts. The client sends edits and SubmitForm events; the
-  runtime persists enabled drafts and clears them after successful submission.
-  Esc goes back/quits.
+- `Space` toggles `Checkbox`. In `Dropdown` / `TagPicker`, `←` / `→` moves the
+  option cursor and `Enter` / `Space` selects or toggles values.
+- `DatePicker` accepts ISO dates or date/times (empty clears); invalid text
+  shows an error locally. `FilePicker` takes comma-separated paths.
+- `PasswordField` shows a fixed mask and never echoes typed characters; typing
+  replaces an existing runtime-only password.
+- Runtime state owns controlled values, `storeValue`, and enabled drafts
+  (cleared on successful submit).

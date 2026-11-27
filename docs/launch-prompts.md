@@ -2,21 +2,21 @@
 
 Part of [embedding.md](embedding.md).
 
-A command that needs required preferences or arguments, or whose dependencies
-are not installed, does not have to fail back to you. With `prompts: true` the
-launch returns its session id at once and the session's views are:
+A command that needs required preferences, arguments, or dependencies does not
+have to fail back to you. With `prompts: true`, `extension.launch` returns its
+session id immediately and streams these views:
 
-1. a form (`kind: "form"`, `form.fields`) for the missing preferences
-   (password fields hide their value) and all of the command's arguments;
-   field ids are the preference name or `argument:<name>`. Each field includes
-   `required`; its `info` is present while focused. `primary`/`submit`
-   validates required fields (`error: "Required"`), saves preferences and
-   continues; `back` ends the session (`session.exited`, code 0);
-2. while dependencies install, a `feedback.toast` with style `animated`
-   (`message` is the installer's latest line); a failed install is a
-   `failure` toast with a Retry action (`toastAction` index 0, or `primary`),
-   `back` gives up;
-3. then the command's own views, under the same session id.
+1. A form (`kind: "form"`, `form.fields`) for missing preferences (password
+   fields hide their value) and all command arguments; field ids are the
+   preference name or `argument:<name>`. Each field includes `required`, and
+   `info` while focused. `primary`/`submit` validates required fields
+   (`error: "Required"`), saves preferences, and continues; `back` ends the
+   session (`session.exited`, code 0).
+2. While dependencies install, a `feedback.toast` with style `animated`
+   (`message` is the installer's latest line). A failed install shows a
+   `failure` toast with Retry (`toastAction` index 0, or `primary`); `back`
+   cancels.
+3. The command's own views under the same session id.
 
 ```text
 ← {"type":"request","id":"7","method":"extension.launch","params":{"extension":"1","command":"index","prompts":true}}
@@ -27,19 +27,15 @@ launch returns its session id at once and the session's views are:
 → {"type":"event","event":"session.view.patch","session":"4","revision":3,"baseRevision":2,"ops":[...]}
 ```
 
-`prompts` needs views (the hello's or the launch's) and ignores
-`installDependencies`: the flow installs what it needs regardless of the
-server's `--dependencies` policy. Errors that are not about missing values or
-dependencies (a broken bundle) still fail the request or end the session with
-`session.exited` carrying an `error`. `extension.configure` (`extension`,
-`command`, optional `scope`) starts a session whose view is the selected
-preferences form with current values; submit saves and ends it. Launches from
-the root view use prompts, and its actions panel (or ⌘⇧,) has Configure
-Command.
+`prompts` requires `views` (in `hello` or launch params) and installs missing
+dependencies regardless of `--dependencies`. Non-prompt errors (e.g. a broken
+bundle) fail the request or end the session with `session.exited` carrying
+`error`. `extension.configure` (`extension`, `command`, optional `scope`) opens
+the preferences form with current values; submit saves and ends the session.
+Root launches enable prompts automatically.
 
 In process, `startLaunchFlow(extension, "index", { views })` from
 `@blastlauncher/engine` returns `{ view, subscribe, input, opened,
-argumentValues, cancel }`; `opened` settles with the same `{ session, close }`
-as `launch` (or `undefined` when cancelled), and `argumentValues` resolves to
-the values used by a successful launch so a client can relaunch directly.
-Afterward you drive the command as usual. `engine.root` does this for you.
+argumentValues, cancel }`; `opened` resolves to `{ session, close }` (or
+`undefined` on cancel), and `argumentValues` resolves to the submitted values.
+`engine.root` wraps this flow for you.

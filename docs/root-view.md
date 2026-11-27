@@ -2,44 +2,43 @@
 
 Part of [embedding.md](embedding.md).
 
-The engine serves Raycast-style root search over every opened extension's
-commands as an ordinary list view, so an embedder writes no command picker:
-sections per extension, subtitles, mode labels, icons and an "Open Command"
-action. Over stdio it is `root.open`; in process it is `engine.root`.
+The engine serves a Raycast-style root search over every opened extension's
+commands as a list view, so an embedder writes no command picker: sections per
+extension, subtitles, mode labels, icons, and an "Open Command" action. Over
+stdio it is `root.open`; in process it is `engine.root`.
 
 ## Over stdio
 
-`root.open {views?}` returns `{root}`; `views` defaults to the hello's and one
-of the two is required. `root.view` sends the initial list (`revision: 1`), and
-changes thereafter arrive as `root.view.patch` events (including extensions
-opened, closed or edited later); send `root.resync {root}` to request a fresh
-full `root.view`. `root.input`
-takes the usual semantic inputs (`search`, `move`, `select`, `primary`,
-`openActions`, `back`, …); others are ignored.
+`root.open {views?}` returns `{root}`; `views` falls back to `hello.views` and
+one of the two is required. `root.view` sends the initial list (`revision: 1`),
+and updates arrive as `root.view.patch` events (including extensions opened,
+closed, or edited later); send `root.resync {root}` for a fresh full
+`root.view`. `root.input` accepts semantic inputs (`search`, `move`, `select`,
+`primary`, `openActions`, `back`, …); others are ignored.
 
-A `primary` starts the selected command as a normal session and reports it
-with `root.launched {root, session}`. From then on draw that session's
-`session.view` / `session.view.patch` events and send `session.input`. A launch with missing
-preferences, arguments or dependencies shows the
-[launch prompts](launch-prompts.md) as that session's views; any other
-failure stays on the root with a failure toast. `back` at the command's root
-closes it; after `session.exited` the root resumes with its search cleared
-(emitting a `root.view.patch` when the view changed). The actions panel (⌘⇧,) has Configure Command, which
-opens the command's preferences form as a session (`extension.configure`).
-`root.close` releases the root.
+A `primary` input launches the selected command as a session and emits
+`root.launched {root, session}`. From then on, draw that session's
+`session.view` / `session.view.patch` events and send `session.input`. Missing
+preferences, arguments, or dependencies run as [launch prompts](launch-prompts.md)
+on that session; other launch errors stay on the root with a failure toast.
+`back` at the command's root closes it; after `session.exited` the root resumes
+with its search cleared.
+
+The actions panel includes Configure Command (`⌘⇧,`, or `Ctrl+Shift+,` off
+macOS), which opens the command's preferences form as a session
+(`extension.configure`). `root.close` releases the root.
 
 ## In process
 
 ```js
 const root = engine.root({ views: { platform: "macOS" } });
-await root.ready(); // manifests of the extensions opened so far are read
+await root.ready(); // manifests of extensions opened so far are read
 root.subscribe((view) => draw(view));
 root.input({ type: "primary" });
 ```
 
 `engine.root(options)` returns `{ view, subscribe, input, ready, close }` over
-every extension opened on the engine. After a `primary` the view is the launch
-prompt's, then the running command's, until its session ends; then the root
-list returns. A host that keys sessions itself (as `blast serve` does) passes
-`launch(target)` in the options and runs the command its own way; the root
-waits for the returned `exited` promise.
+every extension opened on the engine. After `primary`, `view` becomes the launch
+prompt's, then the running command's, until its session ends and the root list
+returns. Hosts that key sessions themselves (like `blast serve`) pass
+`launch(target)`, resolving to `{ exited }` where `exited` is a promise.
