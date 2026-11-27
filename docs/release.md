@@ -21,8 +21,11 @@ workflow artifact. A real run clears that checkbox, publishes only versions
 that are not already on npm under `next`, tags the commit as `v<version>`, and
 creates a GitHub prerelease with generated notes.
 
-Prereleases use the `next` npm dist-tag and do not move `latest`, which stays
-on Blast v1. After publishing,
+Prereleases publish under the `next` npm dist-tag. Since `3.0.0-alpha.10`,
+`latest` on the published packages tracks tagged prereleases, but trusted
+publishing cannot move it: after each tagged run an owner runs
+`npm dist-tag add @blastlauncher/<package>@<version> latest` for every package
+the run published. After publishing,
 `bun run release:web:e2e --from-npm <version>` checks the web package as npm
 serves it.
 
