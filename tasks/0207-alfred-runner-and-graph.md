@@ -120,8 +120,35 @@ placeholder expander (`placeholders.ts`), and workflow graph execution engine
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/alfred-runner-graph @ <final commit; see worker message>
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 37.9s
 Done:
+- scripts.ts: all 12 interpreter types (osascript types fail by name off macOS,
+  external scripts confined to the workflow dir), argv mode (`-c script -- args`)
+  and `{query}` mode with the escaping bitmask, buildWorkflowEnv/workflowVariables,
+  runWorkflowScript in its own process group (SIGTERM, then SIGKILL after
+  killGraceMs) with abort, timeout and per-stream maxOutputBytes.
+- placeholders.ts: query/var/const/clipboard/date/time/uuid/random expansion
+  with injected now/random/uuid/readClipboard, ignoreDynamic, URL encoders
+  (skipqueryencode, skipvarencode, spaces), parseAlfredWorkflowEnvelope.
+- graph.ts: executeWorkflowGraph with entry-hop modifiers, sourceOutputUid
+  branching (else = connections without one), vitoclose, maxSteps guard, abort;
+  every utility/action/output listed in the task; view handoff for Script
+  Filter, List Filter, Text and Grid; unsupported types warn and end their branch.
+- workflow.ts keeps `inboundConfig`; manifest.ts exports `userConfigDefault`
+  (was private `configDefault`); index.ts re-exports the three new modules.
+- Node 24 import check from Acceptance exits 0 (node v24.20.0). No new dependencies.
 Not done / risks:
+- Config keys/semantics not checked against real Alfred plists: dialog routing
+  (`button{n}uid`, else `button{n}`), Write File `relativepathmode` (0 home,
+  1 data folder, 2 workflow folder) and `filetext`, Filter utility (reuses the
+  conditional comparator), transform 5 keeps whitespace. The 0208/corpus work
+  should confirm these.
+- Date placeholders use fixed local ISO-style formats, not Alfred's locale formats.
+- swift (type 10) gets its script on stdin (`swift -`), not exercised by tests;
+  type 3 `/usr/bin/python` is missing on current macOS (spawn error is named).
+- runWorkflowScript resolves with `aborted`/`timedOut` flags instead of
+  rejecting; stdin is /dev/null unless a script is piped (bash would otherwise
+  source ~/.bashrc when stdin is a socket).
+- Calling External Triggers in other workflows is reported as unsupported.
 ```
