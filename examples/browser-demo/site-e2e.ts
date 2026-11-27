@@ -258,16 +258,18 @@ try {
     await page.locator("#panel-js").waitFor({ state: "visible" });
     await page.locator("#tab-ndjson").click();
 
-    // Responsive check at 360px viewport: no horizontal scroll
-    await page.setViewportSize({ width: 360, height: 740 });
-    const { docScrollWidth, bodyScrollWidth } = await page.evaluate(() => ({
-      docScrollWidth: document.documentElement.scrollWidth,
-      bodyScrollWidth: document.body.scrollWidth,
-    }));
-    if (docScrollWidth > 360 || bodyScrollWidth > 360) {
-      throw new Error(
-        `landing page overflows horizontally at 360px: doc=${docScrollWidth}, body=${bodyScrollWidth}`,
-      );
+    // Responsive check at 360px and 390px viewports: no horizontal scroll
+    for (const width of [360, 390]) {
+      await page.setViewportSize({ width, height: 740 });
+      const { docScrollWidth, bodyScrollWidth } = await page.evaluate(() => ({
+        docScrollWidth: document.documentElement.scrollWidth,
+        bodyScrollWidth: document.body.scrollWidth,
+      }));
+      if (docScrollWidth > width || bodyScrollWidth > width) {
+        throw new Error(
+          `landing page overflows horizontally at ${width}px: doc=${docScrollWidth}, body=${bodyScrollWidth}`,
+        );
+      }
     }
 
     // JS-off check: page is readable, Browser view is shown, and all 6 code panels are visible.
@@ -395,6 +397,7 @@ try {
 
     if (screenshots) {
       await mkdir(screenshots, { recursive: true });
+      await page.setViewportSize({ width: 360, height: 740 });
       await page.locator("#tab-js").click();
       await page.locator("#panel-js").waitFor({ state: "visible" });
       await page.emulateMedia({ colorScheme: "light" });
@@ -406,14 +409,28 @@ try {
         .locator(".split")
         .screenshot({ path: join(screenshots, "landing-code-360-dark.png") });
 
-      await page.setViewportSize({ width: 1280, height: 800 });
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.locator("#tab-ndjson").click();
+      await page.locator("#panel-ndjson").waitFor({ state: "visible" });
       await page.emulateMedia({ colorScheme: "light" });
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: join(screenshots, "landing-390-light.png"), fullPage: true });
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: join(screenshots, "landing-390-dark.png"), fullPage: true });
+
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await page.locator("#tab-js").click();
+      await page.locator("#panel-js").waitFor({ state: "visible" });
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.waitForTimeout(200);
       await page
         .locator(".split")
         .screenshot({ path: join(screenshots, "landing-code-1280-light.png") });
       await page.locator("#tab-ndjson").click();
       await page.locator("#panel-ndjson").waitFor({ state: "visible" });
       await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForTimeout(200);
       await page
         .locator(".split")
         .screenshot({ path: join(screenshots, "landing-code-1280-dark.png") });
@@ -421,8 +438,17 @@ try {
       await page.locator(".hero").screenshot({ path: join(screenshots, "hero-desktop-dark.png") });
 
       await page.emulateMedia({ colorScheme: "light" });
+      await page.waitForTimeout(200);
       await page.screenshot({ path: join(screenshots, "desktop-light.png"), fullPage: true });
       await page.locator(".hero").screenshot({ path: join(screenshots, "hero-desktop-light.png") });
+
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: join(screenshots, "landing-1440-light.png"), fullPage: true });
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: join(screenshots, "landing-1440-dark.png"), fullPage: true });
     }
 
     await page.setViewportSize({ width: 1280, height: 800 });

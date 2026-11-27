@@ -1636,7 +1636,7 @@ main.menu-window::after {
 
 /* Embed mode (?embed=1): omit the demo bar and keep the launcher centered. */
 :root[data-embed="1"],
-:root:has(body:not(:has(.demo-bar))) {
+:root:not(:has(.demo-bar)) {
   --bar-height: 0px;
 }
 :root[data-embed="1"] .demo-bar {
@@ -1645,6 +1645,14 @@ main.menu-window::after {
 :root[data-embed="1"] body,
 body:not(:has(.demo-bar)) {
   grid-template-rows: minmax(0, 1fr);
+}
+@media (min-width: 601px) {
+  :root[data-embed="1"] #app {
+    padding: 24px;
+  }
+  :root[data-embed="1"] main {
+    height: clamp(280px, calc(100dvh - 48px), 475px);
+  }
 }
 
 /* Keep the proxy policy above the launcher; the landing supplies its own copy. */
