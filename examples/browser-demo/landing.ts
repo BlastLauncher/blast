@@ -15,6 +15,8 @@ import {
   tmuxRepoUrl,
 } from "./site-chrome.ts";
 
+export const releaseVersion = "3.0.0-alpha.10";
+
 export interface SiteStats {
   coverage: { covered: number; total: number; percent: string };
   rendered: number;
@@ -304,7 +306,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
     .browser iframe {
       display: block;
       width: 100%;
-      height: 620px;
+      height: 524px;
       border: 0;
       background: var(--ground);
     }
@@ -353,7 +355,15 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
       flex-wrap: wrap;
       text-align: left;
     }
-    .proxy-notice { margin: 0; padding: 10px 16px; font-size: 12px; line-height: 1.5; color: var(--muted); text-align: left; }
+    .proxy-notice {
+      margin: 0;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+      text-align: left;
+    }
     .proxy-notice a { text-decoration: underline; text-underline-offset: 3px; }
     .under code { font-size: 12px; }
 
@@ -370,6 +380,15 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
       text-wrap: balance;
     }
     .tech p { color: var(--muted); max-width: 60ch; margin: 0; }
+    .tech-intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+      gap: 48px;
+      align-items: end;
+    }
+    .tech-intro > * { min-width: 0; }
+    .tech-intro h2 { margin-bottom: 0; }
+    .tech-intro > p { max-width: none; }
     .flow {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -434,7 +453,13 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
       border-bottom: 1px solid var(--line);
       margin-top: 28px;
     }
-    .facts div { padding: 14px 8px 14px 0; min-width: 0; }
+    .facts div {
+      padding: 14px 8px 14px 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
     .facts dt { font: 12px var(--mono); color: var(--muted); }
     .facts dd {
       margin: 2px 0 0;
@@ -446,14 +471,14 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
     .inst { display: grid; gap: 8px; margin-top: 24px; }
     .inst div {
       display: flex;
+      align-items: baseline;
       gap: 16px;
       font: 13px var(--mono);
       border-bottom: 1px solid var(--line);
       padding-bottom: 8px;
-      white-space: nowrap;
-      overflow-x: auto;
     }
     .inst span { color: var(--muted); width: 13ch; flex: none; }
+    .inst code { font-size: 1em; min-width: 0; overflow-wrap: anywhere; }
     .inst-note { margin-top: 14px !important; font-size: 13px; }
     .inst-note a { text-underline-offset: 3px; }
 
@@ -475,9 +500,39 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
     .footer-links a:hover { color: var(--ink); }
 
     @media (max-width: 820px) {
-      .split, .flow { grid-template-columns: minmax(0, 1fr); }
+      .tech-intro, .split, .flow { grid-template-columns: minmax(0, 1fr); }
+      .tech-intro { gap: 12px; }
       .flow > div + div { border-left: 0; border-top: 1px solid var(--line); }
-      .browser iframe { height: 560px; }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+        padding: 14px;
+      }
+      #panel-ndjson pre { word-break: break-all; }
+    }
+    @media (max-width: 600px) {
+      .inst div { flex-direction: column; gap: 2px; }
+      .inst span { width: auto; font-size: 12px; }
+      .tabs {
+        flex-wrap: nowrap;
+        gap: 2px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tabs button {
+        font-size: 12px;
+        padding: 5px 6px;
+        white-space: nowrap;
+        flex: none;
+      }
+    }
+    @media (max-width: 380px) {
+      .tabs button {
+        font-size: 11.5px;
+        padding: 5px 5px;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -490,7 +545,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
   <main>
     <section class="hero">
       <div class="wrap">
-        <a class="pill" href="${escapeAttribute(tmuxRepoUrl)}"><b>3.0.0-alpha.9</b> The tmux palette is out →</a>
+        <a class="pill" href="${escapeAttribute(tmuxRepoUrl)}"><b>${escapeHtml(releaseVersion)}</b> The tmux palette is out →</a>
         <h1>Raycast extensions, inside your app.</h1>
         <p class="lede">The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
         <div class="ctas">
@@ -526,9 +581,11 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
 
     <section class="tech">
       <div class="wrap">
-        <div>
-          <p class="kicker">How it works</p>
-          <h2>One engine. Your client draws the views.</h2>
+        <div class="tech-intro">
+          <div>
+            <p class="kicker">How it works</p>
+            <h2>One engine. Your client draws the views.</h2>
+          </div>
           <p>Each command runs unmodified in its own process. The engine turns its React tree into a serializable view, sends it to your client, and routes input back. Privileged operations reach your app only as capabilities you grant.</p>
         </div>
 
@@ -541,18 +598,18 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
         <div class="split">
           <div>
             <h2>Any language, one protocol.</h2>
-            <p>In-process from JavaScript, <code>mount()</code> in a web page, or spawn <code>blast serve</code> and speak NDJSON over stdio from Go, Python or Swift.</p>
+            <p>In-process from JavaScript, <code>mount()</code> in a web page, or spawn <code>blast serve</code> and speak protocol 2 NDJSON over stdio from Go, Python or Swift. Protocol 2 sends one full view, then small <code>session.view.patch</code> updates.</p>
             <dl class="facts">
               <div><dt>@raycast/api</dt><dd>${escapeHtml(stats.coverage.percent)}</dd></div>
               <div><dt>rendered</dt><dd>${escapeHtml(stats.rendered.toLocaleString())}</dd></div>
               <div><dt>commands tested</dt><dd>${escapeHtml(stats.commands.toLocaleString())}</dd></div>
             </dl>
             <div class="inst">
-              <div><span>JS/TS engine</span>npm install @blastlauncher/engine@next</div>
-              <div><span>Any language</span>npx -p @blastlauncher/serve@next blast-serve</div>
-              <div><span>Web page</span>npm install @blastlauncher/web@next</div>
+              <div><span>JS/TS engine</span><code>npm install @blastlauncher/engine</code></div>
+              <div><span>Any language</span><code>npx -p @blastlauncher/serve blast-serve</code></div>
+              <div><span>Web page</span><code>npm install @blastlauncher/web</code></div>
             </div>
-            <p class="inst-note">Prereleases (<code>3.0.0-alpha.9</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a>.</p>
+            <p class="inst-note"><code>${escapeHtml(releaseVersion)}</code> is <code>latest</code> on npm; <code>@next</code> is the canary from <code>main</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a>.</p>
           </div>
           <div>
             <div class="tabs" role="tablist" aria-label="Integration code examples">
