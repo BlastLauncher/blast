@@ -10,10 +10,11 @@ import {
 // Built from local fields so the expected strings hold in every time zone.
 const NOW = new Date(2026, 10, 27, 9, 5, 7);
 
+const two = (value: number) => String(value).padStart(2, "0");
+
 function offsetOf(date: Date): string {
   const minutes = -date.getTimezoneOffset();
   const abs = Math.abs(minutes);
-  const two = (value: number) => String(value).padStart(2, "0");
   return `${minutes < 0 ? "-" : "+"}${two(Math.floor(abs / 60))}:${two(abs % 60)}`;
 }
 
@@ -62,9 +63,8 @@ describe("expandPlaceholders", () => {
     expect(await expandPlaceholders("{clipboard}/{clipboard:1}/{clipboard:4}", context())).toBe(
       "current/previous/",
     );
-    expect(await expandPlaceholders("<{clipboard}>", context({ readClipboard: undefined }))).toBe(
-      "<>",
-    );
+    const { readClipboard: _, ...withoutClipboard } = context();
+    expect(await expandPlaceholders("<{clipboard}>", withoutClipboard)).toBe("<>");
   });
 
   test("dates, uuid and random come from the injected hooks", async () => {

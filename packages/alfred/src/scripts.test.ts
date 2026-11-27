@@ -43,9 +43,9 @@ function workflow(): AlfredWorkflow {
   };
 }
 
-describe("resolveScriptCommand", () => {
-  const argv = (type: number, script = "S") => ({ type, script, scriptargtype: 1 });
+const argv = (type: number, script = "S") => ({ type, script, scriptargtype: 1 });
 
+describe("resolveScriptCommand", () => {
   test("maps every interpreter type", () => {
     const table: [number, string, string[]][] = [
       [0, "/bin/bash", ["-c", "S", "--", "q"]],

@@ -382,8 +382,8 @@ export async function runWorkflowScript(options: RunScriptOptions): Promise<Scri
     };
     const out = collect(options.onStdout);
     const err = collect();
-    child.stdout.on("data", (chunk: Buffer) => out.push(chunk));
-    child.stderr.on("data", (chunk: Buffer) => err.push(chunk));
+    child.stdout!.on("data", (chunk: Buffer) => out.push(chunk));
+    child.stderr!.on("data", (chunk: Buffer) => err.push(chunk));
     if (child.stdin) {
       // A script that exits without reading its input must not crash the runtime.
       child.stdin.on("error", () => {});

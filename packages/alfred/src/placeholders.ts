@@ -36,6 +36,7 @@ export type PlaceholderContext = {
 const PLACEHOLDER =
   /\{(query|clipboard(?::(\d+))?|date|time|datetime|isodate|isotime|uuid|random:([^{}]*)|var:([^{}]+)|const:([^{}]+))\}/g;
 
+const identity = (value: string): string => value;
 const pad = (value: number): string => String(value).padStart(2, "0");
 
 function localDate(date: Date): string {
@@ -83,8 +84,8 @@ export async function expandPlaceholders(
   template: string,
   context: PlaceholderContext,
 ): Promise<string> {
-  const encodeQuery = context.encode?.query ?? ((value: string) => value);
-  const encodeOther = context.encode?.variable ?? ((value: string) => value);
+  const encodeQuery = context.encode?.query ?? identity;
+  const encodeOther = context.encode?.variable ?? identity;
   const now = () => (context.now ?? (() => new Date()))();
   let out = "";
   let last = 0;
@@ -145,7 +146,6 @@ export function urlPlaceholderEncoders(config: PlistDict): Required<PlaceholderE
     const encoded = encodeURIComponent(value);
     return spaces ? encoded.replaceAll("%20", spaces) : encoded;
   };
-  const identity = (value: string): string => value;
   return {
     query: config.skipqueryencode === true ? identity : encode,
     variable: config.skipvarencode === true ? identity : encode,
