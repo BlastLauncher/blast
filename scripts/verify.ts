@@ -7,6 +7,8 @@ import {
   readFileSync,
   realpathSync,
   statSync,
+  linkSync,
+  renameSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -62,10 +64,7 @@ export function resolveVerifyLimits(
   };
 }
 
-export const DEFAULT_VERIFY_LOCK_POLL_MS = 250;
-export const DEFAULT_VERIFY_LOCK_STALE_MS = 30 * 60 * 1000;
-export const DEFAULT_VERIFY_LOCK_CORRUPT_GRACE_MS = 2_000;
-const RECLAIM_STALE_MS = 10_000;
+const DEFAULT_VERIFY_LOCK_POLL_MS = 250;
 const WAIT_LOG_INTERVAL_MS = 30_000;
 
 export type VerifyLockInfo = {
@@ -117,11 +116,7 @@ export function isProcessAlive(pid: number): boolean {
  * (shared across every worktree of the repository), or `undefined` when
  * `BLAST_VERIFY_LOCK=0` or git common dir is unavailable.
  */
-export function resolveVerifyLockPath(
-  cwd = process.cwd(),
-  env: Record<string, string | undefined> = process.env,
-): string | undefined {
-  if (env.BLAST_VERIFY_LOCK?.trim() === "0") return undefined;
+export function resolveVerifyLockPath(cwd = process.cwd()): string | undefined {
   const result = spawnSync("git", ["rev-parse", "--git-common-dir"], {
     cwd,
     encoding: "utf8",
@@ -130,11 +125,7 @@ export function resolveVerifyLockPath(
   const raw = result.stdout.trim();
   if (!raw) return undefined;
   const resolved = resolve(cwd, raw);
-  try {
-    return join(realpathSync(resolved), "blast-verify.lock");
-  } catch {
-    return join(resolved, "blast-verify.lock");
-  }
+  return join(realpathSync(resolved), "blast-verify.lock");
 }
 
 function readLockState(lockPath: string): LockState {
@@ -176,28 +167,27 @@ function readLockState(lockPath: string): LockState {
   return { kind: "corrupt", mtimeMs };
 }
 
-function staleLockReason(
-  state: LockState,
-  nowMs: number,
-  staleMs: number,
-  corruptGraceMs: number,
-  isAlive: (pid: number) => boolean,
-): string | undefined {
+function staleLockReason(state: LockState, isAlive: (pid: number) => boolean): string | undefined {
   if (state.kind === "missing") return undefined;
   if (state.kind === "corrupt") {
-    return nowMs - state.mtimeMs >= corruptGraceMs ? "corrupt lock file" : undefined;
+    return "corrupt lock file";
   }
   if (!isAlive(state.info.pid)) return "holder process exited";
-  const ageMs = nowMs - state.info.startedAt;
-  if (ageMs >= staleMs) {
-    return `held for ${Math.round(ageMs / 1000)}s (limit ${Math.round(staleMs / 1000)}s)`;
-  }
   return undefined;
 }
 
 function tryCreateLock(lockPath: string, info: VerifyLockInfo): boolean {
+  const tempPath = `${lockPath}.${info.token}.tmp`;
   try {
-    writeFileSync(lockPath, `${JSON.stringify(info)}\n`, { flag: "wx", mode: 0o644 });
+    writeFileSync(tempPath, `${JSON.stringify(info)}\n`, { flag: "wx", mode: 0o644 });
+    try {
+      linkSync(tempPath, lockPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      return false;
+    } finally {
+      unlinkIfExists(tempPath);
+    }
     return true;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "EEXIST") return false;
@@ -217,44 +207,19 @@ function tryReclaimStaleLock(
   lockPath: string,
   newInfo: VerifyLockInfo,
   nowMs: number,
-  staleMs: number,
-  corruptGraceMs: number,
   isAlive: (pid: number) => boolean,
 ): boolean {
-  const reclaimPath = `${lockPath}.reclaim`;
+  const reclaimPath = `${lockPath}.${newInfo.token}.stale`;
   try {
-    writeFileSync(reclaimPath, `${JSON.stringify({ pid: newInfo.pid, startedAt: nowMs })}\n`, {
-      flag: "wx",
-      mode: 0o644,
-    });
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-    // Clear an abandoned reclaim guard so a crash during reclaim cannot wedge waiters.
     try {
-      const raw = JSON.parse(readFileSync(reclaimPath, "utf8")) as {
-        pid?: number;
-        startedAt?: number;
-      };
-      const mtimeMs = statSync(reclaimPath).mtimeMs;
-      const dead = typeof raw.pid === "number" && !isAlive(raw.pid);
-      const expired =
-        nowMs - (typeof raw.startedAt === "number" ? raw.startedAt : mtimeMs) >= RECLAIM_STALE_MS;
-      if (dead || expired) unlinkIfExists(reclaimPath);
-    } catch {
-      try {
-        if (nowMs - statSync(reclaimPath).mtimeMs >= RECLAIM_STALE_MS) unlinkIfExists(reclaimPath);
-      } catch {
-        // Gone already.
-      }
+      renameSync(lockPath, reclaimPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+      throw error;
     }
-    return false;
-  }
-
-  try {
-    const current = readLockState(lockPath);
-    if (current.kind === "missing") return tryCreateLock(lockPath, newInfo);
-    if (!staleLockReason(current, nowMs, staleMs, corruptGraceMs, isAlive)) return false;
-    unlinkIfExists(lockPath);
+    const moved = readLockState(reclaimPath);
+    if (moved.kind === "valid" && isAlive(moved.info.pid)) return false;
+    if (moved.kind === "valid" && !staleLockReason(moved, isAlive)) return false;
     newInfo.startedAt = nowMs;
     return tryCreateLock(lockPath, newInfo);
   } finally {
@@ -315,13 +280,11 @@ export async function acquireVerifyLock(
   const env = options.env ?? process.env;
   if (env.BLAST_VERIFY_LOCK?.trim() === "0") return undefined;
   const cwd = options.cwd ?? process.cwd();
-  const lockPath = options.lockPath ?? resolveVerifyLockPath(cwd, env);
+  const lockPath = options.lockPath ?? resolveVerifyLockPath(cwd);
   if (!lockPath) return undefined;
 
   const pid = options.pid ?? process.pid;
   const pollMs = options.pollMs ?? DEFAULT_VERIFY_LOCK_POLL_MS;
-  const staleMs = options.staleMs ?? DEFAULT_VERIFY_LOCK_STALE_MS;
-  const corruptGraceMs = options.corruptGraceMs ?? DEFAULT_VERIFY_LOCK_CORRUPT_GRACE_MS;
   const now = options.now ?? (() => Date.now());
   const sleep = options.sleep ?? ((ms: number) => Bun.sleep(ms));
   const isAlive = options.isAlive ?? isProcessAlive;
@@ -352,9 +315,9 @@ export async function acquireVerifyLock(
     const state = readLockState(lockPath);
     if (state.kind === "missing") continue;
 
-    const reason = staleLockReason(state, nowMs, staleMs, corruptGraceMs, isAlive);
+    const reason = staleLockReason(state, isAlive);
     if (reason) {
-      if (tryReclaimStaleLock(lockPath, info, nowMs, staleMs, corruptGraceMs, isAlive)) {
+      if (tryReclaimStaleLock(lockPath, info, nowMs, isAlive)) {
         const holder = state.kind === "valid" ? `pid ${state.info.pid}` : "unknown holder";
         log(`verify: took over stale lock from ${holder} (${reason})`);
         return createLockHandle(lockPath, info, options);
@@ -382,26 +345,24 @@ export async function acquireVerifyLock(
   }
 }
 
-export async function withVerifyLock<T>(
-  fn: () => Promise<T> | T,
-  options: AcquireVerifyLockOptions = {},
-): Promise<T> {
-  const lock = await acquireVerifyLock(options);
-  try {
-    return await fn();
-  } finally {
-    lock?.release();
-  }
+const activeChildren = new Set<{ kill: (signal?: NodeJS.Signals) => void }>();
+function terminateChildren(): void {
+  for (const child of activeChildren) child.kill("SIGTERM");
 }
 
 async function runStep(name: string, command: string[]): Promise<StepOutcome> {
   const child = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
-  const [stdout, stderr, code] = await Promise.all([
-    new Response(child.stdout).text(),
-    new Response(child.stderr).text(),
-    child.exited,
-  ]);
-  return { name, stdout, stderr, ok: code === 0 };
+  activeChildren.add(child);
+  try {
+    const [stdout, stderr, code] = await Promise.all([
+      new Response(child.stdout).text(),
+      new Response(child.stderr).text(),
+      child.exited,
+    ]);
+    return { name, stdout, stderr, ok: code === 0 };
+  } finally {
+    activeChildren.delete(child);
+  }
 }
 
 async function runBounded<T, R>(
@@ -425,7 +386,10 @@ async function runBounded<T, R>(
 async function main(): Promise<void> {
   const limits = resolveVerifyLimits();
   const lock = await acquireVerifyLock({
-    onSignal: (signal) => process.exit(signal === "SIGINT" ? 130 : 143),
+    onSignal: (signal) => {
+      terminateChildren();
+      process.exit(signal === "SIGINT" ? 130 : 143);
+    },
   });
   const files = spawnSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], {
     encoding: "utf8",

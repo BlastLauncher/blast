@@ -597,7 +597,7 @@ export function resolvePlanCheckboxConflict(conflicted: string): string | undefi
   return hunks > 0 ? out.join("\n") : undefined;
 }
 
-type GhCheck = { name?: string; state?: string; bucket?: string; link?: string };
+type GhCheck = { name?: string; workflow?: string; state?: string; bucket?: string; link?: string };
 
 export interface LandOptions {
   runner?: CommandRunner;
@@ -706,7 +706,14 @@ function cancelledRunIds(
   if (needsFallback && expectedHead && ids.size === 0) {
     const listed = runner(
       "gh",
-      ["run", "list", "--commit", expectedHead, "--json", "databaseId,conclusion,status"],
+      [
+        "run",
+        "list",
+        "--commit",
+        expectedHead,
+        "--json",
+        "databaseId,conclusion,status,workflowName,headSha",
+      ],
       wtPath,
     );
     if (listed.status === 0) {
@@ -715,14 +722,18 @@ function cancelledRunIds(
           databaseId?: number | string;
           conclusion?: string;
           status?: string;
+          workflowName?: string;
+          headSha?: string;
         }>;
         for (const run of runs) {
           if (
             (run.conclusion === "cancelled" || run.status === "cancelled") &&
+            run.headSha === expectedHead &&
+            cancelled.some((check) =>
+              [check.name, check.workflow].filter(Boolean).includes(run.workflowName),
+            ) &&
             run.databaseId !== undefined
           ) {
-            // `gh run list` is newest first; without a check link it is the
-            // best available match for the cancelled check.
             ids.add(String(run.databaseId));
             break;
           }
@@ -749,9 +760,15 @@ function waitForChecks(
   const expectedHead = prHeadOid(runner, wtPath, pr) ?? localHead;
   let checks: GhCheck[] = [];
   let retriedCancel = false;
+  let retriedRunIds = new Set<string>();
+  let sawNonCancelAfterRetry = false;
   for (let polls = 0; now() <= deadline && polls < maxPolls; polls++) {
     // gh exits 8 while checks are pending and 1 when one failed or none are reported yet.
-    const result = runner("gh", ["pr", "checks", pr, "--json", "name,state,bucket,link"], wtPath);
+    const result = runner(
+      "gh",
+      ["pr", "checks", pr, "--json", "name,workflow,state,bucket,link"],
+      wtPath,
+    );
     try {
       checks = JSON.parse(result.stdout) as GhCheck[];
     } catch {
@@ -775,12 +792,27 @@ function waitForChecks(
     }
     if (cancelled.length && pending.length === 0) {
       const cancelledNames = named(cancelled);
+      if (retriedCancel) {
+        const currentRunIds = new Set(
+          cancelled.flatMap((check) => {
+            const id = runIdFromCheckLink(check.link);
+            return id ? [id] : [];
+          }),
+        );
+        const isSecondCancel =
+          sawNonCancelAfterRetry || [...currentRunIds].some((id) => !retriedRunIds.has(id));
+        if (!isSecondCancel) {
+          sleep(pollMs);
+          continue;
+        }
+      }
       // Infrastructure runner-acquisition timeouts conclude as `cancel` with no
       // other failures and an unchanged PR head; retry those runs once.
       if (!retriedCancel && expectedHead && prHeadOid(runner, wtPath, pr) === expectedHead) {
         const runIds = cancelledRunIds(runner, wtPath, cancelled, expectedHead);
         if (runIds.length > 0) {
           retriedCancel = true;
+          retriedRunIds = new Set(runIds);
           for (const runId of runIds) {
             log(
               `PR checks: rerunning cancelled workflow run ${runId} (${cancelledNames.join(", ")}) once`,
@@ -793,6 +825,7 @@ function waitForChecks(
       }
       fail(`checks failed: ${cancelledNames.join(", ")}`);
     }
+    if (retriedCancel && cancelled.length === 0) sawNonCancelAfterRetry = true;
     log(
       `PR checks: ${checks.length ? checks.map((c) => `${c.name ?? "unnamed"} ${c.bucket ?? c.state ?? "unknown"}`).join(", ") : "waiting for checks"}`,
     );

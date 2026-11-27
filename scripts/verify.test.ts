@@ -96,11 +96,31 @@ test("verify lock reclaims stale files and honors the opt-out", async () => {
       staleMs: 10,
       now: () => 100,
       isAlive: () => false,
+      log: () => {},
       registerSignals: false,
     });
     expect(lock?.info.pid).toBe(505);
     lock?.release();
     expect(await acquireVerifyLock({ lockPath, env: { BLAST_VERIFY_LOCK: "0" } })).toBeUndefined();
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("verify lock is released when a run fails", async () => {
+  const root = mkdtempSync(join(tmpdir(), "blast-verify-lock-"));
+  try {
+    const lockPath = join(root, "blast-verify.lock");
+    let lock: Awaited<ReturnType<typeof acquireVerifyLock>> | undefined;
+    try {
+      lock = await acquireVerifyLock({ lockPath, pid: 606, registerSignals: false });
+      throw new Error("simulated verify failure");
+    } catch (error) {
+      expect(String(error)).toContain("simulated verify failure");
+    } finally {
+      lock?.release();
+    }
+    expect(() => readFileSync(lockPath)).toThrow();
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

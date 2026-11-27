@@ -831,7 +831,7 @@ describe("tasks:land", () => {
     ).toEqual([["gh", "run", "rerun", "123", "--failed"]]);
 
     const secondCancel = runCancelledLand(
-      [cancelledCheck("123"), cancelledCheck("123")],
+      [cancelledCheck("123"), cancelledCheck("456")],
       ["abc", "abc"],
     );
     expect(secondCancel.error).toContain("checks failed: ci");
