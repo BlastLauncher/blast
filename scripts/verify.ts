@@ -162,7 +162,8 @@ function readLockState(lockPath: string): LockState {
       };
     }
   } catch {
-    // Handled as corrupt below (with grace period so a concurrent writer finishes).
+    // Handled as corrupt below: locks are linked into place fully written, so
+    // a corrupt file is never a writer mid-write.
   }
   return { kind: "corrupt", mtimeMs };
 }
@@ -223,6 +224,8 @@ function tryReclaimStaleLock(
       (moved.kind === "valid" && moved.info.token !== expectedToken) ||
       (moved.kind === "valid" && isAlive(moved.info.pid))
     ) {
+      // Known limit: rename overwrites, so a lock another run created in the
+      // instant between the two renames is lost and two verifies may overlap.
       try {
         renameSync(reclaimPath, lockPath);
       } catch (error) {
@@ -282,7 +285,8 @@ function createLockHandle(
 
 /**
  * Acquires the repository-wide verify lock, printing who holds it while
- * waiting and reclaiming stale locks (dead pid or held past `staleMs`).
+ * waiting and reclaiming stale locks (dead holder pid or corrupt file); a live
+ * holder is never taken over, however long it holds the lock.
  * Returns `undefined` when `BLAST_VERIFY_LOCK=0` or no git common dir exists.
  */
 export async function acquireVerifyLock(
