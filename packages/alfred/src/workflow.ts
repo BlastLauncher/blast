@@ -17,6 +17,8 @@ export type AlfredObject = {
   type: string;
   version: number;
   config: PlistDict;
+  /** Alfred 5 `inboundconfig`; `externalid` lets External Triggers target the object. */
+  inboundConfig?: PlistDict;
 };
 
 export type AlfredConnection = {
@@ -186,6 +188,7 @@ function parseObjects(value: PlistValue | undefined): AlfredObject[] {
       type,
       version: integer(entry.version, 1),
       config: isDict(entry.config) ? entry.config : {},
+      ...(isDict(entry.inboundconfig) ? { inboundConfig: entry.inboundconfig } : {}),
     };
   });
 }
