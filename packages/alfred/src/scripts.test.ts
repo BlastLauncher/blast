@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { chmod, mkdir, mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 import {
   buildWorkflowEnv,
   escapeQuery,
@@ -102,6 +102,40 @@ describe("resolveScriptCommand", () => {
       'a "b" $c \\d',
     );
     expect(resolved.args).toEqual(["-c", 'echo "a \\"b\\" \\$c \\\\d"', "--"]);
+  });
+
+  test("a missing fixed interpreter falls back to PATH, then Homebrew on macOS", () => {
+    const usrLocal = join("/usr", "local", "bin", "php");
+    const custom = join("/custom", "bin", "php");
+    const homebrew = join("/opt", "homebrew", "bin", "php");
+    const lookup = (found: string[], PATH = ["relative", "/custom/bin"].join(delimiter)) => ({
+      env: { PATH },
+      exists: (path: string) => found.includes(path),
+    });
+    const php = (platform: string, found: string[], PATH?: string) =>
+      resolveScriptCommand(argv(1), dir, "q", platform, lookup(found, PATH)).command;
+
+    // `/usr/bin/php` is absent and an executable is on PATH.
+    expect(php("darwin", [custom, homebrew])).toBe(custom);
+    expect(php("linux", [custom])).toBe(custom);
+    // Homebrew's prefixes are searched after PATH, on macOS only.
+    expect(php("darwin", [homebrew, usrLocal], "")).toBe(homebrew);
+    expect(php("darwin", [usrLocal], "")).toBe(usrLocal);
+    expect(php("linux", [homebrew], "")).toBe("/usr/bin/php");
+    // Relative PATH entries are never used.
+    expect(php("linux", [join("relative", "php")])).toBe("/usr/bin/php");
+    // A present fixed path wins; nothing found keeps it for a clear spawn error.
+    expect(php("darwin", ["/usr/bin/php", custom])).toBe("/usr/bin/php");
+    expect(php("darwin", [])).toBe("/usr/bin/php");
+    // External scripts are never looked up.
+    const external = resolveScriptCommand(
+      { type: 8, scriptfile: "bin/echo-args.sh" },
+      dir,
+      "",
+      "darwin",
+      lookup([]),
+    );
+    expect(external.command).toBe(join(dir, "bin", "echo-args.sh"));
   });
 
   test("strips PHP tags for php -r", () => {
