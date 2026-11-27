@@ -57,17 +57,17 @@ Embedder protocol 2 (decision 0020) shrinks a 10,000-item one-item edit on the
 
 Before numbers are medians from 4 `main` runs on `2026-11-26/27` (CI `#45919150758`, `#45854051376`, `#45843866424`, `#45836166717`; prerelease `#45854051490`, `#45843866264`, `#45836166607`, `#45827321864`) and local M3 (8 cores). CI after numbers are estimates pending the first PR run.
 
-| Workflow / gate           | Before                    | After                      | Key change                                                                                    |
-| ------------------------- | ------------------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
-| PR CI wall time           | 123 s (119–137 s)         | ~55 s est. (65 s w/ macOS) | Parallel verify + split tests + path filters                                                  |
-| CI `verify`               | 118 s (112–133 s)         | ~50–55 s est.              | Skip `apt-get` when `tmux` exists; parallel verify                                            |
-| CI `macos-example`        | 85 s (+3–24 s queue)      | skipped / ~40 s est.       | `changes` filter + Swift `.build` cache                                                       |
-| CI `go-example`           | 29 s (24–32 s)            | skipped / ~35 s est.       | `changes` filter (Go compile ~2 s; no cache)                                                  |
-| CI `python-example`       | 21 s (18–21 s)            | skipped / ~29 s est.       | `changes` filter                                                                              |
-| CI `tmux-plugin`          | 17 s (15–41 s)            | skipped / ~21 s est.       | `changes` filter + skip `apt-get`                                                             |
-| `prerelease.yml` (`main`) | 243 s (228–260 s)         | ~120–130 s est.            | Parallel `verify-ci` (reuses CI) + Chromium cache + parallel plan                             |
-| Local `bun run verify`    | 88 s (83.9 s tests)       | 27.7 s (26.1 s tests)      | Parallel static checks, `--parallel --no-isolate`, split CLI/serve tests, `defaultNodePath()` |
-| `tasks:land` poll wait    | 20 s interval (~10 s avg) | 5 s interval (~2.5 s avg)  | `DEFAULT_LAND_POLL_MS = 5_000` (`--poll-ms`)                                                  |
+| Workflow / gate           | Before                    | After                                     | Key change                                                                                                                                                         |
+| ------------------------- | ------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| PR CI wall time           | 123 s (119–137 s)         | ~60–65 s est. (70 s w/ macOS)             | Bounded parallel verify + split tests + path filters                                                                                                               |
+| CI `verify`               | 118 s (112–133 s)         | ~55–65 s est.                             | Skip `apt-get` when `tmux` exists; bounded parallel verify (`jobs=2` on 4c)                                                                                        |
+| CI `macos-example`        | 85 s (+3–24 s queue)      | skipped / ~40 s est.                      | `changes` filter + Swift `.build` cache                                                                                                                            |
+| CI `go-example`           | 29 s (24–32 s)            | skipped / ~35 s est.                      | `changes` filter (Go compile ~2 s; no cache)                                                                                                                       |
+| CI `python-example`       | 21 s (18–21 s)            | skipped / ~29 s est.                      | `changes` filter                                                                                                                                                   |
+| CI `tmux-plugin`          | 17 s (15–41 s)            | skipped / ~21 s est.                      | `changes` filter + skip `apt-get`                                                                                                                                  |
+| `prerelease.yml` (`main`) | 243 s (228–260 s)         | ~120–130 s est.                           | Parallel `verify-ci` (reuses CI) + Chromium cache + parallel plan                                                                                                  |
+| Local `bun run verify`    | 88 s (83.9 s tests)       | 32.6 s median (30.4–34.3 s; 30.2 s tests) | Bounded static pool + sequential `mac-fixtures`, `--parallel=3 --no-isolate --max-concurrency=3` (`BLAST_VERIFY_JOBS`), split CLI/serve tests, `defaultNodePath()` |
+| `tasks:land` poll wait    | 20 s interval (~10 s avg) | 5 s interval (~2.5 s avg)                 | `DEFAULT_LAND_POLL_MS = 5_000` (`--poll-ms`)                                                                                                                       |
 
 Trigger changes (every check still runs for its own inputs and fails safe to all-on when diff or shared config changes):
 

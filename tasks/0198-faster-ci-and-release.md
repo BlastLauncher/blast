@@ -72,27 +72,29 @@ silently. A short before/after table proves it.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/stabilize-parallel-tests @ eb0b832c (followed by this handoff commit)
-Verify: 10/10 consecutive runs passed + fixed --seed=20261127 passed:
-  Run 1: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 33.7s [--seed=4157966147]
-  Run 2: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 36.5s [--seed=1418558769]
-  Run 3: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 39.5s [--seed=3531937687]
-  Run 4: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 43.3s [--seed=58974828]
-  Run 5: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 52.5s [--seed=598984088]
-  Run 6: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 88.2s [--seed=3652059619]
-  Run 7: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 41.1s [--seed=3959950567]
-  Run 8: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 37.5s [--seed=145312887]
-  Run 9: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 34.9s [--seed=2905999356]
-  Run 10: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 37.2s [--seed=298756610]
-  Fixed seed (--seed=20261127): 1265 pass, 0 fail (1266 tests across 177 files, 1 skipped) — verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 37.3s
+Branch/commit: t3/f8ab3aa3 @ 4acda3f6 (followed by this docs + handoff commit; merged origin/main @ a0196725)
+Verify:
+  Concurrency sweep on 8-core M3 (--seed=20261127, restored timeouts):
+    - Round 2 unbounded (reviewer): ~26s wall, load 7 -> 24, 12 bun + 21 node + 11 esbuild (looped/concurrent >400 load)
+    - BLAST_VERIFY_JOBS=2: 42.5s wall, load 2.84 -> 3.76, peak (5 bun, 12 node, 3 esbuild)
+    - BLAST_VERIFY_JOBS=3 (chosen default for 8c): 30.2s wall, load 3.32 -> 3.87, peak (7 bun, 11 node, 6 esbuild)
+    - BLAST_VERIFY_JOBS=4: 28.0s wall, load 3.87 -> 7.75, peak (8 bun, 12 node, 6 esbuild)
+  Stress check (a) — 5 consecutive runs with default bounded settings (jobs=3 on 8c):
+    - Run 1 (--seed=2524085356): verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 30.4s [tests 28.23s, load 2.49 -> 4.87]
+    - Run 2 (--seed=2515569068): verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 30.9s [tests 28.63s, load 4.87 -> 7.69]
+    - Run 3 (--seed=252573629):  verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 34.3s [tests 32.05s, load 7.40 -> 8.91]
+    - Run 4 (--seed=2638700937): verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 33.3s [tests 31.00s, load 8.28 -> 9.16]
+    - Run 5 (--seed=396499013):  verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 32.6s [tests 30.15s, load 8.51 -> 8.51]
+  Stress check (b) — 2 concurrent checkouts of 4acda3f6 (total wall 54.4s, uptime sampled every 1s: start load 5.86, peak load 18.06 across 53 samples):
+    - Checkout 1 (--seed=2660596725): verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 50.7s [tests 48.39s]
+    - Checkout 2 (--seed=3988266174): verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 52.0s [tests 47.64s]
 Done:
 - Round 1: parallelized `scripts/verify.ts` static/contract steps and switched tests to `bun test --parallel --no-isolate --randomize`, split slow CLI/serve suites, bounded `scripts/mac-fixtures.ts` and added `defaultNodePath()`, shortened `tasks:land` polling (`DEFAULT_LAND_POLL_MS = 5_000`) and replaced slow real-git work in `scripts/tasks.test.ts`, added CI path filters and Swift/Chromium caching, added `prerelease.yml` `verify-ci` reuse (`scripts/release/wait-ci-verify.ts`), and updated `docs/performance.md` + `docs/release.md`.
-- Round 2 — sync-replay unsubscribe safety: added shared `packages/host/src/test-helper.ts` (`waitForScene`, `waitForSubscription`, excluded from release tarballs via `**/*test-helper.ts`) that unsubscribes synchronously after `subscribe()`/`scenes()` returns when settled during replay, and migrated `runtime-pool.test.ts`, `install-dependencies.test.ts`, `index.test.ts`, `tsconfig-paths.test.ts`, `extension.test.ts`, `root.test.ts`, and `launch-flow.test.ts` onto it (with a regression test in `index.test.ts`). Updated `packages/tui/src/test-support.ts` (`waitScene`, `waitSceneMatch`) to replace `queueMicrotask(() => stop?.())` with synchronous cleanup and migrated `tmux-extension.test.ts`, `tpm-extension.test.ts`, and `session.test.ts`.
-- Round 2 — non-test sync-replay fixes & product guard: fixed the same `const stop = session.scenes(...)` TDZ bug in `scripts/bench/index.ts`, guarded sync-replay unsubscribes in `scripts/corpus/smoke-command.ts` and `packages/cli/src/cli.ts`, and made `session.scenes()` in `packages/host/src/session.ts` remove the listener if the synchronous replay callback throws (real users hitting an exception during replay no longer leak a broken listener; normal synchronous replay behaviour is unchanged).
-- Round 2 — parallel contention timeouts: added `NODE_COMPILE_CACHE` and raised the 3 s hang guard to 15 s in `packages/runtime/src/process-test-helper.ts`, raised tight 2 s / 2.5 s subprocess timeouts in `packages/runtime/src/main.test.ts` and `packages/cli/src/cli-capabilities.test.ts` to 15 s, isolated `dataDir` in `packages/host/src/bundle.test.ts`, and passed `--timeout=15000` in `scripts/verify.ts` so process-spawning tests do not hit Bun's 5 s default under 8× parallel load.
-- Round 2 — `verify-ci` comments: updated header comments in `scripts/release/wait-ci-verify.ts` and `.github/workflows/prerelease.yml` to state plainly that running `bun run verify` locally in `verify-ci` is the fallback gate (logic unchanged).
+- Round 2: added sync-replay unsubscribe safety (`packages/host/src/test-helper.ts`, `packages/tui/src/test-support.ts`, `packages/host/src/session.ts`, `packages/cli/src/cli.ts`, `scripts/bench/index.ts`, `scripts/corpus/smoke-command.ts`), isolated `dataDir` in `packages/host/src/bundle.test.ts`, added `NODE_COMPILE_CACHE` in `packages/runtime/src/process-test-helper.ts`, and clarified `verify-ci` fallback comments.
+- Round 3 — bounded verify concurrency: added `resolveVerifyLimits()` in `scripts/verify.ts` (with `BLAST_VERIFY_JOBS` env override and `scripts/verify.test.ts`) defaulting to `~40%` of host cores (`jobs = 1/2/3/6` on `2/4/8/16` cores): runs pure static checks in a bounded pool (`staticConcurrency <= 2`) with `--threads <= 2` forwarded to `oxfmt` (`scripts/fmt.ts`) and `oxlint`, runs `mac-fixtures` separately afterwards with bounded `--concurrency <= 2` (`defaultFixtureConcurrency()` in `scripts/mac-fixtures.ts`), and runs `bun test --parallel=<jobs> --no-isolate --max-concurrency=<min(4, jobs)>`.
+- Round 3 — timeout restoration: removed `--timeout=15000` from `scripts/verify.ts`, restored `WAIT_TIMEOUT_MS = 3_000` in `packages/runtime/src/process-test-helper.ts` (keeping `NODE_COMPILE_CACHE`), restored the four `2000` ms timeouts in `packages/runtime/src/main.test.ts`, restored `2500` ms in `packages/cli/src/cli-capabilities.test.ts:240`, and lowered `waitForScene` default timeout in `packages/host/src/test-helper.ts` from 15 s to 5 s. No timeout raises needed to be kept.
+- Round 3 — workflow & TUI fixes + docs: exported `playwrightVersion` from `packages/web/build/assets.ts` and derived `.github/workflows/prerelease.yml`'s Chromium cache key from it while keeping `--with-deps` on cache miss and running `playwright install-deps chromium` on cache hit; wrapped `waitSceneMatch`'s sync replay in `try/catch` in `packages/tui/src/test-support.ts` (with a regression test in `packages/tui/src/session.test.ts`); updated `docs/performance.md` with bounded local verify timings.
 Not done / risks:
 - CI/prerelease after numbers in `docs/performance.md` remain estimates until the orchestrator replaces them with the PR/main run timings.
-- `prerelease.yml`'s Chromium install skips `--with-deps` on `ubuntu-24.04` (restore on cache miss if a future runner image drops a shared library).
-- Round-2 `verify` wall times (33.7–88.2 s) were measured while the host Mac had heavy unrelated background load (Xcode / iOS Simulator); `docs/performance.md` keeps the idle M3 baseline (27.7 s).
+- Final `bun run verify` after the docs/handoff edit (below) verifies formatting, workflow limits, and tests on the final commit.
 ```
