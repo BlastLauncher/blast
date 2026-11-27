@@ -99,7 +99,8 @@ same handle: archives extract once per content hash into `<dataDir>/workflows/`
 (`prepareAlfredWorkflow`), the manifest comes from `info.plist`, nothing is
 installed, and `launch()` runs `@blastlauncher/alfred/main` via `startCommand`'s
 `runtimeEntry` (no standby pool) on `<workflowDir>/info.plist`, whose directory
-is also `assetsDir()` and `assetsPath` (decision 0021).
+is also `assetsDir()` and `assetsPath` (decision 0021). Supported objects,
+preferences and `bun run alfred:analyze` are in [alfred.md](alfred.md).
 `blast deps` installs `--omit=peer` under `<dataDir>/deps/` and repairs required
 non-supplied peers in up to two passes (preferring lock pins, recording
 additions in the install key, and warning on conflicts or unresolved peers).
