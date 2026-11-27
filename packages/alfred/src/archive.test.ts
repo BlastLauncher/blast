@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { EXTRACTED_MARKER, extractWorkflowArchive, readZipEntries } from "./archive.ts";
-import { zip } from "./test-workflow.ts";
+import { zip } from "./workflow-test-helper.ts";
 
 const text = (bytes: Uint8Array) => new TextDecoder().decode(bytes);
 

@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { SceneMessage } from "@blastlauncher/protocol";
-import { writeWorkflow, writeWorkflowArchive } from "../../alfred/src/test-workflow.ts";
+import { writeWorkflow, writeWorkflowArchive } from "../../alfred/src/workflow-test-helper.ts";
 import type { Session } from "./session.ts";
 
 export type WaitOptions = {
