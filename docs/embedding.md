@@ -1,8 +1,9 @@
 # Embedding Blast
 
-Blast runs unmodified Raycast extension commands and hands your app views to
-draw plus capability requests to answer. You own windows, pixels, input, and
-policy; the engine owns the launcher flow (decision 0014): command search,
+Blast runs unmodified Raycast extension commands and Alfred workflows
+([alfred.md](alfred.md)) and hands your app views to draw plus capability
+requests to answer. You own windows, pixels, input, and policy; the engine
+owns the launcher flow (decision 0014): command search,
 [launch prompts](launch-prompts.md), dependency installs, and command views.
 
 A **view** is the `ControllerView` model (`kind`, `title`, `search`, `rows`,
