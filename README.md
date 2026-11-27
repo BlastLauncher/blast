@@ -72,8 +72,8 @@ The curated [smoke](./compat/SMOKE.md) renders 237/253 commands; dependency
 smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
 
 > **Alpha:** `3.0.0-alpha.10` is published on npm as `latest`
-> (`npm install @blastlauncher/<package>`); `@next` also carries a canary from
-> every `main` merge. Reference clients: the browser demo, the TUI, the Go and Python
+> (`npm install @blastlauncher/<package>`); `@next` also gets a canary from
+> each `main` merge that touches packages or release inputs. Reference clients: the browser demo, the TUI, the Go and Python
 > embedders, the AppKit and web launchers.
 
 ## Packages
