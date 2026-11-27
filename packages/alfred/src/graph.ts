@@ -325,12 +325,17 @@ export async function executeWorkflowGraph(
       return ok ? pass(flow) : [];
     },
 
-    "utility.replace": async ({ config, flow }) => {
-      const match = plistString(config.matchstring);
+    "utility.replace": async ({ config, flow, expand }) => {
+      const match = await expand(plistString(config.matchstring));
       if (match === "") return pass(flow);
-      const replacement = plistString(config.replacestring);
+      const replacement = await expand(plistString(config.replacestring));
       const regex = integer(config.matchmode) === 1;
-      const flags = `g${config.matchcasesensitive === true ? "" : "i"}${config.multiline === true ? "m" : ""}`;
+      // Real Alfred plists store `regexcaseinsensitive` and `regexmultiline`
+      // (both default to false, i.e. case-sensitive).
+      const insensitive =
+        config.regexcaseinsensitive === true || config.matchcasesensitive === false;
+      const multiline = config.regexmultiline === true || config.multiline === true;
+      const flags = `g${insensitive ? "i" : ""}${multiline ? "m" : ""}`;
       const pattern = new RegExp(
         regex ? match : match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
         flags,
@@ -343,8 +348,12 @@ export async function executeWorkflowGraph(
     "utility.split": async ({ config, flow }) => {
       const delimiter = unescapeDelimiter(plistString(config.delimiter));
       let parts = delimiter === "" ? [queryText(flow.arg)] : queryText(flow.arg).split(delimiter);
-      if (config.trimwhitespace === true) parts = parts.map((part) => part.trim());
-      if (config.discardemptyvalues === true) parts = parts.filter((part) => part !== "");
+      if (config.trimarguments === true || config.trimwhitespace === true) {
+        parts = parts.map((part) => part.trim());
+      }
+      if (config.discardemptyarguments === true || config.discardemptyvalues === true) {
+        parts = parts.filter((part) => part !== "");
+      }
       if (integer(config.outputas) !== 1) return [{ arg: parts, variables: flow.variables }];
       const prefix = plistString(config.variableprefix) || "split";
       const variables = { ...flow.variables };
@@ -376,8 +385,9 @@ export async function executeWorkflowGraph(
       ];
     },
 
-    "utility.delay": async ({ config, flow }) => {
-      const seconds = Number(plistString(config.seconds) || "0");
+    "utility.delay": async ({ config, flow, expand }) => {
+      const raw = await expand(plistString(config.seconds));
+      const seconds = Number(raw.trim() || "0");
       if (Number.isFinite(seconds) && seconds > 0) await sleep(seconds * 1000, signal);
       return pass(flow);
     },
@@ -399,14 +409,21 @@ export async function executeWorkflowGraph(
       const buttons = [config.button1, config.button2, config.button3]
         .map((button) => plistString(button))
         .filter((button) => button !== "");
+      const body = plistString(config.description) || plistString(config.text);
       const index = await host.showDialog({
         title: await expand(plistString(config.title)),
-        text: await expand(plistString(config.text)),
+        text: await expand(body),
         buttons,
       });
       if (index === undefined) return [];
-      const perButton = (outgoing.get(object.uid) ?? []).some((c) => c.sourceOutputUid);
-      const output = plistString(config[`button${index + 1}uid`]) || `button${index + 1}`;
+      const conns = outgoing.get(object.uid) ?? [];
+      const perButton = conns.some((c) => c.sourceOutputUid);
+      const n = index + 1;
+      const candidates = [`_button${n}`, plistString(config[`button${n}uid`]), `button${n}`].filter(
+        Boolean,
+      );
+      const output =
+        candidates.find((id) => conns.some((c) => c.sourceOutputUid === id)) ?? `_button${n}`;
       return [{ ...pass(flow)[0]!, ...(perButton ? { output } : {}) }];
     },
 
@@ -461,8 +478,10 @@ export async function executeWorkflowGraph(
       return pass(flow);
     },
 
-    "action.revealfile": async ({ flow }) => {
-      for (const path of items(flow.arg)) {
+    "action.revealfile": async ({ config, flow, expand }) => {
+      const configured = plistString(config.path);
+      const paths = configured ? [await expand(configured)] : items(flow.arg);
+      for (const path of paths) {
         if (path.trim() !== "")
           await host.request("finder.show", { path: expandPath(path.trim()) });
       }
@@ -491,7 +510,8 @@ export async function executeWorkflowGraph(
 
     "output.largetype": async ({ config, flow, expand }) => {
       if (!host.showLargeType) throw new Error("this host cannot show Large Type");
-      await host.showLargeType(await expand(plistString(config.text) || "{query}"));
+      const raw = plistString(config.largetypetext) || plistString(config.text) || "{query}";
+      await host.showLargeType(await expand(raw));
       return pass(flow);
     },
 
@@ -499,10 +519,16 @@ export async function executeWorkflowGraph(
       const name = expandPath((await expand(plistString(config.filename))).trim());
       if (name === "") throw new Error("Write Text File has no filename");
       const text = await expand(typeof config.filetext === "string" ? config.filetext : "{query}");
-      const base = [home, options.supportPath ?? home, workflow.dir ?? home][
-        integer(config.relativepathmode)
-      ];
-      let path = isAbsolute(name) ? name : join(base ?? home, name);
+      const relMode = integer(config.relativepathmode, 0);
+      const base =
+        relMode === -1
+          ? (workflow.dir ?? options.supportPath ?? home)
+          : relMode === 1
+            ? (options.supportPath ?? home)
+            : relMode === 2
+              ? (workflow.dir ?? home)
+              : home;
+      let path = isAbsolute(name) ? name : join(base, name);
       if (config.adduuid === true) {
         const ext = extname(path);
         const id = (options.uuid ?? (() => randomUUID().toUpperCase()))();
@@ -512,10 +538,11 @@ export async function executeWorkflowGraph(
       if (config.createintermediatefolders === true) {
         await mkdir(dirname(path), { recursive: true });
       }
-      const mode = integer(config.type);
+      // Alfred Write Text File `type`: 0 = skip if exists, 1 = overwrite, 2 = append.
+      const mode = integer(config.type, 1);
       if (mode === 2) {
         await appendFile(path, text);
-      } else if (mode === 1) {
+      } else if (mode === 0) {
         const exists = await stat(path).then(
           () => true,
           () => false,

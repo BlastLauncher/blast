@@ -162,7 +162,7 @@ describe("utilities", () => {
     expect(h.calls).toEqual([["clipboard.copy", { text: "Hello World" }]]);
   });
 
-  test("replace honours case sensitivity and multiline", async () => {
+  test("replace honours case sensitivity, multiline and placeholders", async () => {
     const h = host();
     await run(
       workflow(
@@ -171,12 +171,17 @@ describe("utilities", () => {
           [
             "A",
             "utility.replace",
-            { matchstring: "hello", replacestring: "bye", matchcasesensitive: true },
+            { matchstring: "hello", replacestring: "bye", regexcaseinsensitive: false },
           ],
           [
             "B",
             "utility.replace",
-            { matchstring: "^w", matchmode: 1, replacestring: "_", multiline: true },
+            {
+              matchstring: "^w",
+              matchmode: 1,
+              replacestring: "{var:base}_",
+              regexmultiline: true,
+            },
           ],
           COPY(),
         ],
@@ -189,7 +194,7 @@ describe("utilities", () => {
       h,
       { input: "Hello\nworld" },
     );
-    expect(h.calls).toEqual([["clipboard.copy", { text: "Hello\n_orld" }]]);
+    expect(h.calls).toEqual([["clipboard.copy", { text: "Hello\nworkflow_orld" }]]);
   });
 
   test("transform types 0-5", async () => {
@@ -228,7 +233,7 @@ describe("utilities", () => {
           [
             "S",
             "utility.split",
-            { delimiter: "\\n", trimwhitespace: true, discardemptyvalues: true },
+            { delimiter: "\\n", trimarguments: true, discardemptyarguments: true },
           ],
           ["URL", "action.openurl", { url: "https://x.test/{query}" }],
           ["V", "utility.split", { delimiter: ",", outputas: 1, variableprefix: "part" }],
@@ -427,7 +432,11 @@ describe("conditional", () => {
 describe("dialog", () => {
   const nodes: Node[] = [
     KEYWORD,
-    ["D", "utility.dialog", { title: "Sure?", text: "{query}", button1: "OK", button2: "Cancel" }],
+    [
+      "D",
+      "utility.dialog",
+      { title: "Sure?", description: "{query}", button1: "OK", button2: "Cancel" },
+    ],
     COPY("OK", "ok"),
     COPY("NO", "no"),
   ];
@@ -435,8 +444,8 @@ describe("dialog", () => {
   test("routes by button output", async () => {
     const wf = workflow(nodes, [
       ["IN", "D"],
-      ["D", "OK", { sourceoutputuid: "button1" }],
-      ["D", "NO", { sourceoutputuid: "button2" }],
+      ["D", "OK", { sourceoutputuid: "_button1" }],
+      ["D", "NO", { sourceoutputuid: "_button2" }],
     ]);
     const seen: unknown[] = [];
     const h = host({
@@ -649,7 +658,7 @@ describe("outputs", () => {
         [
           KEYWORD,
           ["N", "output.notification", { title: "{const:alfred_workflow_name}" }],
-          ["L", "output.largetype", { text: "big {query}" }],
+          ["L", "output.largetype", { largetypetext: "big {query}" }],
         ],
         [
           ["IN", "N"],
@@ -680,10 +689,10 @@ describe("outputs", () => {
       ).then((result) => ({ result, calls: h.calls }));
     };
     const file = join(dir, "out.txt");
-    await write({ filename: file, type: 0 }, "one");
-    await write({ filename: file, type: 0 }, "two");
+    await write({ filename: file, type: 1 }, "one");
+    await write({ filename: file, type: 1 }, "two");
     expect(await readFile(file, "utf8")).toBe("two");
-    await write({ filename: file, type: 1 }, "three");
+    await write({ filename: file, type: 0 }, "three");
     expect(await readFile(file, "utf8")).toBe("two");
     await write({ filename: file, type: 2 }, "+four");
     expect(await readFile(file, "utf8")).toBe("two+four");
