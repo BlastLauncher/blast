@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -19,6 +19,11 @@ import {
   type SceneMessage,
   type SceneNode,
 } from "@blastlauncher/protocol";
+import {
+  searchFilesPortable,
+  type FileFilterMatch,
+  type FileFilterOptions,
+} from "./file-filter.ts";
 import type {
   GraphHost,
   GraphScriptRequest,
@@ -67,6 +72,7 @@ async function launch(
     /** Spawn the workflow's real scripts instead of `scripts`. */
     realScripts?: boolean;
     system?: Pick<GraphHost, "playSound" | "speak" | "runShortcut">;
+    searchFiles?: (options: FileFilterOptions) => Promise<FileFilterMatch[]>;
   },
 ) {
   const dir = await writeWorkflow(
@@ -147,6 +153,7 @@ async function launch(
         }),
     ...(options.now ? { now: options.now } : {}),
     ...(options.system ? { system: options.system } : {}),
+    ...(options.searchFiles ? { searchFiles: options.searchFiles } : {}),
   });
   send({
     type: "init",
@@ -656,6 +663,164 @@ describe("List Filter", () => {
     ]);
     expect(filterItems(items, "split ban").map((item) => item.title)).toEqual(["Banana split"]);
     expect(filterItems(items, "  ")).toBe(items);
+  });
+});
+
+/** A folder of files, and a recording File Filter search that never asks Spotlight. */
+async function files(name: string, paths: string[]) {
+  const dir = join(root, name);
+  for (const path of paths) {
+    await mkdir(join(dir, path, ".."), { recursive: true });
+    await writeFile(join(dir, path), path);
+  }
+  const searches: FileFilterOptions[] = [];
+  const searchFiles = (options: FileFilterOptions) => {
+    searches.push(options);
+    return searchFilesPortable(options);
+  };
+  return { dir, searches, searchFiles };
+}
+
+describe("File Filter", () => {
+  test("a top-level File Filter searches, renders file items and routes actions", async () => {
+    const found = await files("ff-top", ["a.png", "notes.txt", "sub/c.png"]);
+    const session = await launch(
+      [
+        [
+          "ff",
+          "input.filefilter",
+          {
+            keyword: "ff",
+            title: "Find {var:kind}",
+            subtext: "Images in {var:kind}",
+            argumenttype: 1,
+            scopes: ["{var:where}"],
+            types: ["public.image"],
+          },
+        ],
+        ["next", "action.script"],
+        ["alt", "action.script"],
+      ],
+      [
+        ["ff", "next"],
+        ["ff", "alt", { modifiers: ALT, modifiersubtext: "Alt thing" }],
+      ],
+      {
+        command: "ff",
+        variables: { kind: "pictures", where: found.dir },
+        searchFiles: found.searchFiles,
+      },
+    );
+    await session.until(() => titles(session.view()).length === 2, "file items");
+    expect(titles(session.view())).toEqual(["a.png", "c.png"]);
+    expect(found.searches[0]).toMatchObject({ query: "", scopes: [found.dir] });
+    const list = find(session.root, (node) => node.type === "List")!;
+    expect(list.props).toMatchObject({
+      navigationTitle: "Find pictures",
+      searchBarPlaceholder: "Images in pictures",
+      filtering: false,
+    });
+    const c = join(found.dir, "sub", "c.png");
+    const subDir = join(found.dir, "sub");
+    const home = homedir();
+    const expectedSub = subDir.startsWith(`${home}/`) ? `~${subDir.slice(home.length)}` : subDir;
+    const item = find(session.root, (node) => node.props.title === "c.png")!;
+    expect(item.type).toBe("List.Item");
+    expect(item.props.icon).toEqual({ fileIcon: c });
+    expect(item.props.subtitle).toBe(expectedSub);
+    expect(actionTitles(session)).toEqual([
+      "Continue",
+      "Alt thing",
+      "Copy Path",
+      "Reveal in Finder",
+      "Open File",
+      "Show Large Type",
+    ]);
+
+    session.input({ type: "search", text: "c" });
+    await session.until(() => titles(session.view()).join() === "c.png", "search update");
+    expect(found.searches.at(-1)!.query).toBe("c");
+
+    session.input({ type: "key", key: { name: "f", meta: true, shift: true } });
+    await session.until(() => session.capabilities.length === 1, "reveal");
+    session.input({ type: "key", key: { name: "o", meta: true } });
+    await session.until(() => session.capabilities.length === 2, "open");
+    session.input({ type: "key", key: { name: "c", meta: true } });
+    await session.until(() => session.capabilities.length === 3, "copy");
+    expect(session.capabilities).toEqual([
+      { name: "finder.show", params: { path: c } },
+      { name: "open.path", params: { path: c } },
+      { name: "clipboard.copy", params: { text: c } },
+    ]);
+
+    session.input({ type: "primary" });
+    await session.until(() => session.scripts.length === 1, "downstream run");
+    expect(session.scripts[0]).toMatchObject({ uid: "next", query: c });
+  });
+
+  test("a keyword hands off mid-graph with scopes overridden by JSON Config", async () => {
+    const configured = await files("ff-configured", ["wrong.txt"]);
+    const target = await files("ff-target", ["report.pdf", "deep/report.txt", "other.md"]);
+    const config = JSON.stringify({
+      alfredworkflow: { arg: "report", config: { scopes: ["{var:dir}"] } },
+    });
+    const session = await launch(
+      [
+        ["kw", "input.keyword", { keyword: "kw", argumenttype: 2 }],
+        ["cfg", "utility.json", { json: config }],
+        ["ff", "input.filefilter", { scopes: [configured.dir], sortmode: 2 }],
+        ["next", "action.script"],
+      ],
+      [
+        ["kw", "cfg"],
+        ["cfg", "ff"],
+        ["ff", "next"],
+      ],
+      { command: "kw", variables: { dir: target.dir }, searchFiles: target.searchFiles },
+    );
+    await session.until(() => titles(session.view()).length === 2, "handed-off items");
+    // The upstream arg becomes the search text; the override replaces the scopes.
+    expect(target.searches[0]).toMatchObject({ query: "report", scopes: [target.dir] });
+    expect(session.view().search.text).toBe("report");
+    expect(titles(session.view())).toEqual(["report.pdf", "report.txt"]);
+    expect(find(session.root, (node) => node.props.title === "report.txt")!.props.icon).toEqual({
+      fileIcon: join(target.dir, "deep", "report.txt"),
+    });
+    expect(session.exitCode).toBeUndefined();
+
+    session.input({ type: "search", text: "other" });
+    await session.until(() => titles(session.view()).join() === "other.md", "search update");
+    session.input({ type: "primary" });
+    await session.until(() => session.scripts.length === 1, "downstream run");
+    expect(session.scripts[0]!.query).toBe(join(target.dir, "other.md"));
+  });
+
+  test("home paths shorten to ~, a required argument waits, failures show", async () => {
+    const searches: string[] = [];
+    const session = await launch(
+      [["ff", "input.filefilter", { keyword: "ff", title: "Find", argumenttype: 0 }]],
+      [],
+      {
+        command: "ff",
+        async searchFiles(options) {
+          searches.push(options.query);
+          if (options.query === "boom") throw new Error("disk on fire");
+          const path = join(homedir(), "Documents", "x.txt");
+          return [{ path, name: "x.txt", isDirectory: false, mtimeMs: 0 }];
+        },
+      },
+    );
+    await session.until(() => session.view().empty?.title === "Find", "waiting state");
+    expect(searches).toEqual([]);
+    session.input({ type: "search", text: "x" });
+    await session.until(() => titles(session.view()).join() === "x.txt", "results");
+    expect(session.view().rows[0]!.subtitle).toBe(join("~", "Documents"));
+    session.input({ type: "search", text: "boom" });
+    await session.until(
+      () => session.view().empty?.title === "File search failed",
+      "failure state",
+    );
+    expect(session.view().empty?.description).toBe("disk on fire");
   });
 });
 

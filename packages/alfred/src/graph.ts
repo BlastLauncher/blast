@@ -156,6 +156,7 @@ const PREFIX = "alfred.workflow.";
 const VIEW_TYPES = new Set([
   "input.scriptfilter",
   "input.listfilter",
+  "input.filefilter",
   "userinterface.text",
   "userinterface.grid",
   "userinterface.image",

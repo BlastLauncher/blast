@@ -42,14 +42,16 @@ export type AlfredManifest = {
 export const SCRIPT_FILTER = "alfred.workflow.input.scriptfilter";
 export const KEYWORD = "alfred.workflow.input.keyword";
 export const LIST_FILTER = "alfred.workflow.input.listfilter";
+export const FILE_FILTER = "alfred.workflow.input.filefilter";
 export const EXTERNAL_TRIGGER = "alfred.workflow.trigger.external";
 
-const ENTRY_TYPES = new Set([SCRIPT_FILTER, KEYWORD, LIST_FILTER]);
-const VIEW_ENTRY_TYPES = new Set([SCRIPT_FILTER, LIST_FILTER]);
+const ENTRY_TYPES = new Set([SCRIPT_FILTER, KEYWORD, LIST_FILTER, FILE_FILTER]);
+const VIEW_ENTRY_TYPES = new Set([SCRIPT_FILTER, LIST_FILTER, FILE_FILTER]);
 // Objects that draw something, so a command that reaches one needs a view.
 const UI_TYPES = new Set([
   SCRIPT_FILTER,
   LIST_FILTER,
+  FILE_FILTER,
   "alfred.workflow.userinterface.text",
   "alfred.workflow.userinterface.grid",
   "alfred.workflow.userinterface.image",

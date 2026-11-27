@@ -52,7 +52,7 @@ beforeAll(async () => {
     join(corpus, "nested", "deeper", "partial"),
     [
       ["kw", "input.keyword", { keyword: "p" }],
-      ["ff", "input.filefilter", { keyword: "ff" }],
+      ["term", "action.terminalcommand"],
       ["task", "automation.task"],
       ["task2", "automation.task"],
     ],
@@ -116,7 +116,7 @@ describe("analyzeWorkflowDirectory", () => {
       commands: 1,
       objects: { total: 4, supported: 1, passive: 0, unsupported: 3 },
       unsupportedTypes: [
-        "alfred.workflow.input.filefilter",
+        "alfred.workflow.action.terminalcommand",
         "alfred.workflow.automation.task",
         "alfred.workflow.automation.task",
       ],
@@ -140,7 +140,7 @@ describe("analyzeWorkflowDirectory", () => {
       coverage: 70,
       topUnsupported: [
         { type: "alfred.workflow.automation.task", count: 2 },
-        { type: "alfred.workflow.input.filefilter", count: 1 },
+        { type: "alfred.workflow.action.terminalcommand", count: 1 },
       ],
     });
   });
@@ -151,7 +151,7 @@ describe("analyzeWorkflowDirectory", () => {
     expect(text).toContain("Fully supported:      2 (33%)");
     expect(text).toContain("Execution coverage:   70%");
     expect(text).toContain("    2  alfred.workflow.automation.task");
-    expect(text).not.toContain("alfred.workflow.input.filefilter");
+    expect(text).not.toContain("alfred.workflow.action.terminalcommand");
     expect(text).toContain("corrupt.alfredworkflow:");
   });
 
