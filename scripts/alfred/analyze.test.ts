@@ -43,7 +43,10 @@ beforeAll(async () => {
     { name: "Archived" },
   );
   await mkdir(join(corpus, "downloads"));
-  await writeWorkflowArchive(join(scratch, "staging"), join(corpus, "downloads", "a.alfredworkflow"));
+  await writeWorkflowArchive(
+    join(scratch, "staging"),
+    join(corpus, "downloads", "a.alfredworkflow"),
+  );
   // Runnable but with unsupported nodes, nested deeper; a workflow folder is not descended.
   await writeWorkflow(
     join(corpus, "nested", "deeper", "partial"),

@@ -580,8 +580,7 @@ describe("List Filter", () => {
   test(`more than MAX_SCENE_ITEMS items are filtered in the runtime and capped`, async () => {
     const pad = (n: number) => String(n).padStart(3, "0");
     // Letters only, so digit searches match titles alone: 0 → "aa", 7 → "ah".
-    const code = (n: number) =>
-      String.fromCharCode(97 + Math.floor(n / 26), 97 + (n % 26));
+    const code = (n: number) => String.fromCharCode(97 + Math.floor(n / 26), 97 + (n % 26));
     const items = JSON.stringify(
       Array.from({ length: 500 }, (_, n) => ({
         title: `Item ${pad(n)}`,
@@ -640,10 +639,7 @@ describe("List Filter", () => {
       valid: true,
       type: "default" as const,
     }));
-    expect(filterItems(items, "ban").map((item) => item.title)).toEqual([
-      "Banana split",
-      "Banana",
-    ]);
+    expect(filterItems(items, "ban").map((item) => item.title)).toEqual(["Banana split", "Banana"]);
     expect(filterItems(items, "an").map((item) => item.title)).toEqual(["Banana split", "Banana"]);
     expect(filterItems(items, "banana", true).map((item) => item.title)).toEqual([
       "Banana split",

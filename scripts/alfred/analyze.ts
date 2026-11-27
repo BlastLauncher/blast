@@ -22,7 +22,12 @@ import { parseManifest } from "../../packages/host/src/extension-manifest.ts";
 
 const ARCHIVE_SUFFIX = ".alfredworkflow";
 
-export type ObjectCounts = { total: number; supported: number; passive: number; unsupported: number };
+export type ObjectCounts = {
+  total: number;
+  supported: number;
+  passive: number;
+  unsupported: number;
+};
 
 export type WorkflowAnalysis = {
   /** Relative to the scanned directory, with `/` separators. */
@@ -70,7 +75,11 @@ async function findWorkflows(
       const path = join(current, entry.name);
       if (entry.isFile() && entry.name.toLowerCase().endsWith(ARCHIVE_SUFFIX)) {
         found.push({ path, kind: "archive" });
-      } else if (entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "node_modules") {
+      } else if (
+        entry.isDirectory() &&
+        !entry.name.startsWith(".") &&
+        entry.name !== "node_modules"
+      ) {
         await walk(path);
       }
     }
@@ -107,7 +116,8 @@ async function analyzeOne(
     fullySupported: false,
   };
   try {
-    const { workflow, files } = kind === "archive" ? await readArchive(path) : await readDirectory(path);
+    const { workflow, files } =
+      kind === "archive" ? await readArchive(path) : await readDirectory(path);
     const manifest = parseManifest(
       workflowToManifest(workflow, { existingFiles: new Set(files) }).manifest,
     );
