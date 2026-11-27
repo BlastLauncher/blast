@@ -788,7 +788,68 @@ describe("pull request text", () => {
 
 const quiet = { now: () => 0, sleep: () => undefined, log: () => undefined };
 
+const cancelledCheck = (runId: string): Reply => ({
+  status: 1,
+  stdout: JSON.stringify([
+    {
+      name: "ci",
+      state: "cancelled",
+      bucket: "cancel",
+      link: `https://github.com/x/actions/runs/${runId}`,
+    },
+  ]),
+});
+
+function runCancelledLand(replies: Reply[], heads: string[]) {
+  const { root } = doneTask();
+  const simulatedRun = simulated({ checks: replies });
+  const calls: string[][] = [];
+  let headReads = 0;
+  const runner: CommandRunner = (command, args, cwd) => {
+    calls.push([command, ...args]);
+    if (command === "gh" && args[1] === "view")
+      return ok(JSON.stringify({ headRefOid: heads[Math.min(headReads++, heads.length - 1)] }));
+    if (command === "gh" && args[1] === "rerun") return ok();
+    return simulatedRun.runner(command, args, cwd);
+  };
+  try {
+    landTask(root, "0001", { ...quiet, runner, pollMs: 1, sleep: () => {} });
+  } catch (error) {
+    return { error: String(error), calls };
+  }
+  return { error: "", calls };
+}
+
 describe("tasks:land", () => {
+  test("reruns one unchanged cancelled workflow once, but never retries failures or changed heads", () => {
+    const passed = checks(["ci", "pass"]);
+
+    const success = runCancelledLand([cancelledCheck("123"), passed], ["abc", "abc"]);
+    expect(success.error).toBe("");
+    expect(
+      success.calls.filter((call) => call[0] === "gh" && call[1] === "run" && call[2] === "rerun"),
+    ).toEqual([["gh", "run", "rerun", "123", "--failed"]]);
+
+    const secondCancel = runCancelledLand(
+      [cancelledCheck("123"), cancelledCheck("123")],
+      ["abc", "abc"],
+    );
+    expect(secondCancel.error).toContain("checks failed: ci");
+    expect(
+      secondCancel.calls.filter((call) => call[1] === "run" && call[2] === "rerun"),
+    ).toHaveLength(1);
+
+    const failed = runCancelledLand([checks(["ci", "fail"])], ["abc"]);
+    expect(failed.error).toContain("checks failed: ci");
+    expect(failed.calls.filter((call) => call[1] === "run" && call[2] === "rerun")).toHaveLength(0);
+
+    const changed = runCancelledLand([cancelledCheck("123")], ["abc", "def"]);
+    expect(changed.error).toContain("checks failed: ci");
+    expect(changed.calls.filter((call) => call[1] === "run" && call[2] === "rerun")).toHaveLength(
+      0,
+    );
+  });
+
   test("lands from any checkout, fast-forwards clean primary main without switching, and cleans up worktrees", () => {
     const { root, taskWt, workerPath } = doneTask();
     // Simulate installed dependencies inside the task worktree to confirm forced removal cleans them up.

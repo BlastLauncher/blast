@@ -703,7 +703,7 @@ function cancelledRunIds(
     if (id) ids.add(id);
     else needsFallback = true;
   }
-  if (needsFallback && expectedHead) {
+  if (needsFallback && expectedHead && ids.size === 0) {
     const listed = runner(
       "gh",
       ["run", "list", "--commit", expectedHead, "--json", "databaseId,conclusion,status"],
@@ -721,7 +721,10 @@ function cancelledRunIds(
             (run.conclusion === "cancelled" || run.status === "cancelled") &&
             run.databaseId !== undefined
           ) {
+            // `gh run list` is newest first; without a check link it is the
+            // best available match for the cancelled check.
             ids.add(String(run.databaseId));
+            break;
           }
         }
       } catch {
@@ -742,7 +745,8 @@ function waitForChecks(
   const deadline = now() + timeoutMs;
   const maxPolls = Math.max(1, Math.ceil(timeoutMs / pollMs) + 1);
   const headResult = runner("git", ["rev-parse", "HEAD"], wtPath);
-  const expectedHead = headResult.status === 0 ? headResult.stdout.trim() : "";
+  const localHead = headResult.status === 0 ? headResult.stdout.trim() : "";
+  const expectedHead = prHeadOid(runner, wtPath, pr) ?? localHead;
   let checks: GhCheck[] = [];
   let retriedCancel = false;
   for (let polls = 0; now() <= deadline && polls < maxPolls; polls++) {
