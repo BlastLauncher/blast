@@ -605,7 +605,7 @@ export function resolvePlanCheckboxConflict(conflicted: string): string | undefi
   return hunks > 0 ? out.join("\n") : undefined;
 }
 
-type GhCheck = { name?: string; state?: string; bucket?: string };
+type GhCheck = { name?: string; workflow?: string; state?: string; bucket?: string; link?: string };
 
 export interface LandOptions {
   runner?: CommandRunner;
@@ -679,6 +679,81 @@ function openPullRequest(runner: CommandRunner, wtPath: string, taskBranch: stri
   }
 }
 
+/** Extracts a GitHub Actions workflow run id from a check's `link` URL, if present. */
+export function runIdFromCheckLink(link: string | undefined): string | undefined {
+  if (!link) return undefined;
+  return /\/actions\/runs\/(\d+)(?:\/|$|\?|#)/.exec(link)?.[1];
+}
+
+function prHeadOid(runner: CommandRunner, wtPath: string, pr: string): string | undefined {
+  const result = runner("gh", ["pr", "view", pr, "--json", "headRefOid"], wtPath);
+  if (result.status !== 0) return undefined;
+  try {
+    const parsed = JSON.parse(result.stdout) as { headRefOid?: unknown };
+    return typeof parsed.headRefOid === "string" && parsed.headRefOid.trim()
+      ? parsed.headRefOid.trim()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function cancelledRunIds(
+  runner: CommandRunner,
+  wtPath: string,
+  cancelled: GhCheck[],
+  expectedHead: string,
+): string[] {
+  const ids = new Set<string>();
+  let needsFallback = false;
+  for (const check of cancelled) {
+    const id = runIdFromCheckLink(check.link);
+    if (id) ids.add(id);
+    else needsFallback = true;
+  }
+  if (needsFallback && expectedHead && ids.size === 0) {
+    const listed = runner(
+      "gh",
+      [
+        "run",
+        "list",
+        "--commit",
+        expectedHead,
+        "--json",
+        "databaseId,conclusion,status,workflowName,headSha",
+      ],
+      wtPath,
+    );
+    if (listed.status === 0) {
+      try {
+        const runs = JSON.parse(listed.stdout || "[]") as Array<{
+          databaseId?: number | string;
+          conclusion?: string;
+          status?: string;
+          workflowName?: string;
+          headSha?: string;
+        }>;
+        for (const run of runs) {
+          if (
+            (run.conclusion === "cancelled" || run.status === "cancelled") &&
+            run.headSha === expectedHead &&
+            cancelled.some((check) =>
+              [check.name, check.workflow].filter(Boolean).includes(run.workflowName),
+            ) &&
+            run.databaseId !== undefined
+          ) {
+            ids.add(String(run.databaseId));
+            break;
+          }
+        }
+      } catch {
+        // Ignore malformed fallback output; caller will fail cleanly if no run ids were found.
+      }
+    }
+  }
+  return [...ids];
+}
+
 function waitForChecks(
   runner: CommandRunner,
   wtPath: string,
@@ -688,10 +763,20 @@ function waitForChecks(
   const { now, sleep, log, timeoutMs, pollMs } = options;
   const deadline = now() + timeoutMs;
   const maxPolls = Math.max(1, Math.ceil(timeoutMs / pollMs) + 1);
+  const headResult = runner("git", ["rev-parse", "HEAD"], wtPath);
+  const localHead = headResult.status === 0 ? headResult.stdout.trim() : "";
+  const expectedHead = prHeadOid(runner, wtPath, pr) ?? localHead;
   let checks: GhCheck[] = [];
+  let retriedCancel = false;
+  let retriedRunIds = new Set<string>();
+  let sawNonCancelAfterRetry = false;
   for (let polls = 0; now() <= deadline && polls < maxPolls; polls++) {
     // gh exits 8 while checks are pending and 1 when one failed or none are reported yet.
-    const result = runner("gh", ["pr", "checks", pr, "--json", "name,state,bucket"], wtPath);
+    const result = runner(
+      "gh",
+      ["pr", "checks", pr, "--json", "name,workflow,state,bucket,link"],
+      wtPath,
+    );
     try {
       checks = JSON.parse(result.stdout) as GhCheck[];
     } catch {
@@ -699,10 +784,56 @@ function waitForChecks(
         fail(`gh pr checks ${pr} failed: ${result.stderr.trim() || "invalid JSON"}`);
       checks = [];
     }
-    const named = (bucket: string[]) =>
-      checks.filter((check) => bucket.includes(check.bucket ?? "")).map((c) => c.name ?? "unnamed");
-    const failed = named(["fail", "cancel"]);
-    if (failed.length) fail(`checks failed: ${failed.join(", ")}`);
+    const named = (list: GhCheck[]) => list.map((c) => c.name ?? "unnamed");
+    const failed = checks.filter((c) => c.bucket === "fail");
+    const cancelled = checks.filter((c) => c.bucket === "cancel");
+    const pending = checks.filter(
+      (c) =>
+        c.bucket !== "pass" &&
+        c.bucket !== "skipping" &&
+        c.bucket !== "fail" &&
+        c.bucket !== "cancel",
+    );
+    if (failed.length) {
+      const bad = named(checks.filter((c) => c.bucket === "fail" || c.bucket === "cancel"));
+      fail(`checks failed: ${bad.join(", ")}`);
+    }
+    if (cancelled.length && pending.length === 0) {
+      const cancelledNames = named(cancelled);
+      if (retriedCancel) {
+        const currentRunIds = new Set(
+          cancelled.flatMap((check) => {
+            const id = runIdFromCheckLink(check.link);
+            return id ? [id] : [];
+          }),
+        );
+        const isSecondCancel =
+          sawNonCancelAfterRetry || [...currentRunIds].some((id) => !retriedRunIds.has(id));
+        if (!isSecondCancel) {
+          sleep(pollMs);
+          continue;
+        }
+      }
+      // Infrastructure runner-acquisition timeouts conclude as `cancel` with no
+      // other failures and an unchanged PR head; retry those runs once.
+      if (!retriedCancel && expectedHead && prHeadOid(runner, wtPath, pr) === expectedHead) {
+        const runIds = cancelledRunIds(runner, wtPath, cancelled, expectedHead);
+        if (runIds.length > 0) {
+          retriedCancel = true;
+          retriedRunIds = new Set(runIds);
+          for (const runId of runIds) {
+            log(
+              `PR checks: rerunning cancelled workflow run ${runId} (${cancelledNames.join(", ")}) once`,
+            );
+            runOrFail(runner, wtPath, "gh", ["run", "rerun", runId, "--failed"]);
+          }
+          sleep(pollMs);
+          continue;
+        }
+      }
+      fail(`checks failed: ${cancelledNames.join(", ")}`);
+    }
+    if (retriedCancel && cancelled.length === 0) sawNonCancelAfterRetry = true;
     log(
       `PR checks: ${checks.length ? checks.map((c) => `${c.name ?? "unnamed"} ${c.bucket ?? c.state ?? "unknown"}`).join(", ") : "waiting for checks"}`,
     );
