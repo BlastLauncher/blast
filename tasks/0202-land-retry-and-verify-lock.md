@@ -67,7 +67,7 @@ Filled in by the worker when finishing:
 
 ```
 Branch/commit: t3/fix-verify-lock-retry @ 41aa1ec6
-Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 90.3s` (`BLAST_VERIFY_JOBS=1 bun run verify -- --seed=17`; 1,287 passed / 1 skipped).
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 83.6s` (`BLAST_VERIFY_JOBS=1 bun run verify -- --seed=17`; 1,287 passed / 1 skipped).
 Done:
 - `tasks:land` retries an unchanged cancelled workflow once, ignores the old cancelled check while the rerun is pending, restricts fallback runs by workflow and head SHA, and stops on a distinct or confirmed second cancel.
 - `verify` publishes complete lock records atomically, reclaims only dead holders, logs live holders, releases on failure and signals, kills active child steps on signals, and honors `BLAST_VERIFY_LOCK=0`.
