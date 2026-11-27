@@ -50,7 +50,7 @@ protocol 2, and `3.0.0-alpha.10` as npm `latest`. Next milestone not planned yet
 - [x] 0194 Embedder protocol 2: view patches from `blast serve` (+ decision 0020; one PR with 0196)
 - [x] 0196 Swift, Go and Python examples speak embedder protocol 2
 - [x] 0197 Runtime scene patches always on, including the browser host
-- [ ] 0195 Release `alpha.10` and move the npm `latest` tag
+- [x] 0195 Release `alpha.10` and move the npm `latest` tag
 
 ## Later (not scheduled)
 
