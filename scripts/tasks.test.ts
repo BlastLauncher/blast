@@ -6,6 +6,7 @@ import { join } from "node:path";
 import {
   type CommandResult,
   type CommandRunner,
+  DEFAULT_LAND_POLL_MS,
   landTask,
   mergeTask,
   nextTasks,
@@ -22,10 +23,26 @@ const task = (id: string, status: string, depends = "[]", handoff = "") =>
 const template = readFileSync(join(import.meta.dir, "../.github/pull_request_template.md"), "utf8");
 const PR_URL = "https://github.com/example/blast/pull/7";
 
+// Isolate temp git repos from host user/system config (signing, hooks, fsmonitor).
+const gitEnv: Record<string, string> = {
+  ...process.env,
+  GIT_CONFIG_GLOBAL: "/dev/null",
+  GIT_CONFIG_NOSYSTEM: "1",
+  GIT_AUTHOR_NAME: "Test",
+  GIT_AUTHOR_EMAIL: "test@example.com",
+  GIT_COMMITTER_NAME: "Test",
+  GIT_COMMITTER_EMAIL: "test@example.com",
+};
+
 const git = (cwd: string, ...args: string[]) =>
-  execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+  execFileSync("git", args, { cwd, encoding: "utf8", env: gitEnv }).trim();
 const real: CommandRunner = (command, args, cwd) => {
-  const result = Bun.spawnSync([command, ...args], { cwd, stdout: "pipe", stderr: "pipe" });
+  const result = Bun.spawnSync([command, ...args], {
+    cwd,
+    stdout: "pipe",
+    stderr: "pipe",
+    ...(command === "git" ? { env: gitEnv } : {}),
+  });
   return {
     status: result.exitCode,
     stdout: result.stdout.toString(),
@@ -33,7 +50,7 @@ const real: CommandRunner = (command, args, cwd) => {
   };
 };
 
-function repo(files: Record<string, string>): string {
+function dir(files: Record<string, string>): string {
   const root = mkdtempSync(join(tmpdir(), "blast-tasks-"));
   roots.push(root);
   for (const [name, content] of Object.entries(files)) {
@@ -41,9 +58,12 @@ function repo(files: Record<string, string>): string {
     mkdirSync(join(path, ".."), { recursive: true });
     writeFileSync(path, content);
   }
+  return root;
+}
+
+function repo(files: Record<string, string>): string {
+  const root = dir(files);
   git(root, "init", "-q", "-b", "main");
-  git(root, "config", "user.email", "test@example.com");
-  git(root, "config", "user.name", "Test");
   git(root, "add", "-A");
   git(root, "commit", "-q", "-m", "initial");
   // Stands in for the fetched remote; tests never talk to a real one.
@@ -69,10 +89,11 @@ function commit(cwd: string, files: Record<string, string>, message: string): vo
 function advanceOrigin(root: string, file: string, content: string): void {
   const index = join(mkdtempSync(join(tmpdir(), "blast-index-")), "index");
   roots.push(join(index, ".."));
-  const env = { ...process.env, GIT_INDEX_FILE: index };
+  const env = { ...gitEnv, GIT_INDEX_FILE: index };
   execFileSync("git", ["read-tree", "origin/main"], { cwd: root, env });
   const blob = execFileSync("git", ["hash-object", "-w", "--stdin"], {
     cwd: root,
+    env: gitEnv,
     input: content,
     encoding: "utf8",
   }).trim();
@@ -182,7 +203,7 @@ afterEach(() => {
 
 describe("task planning", () => {
   test("orders ready tasks and reports open dependencies", () => {
-    const root = repo({
+    const root = dir({
       "PLAN.md": "# Plan\n",
       "tasks/0002-later.md": task("0002", "todo", '["0001"]'),
       "tasks/0001-first.md": task("0001", "doing"),
@@ -195,7 +216,7 @@ describe("task planning", () => {
   });
 
   test("lists in-progress tasks after todo tasks", () => {
-    const root = repo({
+    const root = dir({
       "PLAN.md": "# Plan\n",
       "tasks/0003-review.md": task("0003", "review"),
       "tasks/0002-doing.md": task("0002", "doing"),
@@ -310,7 +331,7 @@ describe("tasks:merge", () => {
   });
 
   test("rejects ambiguous automatic branch detection", () => {
-    const root = repo({
+    const root = dir({
       "PLAN.md": "### M1\n- [ ] 0001\n",
       "tasks/0001-merge.md": task("0001", "doing"),
     });
@@ -348,7 +369,7 @@ describe("tasks:merge", () => {
   });
 
   test("aborts a merge conflict and does not delete the task", () => {
-    const root = repo({
+    const root = dir({
       "PLAN.md": "### M1\n- [ ] 0001\n",
       "tasks/0001-merge.md": task("0001", "doing"),
     });
@@ -373,7 +394,7 @@ describe("tasks:merge", () => {
   });
 
   test("requires a plan argument when the checklist line is absent", () => {
-    const root = repo({ "PLAN.md": "### M1\n", "tasks/0001-merge.md": task("0001", "doing") });
+    const root = dir({ "PLAN.md": "### M1\n", "tasks/0001-merge.md": task("0001", "doing") });
     const { calls, runner } = fakeRunner({
       "git branch --show-current": { stdout: "task/0001-merge\n" },
       "git rev-list --count task/0001-merge..worker": { stdout: "1" },
@@ -403,7 +424,7 @@ describe("tasks:merge", () => {
   });
 
   test("leaves the merge in place when verify fails", () => {
-    const root = repo({
+    const root = dir({
       "PLAN.md": "### M1\n- [ ] 0001\n",
       "tasks/0001-merge.md": task("0001", "doing"),
     });
@@ -608,24 +629,121 @@ describe("tasks:land", () => {
   });
 
   test("no start, merge or land path runs git push origin main", () => {
-    const landed = doneTask();
-    const success = simulated({ checks: [NO_CHECKS, checks(["ci", "pass"])] });
-    landTask(landed.root, "0001", { ...quiet, runner: success.runner });
-    const red = doneTask();
-    const failing = simulated({ checks: [checks(["ci", "fail"])] });
-    expect(() => landTask(red.root, "0001", { ...quiet, runner: failing.runner })).toThrow();
-    const conflict = doneTask();
-    advanceOrigin(conflict.root, "PLAN.md", "conflict\n");
-    const conflicting = simulated();
-    expect(() =>
-      landTask(conflict.root, "0001", { ...quiet, runner: conflicting.runner }),
-    ).toThrow();
-    const all = [landed, success, red, failing, conflict, conflicting].flatMap((run) => run.calls);
+    const makeFakeLand = (options: { checks?: Reply[]; conflict?: boolean } = {}) => {
+      const calls: string[][] = [];
+      let polls = 0;
+      const responses: Record<string, Reply> = {
+        "git branch --show-current": { stdout: "task/0001-land\n" },
+        "git log --format=%H %s --fixed-strings --grep=chore(0001): done HEAD": {
+          stdout: "deadbeef chore(0001): done\n",
+        },
+        "git diff --name-only --diff-filter=D deadbeef^ deadbeef -- tasks": {
+          stdout: "tasks/0001-land.md\n",
+        },
+        "git show deadbeef^:tasks/0001-land.md": { stdout: task("0001", "doing") },
+        "git worktree list --porcelain": {
+          stdout: "worktree /r\nbranch refs/heads/task/0001-land\n",
+        },
+        "git log --reverse --no-merges --format=%s origin/main..HEAD": {
+          stdout: "feat(0001): work\n",
+        },
+        "git show-ref --verify --quiet refs/heads/task/0001-land": { status: 1 },
+        "gh pr list --head task/0001-land --state open --json url": { stdout: "[]" },
+        ...(options.conflict
+          ? {
+              "git merge --no-edit origin/main": { status: 1, stderr: "CONFLICT" },
+              "git diff --name-only --diff-filter=U": { stdout: "PLAN.md\n" },
+            }
+          : {}),
+      };
+      const runner: CommandRunner = (command, args) => {
+        calls.push([command, ...args]);
+        if (command === "gh" && args[1] === "create") return ok(`${PR_URL}\n`);
+        if (command === "gh" && args[1] === "checks") {
+          const replies = options.checks ?? [checks(["ci", "pass"])];
+          const reply = replies[Math.min(polls++, replies.length - 1)]!;
+          return {
+            status: reply.status ?? 0,
+            stdout: reply.stdout ?? "",
+            stderr: reply.stderr ?? "",
+          };
+        }
+        const reply = responses[[command, ...args].join(" ")] ?? {};
+        return {
+          status: reply.status ?? 0,
+          stdout: reply.stdout ?? "",
+          stderr: reply.stderr ?? "",
+        };
+      };
+      return { calls, runner };
+    };
+
+    const startRoot = dir({
+      "PLAN.md": "### M1\n- [ ] 0001\n",
+      "tasks/0001-land.md": task("0001", "todo"),
+    });
+    const started = fakeRunner({
+      "git branch --show-current": { stdout: "main\n" },
+      "git show-ref --verify --quiet refs/heads/task/0001-land": { status: 1 },
+    });
+    startTask(startRoot, "0001", started.runner);
+
+    const mergeRoot = dir({
+      "PLAN.md": "### M1\n- [ ] 0001\n",
+      "tasks/0001-land.md": task("0001", "doing"),
+    });
+    const merged = fakeRunner({
+      "git branch --show-current": { stdout: "task/0001-land\n" },
+      "git rev-list --count task/0001-land..worker": { stdout: "1" },
+    });
+    mergeTask(mergeRoot, "0001", { branch: "worker" }, merged.runner);
+
+    const landRoot = dir({ ".github/pull_request_template.md": template });
+    const success = makeFakeLand({ checks: [NO_CHECKS, checks(["ci", "pass"])] });
+    landTask(landRoot, "0001", { ...quiet, runner: success.runner });
+
+    const failing = makeFakeLand({ checks: [checks(["ci", "fail"])] });
+    expect(() => landTask(landRoot, "0001", { ...quiet, runner: failing.runner })).toThrow();
+
+    const conflicting = makeFakeLand({ conflict: true });
+    expect(() => landTask(landRoot, "0001", { ...quiet, runner: conflicting.runner })).toThrow();
+
+    const all = [started, merged, success, failing, conflicting].flatMap((run) => run.calls);
     expect(all.some(([command, , sub]) => command === "gh" && sub === "merge")).toBe(true);
     const taskPush = ["git", "push", "-u", "origin", "task/0001-land"];
     expect(pushes(all)).toEqual([taskPush, taskPush]);
     expect(
       all.some((call) => call[0] === "git" && call.includes("push") && call.includes("main")),
     ).toBe(false);
+  });
+
+  test("defaults PR check polling to DEFAULT_LAND_POLL_MS", () => {
+    const landRoot = dir({ ".github/pull_request_template.md": template });
+    let polls = 0;
+    const sleeps: number[] = [];
+    const runner: CommandRunner = (command, args) => {
+      const key = [command, ...args].join(" ");
+      if (key === "git branch --show-current") return ok("task/0001-land\n");
+      if (key === "git log --format=%H %s --fixed-strings --grep=chore(0001): done HEAD")
+        return ok("deadbeef chore(0001): done\n");
+      if (key === "git diff --name-only --diff-filter=D deadbeef^ deadbeef -- tasks")
+        return ok("tasks/0001-land.md\n");
+      if (key === "git show deadbeef^:tasks/0001-land.md") return ok(task("0001", "doing"));
+      if (key === "git show-ref --verify --quiet refs/heads/task/0001-land")
+        return { status: 1, stdout: "", stderr: "" };
+      if (command === "gh" && args[1] === "list") return ok(JSON.stringify([{ url: PR_URL }]));
+      if (command === "gh" && args[1] === "checks") {
+        const reply = polls++ === 0 ? checks(["ci", "pending"]) : checks(["ci", "pass"]);
+        return {
+          status: reply.status ?? 0,
+          stdout: reply.stdout ?? "",
+          stderr: reply.stderr ?? "",
+        };
+      }
+      return ok();
+    };
+    expect(DEFAULT_LAND_POLL_MS).toBe(5_000);
+    landTask(landRoot, "0001", { ...quiet, runner, sleep: (ms) => sleeps.push(ms) });
+    expect(sleeps).toEqual([DEFAULT_LAND_POLL_MS]);
   });
 });
