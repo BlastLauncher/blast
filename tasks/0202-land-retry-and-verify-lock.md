@@ -66,11 +66,12 @@ take turns instead of starving each other.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/land-retry-verify-lock @ 588ad265
-Verify: Focused `bun test scripts/tasks.test.ts scripts/verify.test.ts --randomize --seed=17` — 46 passed; `bun run --silent typecheck`, format check, and lint pass. The final full verify run reached 1,286 passed / 1 skipped tests and all checks passed except lint warnings from the then-in-tree test helper; those warnings were moved out of the test scope afterward.
+Branch/commit: t3/fix-verify-lock-retry @ aba8a570
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 90.3s` (`BLAST_VERIFY_JOBS=1 bun run verify -- --seed=17`; 1,287 passed / 1 skipped).
 Done:
-- `tasks:land` records the PR head, retries linked cancelled workflow runs once, falls back to the newest cancelled run for the unchanged commit, and stops on failures, a second cancel, or a changed head.
-- `verify` uses a common-git-dir lock with holder logging, stale takeover, signal/exit release, and `BLAST_VERIFY_LOCK=0` opt-out.
-- Added fake-runner and temporary-lock tests; documented both behaviors in `docs/performance.md`.
-Not done / risks: The hand demonstration showed the second checkout waiting (37.3s) but both runs were under severe host load and did not pass; uptime samples reached load averages around 150. A clean full verify should be rerun by the orchestrator after the warning-only helper cleanup.
+- `tasks:land` retries an unchanged cancelled workflow once, ignores the old cancelled check while the rerun is pending, restricts fallback runs by workflow and head SHA, and stops on a distinct or confirmed second cancel.
+- `verify` publishes complete lock records atomically, reclaims only dead holders, logs live holders, releases on failure and signals, kills active child steps on signals, and honors `BLAST_VERIFY_LOCK=0`.
+- Added retry and lock tests, including release after a failing run; documented both behaviors in `docs/performance.md`.
+- Two-checkout demonstration: both summaries were `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`; the waiting checkout logged `acquired lock after 84.4s`. Wall time was 166s. `uptime` load averages were 2.58/7.66/24.28 before and 4.75/6.51/20.87 after.
+Not done / risks: The host was heavily loaded during an earlier unconstrained run; the recorded passing verification and demonstration used the supported `BLAST_VERIFY_JOBS=1` override.
 ```

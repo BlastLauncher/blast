@@ -208,6 +208,7 @@ function tryReclaimStaleLock(
   newInfo: VerifyLockInfo,
   nowMs: number,
   isAlive: (pid: number) => boolean,
+  expectedToken: string | undefined,
 ): boolean {
   const reclaimPath = `${lockPath}.${newInfo.token}.stale`;
   try {
@@ -218,7 +219,17 @@ function tryReclaimStaleLock(
       throw error;
     }
     const moved = readLockState(reclaimPath);
-    if (moved.kind === "valid" && isAlive(moved.info.pid)) return false;
+    if (
+      (moved.kind === "valid" && moved.info.token !== expectedToken) ||
+      (moved.kind === "valid" && isAlive(moved.info.pid))
+    ) {
+      try {
+        renameSync(reclaimPath, lockPath);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      }
+      return false;
+    }
     if (moved.kind === "valid" && !staleLockReason(moved, isAlive)) return false;
     newInfo.startedAt = nowMs;
     return tryCreateLock(lockPath, newInfo);
@@ -317,7 +328,15 @@ export async function acquireVerifyLock(
 
     const reason = staleLockReason(state, isAlive);
     if (reason) {
-      if (tryReclaimStaleLock(lockPath, info, nowMs, isAlive)) {
+      if (
+        tryReclaimStaleLock(
+          lockPath,
+          info,
+          nowMs,
+          isAlive,
+          state.kind === "valid" ? state.info.token : undefined,
+        )
+      ) {
         const holder = state.kind === "valid" ? `pid ${state.info.pid}` : "unknown holder";
         log(`verify: took over stale lock from ${holder} (${reason})`);
         return createLockHandle(lockPath, info, options);
