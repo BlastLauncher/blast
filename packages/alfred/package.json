@@ -3,9 +3,13 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./main": "./src/main.ts"
   },
   "dependencies": {
     "@blastlauncher/protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@blastlauncher/client-core": "workspace:*"
   }
 }

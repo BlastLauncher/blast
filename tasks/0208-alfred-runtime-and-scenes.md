@@ -118,15 +118,15 @@ Blast `event`, `capability.result`, and `shutdown` messages.
 
 ## Acceptance
 
-- [ ] `packages/alfred/package.json` exports `"./main": "./src/main.ts"` and has no external npm dependencies.
-- [ ] `packages/alfred/src/runtime.test.ts` feeds emitted scenes through `@blastlauncher/client-core`'s `createController` and covers:
+- [x] `packages/alfred/package.json` exports `"./main": "./src/main.ts"` and has no external npm dependencies.
+- [x] `packages/alfred/src/runtime.test.ts` feeds emitted scenes through `@blastlauncher/client-core`'s `createController` and covers:
   - Script Filter JSON & legacy XML rendering, search re-execution, `alfredfiltersresults` client filtering, `valid: false` + `autocomplete`, modifier actions (`mods` + connection `modifiers`), Copy (`clipboard.copy`), Large Type (`Detail`), Quick Look (`open.url`), `rerun`, `cache` + `loosereload`, and `vitoclose`.
   - List Filter rendering and downstream graph execution.
   - Keyword entry running a graph (`action.script` → `output.clipboard` / `output.notification` / `utility.hidealfred`) and clean exit vs pushing UI (`output.largetype`, `userinterface.text`, `userinterface.grid`, `utility.dialog`).
   - `scene.patch` reconstruction via `createScenePatchApplier` from `@blastlauncher/protocol`.
   - `shutdown` cancelling in-flight scripts cleanly.
-- [ ] A real child-process smoke test spawns `node packages/alfred/src/main.ts` over stdio, sends `init`, receives `ready` + `scene`, dispatches an action, handles a capability request, and shuts down cleanly on Node 24 without a build step.
-- [ ] `bun run verify` passes.
+- [x] A real child-process smoke test spawns `node packages/alfred/src/main.ts` over stdio, sends `init`, receives `ready` + `scene`, dispatches an action, handles a capability request, and shuts down cleanly on Node 24 without a build step.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -136,8 +136,26 @@ Blast `event`, `capability.result`, and `shutdown` messages.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/0208-alfred-runtime @ 54b437b7 (code; Handoff commit on top)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 40.6s — 1484 pass, 1 skip, 0 fail (--seed=3839423316)
 Done:
+- scene.ts: Alfred views → client-core SceneNode trees (Navigation/Entry, List, Grid, Detail,
+  ActionPanel, Toast/HUD/Alert) with stable ids + handler registry; Script Filter item →
+  actions (primary/autocomplete, mods ∪ connection masks, ⌘C/⌘L/⇥/⌘Y); `diffScene`.
+- runtime.ts: `startAlfredRuntime(io)` — init/ready, workflow + entry UID resolution,
+  supportPath/cache dirs, capability RPC, Script Filter debounce/abort/rerun/cache+loosereload,
+  List Filter, Text/Grid (inputtype 0/1), Large Type, 1–2 button Alert, 3-button chooser,
+  keyword/External Trigger runs that exit 0 without UI, closeMainWindow unless vitoclose, shutdown.
+- main.ts + `"./main"` export; client-core is a devDependency only (dependencies = protocol).
+- Tests: runtime.test.ts (18, through createController + createScenePatchApplier),
+  scene.test.ts (7, diff round-trips the real applier), main.test.ts (real Node 24 child).
 Not done / risks:
+- `diffScene` does not exist in @blastlauncher/protocol (the reconciler builds ops inline), so
+  it lives in alfred/src/scene.ts. Navigation's back handler is `pop` (what client-core reads), not `onPop`.
+- Choices to confirm in 0210 against real workflows: Text/Grid `inputfile` runs as an external
+  script (type 8) and footer is appended under a rule; `queuedelaycustom` is ×100 ms;
+  `argumenttype: 2` Script Filters also filter client-side; output.notification renders as a HUD;
+  mod `variables` replace item variables; invalid items without autocomplete get no ↩ action.
+- Script Filter cache is in memory per runtime process (one launch), not on disk.
+- Diff is ~2.7k lines (≈1.1k tests), above the 600-line guideline; split was not practical.
 ```
