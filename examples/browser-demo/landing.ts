@@ -12,10 +12,11 @@ import {
   siteHeaderHtml,
   sweepUrl,
   themeTokensCss,
-  tmuxRepoUrl,
 } from "./site-chrome.ts";
 
 export const releaseVersion = "3.0.0-alpha.10";
+/** Execution-node coverage from `bun run alfred:analyze` over 242 real workflows (docs/alfred.md). */
+export const alfredExecutionCoverage = "97.7%";
 
 export interface SiteStats {
   coverage: { covered: number; total: number; percent: string };
@@ -92,6 +93,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
   const displayDemoUrl = origin ? `${origin.replace(/^https?:\/\//, "")}/demo` : "/demo/";
   const docsUrl = `${origin}/docs/`;
   const quickstartUrl = `${origin}/docs/quickstart/`;
+  const alfredDocsUrl = `${origin}/docs/alfred/`;
 
   const jsSnippet = highlightCode(landingSnippets.js, "js");
   const webSnippet = highlightCode(landingSnippets.web, "html");
@@ -105,8 +107,8 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Blast — Raycast extensions, inside your app</title>
-  <meta name="description" content="Embed unmodified Raycast extensions inside your application in any language.">
+  <title>Blast — Raycast extensions &amp; Alfred workflows, inside your app</title>
+  <meta name="description" content="Embed unmodified Raycast extensions and Alfred workflows inside your application in any language.">
   ${fontPreloadHtml}
   <script>document.documentElement.classList.add("js");</script>
   <style>
@@ -155,6 +157,9 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
       background: var(--ink);
       border-radius: 999px;
       padding: 1px 8px;
+      /* On phones the announcement wraps; the version badge stays whole. */
+      white-space: nowrap;
+      flex: none;
     }
     h1 {
       font-size: clamp(38px, 6.4vw, 72px);
@@ -448,7 +453,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
     }
     .facts {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
       margin-top: 28px;
@@ -460,6 +465,8 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
       flex-direction: column;
       justify-content: space-between;
     }
+    .facts div:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
+    .facts div:nth-child(n + 3) { border-top: 1px solid var(--line); }
     .facts dt { font: 12px var(--mono); color: var(--muted); }
     .facts dd {
       margin: 2px 0 0;
@@ -545,9 +552,9 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
   <main>
     <section class="hero">
       <div class="wrap">
-        <a class="pill" href="${escapeAttribute(tmuxRepoUrl)}"><b>${escapeHtml(releaseVersion)}</b> The tmux palette is out →</a>
-        <h1>Raycast extensions, inside your app.</h1>
-        <p class="lede">The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
+        <a class="pill" href="${escapeAttribute(alfredDocsUrl)}"><b>${escapeHtml(releaseVersion)}</b> Alfred workflows now run in Blast →</a>
+        <h1>Raycast &amp; Alfred, inside your app.</h1>
+        <p class="lede">The engine runs unmodified Raycast extensions and Alfred workflows (<code>.alfredworkflow</code>) through the launcher flow (command search, prompts, dependency installs), each command in its own process; you draw views and answer the capabilities you grant.</p>
         <div class="ctas">
           <a class="btn btn-primary" href="${escapeAttribute(quickstartUrl)}">Read the quickstart</a>
           <a class="btn btn-ghost" href="${escapeAttribute(demoUrl)}">Try it in the browser</a>
@@ -590,7 +597,7 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
         </div>
 
         <div class="flow">
-          <div><span class="who">raycast/extensions</span><h3>Extension</h3><p>An unmodified command, bundled with esbuild, in its own Node.js process.</p></div>
+          <div><span class="who">raycast · alfred</span><h3>Extensions &amp; workflows</h3><p>An unmodified Raycast command bundled with esbuild, or an Alfred workflow's objects and scripts, each in its own process.</p></div>
           <div><span class="who">@blastlauncher/engine</span><h3>Engine</h3><p>Root command search, preference and argument prompts, dependency installs, then the command.</p></div>
           <div><span class="who">your app</span><h3>Client</h3><p>Draws <code>root.view</code> and <code>session.view</code>, forwards input, answers capability requests.</p></div>
         </div>
@@ -603,13 +610,14 @@ export function landing(stats: SiteStats, siteOrigin = "", fetchProxy?: string):
               <div><dt>@raycast/api</dt><dd>${escapeHtml(stats.coverage.percent)}</dd></div>
               <div><dt>rendered</dt><dd>${escapeHtml(stats.rendered.toLocaleString())}</dd></div>
               <div><dt>commands tested</dt><dd>${escapeHtml(stats.commands.toLocaleString())}</dd></div>
+              <div><dt>alfred objects</dt><dd>${escapeHtml(alfredExecutionCoverage)}</dd></div>
             </dl>
             <div class="inst">
               <div><span>JS/TS engine</span><code>npm install @blastlauncher/engine</code></div>
               <div><span>Any language</span><code>npx -p @blastlauncher/serve blast-serve</code></div>
               <div><span>Web page</span><code>npm install @blastlauncher/web</code></div>
             </div>
-            <p class="inst-note"><code>${escapeHtml(releaseVersion)}</code> is <code>latest</code> on npm; <code>@next</code> is the canary from <code>main</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a>.</p>
+            <p class="inst-note"><code>${escapeHtml(releaseVersion)}</code> is <code>latest</code> on npm; <code>@next</code> is the canary from <code>main</code>. <a href="${escapeAttribute(coverageUrl)}">${stats.coverage.covered} of ${stats.coverage.total} APIs covered</a> · <a href="${escapeAttribute(sweepUrl)}">full sweep</a> · <a href="${escapeAttribute(alfredDocsUrl)}">Alfred workflows</a>.</p>
           </div>
           <div>
             <div class="tabs" role="tablist" aria-label="Integration code examples">
