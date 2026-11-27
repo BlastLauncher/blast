@@ -73,10 +73,15 @@ export function waitSceneMatch<T>(
     const timer = setTimeout(() => {
       finish(() => reject(timedOut(`Timed out waiting for ${what}`, session)));
     }, timeoutMs);
-    stop = session.scenes((scene) => {
-      const match = pick(scene);
-      if (match !== undefined) finish(() => resolve(match));
-    });
+    try {
+      stop = session.scenes((scene) => {
+        const match = pick(scene);
+        if (match !== undefined) finish(() => resolve(match));
+      });
+    } catch (error) {
+      finish(() => reject(error));
+      return;
+    }
     if (settled) stop();
   });
 }

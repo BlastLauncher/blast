@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import {
   FIXTURE_NAMES,
   compareFixtures,
+  defaultFixtureConcurrency,
   renderFixture,
   repositoryRoot,
   sortKeys,
@@ -55,4 +56,12 @@ test("the required fixtures are covered", () => {
 test("renderFixture replaces the checkout path in icon sources", () => {
   const view = { iconSource: { kind: "file", path: `${repositoryRoot}/fixtures/a.png` } };
   expect(renderFixture(view)).toContain('"path": "<repository>/fixtures/a.png"');
+});
+
+test("defaultFixtureConcurrency scales modestly with host cores", () => {
+  expect(defaultFixtureConcurrency(2)).toBe(1);
+  expect(defaultFixtureConcurrency(4)).toBe(1);
+  expect(defaultFixtureConcurrency(8)).toBe(2);
+  expect(defaultFixtureConcurrency(16)).toBe(4);
+  expect(defaultFixtureConcurrency(32)).toBe(4);
 });

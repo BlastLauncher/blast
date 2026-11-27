@@ -19,7 +19,7 @@ import {
 const noop = () => {};
 const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 const compileCacheDir = join(tmpdir(), "blast-runtime-test-compile-cache");
-const WAIT_TIMEOUT_MS = 15_000;
+const WAIT_TIMEOUT_MS = 3_000;
 
 const defaultEnvironment: InitEnvironment = {
   extensionName: "fixture",

@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
-import { createBroker } from "@blastlauncher/host";
+import { createBroker, type Session } from "@blastlauncher/host";
+import type { JsonValue, SceneMessage } from "@blastlauncher/protocol";
 import { createClientHandlers } from "./session.ts";
-import type { JsonValue } from "@blastlauncher/protocol";
+import { waitSceneMatch } from "./test-support.ts";
 
 test("terminal clipboard and URL handlers stay local and other effects are denied", async () => {
   const effects = createClientHandlers();
@@ -87,4 +88,25 @@ test("openCommand resolves a matching installed dependency using its data direct
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("waitSceneMatch rejects and clears its timer when pick throws during sync replay", async () => {
+  const replayed: SceneMessage = { type: "scene", revision: 1, root: null };
+  const fakeSession = {
+    latestScene: replayed,
+    scenes(listener: (scene: SceneMessage) => void) {
+      listener(replayed);
+      return () => {};
+    },
+  } as unknown as Session;
+  await expect(
+    waitSceneMatch(
+      fakeSession,
+      () => {
+        throw new Error("boom in pick");
+      },
+      "sync throw",
+      50,
+    ),
+  ).rejects.toThrow("boom in pick");
 });

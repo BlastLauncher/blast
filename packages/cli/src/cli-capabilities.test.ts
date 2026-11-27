@@ -237,7 +237,7 @@ test("command metadata is recorded and printed without a grant", async () => {
       '# capability command.metadata {"subtitle":null}\n' +
       "# capability command.metadata {}\n",
   );
-}, 15_000);
+}, 2500);
 
 test("selection flags supply read-only values and FilePicker submits comma-separated paths", async () => {
   const fixture = join(root, "fixtures/extensions/selection");

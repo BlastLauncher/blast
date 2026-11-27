@@ -13,7 +13,7 @@ const deps = join(cache, "deps");
 export const depsModules = join(deps, "node_modules");
 const almostVersion = "0.2.14";
 const esbuildVersion = "0.28.2";
-const playwrightVersion = "1.58.0";
+export const playwrightVersion = "1.58.0";
 
 /**
  * The published layout: `assets/` is served from the page origin (`assetsUrl`),

@@ -52,7 +52,7 @@ export function waitForScene(
   match: (scene: SceneMessage) => boolean = (scene) => scene.root !== null,
   options: WaitOptions = {},
 ): Promise<SceneMessage> {
-  const { timeoutMs = 15_000, label = "scene" } = options;
+  const { timeoutMs = 5_000, label = "scene" } = options;
   return new Promise<SceneMessage>((resolve, reject) => {
     let settled = false;
     let stop: (() => void) | undefined;

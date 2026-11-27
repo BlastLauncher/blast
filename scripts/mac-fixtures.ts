@@ -8,7 +8,7 @@
 
 import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { availableParallelism, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyViewPatch, type ViewPatchOp } from "../packages/protocol/src/index.ts";
@@ -38,7 +38,29 @@ type View = {
 };
 
 const VIEW_TIMEOUT_MS = 30_000;
-const FIXTURE_CONCURRENCY = 4;
+
+/** Each fixture runs `blast serve` plus runtime/esbuild children; leave core headroom. */
+export function defaultFixtureConcurrency(cpus = availableParallelism()): number {
+  return Math.max(1, Math.min(4, Math.floor(cpus / 4)));
+}
+
+function parseConcurrencyArg(argv: string[]): number | undefined {
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]!;
+    const raw =
+      arg === "--concurrency"
+        ? argv[++i]
+        : arg.startsWith("--concurrency=")
+          ? arg.slice("--concurrency=".length)
+          : undefined;
+    if (raw === undefined) continue;
+    if (!/^[1-9]\d*$/.test(raw)) {
+      throw new Error(`Invalid --concurrency value: ${raw}`);
+    }
+    return Number(raw);
+  }
+  return undefined;
+}
 // Resolve the real Node binary once so overriding XDG_DATA_HOME per scenario
 // cannot trigger version-manager shims (e.g. mise) to reinstall Node into temp dirs.
 const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
@@ -355,7 +377,10 @@ export async function readFixtures(directory: string): Promise<Record<string, st
   return Object.fromEntries(entries);
 }
 
-export async function generateFixtures(root: string): Promise<Record<FixtureName, string>> {
+export async function generateFixtures(
+  root: string,
+  concurrency = defaultFixtureConcurrency(),
+): Promise<Record<FixtureName, string>> {
   const dataDirectory = await mkdtemp(join(tmpdir(), "blast-mac-fixtures-"));
   try {
     const entries: Array<[FixtureName, string]> = [];
@@ -375,9 +400,8 @@ export async function generateFixtures(root: string): Promise<Record<FixtureName
         }
       }
     };
-    await Promise.all(
-      Array.from({ length: Math.min(FIXTURE_CONCURRENCY, FIXTURE_NAMES.length) }, worker),
-    );
+    const workers = Math.max(1, Math.min(concurrency, FIXTURE_NAMES.length));
+    await Promise.all(Array.from({ length: workers }, worker));
     return Object.fromEntries(entries) as Record<FixtureName, string>;
   } finally {
     await rm(dataDirectory, { recursive: true, force: true });
@@ -386,7 +410,8 @@ export async function generateFixtures(root: string): Promise<Record<FixtureName
 
 async function main(): Promise<void> {
   const directory = join(repositoryRoot, FIXTURE_DIRECTORY);
-  const expected = await generateFixtures(repositoryRoot);
+  const concurrency = parseConcurrencyArg(process.argv.slice(2)) ?? defaultFixtureConcurrency();
+  const expected = await generateFixtures(repositoryRoot, concurrency);
   if (process.argv.includes("--check")) {
     const problems = compareFixtures(expected, await readFixtures(directory));
     for (const problem of problems) console.error(`mac-fixtures: ${problem}`);

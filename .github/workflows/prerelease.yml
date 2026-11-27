@@ -58,8 +58,7 @@ jobs:
         run: bun run verify
 
   build:
-    # Playwright 1.58 targets ubuntu-24.04 (which already ships Chromium's
-    # runtime shared libraries, so only the browser binary needs caching).
+    # Pin ubuntu-24.04 so the cached Chromium binary matches the runner OS.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -93,16 +92,24 @@ jobs:
           VERSION: ${{ steps.plan.outputs.version }}
         run: bun run release:build --version "$VERSION"
       - run: bun run release:smoke
+      - id: playwright-version
+        name: Read Playwright version
+        run: |
+          version=$(bun -e 'import { playwrightVersion } from "./packages/web/build/assets.ts"; console.log(playwrightVersion);')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - id: playwright-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-1.58.0
+          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - name: Install Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         env:
           PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
-        run: .cache/browser-demo/deps/node_modules/.bin/playwright install chromium
+        run: .cache/browser-demo/deps/node_modules/.bin/playwright install --with-deps chromium
+      - name: Ensure Chromium system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: .cache/browser-demo/deps/node_modules/.bin/playwright install-deps chromium
       - name: Web tarball browser e2e
         env:
           PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
