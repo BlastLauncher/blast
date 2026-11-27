@@ -13,6 +13,10 @@ const host: GraphHost = {
   showLargeType: () => {},
   showDialog: async () => undefined,
   hideAlfred: () => {},
+  // Stubs, so no real afplay, say or shortcuts process ever starts here.
+  playSound: () => {},
+  speak: () => {},
+  runShortcut: async () => "",
 };
 
 /** The graph's warnings when a keyword hands `type`, with an empty config, its input. */

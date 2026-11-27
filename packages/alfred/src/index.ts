@@ -1,4 +1,6 @@
 export * from "./archive.ts";
+export * from "./catalogs.ts";
+export * from "./expressions.ts";
 export * from "./graph.ts";
 export * from "./manifest.ts";
 export * from "./placeholders.ts";
@@ -8,4 +10,5 @@ export * from "./scene.ts";
 export * from "./script-filter.ts";
 export * from "./scripts.ts";
 export * from "./support.ts";
+export * from "./system.ts";
 export * from "./workflow.ts";
