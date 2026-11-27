@@ -329,9 +329,10 @@ function currentScene(session: Session): Promise<SceneMessage> {
 }
 
 async function runScript(session: Session, steps: Step[]): Promise<void> {
-  // Highest scene revision this script has synchronized with; `wait` resolves
-  // only for scenes newer than the one the previous step acted on.
-  let observed = session.latestScene?.revision ?? -1;
+  // Highest scene revision this script has synchronized with; starts at -1 so
+  // leading `wait` steps do not race with whether scene 1 arrived in the same
+  // chunk as `ready`.
+  let observed = -1;
   for (const step of steps) {
     if (step.op === "quit") return;
     switch (step.op) {
@@ -487,6 +488,7 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
       }
       case "expect": {
         const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
         const lines = scene.root ? renderTree(scene.root) : [];
         if (!lines.some((line) => line.includes(step.text))) {
           throw new ScriptError(`expected the scene to contain ${JSON.stringify(step.text)}`);
