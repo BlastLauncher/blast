@@ -122,34 +122,34 @@ Branches: `main` changes only through pull requests; never push to it. Each
 task gets a branch `task/NNNN-slug` from `origin/main` and one PR (tightly
 coupled tasks may share one; say so in both task files). Workers branch off it.
 
-Loop per task:
+Loop per task (the primary checkout stays on `main` throughout):
 
 1. Write the task file (`status: todo`), then `bun run tasks:start NNNN`: it
-   creates the task branch, commits the file as `doing` there (children see
-   only commits) and prints the brief. Delegate from that checkout.
-2. Delegate to a worker in an isolated worktree with a prompt that says only:
-   "Follow AGENTS.md. You are the Worker for `tasks/NNNN-*.md`." plus anything
-   not already in the task file.
-3. Review: delegate a Reviewer on a different model, or review yourself if you
-   did not implement it. Check generated artifacts, not only verify. On
-   findings, remove the old worktree (keep its branch) and send a new round
-   with the original brief plus numbered findings; the new worker starts with
-   `git merge --ff-only <previous-branch>`.
-4. On the task branch, `bun run tasks:merge NNNN` merges the worker branch
-   `--no-ff`, deletes the task file, ticks `- [ ] NNNN` in PLAN.md (or
-   `--plan "<text>"`), verifies and commits done. `bun run tasks:land NNNN`
-   merges `origin/main` in (stops on conflicts), pushes, opens the PR from
-   `.github/pull_request_template.md`, waits for green checks, merges it with a
-   merge commit, updates local `main` and removes worktrees and branches.
+   creates the task branch in its own worktree, `.cache/tasks/NNNN-slug`, and
+   commits the file there as `doing` (children see only commits).
+2. Delegate a worker with the output of `bun run tasks:brief NNNN --role worker`
+   (add `--avoid <path>` for files a parallel task owns) plus anything not in
+   the task file. Briefs carry the standard rules; do not retype them.
+3. Review: delegate `--role reviewer --from <worker-branch>` on a different
+   model, or review yourself if you did not implement it. Check generated
+   artifacts, not only verify. On findings, send a new round with
+   `--role worker --from <previous-branch> --round N --findings <file>`.
+4. Land: `--role land --from <worker-branch>`. `tasks:merge NNNN` (from any
+   checkout) merges the worker branch `--no-ff`, ticks PLAN.md, verifies and
+   commits done (`--resume` after a failed verify). `tasks:land NNNN` merges
+   `origin/main` (checkbox-only PLAN conflicts resolve themselves), pushes,
+   opens the PR, waits for green checks, merges, updates local `main` without
+   switching it and removes the task worktree. `bun run tasks:clean` lists
+   leftover worktrees and branches; `--apply` removes them when no child runs.
 
 Independent tasks run in parallel on their own task branches; land one at a
 time. Regenerate conflicting `compat/` files and `bun.lock` (`bun install`),
 never hand-merge. UI tasks get before/after screenshots in the PR body.
 
-In T3 Code use `delegate_task` (`isolation: "worktree"`, `mode: "async"`, stable
-`clientRequestId` per round, e.g. `task-0001-r1`) and end the turn until it completes.
-Landing (`tasks:merge`, `tasks:land`) also runs in a delegated child that links its PR,
-so merges settle that child, never the orchestrator thread. Models (names change):
+In T3 Code use `delegate_task` (`isolation: "worktree"`; land children
+`"shared"`; `mode: "async"`, stable `clientRequestId` per round, e.g.
+`task-0001-r1`) and end the turn until it completes. Land children link their
+PR, so merges settle them, never the orchestrator thread. Models (names change):
 
 | Use                                 | Provider instance      | Model                                                                                         |
 | ----------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- |
