@@ -10,10 +10,10 @@ import {
 import { dirname, join } from "node:path";
 import { TASK_FILE, parseFrontmatter } from "./check-workflow.ts";
 import {
-  BriefUsageError,
+  UsageError,
   briefTask,
+  cleanReport,
   cleanTasks,
-  formatCleanReport,
   parseBriefArgs,
   parseCleanArgs,
 } from "./tasks-ops.ts";
@@ -911,20 +911,25 @@ export function usageText(command?: string): string {
       return [
         "usage: tasks:brief <id> --role worker|reviewer|land [--from <branch>] [--round <n>] [--findings <file>] [--avoid <path>]... [--disk <GB>]",
         "",
-        "Print a short delegation brief for a worker, reviewer, or land child.",
-        "  --from <branch>   Source/worker branch (required for reviewer and land).",
-        "  --round <n>       Round number (positive integer).",
-        "  --findings <file> File of findings to number and include.",
-        "  --avoid <path>    Path owned by a parallel task (repeatable).",
-        "  --disk <GB>       Extra disk budget in GB (default: 1).",
+        "Print the standard delegation brief for a child: the AGENTS.md opener, the",
+        "shared rules, the reviewer diff or the land steps, and numbered findings.",
+        "  --from <branch>    branch the child starts from (default: the task branch);",
+        "                     required for reviewer (the worker branch) and land",
+        "  --round <n>        review round, named in the opener",
+        "  --findings <file>  findings for a new round, one per line or list item",
+        "  --avoid <path>     file owned by a parallel task (repeatable)",
+        "  --disk <GB>        extra disk budget (default: 1)",
       ].join("\n");
     case "clean":
       return [
         "usage: tasks:clean [--apply]",
         "",
-        "List (dry run by default) and with --apply remove worktrees and local",
-        "branches merged into origin/main, same-commit duplicates of kept branches,",
-        "or prunable worktrees whose directory is gone.",
+        "List (dry run) or, with --apply, remove worktrees and local branches that are",
+        "merged into origin/main, sit at the same commit as a kept branch, or whose",
+        "worktree directory is gone. Never touches the primary or invoking checkout,",
+        "main, locked or dirty worktrees, unique unmerged work, or an unmerged branch",
+        "checked out under .cache/tasks/. A clean child worktree that has not",
+        "committed yet is a duplicate: apply only when no child is running.",
       ].join("\n");
     default:
       return [
@@ -1034,8 +1039,8 @@ if (import.meta.main) {
       const parsed = parseBriefArgs(args);
       console.log(briefTask(root, parsed.id, parsed.options, realRunner));
     } else if (command === "clean") {
-      const cleanOptions = parseCleanArgs(args);
-      console.log(formatCleanReport(cleanTasks(root, cleanOptions, realRunner)));
+      const apply = parseCleanArgs(args);
+      console.log(cleanReport(cleanTasks(root, apply, realRunner), apply));
     } else {
       usage(
         command === "start" || command === "merge" || command === "land" ? command : undefined,
@@ -1044,7 +1049,7 @@ if (import.meta.main) {
     }
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
-    if (error instanceof BriefUsageError) {
+    if (error instanceof UsageError) {
       console.error(usageText(activeCommand));
       process.exit(2);
     }

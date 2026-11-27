@@ -1,91 +1,207 @@
-import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, realpathSync } from "node:fs";
-import { isAbsolute, join, resolve, sep } from "node:path";
-import { TASK_FILE, parseFrontmatter } from "./check-workflow.ts";
-import type { CommandResult, CommandRunner } from "./tasks.ts";
+import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { join, resolve, sep } from "node:path";
+import { TASK_FILE } from "./check-workflow.ts";
+import type { CommandRunner } from "./tasks.ts";
 
-export const BRIEF_ROLES = ["worker", "reviewer", "land"] as const;
-export type BriefRole = (typeof BRIEF_ROLES)[number];
-
-export class BriefUsageError extends Error {}
-
-export interface BriefOptions {
-  role: BriefRole;
-  from?: string;
-  round?: number;
-  findings?: string;
-  avoid?: string[];
-  diskGb?: number;
-}
-
-export interface CleanOptions {
-  apply?: boolean;
-}
-
-export type CleanReason = "merged" | "duplicate" | "pruned";
-
-export interface CleanWorktreeEntry {
-  path: string;
-  branch?: string;
-  head?: string;
-  reason: CleanReason;
-  keptBranch?: string;
-}
-
-export interface CleanBranchEntry {
-  branch: string;
-  head: string;
-  reason: "merged" | "duplicate";
-  keptBranch?: string;
-}
-
-export interface CleanResult {
-  apply: boolean;
-  worktrees: CleanWorktreeEntry[];
-  branches: CleanBranchEntry[];
-}
-
-type PorcelainWorktree = {
-  path: string;
-  head?: string;
-  branch?: string;
-  detached: boolean;
-  bare: boolean;
-  prunable: boolean;
-  locked: boolean;
-};
-
-const defaultRunner: CommandRunner = (command, args, cwd, options): CommandResult => {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: "utf8",
-    ...(options?.inherit ? { stdio: "inherit" as const } : {}),
-  });
-  return {
-    status: result.status ?? 1,
-    stdout: result.stdout ?? "",
-    stderr: result.stderr ?? "",
-  };
-};
+/** Bad command-line input; the CLI prints the subcommand usage and exits 2. */
+export class UsageError extends Error {}
 
 function fail(message: string): never {
   throw new Error(message);
 }
 
-function runOrFail(
+export const ROLES = ["worker", "reviewer", "land"] as const;
+export type Role = (typeof ROLES)[number];
+
+export interface BriefOptions {
+  role: Role;
+  from?: string;
+  round?: string;
+  /** Path (relative to the root) of a findings file, one finding per line or list item. */
+  findings?: string;
+  avoid?: string[];
+  diskGb?: number;
+}
+
+/** The task branch: `task/<id>-*` if started, else derived from `tasks/<id>-*.md`. */
+function taskBranchFor(root: string, id: string, runner: CommandRunner): string {
+  const refs = runner(
+    "git",
+    ["for-each-ref", "--format=%(refname)", `refs/heads/task/${id}-*`],
+    root,
+  );
+  const branches = refs.stdout
+    .split("\n")
+    .filter(Boolean)
+    .map((ref) => ref.slice("refs/heads/".length));
+  if (branches.length > 1) fail(`multiple task branches for ${id}: ${branches.join(", ")}`);
+  if (branches[0]) return branches[0];
+  const dir = join(root, "tasks");
+  const file = existsSync(dir)
+    ? readdirSync(dir).find((name) => TASK_FILE.test(name) && name.startsWith(`${id}-`))
+    : undefined;
+  if (!file) fail(`task ${id} has no task/${id}-* branch and no tasks/${id}-*.md file`);
+  return `task/${file.replace(/\.md$/, "")}`;
+}
+
+/** Findings as items: list markers are stripped, unmarked lines continue the previous item. */
+export function findingItems(text: string): string[] {
+  const marker = /^\s*(?:\d+[.)]|[-*])\s+/;
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+  if (!lines.some((line) => marker.test(line))) return lines.map((line) => line.trim());
+  const items: string[] = [];
+  for (const line of lines) {
+    if (marker.test(line) || items.length === 0) items.push(line.replace(marker, "").trim());
+    else items[items.length - 1] += `\n   ${line.trim()}`;
+  }
+  return items;
+}
+
+const code = (items: string[]) => [...new Set(items)].map((item) => `\`${item}\``).join(", ");
+
+/** The standard brief for a delegated child; the orchestrator appends task-specific checks. */
+export function briefTask(
+  root: string,
+  id: string,
+  options: BriefOptions,
   runner: CommandRunner,
-  cwd: string,
-  command: string,
-  args: string[],
-): CommandResult {
-  const result = runner(command, args, cwd);
-  if (result.status !== 0) {
-    fail(`${command} ${args.join(" ")} failed${result.stderr ? `: ${result.stderr.trim()}` : ""}`);
+): string {
+  const { role, from } = options;
+  if (!ROLES.includes(role)) throw new UsageError(`unknown role: ${String(role)}`);
+  if (role !== "worker" && !from) throw new UsageError(`--role ${role} requires --from <branch>`);
+  if (role === "land" && options.findings)
+    throw new UsageError("--findings is for worker and reviewer");
+  const findings = options.findings
+    ? findingItems(readFileSync(resolve(root, options.findings), "utf8"))
+    : [];
+  if (options.findings && findings.length === 0)
+    fail(`findings file is empty: ${options.findings}`);
+
+  const taskBranch = taskBranchFor(root, id, runner);
+  const slug = taskBranch.slice("task/".length);
+  const taskPath = `tasks/${slug}.md`;
+  const start = from ?? taskBranch;
+  const title = { worker: "Worker", reviewer: "Reviewer", land: "Land agent" }[role];
+  const round = options.round ? `, round ${options.round}` : "";
+  const avoid = options.avoid?.length ? code(options.avoid) : "";
+  const keep = `Do not modify ${code(["main", taskBranch, start])}; \`${taskBranch}\` is checked out in \`.cache/tasks/${slug}\`.`;
+
+  const rules = [
+    `- First run \`git reset --hard ${start} && bun install --frozen-lockfile\`: your worktree may start on any commit and has no \`node_modules\`.`,
+    {
+      worker: `- Commit in logical commits on your own branch. Do not push. ${keep}`,
+      reviewer: `- Review \`git diff ${taskBranch}...${start}\` against \`${taskPath}\` Acceptance and AGENTS.md; check generated artifacts, not only verify. Do not fix, commit or push. ${keep}`,
+      land: `- Push and merge only through \`tasks:land\`. ${keep}`,
+    }[role],
+    "- The machine is shared: never run two `bun run verify` at once; run focused `bun test <path>` while iterating.",
+    "- Run long commands in the foreground and wait for them; never background them or end your turn while one runs.",
+    `- Keep extra disk usage under ${options.diskGb ?? 1} GB and delete your scratch files.`,
+    ...(avoid
+      ? [
+          role === "reviewer"
+            ? `- A parallel task owns ${avoid}: report any change to them as a finding.`
+            : `- A parallel task owns ${avoid}: do not edit them.`,
+        ]
+      : []),
+    {
+      worker: `- Before finishing, \`bun run verify\` passes and the Handoff section of \`${taskPath}\` is filled in and committed; never end your turn with uncommitted work. Your final message is only the Handoff block.`,
+      reviewer:
+        "- Your final message is a numbered findings list (each with `file:line` and a failure scenario) or `no findings`, then the `bun run verify` summary line.",
+      land: "- Your final message is `PR <url>, head <sha>, checks <state>`.",
+    }[role],
+  ];
+
+  const lines = [
+    `Follow AGENTS.md. You are the ${title} for \`${taskPath}\`${round}.`,
+    "",
+    "Rules:",
+    ...rules,
+  ];
+  if (role === "land") {
+    lines.push(
+      "",
+      `Steps (\`tasks:merge\` and \`tasks:land\` work in \`.cache/tasks/${slug}\` from any checkout):`,
+      `1. Unless \`git log --format=%s origin/main..${taskBranch}\` lists \`chore(${id}): done\`, run \`bun run tasks:merge ${id} --branch ${start}\`.`,
+      `2. Run \`bun run tasks:land ${id}\`. Once the PR exists (\`gh pr view ${taskBranch} --json url\`), link it with \`link_pull_request\`.`,
+      `3. If the only failed check is \`macos-example\` with "not acquired by Runner", rerun that check once, then run \`bun run tasks:land ${id}\` again.`,
+      "4. Stop on anything else (verify failure, merge conflict, another failed check) and report it; do not fix it.",
+    );
+  }
+  if (findings.length > 0) {
+    lines.push(
+      "",
+      role === "worker"
+        ? "Fix these review findings:"
+        : "Check that these findings from the previous round are fixed:",
+      ...findings.map((item, index) => `${index + 1}. ${item}`),
+    );
+  }
+  return lines.join("\n");
+}
+
+const VALUE_FLAGS = ["--role", "--from", "--round", "--findings", "--avoid", "--disk"];
+
+export function parseBriefArgs(args: string[]): { id: string; options: BriefOptions } {
+  const values = new Map<string, string[]>();
+  let id: string | undefined;
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!;
+    if (VALUE_FLAGS.includes(arg)) {
+      const value = args[++i];
+      if (!value || value.startsWith("--")) throw new UsageError(`${arg} requires a value`);
+      values.set(arg, [...(values.get(arg) ?? []), value]);
+    } else if (arg.startsWith("-")) throw new UsageError(`unknown option: ${arg}`);
+    else if (id === undefined) id = arg;
+    else throw new UsageError(`unexpected argument: ${arg}`);
+  }
+  const last = (flag: string) => values.get(flag)?.at(-1);
+  const role = last("--role");
+  if (!id) throw new UsageError("missing <id>");
+  if (!role) throw new UsageError("--role is required");
+  if (!ROLES.includes(role as Role)) throw new UsageError(`unknown role: ${role}`);
+  const disk = last("--disk");
+  const diskGb = disk === undefined ? undefined : Number(disk);
+  if (diskGb !== undefined && !(diskGb > 0))
+    throw new UsageError("--disk must be a positive number");
+  const options: BriefOptions = { role: role as Role };
+  const from = last("--from");
+  const round = last("--round");
+  const findings = last("--findings");
+  if (from) options.from = from;
+  if (round) options.round = round;
+  if (findings) options.findings = findings;
+  if (values.has("--avoid")) options.avoid = values.get("--avoid")!;
+  if (diskGb !== undefined) options.diskGb = diskGb;
+  return { id, options };
+}
+
+type ListedWorktree = {
+  path: string;
+  head?: string;
+  branch?: string;
+  prunable: boolean;
+  locked: boolean;
+};
+
+function listWorktrees(text: string): ListedWorktree[] {
+  const result: ListedWorktree[] = [];
+  for (const line of text.split("\n")) {
+    if (line.startsWith("worktree ")) {
+      result.push({ path: line.slice("worktree ".length), prunable: false, locked: false });
+      continue;
+    }
+    const current = result.at(-1);
+    if (!current) continue;
+    if (line.startsWith("HEAD ")) current.head = line.slice("HEAD ".length);
+    else if (line.startsWith("branch refs/heads/"))
+      current.branch = line.slice("branch refs/heads/".length);
+    else if (/^prunable(?: |$)/.test(line)) current.prunable = true;
+    else if (/^locked(?: |$)/.test(line)) current.locked = true;
   }
   return result;
 }
 
-function canonicalPath(path: string): string {
+function canonical(path: string): string {
   try {
     return realpathSync(path);
   } catch {
@@ -93,618 +209,158 @@ function canonicalPath(path: string): string {
   }
 }
 
-export function parseWorktreesPorcelain(text: string): PorcelainWorktree[] {
-  const result: PorcelainWorktree[] = [];
-  let current: PorcelainWorktree | undefined;
-  for (const line of text.split("\n")) {
-    if (line.startsWith("worktree ")) {
-      if (current) result.push(current);
-      current = {
-        path: line.slice("worktree ".length),
-        detached: false,
-        bare: false,
-        prunable: false,
-        locked: false,
-      };
-    } else if (!current) {
-      continue;
-    } else if (line.startsWith("HEAD ")) {
-      current.head = line.slice("HEAD ".length).trim();
-    } else if (line.startsWith("branch refs/heads/")) {
-      current.branch = line.slice("branch refs/heads/".length);
-    } else if (line === "detached") {
-      current.detached = true;
-    } else if (line === "bare") {
-      current.bare = true;
-    } else if (line === "prunable" || line.startsWith("prunable ")) {
-      current.prunable = true;
-    } else if (line === "locked" || line.startsWith("locked ")) {
-      current.locked = true;
-    }
-  }
-  if (current) result.push(current);
-  return result;
-}
+export type CleanEntry = {
+  kind: "worktree" | "branch";
+  /** Worktree path or branch name. */
+  name: string;
+  branch?: string;
+  reason: "merged" | "duplicate" | "pruned";
+  /** For a duplicate: the branch at the same commit that is kept. */
+  kept?: string;
+};
 
-function resolveTaskTarget(
-  root: string,
-  id: string,
-  runner: CommandRunner,
-): { taskPath: string; taskBranch: string; taskSlug: string } {
-  const tasksDir = join(root, "tasks");
-  if (existsSync(tasksDir)) {
-    for (const file of readdirSync(tasksDir).toSorted()) {
-      if (!TASK_FILE.test(file)) continue;
-      const fm = parseFrontmatter(readFileSync(join(tasksDir, file), "utf8"));
-      if (fm && String(fm.id) === id) {
-        const slug = file.replace(/\.md$/, "");
-        return { taskPath: `tasks/${file}`, taskBranch: `task/${slug}`, taskSlug: slug };
-      }
-    }
-  }
-
-  const prefix = `task/${id}-`;
-  const wtList = runner("git", ["worktree", "list", "--porcelain"], root);
-  if (wtList.status === 0) {
-    const wt = parseWorktreesPorcelain(wtList.stdout).find((entry) =>
-      entry.branch?.startsWith(prefix),
-    );
-    if (wt?.branch) {
-      const slug = wt.branch.slice("task/".length);
-      return { taskPath: `tasks/${slug}.md`, taskBranch: wt.branch, taskSlug: slug };
-    }
-  }
-
-  const refs = runner(
-    "git",
-    ["for-each-ref", "--format=%(refname:short)", `refs/heads/${prefix}*`],
-    root,
-  );
-  if (refs.status === 0) {
-    const branch = refs.stdout
-      .split("\n")
-      .map((line) => line.trim())
-      .find((name) => name.startsWith(prefix));
-    if (branch) {
-      const slug = branch.slice("task/".length);
-      return { taskPath: `tasks/${slug}.md`, taskBranch: branch, taskSlug: slug };
-    }
-  }
-
-  fail(`task ${id} does not exist`);
-}
-
-function parseNumberedFindings(raw: string): string[] {
-  const normalized = raw.replace(/\r\n/g, "\n").trim();
-  if (!normalized) return [];
-  const lines = normalized.split("\n");
-  const numbered = /^\s*\d+[.)]\s+(.*)$/;
-  const bulleted = /^\s*[-*]\s+(.*)$/;
-
-  if (lines.some((line) => numbered.test(line))) {
-    const items: string[] = [];
-    for (const line of lines) {
-      const match = numbered.exec(line);
-      if (match) {
-        items.push(match[1]!.trim());
-      } else if (items.length > 0 && line.trim()) {
-        items[items.length - 1] = `${items[items.length - 1]}\n   ${line.trim()}`;
-      }
-    }
-    return items.filter(Boolean);
-  }
-
-  if (lines.some((line) => bulleted.test(line))) {
-    const items: string[] = [];
-    for (const line of lines) {
-      const match = bulleted.exec(line);
-      if (match) {
-        items.push(match[1]!.trim());
-      } else if (items.length > 0 && line.trim()) {
-        items[items.length - 1] = `${items[items.length - 1]}\n   ${line.trim()}`;
-      }
-    }
-    return items.filter(Boolean);
-  }
-
-  return lines.map((line) => line.trim()).filter(Boolean);
-}
-
-function formatUniqueList(items: string[]): string {
-  const seen = new Set<string>();
-  const unique: string[] = [];
-  for (const item of items) {
-    if (!seen.has(item)) {
-      seen.add(item);
-      unique.push(item);
-    }
-  }
-  return unique.join(", ");
-}
-
-function formatProtectedBranches(branches: string[]): string {
-  const seen = new Set<string>();
-  const unique: string[] = [];
-  for (const branch of branches) {
-    if (!seen.has(branch)) {
-      seen.add(branch);
-      unique.push(`\`${branch}\``);
-    }
-  }
-  if (unique.length <= 1) return unique[0] ?? "";
-  return `${unique.slice(0, -1).join(", ")}, and ${unique.at(-1)}`;
-}
-
-/** Builds a concise, literal delegation brief for worker, reviewer, or land children. */
-export function briefTask(
-  root: string,
-  id: string,
-  options: BriefOptions,
-  runner: CommandRunner = defaultRunner,
-): string {
-  const { role } = options;
-  if (!BRIEF_ROLES.includes(role)) {
-    throw new BriefUsageError(`unknown role: ${String(role)}`);
-  }
-  if ((role === "reviewer" || role === "land") && !options.from) {
-    throw new BriefUsageError(`--from <branch> is required for --role ${role}`);
-  }
-  if (
-    options.round !== undefined &&
-    !(Number.isInteger(options.round) && options.round >= 1)
-  ) {
-    throw new BriefUsageError("--round must be a positive integer");
-  }
-  const diskGb = options.diskGb ?? 1;
-  if (!(Number.isFinite(diskGb) && diskGb > 0)) {
-    throw new BriefUsageError("--disk must be a positive number");
-  }
-
-  let findingsList: string[] = [];
-  if (options.findings !== undefined) {
-    const findingsPath = isAbsolute(options.findings)
-      ? options.findings
-      : resolve(root, options.findings);
-    if (!existsSync(findingsPath)) {
-      fail(`findings file not found: ${options.findings}`);
-    }
-    findingsList = parseNumberedFindings(readFileSync(findingsPath, "utf8"));
-    if (findingsList.length === 0) {
-      fail(`findings file is empty: ${options.findings}`);
-    }
-  }
-
-  const { taskPath, taskBranch, taskSlug } = resolveTaskTarget(root, id, runner);
-  const avoid = options.avoid?.length ? formatUniqueList(options.avoid) : "";
-
-  if (role === "worker") {
-    const startBranch = options.from ?? taskBranch;
-    const protectedList = formatProtectedBranches([
-      "main",
-      "origin/main",
-      `${taskBranch} (and its .cache/tasks/ worktree)`,
-      ...(options.from && options.from !== taskBranch ? [options.from] : []),
-    ]);
-    const lines = [
-      `Follow AGENTS.md. You are the Worker for \`${taskPath}\`.`,
-      "",
-      "First command (T3 may cut your worktree from any commit; a fresh worktree has no `node_modules`):",
-      `\`git reset --hard ${startBranch} && bun install --frozen-lockfile\``,
-      "",
-      "Rules:",
-      `- Commit on your own branch; do not push. Do not modify ${protectedList}.`,
-      "- Shared machine: never run two `bun run verify` at once. Run focused tests while iterating.",
-      "- Run long commands in the foreground and wait; never end your turn with uncommitted work.",
-      `- Keep extra disk usage under ${diskGb} GB, and delete scratch files.`,
-      ...(avoid ? [`- Stay out of (owned by a parallel task): ${avoid}.`] : []),
-      `- Fill Handoff in \`${taskPath}\` and commit it; your final message is only the Handoff block (\`Branch/commit:\`, \`Verify:\`, \`Done:\`, \`Not done / risks:\`).`,
-    ];
-    if (findingsList.length > 0) {
-      lines.push(
-        "",
-        options.round ? `Round ${options.round} findings to fix:` : "Findings to fix:",
-        ...findingsList.map((item, index) => `${index + 1}. ${item}`),
-      );
-    } else if (options.round && options.round > 1) {
-      lines.push("", `Round ${options.round}.`);
-    }
-    return lines.join("\n");
-  }
-
-  const from = options.from!;
-  if (role === "reviewer") {
-    const protectedList = formatProtectedBranches(["main", "origin/main", taskBranch, from]);
-    const lines = [
-      `Follow AGENTS.md. You are the Reviewer for \`${taskPath}\`.`,
-      "",
-      "First command (T3 may cut your worktree from any commit; a fresh worktree has no `node_modules`):",
-      `\`git reset --hard ${from} && bun install --frozen-lockfile\``,
-      "",
-      "Inspect the diff:",
-      `\`git diff ${taskBranch}...${from}\``,
-      "",
-      "Rules:",
-      `- Read-only review: do not rewrite the work, do not push, and do not modify ${protectedList}.`,
-      "- Shared machine: never run two `bun run verify` at once.",
-      "- Run `bun run verify` and acceptance checks in the foreground and wait.",
-      `- Keep extra disk usage under ${diskGb} GB, and delete scratch files.`,
-      ...(avoid ? [`- Stay out of (owned by a parallel task): ${avoid}.`] : []),
-      `- Check the diff, generated/untracked artifacts, \`${taskPath}\` Acceptance, and AGENTS.md.`,
-      '- Final message: a numbered findings list (`file:line`, failure scenario) or `no findings`, plus the `bun run verify` summary line.',
-    ];
-    if (findingsList.length > 0) {
-      lines.push(
-        "",
-        options.round
-          ? `Round ${options.round} findings to verify:`
-          : "Previous findings to verify:",
-        ...findingsList.map((item, index) => `${index + 1}. ${item}`),
-      );
-    } else if (options.round && options.round > 1) {
-      lines.push("", `Round ${options.round} review.`);
-    }
-    return lines.join("\n");
-  }
-
-  const protectedList = formatProtectedBranches(["main", "origin/main", from]);
-  const lines = [
-    `Follow AGENTS.md. You are the Land agent for \`${taskPath}\`.`,
-    "",
-    "First command (T3 may cut your worktree from any commit; a fresh worktree has no `node_modules`):",
-    `\`git reset --hard ${from} && bun install --frozen-lockfile\``,
-    "",
-    `Steps (run in the foreground and wait; \`tasks:merge\` and \`tasks:land\` operate in \`.cache/tasks/${taskSlug}\` and leave the primary checkout untouched):`,
-    `1. If \`chore(${id}): done\` is not yet on \`${taskBranch}\`, run \`bun run tasks:merge ${id} --branch ${from}\` in the foreground.`,
-    `2. Run \`bun run tasks:land ${id}\` in the foreground, and link the PR (\`link_pull_request\`).`,
-    `3. If \`tasks:land\` fails only because \`macos-example\` reports "not acquired by Runner", rerun that failed check once and rerun \`bun run tasks:land ${id}\` in the foreground. Stop on any other failure, merge conflict, or second check failure.`,
-    "",
-    "Rules:",
-    `- Do not push directly to \`main\` and do not modify ${protectedList}; only \`tasks:land\` pushes \`${taskBranch}\` and merges the PR.`,
-    "- Shared machine: never run two `bun run verify` at once.",
-    `- Keep extra disk usage under ${diskGb} GB, and delete scratch files.`,
-    ...(avoid ? [`- Stay out of (owned by a parallel task): ${avoid}.`] : []),
-    "- Final message: `PR <url>, head <sha>, checks <state>`.",
-  ];
-  if (findingsList.length > 0) {
-    lines.push(
-      "",
-      options.round ? `Round ${options.round} notes:` : "Notes:",
-      ...findingsList.map((item, index) => `${index + 1}. ${item}`),
-    );
-  }
-  return lines.join("\n");
-}
-
-function branchTier(branch: string): number {
-  if (branch.startsWith("task/")) return 0;
-  if (!branch.startsWith("t3/")) return 1;
-  return 2;
-}
-
-function compareKeepOrder(a: string, b: string): number {
-  return branchTier(a) - branchTier(b) || a.localeCompare(b);
-}
-
-function isDirtyWorktree(runner: CommandRunner, wtPath: string): boolean {
-  const status = runner("git", ["status", "--porcelain", "--untracked-files=all"], wtPath);
-  if (status.status !== 0) return true;
-  return status.stdout.split("\n").some((line) => line.trim() !== "");
-}
+// Which branch of a same-commit group survives: pinned, then one with a live
+// worktree, then task/ over other names over T3's throwaway t3/ names.
+const tier = (branch: string) =>
+  branch.startsWith("task/") ? 0 : branch.startsWith("t3/") ? 2 : 1;
 
 /**
- * Lists (and with `apply: true`, removes) worktrees and local branches that are
- * merged into `origin/main`, sit at the same commit as a kept branch, or whose
- * worktree directory is gone. Never touches the primary checkout, `main`,
- * dirty worktrees, unique unmerged work, or unmerged `.cache/tasks/` worktrees.
+ * Lists, and with `apply` removes, worktrees and local branches that are merged
+ * into origin/main, sit at the same commit as a kept branch, or whose worktree
+ * directory is gone. Never touches the primary or invoking checkout, `main`,
+ * locked or dirty worktrees, unique unmerged work, or an unmerged branch
+ * checked out under `.cache/tasks/`.
  */
-export function cleanTasks(
-  root: string,
-  options: CleanOptions = {},
-  runner: CommandRunner = defaultRunner,
-): CleanResult {
-  const apply = options.apply === true;
-  const listed = runOrFail(runner, root, "git", ["worktree", "list", "--porcelain"]);
-  const allWorktrees = parseWorktreesPorcelain(listed.stdout);
-  const primary = allWorktrees[0];
-  if (!primary) fail("no primary git worktree found");
-
-  if (
-    runner("git", ["rev-parse", "--verify", "--quiet", "refs/remotes/origin/main"], primary.path)
-      .status !== 0
-  ) {
-    fail("origin/main does not exist");
-  }
-
-  const primaryCanon = canonicalPath(primary.path);
-  const tasksCachePrefix = `${join(primaryCanon, ".cache", "tasks")}${sep}`;
-
-  const refsOutput = runOrFail(runner, primary.path, "git", [
-    "for-each-ref",
-    "--format=%(refname:short)%09%(objectname)",
-    "refs/heads",
-  ]).stdout;
-  const branches: Array<{ branch: string; head: string }> = [];
-  const branchHeadMap = new Map<string, string>();
-  for (const line of refsOutput.split("\n")) {
-    if (!line.trim()) continue;
-    const [branch, head] = line.split("\t");
-    if (branch && head) {
-      branches.push({ branch, head });
-      branchHeadMap.set(branch, head);
-    }
-  }
-
-  const isMergedRef = (ref: string): boolean =>
-    runner("git", ["merge-base", "--is-ancestor", ref, "refs/remotes/origin/main"], primary.path)
-      .status === 0;
-
-  const mergedByBranch = new Map<string, boolean>();
-  for (const { branch } of branches) {
-    mergedByBranch.set(branch, isMergedRef(`refs/heads/${branch}`));
-  }
-
-  const protectedBranches = new Set<string>(["main"]);
-  if (primary.branch) protectedBranches.add(primary.branch);
-
-  type InspectedWorktree = {
-    wt: PorcelainWorktree;
-    gone: boolean;
-    dirty: boolean;
+export function cleanTasks(root: string, apply: boolean, runner: CommandRunner): CleanEntry[] {
+  const git = (cwd: string, ...args: string[]) => {
+    const result = runner("git", args, cwd);
+    if (result.status !== 0) fail(`git ${args.join(" ")} failed: ${result.stderr.trim()}`);
+    return result.stdout;
   };
-  const inspected: InspectedWorktree[] = [];
-  for (const wt of allWorktrees.slice(1)) {
-    const gone = wt.prunable || !existsSync(wt.path);
-    const dirty = !gone && (wt.locked || isDirtyWorktree(runner, wt.path));
-    inspected.push({ wt, gone, dirty });
-    if (!gone && wt.branch) {
-      const isTaskCache = canonicalPath(wt.path).startsWith(tasksCachePrefix);
-      if (dirty || (isTaskCache && !mergedByBranch.get(wt.branch))) {
-        protectedBranches.add(wt.branch);
-      }
-    }
+  const all = listWorktrees(git(root, "worktree", "list", "--porcelain"));
+  const primary = all[0]!.path;
+  if (
+    runner("git", ["rev-parse", "--verify", "--quiet", "refs/remotes/origin/main"], primary).status
+  )
+    fail("origin/main does not exist; run git fetch origin");
+  const merged = (ref: string) =>
+    runner("git", ["merge-base", "--is-ancestor", ref, "refs/remotes/origin/main"], primary)
+      .status === 0;
+  const dirty = (path: string) => {
+    const status = runner("git", ["status", "--porcelain", "--untracked-files=all"], path);
+    return status.status !== 0 || status.stdout.trim() !== "";
+  };
+  const here = canonical(git(root, "rev-parse", "--show-toplevel").trim());
+  const taskCache = join(canonical(primary), ".cache", "tasks") + sep;
+
+  const heads = new Map<string, string>();
+  for (const line of git(
+    primary,
+    "for-each-ref",
+    "--format=%(refname) %(objectname)",
+    "refs/heads",
+  ).split("\n")) {
+    const [ref, sha] = line.split(" ");
+    if (ref && sha) heads.set(ref.slice("refs/heads/".length), sha);
   }
+  const isMerged = new Map([...heads.keys()].map((b) => [b, merged(`refs/heads/${b}`)]));
 
-  const branchDisposition = new Map<
-    string,
-    { status: "kept" | "merged" | "duplicate"; keptBranch?: string }
-  >();
-  const unmergedGroups = new Map<string, string[]>();
-
-  for (const { branch, head } of branches) {
-    if (protectedBranches.has(branch)) {
-      branchDisposition.set(branch, { status: "kept" });
-      if (!mergedByBranch.get(branch)) {
-        const group = unmergedGroups.get(head) ?? [];
-        group.push(branch);
-        unmergedGroups.set(head, group);
-      }
-      continue;
-    }
-    if (mergedByBranch.get(branch)) {
-      branchDisposition.set(branch, { status: "merged" });
-      continue;
-    }
-    const group = unmergedGroups.get(head) ?? [];
-    group.push(branch);
-    unmergedGroups.set(head, group);
-  }
-
-  for (const group of unmergedGroups.values()) {
-    const protectedInGroup = group.filter((b) => protectedBranches.has(b)).toSorted(compareKeepOrder);
-    const winner = protectedInGroup[0] ?? group.toSorted(compareKeepOrder)[0]!;
-    if (!branchDisposition.has(winner)) {
-      branchDisposition.set(winner, { status: "kept" });
-    }
-    for (const branch of group) {
-      if (protectedBranches.has(branch) || branch === winner) continue;
-      branchDisposition.set(branch, { status: "duplicate", keptBranch: winner });
-    }
-  }
-
-  const keptHeadToBranch = new Map<string, string>();
-  for (const { branch, head } of branches) {
-    if (branchDisposition.get(branch)?.status === "kept" && !keptHeadToBranch.has(head)) {
-      keptHeadToBranch.set(head, branch);
-    }
-  }
-
-  const removableWorktrees: CleanWorktreeEntry[] = [];
-  for (const { wt, gone, dirty } of inspected) {
-    if (gone) {
-      removableWorktrees.push({
-        path: wt.path,
-        ...(wt.branch !== undefined ? { branch: wt.branch } : {}),
-        ...(wt.head !== undefined ? { head: wt.head } : {}),
+  const entries: CleanEntry[] = [];
+  const pinned = new Set(["main"]);
+  const live: ListedWorktree[] = [];
+  for (const [index, wt] of all.entries()) {
+    const path = canonical(wt.path);
+    const pin =
+      index === 0 ||
+      path === here ||
+      wt.locked ||
+      (!wt.prunable &&
+        existsSync(wt.path) &&
+        (dirty(wt.path) ||
+          (path.startsWith(taskCache) && !!wt.branch && !isMerged.get(wt.branch))));
+    if (pin) {
+      if (wt.branch) pinned.add(wt.branch);
+    } else if (wt.prunable || !existsSync(wt.path)) {
+      entries.push({
+        kind: "worktree",
+        name: wt.path,
+        ...(wt.branch ? { branch: wt.branch } : {}),
         reason: "pruned",
       });
-      continue;
-    }
-    if (dirty) continue;
-    if (wt.branch) {
-      const disp = branchDisposition.get(wt.branch);
-      if (disp?.status === "merged" || disp?.status === "duplicate") {
-        removableWorktrees.push({
-          path: wt.path,
-          branch: wt.branch,
-          ...(wt.head !== undefined ? { head: wt.head } : {}),
-          reason: disp.status,
-          ...(disp.keptBranch !== undefined ? { keptBranch: disp.keptBranch } : {}),
-        });
-      }
-      continue;
-    }
-    if (wt.detached && wt.head) {
-      if (isMergedRef(wt.head)) {
-        removableWorktrees.push({ path: wt.path, head: wt.head, reason: "merged" });
-      } else {
-        const keptBranch = keptHeadToBranch.get(wt.head);
-        if (keptBranch) {
-          removableWorktrees.push({
-            path: wt.path,
-            head: wt.head,
-            reason: "duplicate",
-            keptBranch,
-          });
-        }
-      }
-    }
+    } else live.push(wt);
   }
+  const hasLive = new Set(live.flatMap((wt) => (wt.branch ? [wt.branch] : [])));
 
-  const removableBranches: CleanBranchEntry[] = [];
-  for (const { branch, head } of branches) {
-    const disp = branchDisposition.get(branch);
-    if (disp?.status === "merged" || disp?.status === "duplicate") {
-      removableBranches.push({
-        branch,
-        head,
-        reason: disp.status,
-        ...(disp.keptBranch !== undefined ? { keptBranch: disp.keptBranch } : {}),
+  const removed = new Map<string, Pick<CleanEntry, "reason" | "kept">>();
+  const groups = new Map<string, string[]>();
+  for (const [branch, sha] of heads) {
+    if (isMerged.get(branch)) {
+      if (!pinned.has(branch)) removed.set(branch, { reason: "merged" });
+    } else groups.set(sha, [...(groups.get(sha) ?? []), branch]);
+  }
+  const rank = (b: string) => [pinned.has(b) ? 0 : 1, hasLive.has(b) ? 0 : 1, tier(b)];
+  for (const group of groups.values()) {
+    const kept = group.toSorted((a, b) => {
+      const [ra, rb] = [rank(a), rank(b)];
+      return ra[0]! - rb[0]! || ra[1]! - rb[1]! || ra[2]! - rb[2]! || a.localeCompare(b);
+    })[0]!;
+    for (const branch of group)
+      if (branch !== kept && !pinned.has(branch))
+        removed.set(branch, { reason: "duplicate", kept });
+  }
+  const keptAt = new Map<string, string>();
+  for (const [branch, sha] of heads)
+    if (!removed.has(branch) && !keptAt.has(sha)) keptAt.set(sha, branch);
+
+  for (const wt of live) {
+    let why = wt.branch ? removed.get(wt.branch) : undefined;
+    if (!wt.branch && wt.head) {
+      const kept = keptAt.get(wt.head);
+      why = merged(wt.head)
+        ? { reason: "merged" }
+        : kept
+          ? { reason: "duplicate", kept }
+          : undefined;
+    }
+    if (why)
+      entries.push({
+        kind: "worktree",
+        name: wt.path,
+        ...(wt.branch ? { branch: wt.branch } : {}),
+        ...why,
       });
-    }
   }
-
-  removableWorktrees.sort((a, b) => a.path.localeCompare(b.path));
-  removableBranches.sort((a, b) => a.branch.localeCompare(b.branch));
+  for (const [branch, why] of [...removed].toSorted(([a], [b]) => a.localeCompare(b)))
+    entries.push({ kind: "branch", name: branch, ...why });
 
   if (apply) {
-    if (removableWorktrees.some((wt) => wt.reason === "pruned")) {
-      runOrFail(runner, primary.path, "git", ["worktree", "prune"]);
-    }
-    for (const wt of removableWorktrees) {
-      if (wt.reason === "pruned") continue;
-      runOrFail(runner, primary.path, "git", ["worktree", "remove", "--force", wt.path]);
-    }
-    for (const entry of removableBranches) {
-      runOrFail(runner, primary.path, "git", ["branch", "-D", entry.branch]);
-    }
+    if (entries.some((entry) => entry.reason === "pruned")) git(primary, "worktree", "prune");
+    // No --force: git refuses a worktree that became dirty after the check above.
+    for (const entry of entries)
+      if (entry.kind === "worktree" && entry.reason !== "pruned")
+        git(primary, "worktree", "remove", entry.name);
+    for (const entry of entries)
+      if (entry.kind === "branch") git(primary, "branch", "-D", entry.name);
   }
-
-  return { apply, worktrees: removableWorktrees, branches: removableBranches };
+  return entries;
 }
 
-export function formatCleanReport(result: CleanResult): string {
-  if (result.worktrees.length === 0 && result.branches.length === 0) {
-    return result.apply ? "clean: nothing to remove" : "clean (dry run): nothing to remove";
-  }
-  const lines: string[] = [];
-  for (const wt of result.worktrees) {
-    const tag =
-      wt.reason === "duplicate" && wt.keptBranch
-        ? `duplicate -> ${wt.keptBranch}`
-        : wt.reason;
-    const branchNote = wt.branch ? ` (${wt.branch})` : "";
-    lines.push(`worktree ${wt.path}${branchNote} [${tag}]`);
-  }
-  for (const b of result.branches) {
-    const tag =
-      b.reason === "duplicate" && b.keptBranch ? `duplicate -> ${b.keptBranch}` : b.reason;
-    lines.push(`branch ${b.branch} [${tag}]`);
-  }
-  const counts = `${result.worktrees.length} worktree(s), ${result.branches.length} branch(es)`;
+export function cleanReport(entries: CleanEntry[], apply: boolean): string {
+  const lines = entries.map(
+    (entry) =>
+      `${entry.kind} ${entry.name}${entry.kind === "worktree" && entry.branch ? ` (${entry.branch})` : ""}: ${entry.reason}${entry.kept ? ` (same commit as ${entry.kept})` : ""}`,
+  );
+  const worktrees = entries.filter((entry) => entry.kind === "worktree").length;
+  const counts = `${worktrees} worktree(s) and ${entries.length - worktrees} branch(es)`;
   lines.push(
-    result.apply
-      ? `clean: removed ${counts}`
-      : `clean (dry run): would remove ${counts} (pass --apply to remove)`,
+    apply
+      ? `removed ${counts}`
+      : `dry run: would remove ${counts}; rerun with --apply to remove them`,
   );
   return lines.join("\n");
 }
 
-function readArgValue(args: string[], index: number, flag: string): { value: string; next: number } {
-  const arg = args[index]!;
-  if (arg.startsWith(`${flag}=`)) {
-    const value = arg.slice(flag.length + 1);
-    if (!value) throw new BriefUsageError(`${flag} requires a value`);
-    return { value, next: index };
-  }
-  const value = args[index + 1];
-  if (!value || value.startsWith("--")) throw new BriefUsageError(`${flag} requires a value`);
-  return { value, next: index + 1 };
-}
-
-export function parseBriefArgs(args: string[]): { id: string; options: BriefOptions } {
-  let id: string | undefined;
-  let role: string | undefined;
-  let from: string | undefined;
-  let roundRaw: string | undefined;
-  let findings: string | undefined;
-  let diskRaw: string | undefined;
-  const avoid: string[] = [];
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]!;
-    if (arg === "--role" || arg.startsWith("--role=")) {
-      const parsed = readArgValue(args, i, "--role");
-      role = parsed.value;
-      i = parsed.next;
-    } else if (arg === "--from" || arg.startsWith("--from=")) {
-      const parsed = readArgValue(args, i, "--from");
-      from = parsed.value;
-      i = parsed.next;
-    } else if (arg === "--round" || arg.startsWith("--round=")) {
-      const parsed = readArgValue(args, i, "--round");
-      roundRaw = parsed.value;
-      i = parsed.next;
-    } else if (arg === "--findings" || arg.startsWith("--findings=")) {
-      const parsed = readArgValue(args, i, "--findings");
-      findings = parsed.value;
-      i = parsed.next;
-    } else if (arg === "--avoid" || arg.startsWith("--avoid=")) {
-      const parsed = readArgValue(args, i, "--avoid");
-      avoid.push(parsed.value);
-      i = parsed.next;
-    } else if (arg === "--disk" || arg.startsWith("--disk=")) {
-      const parsed = readArgValue(args, i, "--disk");
-      diskRaw = parsed.value;
-      i = parsed.next;
-    } else if (arg.startsWith("-")) {
-      throw new BriefUsageError(`unknown option: ${arg}`);
-    } else if (id === undefined) {
-      id = arg;
-    } else {
-      throw new BriefUsageError(`unexpected argument: ${arg}`);
-    }
-  }
-
-  if (!id) throw new BriefUsageError("missing <id>");
-  if (!role) throw new BriefUsageError("--role is required");
-  if (!BRIEF_ROLES.includes(role as BriefRole)) {
-    throw new BriefUsageError(`unknown role: ${role} (expected ${BRIEF_ROLES.join("|")})`);
-  }
-  let round: number | undefined;
-  if (roundRaw !== undefined) {
-    round = Number(roundRaw);
-    if (!(Number.isInteger(round) && round >= 1)) {
-      throw new BriefUsageError("--round must be a positive integer");
-    }
-  }
-  let diskGb: number | undefined;
-  if (diskRaw !== undefined) {
-    diskGb = Number(diskRaw);
-    if (!(Number.isFinite(diskGb) && diskGb > 0)) {
-      throw new BriefUsageError("--disk must be a positive number");
-    }
-  }
-  return {
-    id,
-    options: {
-      role: role as BriefRole,
-      ...(from !== undefined ? { from } : {}),
-      ...(round !== undefined ? { round } : {}),
-      ...(findings !== undefined ? { findings } : {}),
-      ...(avoid.length > 0 ? { avoid } : {}),
-      ...(diskGb !== undefined ? { diskGb } : {}),
-    },
-  };
-}
-
-export function parseCleanArgs(args: string[]): CleanOptions {
-  let apply = false;
-  for (const arg of args) {
-    if (arg === "--apply") {
-      apply = true;
-    } else {
-      throw new BriefUsageError(`unknown argument: ${arg}`);
-    }
-  }
-  return { apply };
+export function parseCleanArgs(args: string[]): boolean {
+  for (const arg of args) if (arg !== "--apply") throw new UsageError(`unknown argument: ${arg}`);
+  return args.includes("--apply");
 }
