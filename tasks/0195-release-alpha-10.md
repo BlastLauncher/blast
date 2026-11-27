@@ -39,8 +39,10 @@ every `@blastlauncher/*` package, and the docs say so.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/0195-docs
+Verify: run by tasks:merge
 Done:
-Not done / risks:
+- README, embedding, quickstart and release docs describe alpha.10 as npm `latest` and how to move `latest`.
+- PLAN.md: M17 done in Current focus; decision-log line for the `latest` move.
+Not done / risks: `latest` must be moved by hand after each tagged prerelease.
 ```
