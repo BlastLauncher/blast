@@ -136,6 +136,14 @@ describe("XML plist", () => {
     expect(parsePlist(`﻿${xml("<string>x</string>")}`)).toBe("x");
   });
 
+  test("ignores trailing text after </plist> like Apple plutil", () => {
+    expect(
+      parsePlist(`${xml("<dict><key>name</key><string>OK</string></dict>")}\nplist>\n`),
+    ).toEqual({
+      name: "OK",
+    });
+  });
+
   test("stores __proto__ as an own key without touching the prototype", () => {
     const value = parsePlist(
       xml("<dict><key>__proto__</key><dict><key>polluted</key><true/></dict></dict>"),
@@ -162,7 +170,7 @@ describe("XML plist", () => {
     ["invalid base64", xml("<data>!!!</data>"), /invalid base64/],
     ["unknown element", xml("<null/>"), /unsupported element <null>/],
     ["wrong root", "<dict></dict>", /expected <plist> root/],
-    ["trailing content", `${xml("<true/>")}<true/>`, /unexpected content after <\/plist>/],
+    ["extra root value", xml("<true/><false/>"), /expected <\/plist>/],
     ["unterminated comment", xml("<!-- <true/>"), /unterminated comment/],
     ["empty document", "   ", /empty document/],
   ])("rejects %s", (_name, input, message) => {

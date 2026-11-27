@@ -219,8 +219,8 @@ function parseXmlPlist(text: string): PlistValue {
   const value = parseXmlValue(cur, 0);
   cur.skipMisc();
   cur.readEndTag("plist");
-  cur.skipMisc();
-  if (cur.pos < text.length) cur.fail("unexpected content after </plist>");
+  // Apple's NSPropertyListSerialization (and plutil) stops at </plist> and
+  // ignores trailing bytes; some published Alfred workflows rely on this.
   return value;
 }
 

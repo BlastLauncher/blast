@@ -75,19 +75,30 @@ function findEndOfCentralDirectory(view: DataView): number {
 }
 
 // Rejects anything that is not a plain relative path inside the archive root.
-function checkEntryName(name: string): void {
+// Strips leading `./` prefixes produced by `zip -r out.alfredworkflow .` and
+// returns `null` for a bare `./` root directory entry.
+function normalizeEntryName(name: string, isDirectory: boolean): string | null {
   const shown = JSON.stringify(name);
   if (name === "") throw new Error("zip: entry has an empty name");
   if (name.includes("\0")) throw new Error(`zip: entry name ${shown} contains a NUL byte`);
   if (name.includes("\\")) throw new Error(`zip: entry name ${shown} contains a backslash`);
   if (name.startsWith("/")) throw new Error(`zip: entry name ${shown} is absolute`);
   if (/^[A-Za-z]:/.test(name)) throw new Error(`zip: entry name ${shown} has a drive prefix`);
-  const segments = name.endsWith("/") ? name.slice(0, -1).split("/") : name.split("/");
+  let normalized = name;
+  while (normalized.startsWith("./")) normalized = normalized.slice(2);
+  if (normalized === "" || normalized === ".") {
+    if (isDirectory || name.endsWith("/")) return null;
+    throw new Error(`zip: entry name ${shown} has an empty or "." segment`);
+  }
+  const segments = normalized.endsWith("/")
+    ? normalized.slice(0, -1).split("/")
+    : normalized.split("/");
   for (const segment of segments) {
     if (segment === "..") throw new Error(`zip: entry name ${shown} escapes the archive root`);
     if (segment === "" || segment === ".")
       throw new Error(`zip: entry name ${shown} has an empty or "." segment`);
   }
+  return normalized;
 }
 
 export function readZipEntries(bytes: Uint8Array): ZipEntry[] {
@@ -134,22 +145,20 @@ export function readZipEntries(bytes: Uint8Array): ZipEntry[] {
     const name = decoder.decode(rawName);
     at = nameEnd + extraLength + commentLength;
 
-    checkEntryName(name);
-    const shown = JSON.stringify(name);
-    if (seen.has(name)) throw new Error(`zip: duplicate entry ${shown}`);
-    seen.add(name);
+    // Only Unix-made (3) and macOS-made (19) entries carry a POSIX mode in the
+    // high 16 bits. Symlinks are rejected whatever the host claims to be.
+    if (((externalAttr >>> 16) & S_IFMT) === S_IFLNK)
+      throw new Error(`zip: entry ${JSON.stringify(name)} is a symbolic link`);
+    const unixMode = madeBy === 3 || madeBy === 19 ? externalAttr >>> 16 : 0;
+    const isDirectory = name.endsWith("/") || (unixMode & S_IFMT) === S_IFDIR;
+    const normalized = normalizeEntryName(name, isDirectory);
+    const shown = JSON.stringify(normalized ?? name);
     if (flags & 0x41) throw new Error(`zip: entry ${shown} is encrypted`);
     if (method !== 0 && method !== 8)
       throw new Error(`zip: entry ${shown} uses unsupported compression method ${method}`);
     if (compressedSize === 0xffffffff || size === 0xffffffff || localOffset === 0xffffffff) {
       throw new Error("zip: ZIP64 archives are not supported");
     }
-    // Only Unix-made (3) and macOS-made (19) entries carry a POSIX mode in the
-    // high 16 bits. Symlinks are rejected whatever the host claims to be.
-    if (((externalAttr >>> 16) & S_IFMT) === S_IFLNK)
-      throw new Error(`zip: entry ${shown} is a symbolic link`);
-    const unixMode = madeBy === 3 || madeBy === 19 ? externalAttr >>> 16 : 0;
-    const isDirectory = name.endsWith("/") || (unixMode & S_IFMT) === S_IFDIR;
     if (method === 0 && compressedSize !== size)
       throw new Error(`zip: stored entry ${shown} has mismatched sizes`);
 
@@ -170,9 +179,13 @@ export function readZipEntries(bytes: Uint8Array): ZipEntry[] {
     const dataStart = localOffset + LOCAL_SIZE + localNameLength + localExtraLength;
     if (dataStart + compressedSize > cdOffset)
       throw new Error(`zip: data for ${shown} runs past the central directory`);
+    if (normalized === null) continue;
+    const finalName = isDirectory && !normalized.endsWith("/") ? `${normalized}/` : normalized;
+    if (seen.has(finalName)) throw new Error(`zip: duplicate entry ${JSON.stringify(finalName)}`);
+    seen.add(finalName);
 
     entries.push({
-      name: isDirectory && !name.endsWith("/") ? `${name}/` : name,
+      name: finalName,
       isDirectory,
       method,
       compressedSize,

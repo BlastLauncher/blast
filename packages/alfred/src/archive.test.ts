@@ -137,9 +137,25 @@ describe("readZipEntries", () => {
     ["C:/evil", /drive prefix/],
     ["a\0b", /NUL byte/],
     ["a//b", /empty or "." segment/],
-    ["./a", /empty or "." segment/],
+    ["a/./b", /empty or "." segment/],
+    [".", /empty or "." segment/],
   ])("rejects the unsafe name %j", (name, message) => {
     expect(() => readZipEntries(zip([{ name, data: "x" }]))).toThrow(message);
+  });
+
+  test("normalizes leading ./ prefixes and skips bare ./ root directory entries", () => {
+    const entries = readZipEntries(
+      zip([
+        { name: "./", mode: 0o040755 },
+        { name: "./info.plist", data: "<plist/>" },
+        { name: "./sub/run.sh", data: "#!/bin/sh", mode: 0o100755 },
+      ]),
+    );
+    expect(entries.map((e) => e.name)).toEqual(["info.plist", "sub/run.sh"]);
+    expect(text(entries[0]!.read())).toBe("<plist/>");
+    expect(() => readZipEntries(zip([{ name: "./info.plist" }, { name: "info.plist" }]))).toThrow(
+      /duplicate entry "info.plist"/,
+    );
   });
 
   test.each([
