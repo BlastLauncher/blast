@@ -689,7 +689,8 @@ export async function executeWorkflowGraph(
 
     "output.playsound": async ({ config, flow, expand }) => {
       if (!host.playSound) throw new Error("this host cannot play sounds");
-      const soundName = (await expand(plistString(config.sound))).trim();
+      const rawSound = plistString(config.soundname) || plistString(config.sound);
+      const soundName = (await expand(rawSound)).trim();
       if (soundName === "") throw new Error("Play Sound has no sound");
       // Without the flag, a bare name (`Glass`) is a system sound and a path is a file.
       const systemSound =
