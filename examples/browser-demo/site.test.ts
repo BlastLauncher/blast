@@ -96,9 +96,10 @@ function expectLandingSnippets(html: string) {
   expect(html).toContain(`<b>${releaseVersion}</b>`);
   expect(html).toContain(`<code>${releaseVersion}</code> is <code>latest</code> on npm`);
   expect(html).toContain("<code>@next</code> is the canary from <code>main</code>");
-  expect(html).toContain("3.0.0-alpha.10");
   expect(html).toContain("session.view.patch");
-  expect(html).not.toMatch(/\b3\.0\.0-alpha\.(?!10\b)\d+\b/);
+  // Any other version string on the page is stale.
+  for (const version of html.match(/\b\d+\.\d+\.\d+-[a-z]+\.\d+\b/g) ?? [])
+    expect(version).toBe(releaseVersion);
   for (const stale of ["From Source", "release:build"]) expect(html).not.toContain(stale);
   // Release pill links to the tmux plugin.
   expect(html).toContain('<a class="pill" href="https://github.com/BlastLauncher/tmux-blast">');
