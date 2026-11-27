@@ -2,20 +2,22 @@
 // 0021, point 5: compatibility is measured, never claimed). Scans a directory
 // for `.alfredworkflow` archives and unpacked workflows, reads each manifest
 // the way the host does, and counts object types against what the runtime
-// implements. Archives are read in memory; nothing is extracted or executed.
+// implements (Automation Tasks per `taskuid`). Archives are read in memory; nothing is extracted or executed.
 //
 //   bun run alfred:analyze <dir> [--json] [--top N]
 
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
 import {
+  AUTOMATION_TASK,
+  classifyAlfredObject,
   loadWorkflow,
   parsePlist,
   parseWorkflow,
-  PASSIVE_TRIGGER_TYPES,
+  plistString,
   readZipEntries,
-  SUPPORTED_OBJECT_TYPES,
   workflowToManifest,
+  type AlfredObject,
   type AlfredWorkflow,
 } from "../../packages/alfred/src/index.ts";
 import { parseManifest } from "../../packages/host/src/extension-manifest.ts";
@@ -38,6 +40,7 @@ export type WorkflowAnalysis = {
   name?: string;
   commands: number;
   objects: ObjectCounts;
+  /** Object types; an Automation Task reads `alfred.workflow.automation.task:<taskuid>`. */
   unsupportedTypes: string[];
   fullySupported: boolean;
 };
@@ -57,8 +60,12 @@ export type CorpusAnalysis = {
   results: WorkflowAnalysis[];
 };
 
-const SUPPORTED = new Set(SUPPORTED_OBJECT_TYPES);
-const PASSIVE = new Set(PASSIVE_TRIGGER_TYPES);
+/** The label an unsupported object is counted under. */
+function unsupportedLabel(object: AlfredObject): string {
+  if (object.type !== AUTOMATION_TASK) return object.type;
+  const taskuid = plistString(object.config.taskuid).trim();
+  return taskuid ? `${AUTOMATION_TASK}:${taskuid}` : AUTOMATION_TASK;
+}
 
 /** Archives and unpacked workflow folders under `dir`, sorted; a workflow folder is not descended. */
 async function findWorkflows(
@@ -126,12 +133,9 @@ async function analyzeOne(
     analysis.commands = manifest.commands.length;
     for (const object of workflow.objects) {
       analysis.objects.total++;
-      if (SUPPORTED.has(object.type)) analysis.objects.supported++;
-      else if (PASSIVE.has(object.type)) analysis.objects.passive++;
-      else {
-        analysis.objects.unsupported++;
-        analysis.unsupportedTypes.push(object.type);
-      }
+      const support = classifyAlfredObject(object);
+      analysis.objects[support]++;
+      if (support === "unsupported") analysis.unsupportedTypes.push(unsupportedLabel(object));
     }
     analysis.fullySupported = analysis.commands > 0 && analysis.objects.unsupported === 0;
   } catch (error) {
