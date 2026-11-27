@@ -7,6 +7,11 @@ an `.alfredworkflow` archive. Archives are extracted once per content hash into
 `@blastlauncher/alfred/main` child that speaks protocol v1, so every client
 draws workflows unchanged.
 
+Measured with `bun run alfred:analyze` against 242 real workflows: 39 object
+types and 35 core Automation Tasks are supported, 177 of 242 workflows are
+fully supported, and execution coverage is 97.7%. Remaining items are tracked
+in [#139](https://github.com/BlastLauncher/blast/issues/139).
+
 ## Running a workflow
 
 ```bash

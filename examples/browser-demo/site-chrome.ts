@@ -5,7 +5,6 @@ import { escapeHtml } from "./highlight.ts";
 export const coverageUrl = "https://github.com/blastlauncher/blast/blob/main/compat/COVERAGE.md";
 export const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/compat/SWEEP.md";
 export const repoUrl = "https://github.com/blastlauncher/blast";
-export const tmuxRepoUrl = "https://github.com/BlastLauncher/tmux-blast";
 
 export const fontPreloadHtml =
   '<link rel="preload" href="/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>';

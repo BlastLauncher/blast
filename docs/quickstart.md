@@ -1,6 +1,7 @@
 # Quickstart
 
-Blast runs unmodified Raycast extensions and hands your app views to draw.
+Blast runs unmodified Raycast extensions and Alfred workflows and hands your
+app views to draw.
 The engine owns the launcher flow: it lists opened extensions in a root view,
 prompts for missing preferences and arguments, installs dependencies, and runs
 commands. You draw views and forward input.
@@ -22,6 +23,10 @@ git -C raycast-extensions sparse-checkout set extensions/android-versions
 ```
 
 `3.0.0-alpha.10` is `latest` on npm; `@next` follows `main`.
+
+`extensionDir` and `extension.open` also accept an Alfred workflow directory or
+an `.alfredworkflow` archive; its commands join the same root view. Alfred
+support ships in `@next` until the next release. See [alfred.md](./alfred.md).
 
 ## Embed in JS/TS
 

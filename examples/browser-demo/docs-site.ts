@@ -27,6 +27,7 @@ export const docChapters = [
   { slug: "capabilities", summary: "Privileged host operations and how they are granted." },
   { slug: "cli", summary: "The headless `blast` client for running and driving extensions." },
   { slug: "tui", summary: "The terminal client and its tmux palette." },
+  { slug: "alfred", summary: "Run unpacked Alfred workflows and `.alfredworkflow` archives." },
   { slug: "architecture", summary: "Packages, process model and data flow as they are today." },
 ] as const;
 
@@ -254,7 +255,7 @@ export function renderDocs(input: DocsInput): Map<string, string> {
       chapterTitles,
       current: "",
       article: `<h1 id="blast-documentation">Blast documentation</h1>
-<p>Blast runs unmodified Raycast extensions inside your app. These chapters are rendered from <a href="${repoUrl}/tree/main/docs">docs/</a> in the repository.</p>
+<p>Blast runs unmodified Raycast extensions and Alfred workflows inside your app. These chapters are rendered from <a href="${repoUrl}/tree/main/docs">docs/</a> in the repository.</p>
 <ol class="chapters">
 ${index}
 </ol>
