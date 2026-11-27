@@ -270,6 +270,37 @@ describe("workflowToManifest", () => {
     expect(byName.none!.mode).toBe("no-view");
   });
 
+  test("an Image View counts as reachable UI", () => {
+    const { manifest } = workflowToManifest(
+      workflow({
+        objects: [
+          {
+            uid: "K",
+            type: "alfred.workflow.input.keyword",
+            config: { keyword: "pic", argumenttype: 1 },
+          },
+          { uid: "FILE", type: "alfred.workflow.utility.file", config: {} },
+          { uid: "IMG", type: "alfred.workflow.userinterface.image", config: {} },
+          {
+            uid: "S",
+            type: "alfred.workflow.input.keyword",
+            config: { keyword: "say", argumenttype: 1 },
+          },
+          { uid: "SPEAK", type: "alfred.workflow.output.speak", config: {} },
+        ],
+        connections: {
+          K: [{ destinationuid: "FILE" }],
+          FILE: [{ destinationuid: "IMG" }],
+          S: [{ destinationuid: "SPEAK" }],
+        },
+      }),
+    );
+    const modes = Object.fromEntries(
+      manifest.commands.map((command) => [command.name, command.mode]),
+    );
+    expect(modes).toEqual({ pic: "view", say: "no-view" });
+  });
+
   test("falls back to root inputs, then external triggers", () => {
     const roots = workflowToManifest(
       workflow({

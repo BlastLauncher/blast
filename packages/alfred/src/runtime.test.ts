@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   createController,
@@ -19,8 +19,14 @@ import {
   type SceneMessage,
   type SceneNode,
 } from "@blastlauncher/protocol";
-import type { GraphScriptRequest, GraphScriptResult } from "./graph.ts";
-import { filterItems, MAX_SCENE_ITEMS, startAlfredRuntime } from "./runtime.ts";
+import type {
+  GraphHost,
+  GraphScriptRequest,
+  GraphScriptResult,
+  GraphShortcutRequest,
+  GraphSound,
+} from "./graph.ts";
+import { filterItems, imagePaths, MAX_SCENE_ITEMS, startAlfredRuntime } from "./runtime.ts";
 import { queryText } from "./scripts.ts";
 import { writeWorkflow, type FixtureEdge, type FixtureObject } from "./workflow-test-helper.ts";
 
@@ -60,6 +66,7 @@ async function launch(
     appearance?: "light" | "dark";
     /** Spawn the workflow's real scripts instead of `scripts`. */
     realScripts?: boolean;
+    system?: Pick<GraphHost, "playSound" | "speak" | "runShortcut">;
   },
 ) {
   const dir = await writeWorkflow(
@@ -139,6 +146,7 @@ async function launch(
           },
         }),
     ...(options.now ? { now: options.now } : {}),
+    ...(options.system ? { system: options.system } : {}),
   });
   send({
     type: "init",
@@ -767,6 +775,85 @@ describe("keyword entries", () => {
     expect(session.scripts[1]!.query).toBe("two");
   });
 
+  test("Image View renders a Detail with Continue, Open File, Copy Path and Back", async () => {
+    const session = await launch(
+      [keyword, ["img", "userinterface.image"], ["next", "action.script"]],
+      [
+        ["kw", "img"],
+        ["img", "next"],
+      ],
+      { command: "kw", query: "pics/a (1).png" },
+    );
+    await session.until(() => session.view().kind === "detail", "image view");
+    const path = join(session.dir, "pics/a (1).png");
+    expect(session.view().detail).toBe(`![a (1).png](<${path}>)`);
+    expect(actionTitles(session)).toEqual(["Continue", "Open File", "Copy Path", "Back"]);
+    await session.settle();
+    expect(session.exitCode).toBeUndefined();
+
+    session.input({ type: "key", key: { name: "o", meta: true } });
+    await session.until(() => session.capabilities.length === 1, "open file");
+    session.input({ type: "key", key: { name: "c", meta: true } });
+    await session.until(() => session.capabilities.length === 2, "copy path");
+    expect(session.capabilities).toEqual([
+      { name: "open.path", params: { path } },
+      { name: "clipboard.copy", params: { text: path } },
+    ]);
+
+    session.input({ type: "primary" });
+    await session.until(() => session.scripts.length === 1, "continue");
+    expect(session.scripts[0]!.query).toBe("pics/a (1).png");
+  });
+
+  test("Image View Back hides a root view and pops a pushed one", async () => {
+    const session = await launch([keyword, ["img", "userinterface.image"]], [["kw", "img"]], {
+      command: "kw",
+      query: "/a.png\nhttps://example.com/b.png",
+    });
+    await session.until(() => session.view().kind === "detail", "image view");
+    expect(session.view().detail).toBe("![a.png](/a.png)\n\n![b.png](https://example.com/b.png)");
+    session.input({ type: "key", key: { name: "[", meta: true } });
+    await session.until(() => session.root?.props.closeMainWindow === true, "hide");
+  });
+
+  test("Play Sound, Speak and Run Shortcut go to the runtime's system helpers", async () => {
+    const sounds: GraphSound[] = [];
+    const spoken: string[] = [];
+    const shortcuts: GraphShortcutRequest[] = [];
+    const session = await launch(
+      [
+        keyword,
+        ["sound", "output.playsound", { sound: "Glass" }],
+        ["say", "output.speak"],
+        ["short", "automation.runshortcut", { shortcut: "Upper", outputmode: 1 }],
+        ["clip", "output.clipboard"],
+      ],
+      [
+        ["kw", "sound"],
+        ["sound", "say"],
+        ["say", "short"],
+        ["short", "clip"],
+      ],
+      {
+        command: "kw",
+        query: "hi",
+        system: {
+          playSound: (sound) => void sounds.push(sound),
+          speak: (words) => void spoken.push(words),
+          runShortcut: async (request) => {
+            shortcuts.push(request);
+            return request.input.toUpperCase();
+          },
+        },
+      },
+    );
+    await session.until(() => session.exitCode !== undefined, "exit");
+    expect(sounds).toEqual([{ soundName: "Glass", systemSound: true, workflowDir: session.dir }]);
+    expect(spoken).toEqual(["hi"]);
+    expect(shortcuts).toMatchObject([{ name: "Upper", input: "hi", outputMode: 1 }]);
+    expect(session.capabilities).toEqual([{ name: "clipboard.copy", params: { text: "HI" } }]);
+  });
+
   test("a two-button dialog is an Alert", async () => {
     const session = await launch(
       [
@@ -817,5 +904,16 @@ describe("keyword entries", () => {
     session.input({ type: "primary" });
     await session.until(() => session.exitCode !== undefined, "exit after the choice");
     expect(session.scripts.map((run) => run.uid)).toEqual(["two"]);
+  });
+});
+
+describe("imagePaths", () => {
+  test("splits lines and arguments; resolves ~ and workflow-relative paths; keeps URLs", () => {
+    expect(imagePaths("a.png\n\n /abs/b.png \nhttps://x.test/c.png", "/wf")).toEqual([
+      "/wf/a.png",
+      "/abs/b.png",
+      "https://x.test/c.png",
+    ]);
+    expect(imagePaths(["~/d.png", "e.png"])).toEqual([join(homedir(), "d.png"), "e.png"]);
   });
 });

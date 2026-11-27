@@ -1,12 +1,13 @@
 // The Alfred workflow runtime child (decision 0021): speaks protocol v1 like
 // `@blastlauncher/runtime`, but instead of rendering React it drives a
 // workflow's object graph and keeps a stack of Alfred views (Script Filter,
-// List Filter, Text, Grid, Large Type, dialogs) that `scene.ts` draws. All I/O
-// is injected so tests run it in-process.
+// List Filter, Text, Grid, Image, Large Type, dialogs) that `scene.ts` draws.
+// All I/O is injected so tests run it in-process.
 
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
-import { basename, dirname, join } from "node:path";
+import { homedir } from "node:os";
+import { basename, dirname, isAbsolute, join } from "node:path";
 import {
   parseHostMessage,
   PROTOCOL_VERSION,
@@ -60,6 +61,7 @@ import {
   workflowVariables,
   type VariableValue,
 } from "./scripts.ts";
+import { playSound, runShortcut, speak, type SystemDeps } from "./system.ts";
 import {
   loadWorkflow,
   parseListFilterItems,
@@ -76,6 +78,8 @@ export type AlfredRuntimeOptions = {
   log?(level: LogLevel, args: unknown[]): void;
   /** Replaces real script processes, e.g. for deterministic tests. */
   runScript?(request: GraphScriptRequest): Promise<GraphScriptResult>;
+  /** Replaces the macOS sound, speech and Shortcuts helpers (`system.ts`). */
+  system?: Pick<GraphHost, "playSound" | "speak" | "runShortcut">;
   /** Clock for Script Filter result caching; defaults to `Date.now`. */
   now?(): number;
 };
@@ -324,6 +328,7 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
     });
   }
 
+  const systemDeps: SystemDeps = { warn: (message) => log("warn", [message]) };
   const host: GraphHost = {
     request: (capability, params) => request(capability, params),
     runScript,
@@ -335,6 +340,9 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
       closeMainWindow = true;
       invalidate();
     },
+    playSound: options.system?.playSound ?? ((sound) => playSound(sound, systemDeps)),
+    speak: options.system?.speak ?? ((text) => speak(text, systemDeps)),
+    runShortcut: options.system?.runShortcut ?? ((shortcut) => runShortcut(shortcut, systemDeps)),
     log: (level, message) => log(level, [message]),
   };
 
@@ -444,6 +452,8 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
         return push(textEntry(object, config, input, variables));
       case "alfred.workflow.userinterface.grid":
         return push(gridEntry(object, config, input, variables));
+      case "alfred.workflow.userinterface.image":
+        return push(imageEntry(object, input, variables));
       default:
         throw new Error(`alfred: ${object.type} has no view`);
     }
@@ -929,6 +939,54 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
     return entry;
   }
 
+  // Image View ----------------------------------------------------------------
+
+  function imageEntry(
+    object: AlfredObject,
+    input: GraphArg,
+    variables: Record<string, string>,
+  ): Entry {
+    const paths = imagePaths(input, wf().dir);
+    const open = (): void => {
+      for (const path of paths) {
+        const url = /^[a-z][a-z\d+.-]*:/i.test(path);
+        void request(url ? "open.url" : "open.path", url ? { url: path } : { path }).catch(
+          failed("Cannot open image"),
+        );
+      }
+    };
+    const actions: ActionModel[] = [
+      { key: "continue", title: "Continue", run: () => act(object.uid, input, variables, 0) },
+      { key: "open", title: "Open File", shortcut: { modifiers: ["cmd"], key: "o" }, run: open },
+      {
+        key: "copy",
+        title: "Copy Path",
+        shortcut: { modifiers: ["cmd"], key: "c" },
+        run: () => copy(paths.join("\n")),
+      },
+      {
+        key: "back",
+        title: "Back",
+        shortcut: { modifiers: ["cmd"], key: "[" },
+        run: () => (stack.length > 1 ? remove(entry) : host.hideAlfred?.()),
+      },
+    ];
+    const entry: Entry = {
+      key: nextKey(),
+      view: () => ({
+        kind: "detail",
+        navigationTitle: paths.length === 1 ? basename(paths[0]!) : wf().name,
+        markdown: paths.length > 0 ? paths.map(markdownImage).join("\n\n") : "No image",
+        isLoading: false,
+        actions,
+      }),
+      activate() {},
+      deactivate() {},
+      dispose() {},
+    };
+    return entry;
+  }
+
   function showDialog(dialog: GraphDialog): Promise<number | undefined> {
     const buttons = dialog.buttons.length > 0 ? dialog.buttons : ["OK"];
     return new Promise((resolve) => {
@@ -1084,6 +1142,27 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
   }) as AlfredRuntimeController;
   controller.fatal = fatal;
   return controller;
+}
+
+/**
+ * Image View input: one path or URL per argument or line. `~` is the home
+ * folder and relative paths start in the workflow folder.
+ */
+export function imagePaths(input: GraphArg, workflowDir?: string): string[] {
+  return (Array.isArray(input) ? input : input.split("\n"))
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((path) => {
+      if (/^[a-z][a-z\d+.-]*:/i.test(path) || isAbsolute(path)) return path;
+      if (path === "~" || path.startsWith("~/")) return join(homedir(), path.slice(1));
+      return workflowDir ? join(workflowDir, path) : path;
+    });
+}
+
+// Angle brackets let a Markdown destination hold spaces and parentheses.
+function markdownImage(path: string): string {
+  const name = basename(path).replace(/[[\]]/g, "\\$&");
+  return `![${name}](${/[\s()<>]/.test(path) ? `<${path}>` : path})`;
 }
 
 /** A Text View script's output: `{response, footer, rerun, variables}` JSON or plain text. */

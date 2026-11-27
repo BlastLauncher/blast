@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { WEB_SEARCHERS } from "./catalogs.ts";
 import {
   compareCondition,
   executeWorkflowGraph,
@@ -9,6 +10,8 @@ import {
   type GraphHost,
   type GraphScriptRequest,
   type GraphScriptResult,
+  type GraphShortcutRequest,
+  type GraphSound,
 } from "./graph.ts";
 import type { PlistValue } from "./plist.ts";
 import { parseWorkflow, type AlfredWorkflow } from "./workflow.ts";
@@ -33,7 +36,7 @@ function workflow(nodes: Node[], edges: Edge[]): AlfredWorkflow {
       variables: { base: "workflow" },
       objects: nodes.map(([uid, type, config = {}, extra = {}]) => ({
         uid,
-        type: /^(input|output|action|utility|trigger|userinterface)\./.test(type)
+        type: /^(input|output|action|utility|trigger|userinterface|automation)\./.test(type)
           ? `alfred.workflow.${type}`
           : type,
         config,
@@ -852,6 +855,7 @@ describe("traversal", () => {
           ["LF", "input.listfilter"],
           ["TXT", "userinterface.text"],
           ["GRID", "userinterface.grid"],
+          ["IMG", "userinterface.image"],
           COPY(),
         ],
         [
@@ -861,25 +865,28 @@ describe("traversal", () => {
           ["IN", "LF"],
           ["IN", "TXT"],
           ["IN", "GRID"],
+          ["IN", "IMG"],
         ],
       ),
       h,
+      { input: ["/pics/a.png", "/pics/b.png"] },
     );
     expect(h.calls).toEqual([
       [
         "view",
         {
           uid: "SF",
-          input: "Hello World",
+          input: ["/pics/a.png", "/pics/b.png"],
           variables: { v: "1" },
           configOverrides: { keyword: "z" },
         },
       ],
-      ["view", { uid: "LF", input: "Hello World", variables: {}, configOverrides: {} }],
-      ["view", { uid: "TXT", input: "Hello World", variables: {}, configOverrides: {} }],
-      ["view", { uid: "GRID", input: "Hello World", variables: {}, configOverrides: {} }],
+      ...["LF", "TXT", "GRID", "IMG"].map((uid): Call => [
+        "view",
+        { uid, input: ["/pics/a.png", "/pics/b.png"], variables: {}, configOverrides: {} },
+      ]),
     ]);
-    expect(result.views.map((view) => view.object.uid)).toEqual(["SF", "LF", "TXT", "GRID"]);
+    expect(result.views.map((view) => view.object.uid)).toEqual(["SF", "LF", "TXT", "GRID", "IMG"]);
   });
 
   test("unsupported objects warn and stop only their branch", async () => {
@@ -955,5 +962,458 @@ describe("traversal", () => {
     });
     expect(result).toMatchObject({ aborted: true, steps: 0 });
     expect(h.calls).toEqual([]);
+  });
+});
+
+/** What one object passes to a Copy to Clipboard after it, or its first warning. */
+async function pickRandom(config: Record<string, PlistValue>, random: number) {
+  const h = host();
+  const result = await run(
+    workflow(
+      [KEYWORD, ["R", "utility.random", config], COPY()],
+      [
+        ["IN", "R"],
+        ["R", "COPY"],
+      ],
+    ),
+    h,
+    { random: () => random },
+  );
+  return result.warnings.length > 0 ? result.warnings[0] : h.calls[0]![1];
+}
+
+async function calculate(expression: string | undefined, input: string) {
+  const h = host();
+  const result = await run(
+    workflow(
+      [
+        KEYWORD,
+        ["E", "utility.expression", expression === undefined ? {} : { expression }],
+        COPY(),
+      ],
+      [
+        ["IN", "E"],
+        ["E", "COPY"],
+      ],
+    ),
+    h,
+    { input, variables: { n: "4" } },
+  );
+  return result.warnings.length > 0 ? result.warnings[0] : h.calls[0]![1];
+}
+
+const fourccCode = (fourcc: string): number =>
+  [...fourcc].reduce((value, char) => value * 256 + char.charCodeAt(0), 0);
+
+describe("more utilities", () => {
+  let dir = "";
+  beforeAll(async () => {
+    dir = await mkdtemp(join(tmpdir(), "blast-alfred-graph-file-"));
+    await mkdir(join(dir, "folder"));
+    await writeFile(join(dir, "notes.MD"), "x");
+    await writeFile(join(dir, "blob.bin"), "x");
+  });
+  afterAll(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  test("joinargs joins an array with the unescaped delimiter; a string passes through", async () => {
+    const wf = workflow(
+      [
+        KEYWORD,
+        ["TAB", "utility.joinargs", { delimiter: "\\t" }],
+        ["NONE", "utility.joinargs"],
+        ["EMPTY", "utility.joinargs", { delimiter: "" }],
+        COPY("C1"),
+        COPY("C2"),
+        COPY("C3"),
+      ],
+      [
+        ["IN", "TAB"],
+        ["TAB", "C1"],
+        ["IN", "NONE"],
+        ["NONE", "C2"],
+        ["IN", "EMPTY"],
+        ["EMPTY", "C3"],
+      ],
+    );
+    const joined = host();
+    await run(wf, joined, { input: ["a", "b", "c"] });
+    expect(joined.calls).toEqual([
+      ["clipboard.copy", { text: "a\tb\tc" }],
+      ["clipboard.copy", { text: "a\nb\nc" }],
+      ["clipboard.copy", { text: "abc" }],
+    ]);
+    const single = host();
+    await run(wf, single, { input: "a\\tb" });
+    expect(single.calls.map(([, params]) => params)).toEqual(
+      Array.from({ length: 3 }, () => ({ text: "a\\tb" })),
+    );
+  });
+
+  test("random numbers, UUIDs and words use the injected sources", async () => {
+    expect(await pickRandom({ type: 0, min: 5, max: 10 }, 0)).toEqual({ text: "5" });
+    expect(await pickRandom({ type: 0, min: 5, max: 10 }, 0.9999)).toEqual({ text: "10" });
+    expect(await pickRandom({ type: 0, min: "10", max: "5" }, 0.5)).toEqual({ text: "8" });
+    expect(await pickRandom({}, 0.5)).toEqual({ text: "50" });
+    expect(await pickRandom({ type: 1 }, 0)).toEqual({ text: "UUID" });
+    expect(await pickRandom({ type: 2, words: "red\n\n green \nblue\n" }, 0.5)).toEqual({
+      text: "green",
+    });
+    expect(await pickRandom({ type: 2, words: "red\nblue" }, 0.9999)).toEqual({ text: "blue" });
+    expect(await pickRandom({ type: 2, words: "\n" }, 0)).toBe(
+      "alfred: alfred.workflow.utility.random (R) failed: Random has no words to pick from",
+    );
+    expect(await pickRandom({ type: 7 }, 0)).toBe(
+      "alfred: alfred.workflow.utility.random (R) failed: unknown random type 7",
+    );
+  });
+
+  test("expression evaluates expanded placeholders and rejects bad input", async () => {
+    expect(await calculate("({query}) * {var:n}", "1 + 2")).toEqual({ text: "12" });
+    expect(await calculate(undefined, "2 ^ 10 / 3")).toEqual({ text: "341.333333333333" });
+    expect(await calculate(undefined, "sqrt(2) ^ 2")).toEqual({ text: "2" });
+    expect(await calculate(undefined, "1 / 0")).toBe(
+      "alfred: alfred.workflow.utility.expression (E) failed: result is not a finite number (Infinity)",
+    );
+    expect(await calculate(undefined, "1 +")).toBe(
+      "alfred: alfred.workflow.utility.expression (E) failed: unexpected end of expression",
+    );
+  });
+
+  test("file checks the path, sets the UTI variable and outputs the path or UTI", async () => {
+    const check = async (config: Record<string, PlistValue>, input: string) => {
+      const h = host();
+      const result = await run(
+        workflow(
+          [KEYWORD, ["F", "utility.file", config], COPY("COPY", "{query}|{var:uti}")],
+          [
+            ["IN", "F"],
+            ["F", "COPY"],
+          ],
+        ),
+        h,
+        { input, homeDir: dir },
+      );
+      return result.warnings.length > 0 ? result.warnings[0] : h.calls[0]![1];
+    };
+    const vars = { fileutivariablename: "uti" };
+    expect(await check(vars, join(dir, "notes.MD"))).toEqual({
+      text: `${join(dir, "notes.MD")}|net.daringfireball.markdown`,
+    });
+    expect(await check(vars, "~/folder")).toEqual({
+      text: `${join(dir, "folder")}|public.folder`,
+    });
+    expect(await check({ ...vars, outputfileuti: true }, "~/blob.bin")).toEqual({
+      text: "public.data|public.data",
+    });
+    expect(await check({}, "~/notes.MD")).toEqual({ text: `${join(dir, "notes.MD")}|` });
+    expect(await check(vars, "~/missing.txt")).toBe(
+      `alfred: alfred.workflow.utility.file (F) failed: no file at ${JSON.stringify(join(dir, "missing.txt"))}`,
+    );
+  });
+});
+
+describe("more actions", () => {
+  test("launchfiles opens every configured path", async () => {
+    const h = host();
+    await run(
+      workflow(
+        [
+          KEYWORD,
+          ["L", "action.launchfiles", { paths: ["~/Apps/A.app", "/Apps/{var:base}.app", " "] }],
+          COPY(),
+        ],
+        [
+          ["IN", "L"],
+          ["L", "COPY"],
+        ],
+      ),
+      h,
+      { homeDir: "/home/u" },
+    );
+    expect(h.calls).toEqual([
+      ["open.path", { path: "/home/u/Apps/A.app" }],
+      ["open.path", { path: "/Apps/workflow.app" }],
+      ["clipboard.copy", { text: "Hello World" }],
+    ]);
+  });
+
+  test("applescript calls alfred_script(q) with the argument and passes its result on", async () => {
+    const requests: GraphScriptRequest[] = [];
+    const h = host({
+      runScript: async (request) => {
+        requests.push(request);
+        return { stdout: `got ${String(request.query)}\n`, exitCode: 0 };
+      },
+    });
+    const handler = 'on alfred_script(q)\n  return "got " & q\nend alfred_script';
+    await run(
+      workflow(
+        [
+          KEYWORD,
+          ["AS", "action.applescript", { applescript: handler, cachescript: true }],
+          ["RAW", "action.applescript", { applescript: 'return "raw"' }],
+          COPY(),
+        ],
+        [
+          ["IN", "AS"],
+          ["AS", "COPY"],
+          ["IN", "RAW"],
+        ],
+      ),
+      h,
+      { input: ["a", "b"], variables: { v: "1" } },
+    );
+    expect(requests.map((request) => request.object.uid)).toEqual(["AS", "RAW"]);
+    expect(requests[0]!.config).toMatchObject({ type: 6, scriptargtype: 1, cachescript: true });
+    expect(requests[0]!.config.script).toBe(
+      `${handler}\n\non run argv\n\treturn alfred_script(item 1 of argv)\nend run\n`,
+    );
+    expect(requests[0]!.query).toBe("a\tb");
+    expect(requests[0]!.variables).toEqual({ v: "1" });
+    expect(requests[1]!.config.script).toBe('return "raw"');
+    expect(h.calls).toEqual([["clipboard.copy", { text: "got a\tb" }]]);
+  });
+
+  test("applescript failures and macOS-only hosts stop the branch with the reason", async () => {
+    const wf = workflow(
+      [KEYWORD, ["AS", "action.applescript", { applescript: "x" }], COPY()],
+      [
+        ["IN", "AS"],
+        ["AS", "COPY"],
+      ],
+    );
+    const failing = host({ runScript: async () => ({ stdout: "", stderr: "bad\n", exitCode: 1 }) });
+    expect((await run(wf, failing)).warnings).toEqual([
+      "alfred: alfred.workflow.action.applescript (AS) failed: AppleScript exited with 1: bad",
+    ]);
+    const linux = host({
+      runScript: async () => {
+        throw new Error("alfred: AppleScript scripts (type 6) need macOS; this host runs linux");
+      },
+    });
+    expect((await run(wf, linux)).warnings).toEqual([
+      "alfred: alfred.workflow.action.applescript (AS) failed: alfred: AppleScript scripts (type 6) need macOS; this host runs linux",
+    ]);
+    expect(failing.calls).toEqual([]);
+  });
+
+  test("systemwebsearch decodes FourCC searchers and URL-encodes each argument", async () => {
+    const h = host();
+    await run(
+      workflow(
+        [
+          KEYWORD,
+          ["G", "action.systemwebsearch", { searcher: 0x6177676f }],
+          ["W", "action.systemwebsearch", { searcher: 1635219305, browser: "com.example.b" }],
+        ],
+        [
+          ["IN", "G"],
+          ["IN", "W"],
+        ],
+      ),
+      h,
+      { input: ["a b&c", "ü/?"] },
+    );
+    expect(h.calls).toEqual([
+      ["open.url", { url: "https://www.google.com/search?q=a%20b%26c" }],
+      ["open.url", { url: "https://www.google.com/search?q=%C3%BC%2F%3F" }],
+      [
+        "open.url",
+        {
+          url: "https://en.wikipedia.org/wiki/Special:Search?search=a%20b%26c",
+          application: "com.example.b",
+        },
+      ],
+      [
+        "open.url",
+        {
+          url: "https://en.wikipedia.org/wiki/Special:Search?search=%C3%BC%2F%3F",
+          application: "com.example.b",
+        },
+      ],
+    ]);
+  });
+
+  test("every built-in searcher resolves; unknown ones name their FourCC", async () => {
+    const searchers = Object.keys(WEB_SEARCHERS);
+    expect(searchers.toSorted()).toEqual(
+      [
+        "awgo",
+        "awty",
+        "awmo",
+        "awwi",
+        "awfb",
+        "awts",
+        "awwa",
+        "awam",
+        "awdu",
+        "awgi",
+        "awgm",
+        "awgh",
+        "awbi",
+        "awso",
+        "awrd",
+      ].toSorted(),
+    );
+    const h = host();
+    const result = await run(
+      workflow(
+        [
+          KEYWORD,
+          ...searchers.map((fourcc): Node => [
+            fourcc,
+            "action.systemwebsearch",
+            { searcher: fourccCode(fourcc) },
+          ]),
+          ["BAD", "action.systemwebsearch", { searcher: fourccCode("awzz") }],
+        ],
+        [...searchers, "BAD"].map((uid): Edge => ["IN", uid]),
+      ),
+      h,
+      { input: "q" },
+    );
+    expect(h.calls.map(([, params]) => (params as { url: string }).url)).toEqual(
+      searchers.map((fourcc) => WEB_SEARCHERS[fourcc]!.url.replace("{query}", "q")),
+    );
+    expect(
+      h.calls.every(([, params]) => (params as { url: string }).url.startsWith("https://")),
+    ).toBe(true);
+    expect(result.warnings).toEqual([
+      'alfred: alfred.workflow.action.systemwebsearch (BAD) failed: unknown web searcher "awzz"',
+    ]);
+  });
+
+  test("runshortcut names the Shortcut, passes input and forwards its output", async () => {
+    const requests: GraphShortcutRequest[] = [];
+    const h = host({
+      runShortcut: async (request) => {
+        requests.push(request);
+        return `${request.name} said ${request.input}\n`;
+      },
+    });
+    await run(
+      workflow(
+        [
+          KEYWORD,
+          ["OUT", "automation.runshortcut", { shortcut: "Make {var:base}", outputmode: 1 }],
+          ["QUIET", "automation.runshortcut", { shortcut: "Quiet", inputmode: 2, outputmode: 0 }],
+          ["BYARG", "automation.runshortcut", { outputmode: 1 }],
+          COPY("C1"),
+          COPY("C2"),
+          COPY("C3"),
+        ],
+        [
+          ["IN", "OUT"],
+          ["OUT", "C1"],
+          ["IN", "QUIET"],
+          ["QUIET", "C2"],
+          ["IN", "BYARG"],
+          ["BYARG", "C3"],
+        ],
+      ),
+      h,
+    );
+    expect(requests).toEqual([
+      { name: "Make workflow", input: "Hello World", inputMode: 0, outputMode: 1 },
+      { name: "Quiet", input: "Hello World", inputMode: 2, outputMode: 0 },
+      { name: "Hello World", input: "Hello World", inputMode: 0, outputMode: 1 },
+    ]);
+    expect(h.calls).toEqual([
+      ["clipboard.copy", { text: "Make workflow said Hello World" }],
+      ["clipboard.copy", { text: "Hello World" }],
+      ["clipboard.copy", { text: "Hello World said Hello World" }],
+    ]);
+  });
+});
+
+describe("more outputs", () => {
+  test("playsound tells system sounds from workflow files", async () => {
+    const sounds: GraphSound[] = [];
+    const h = host({ playSound: (sound) => void sounds.push(sound) });
+    await run(
+      workflow(
+        [
+          KEYWORD,
+          ["SYS", "output.playsound", { sound: "Glass" }],
+          ["FILE", "output.playsound", { sound: "sounds/{var:base}.mp3" }],
+          ["FLAG", "output.playsound", { sound: "Ping", systemsound: false }],
+          COPY(),
+        ],
+        [
+          ["IN", "SYS"],
+          ["SYS", "COPY"],
+          ["IN", "FILE"],
+          ["IN", "FLAG"],
+        ],
+      ),
+      h,
+    );
+    const workflowDir = "/workflows/graph";
+    expect(sounds).toEqual([
+      { soundName: "Glass", systemSound: true, workflowDir },
+      { soundName: "sounds/workflow.mp3", systemSound: false, workflowDir },
+      { soundName: "Ping", systemSound: false, workflowDir },
+    ]);
+    expect(h.calls).toEqual([["clipboard.copy", { text: "Hello World" }]]);
+  });
+
+  test("speak says the expanded text, defaulting to the argument", async () => {
+    const spoken: string[] = [];
+    const h = host({ speak: (text) => void spoken.push(text) });
+    await run(
+      workflow(
+        [
+          KEYWORD,
+          ["S1", "output.speak"],
+          ["S2", "output.speak", { text: "Hi {var:base}" }],
+          COPY(),
+        ],
+        [
+          ["IN", "S1"],
+          ["IN", "S2"],
+          ["S2", "COPY"],
+        ],
+      ),
+      h,
+    );
+    expect(spoken).toEqual(["Hello World", "Hi workflow"]);
+    expect(h.calls).toEqual([["clipboard.copy", { text: "Hello World" }]]);
+  });
+
+  test("hosts without sound, speech or Shortcuts get named warnings", async () => {
+    const result = await run(
+      workflow(
+        [
+          KEYWORD,
+          ["P", "output.playsound", { sound: "Glass" }],
+          ["EMPTY", "output.playsound"],
+          ["S", "output.speak"],
+          ["R", "automation.runshortcut", { shortcut: "x" }],
+        ],
+        [
+          ["IN", "P"],
+          ["IN", "EMPTY"],
+          ["IN", "S"],
+          ["IN", "R"],
+        ],
+      ),
+      // The test host has no sound, speech or Shortcuts hooks.
+      host(),
+    );
+    expect(result.warnings).toEqual([
+      "alfred: alfred.workflow.output.playsound (P) failed: this host cannot play sounds",
+      "alfred: alfred.workflow.output.playsound (EMPTY) failed: this host cannot play sounds",
+      "alfred: alfred.workflow.output.speak (S) failed: this host cannot speak",
+      "alfred: alfred.workflow.automation.runshortcut (R) failed: this host cannot run Shortcuts",
+    ]);
+    const empty = await run(
+      workflow([KEYWORD, ["EMPTY", "output.playsound"]], [["IN", "EMPTY"]]),
+      host({ playSound: () => {} }),
+    );
+    expect(empty.warnings).toEqual([
+      "alfred: alfred.workflow.output.playsound (EMPTY) failed: Play Sound has no sound",
+    ]);
   });
 });
