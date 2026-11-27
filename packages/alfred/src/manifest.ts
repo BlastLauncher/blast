@@ -64,7 +64,7 @@ const CONSTANTS: Record<string, (workflow: AlfredWorkflow) => string> = {
 };
 
 /** The string a user configuration default puts into its workflow variable. */
-function configDefault(item: AlfredUserConfigItem): string | undefined {
+export function userConfigDefault(item: AlfredUserConfigItem): string | undefined {
   const value = item.type === "slider" ? item.config.defaultvalue : item.config.default;
   // Alfred exports checkbox variables as "1" / "0".
   if (typeof value === "boolean") return value ? "1" : "0";
@@ -89,7 +89,7 @@ export function resolveWorkflowTemplate(
     if (Object.hasOwn(overrides, name)) return overrides[name]!;
     if (Object.hasOwn(workflow.variables, name)) return workflow.variables[name]!;
     const item = workflow.userConfig.find((entry) => entry.variable === name);
-    return (item && configDefault(item)) ?? "";
+    return (item && userConfigDefault(item)) ?? "";
   });
 }
 
