@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readdir, readFile, stat } from "node:fs/promises";
-import { landingSnippets, releaseVersion } from "./landing.ts";
+import { alfredExecutionCoverage, landingSnippets, releaseVersion } from "./landing.ts";
 import { rootModel, rootSections, validateCatalog } from "./root.ts";
 import {
   buildSite,
@@ -101,9 +101,39 @@ function expectLandingSnippets(html: string) {
   for (const version of html.match(/\b\d+\.\d+\.\d+-[a-z]+\.\d+\b/g) ?? [])
     expect(version).toBe(releaseVersion);
   for (const stale of ["From Source", "release:build"]) expect(html).not.toContain(stale);
-  // Release pill links to the tmux plugin.
-  expect(html).toContain('<a class="pill" href="https://github.com/BlastLauncher/tmux-blast">');
-  expect(html).toContain("The tmux palette is out");
+  // Release pill announces Alfred workflows and links to their docs chapter.
+  expect(html).toMatch(/<a class="pill" href="(?:https?:\/\/[^/"]+)?\/docs\/alfred\/">/);
+  expect(html).toContain(`<b>${releaseVersion}</b> Alfred workflows now run in Blast →`);
+  expect(html).not.toContain("The tmux palette is out");
+  // Title, description, hero and first flow card cover both Raycast and Alfred.
+  expect(html).toContain(
+    "<title>Blast — Raycast extensions &amp; Alfred workflows, inside your app</title>",
+  );
+  expect(html).toMatch(
+    /<meta name="description" content="[^"]*Raycast extensions and Alfred workflows/,
+  );
+  expect(html).toContain("<h1>Raycast &amp; Alfred, inside your app.</h1>");
+  expect(html).toMatch(
+    /<p class="lede">[^<]*Raycast extensions and Alfred workflows[^<]*<code>\.alfredworkflow<\/code>/,
+  );
+  expect(html).toContain(
+    '<span class="who">raycast · alfred</span><h3>Extensions &amp; workflows</h3>',
+  );
+  // Facts are a balanced 2×2 grid ending in Alfred execution coverage.
+  expect(html).toMatch(/\.facts \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  const facts = [
+    ...(html.match(/<dl class="facts">([\s\S]*?)<\/dl>/)?.[1] ?? "").matchAll(/<dt>([^<]*)<\/dt>/g),
+  ];
+  expect(facts.map((match) => match[1])).toEqual([
+    "@raycast/api",
+    "rendered",
+    "commands tested",
+    "alfred objects",
+  ]);
+  expect(html).toContain(`<dt>alfred objects</dt><dd>${alfredExecutionCoverage}</dd>`);
+  expect(html).toMatch(
+    /<p class="inst-note">[\s\S]*?<a href="(?:https?:\/\/[^/"]+)?\/docs\/alfred\/">Alfred workflows<\/a>/,
+  );
   // Docs and quickstart live on the site now, not on GitHub blob URLs.
   expect(html).not.toContain("blob/main/docs/quickstart.md");
   // Hero switch and embedded live Browser demo / lazy Terminal player.
@@ -185,7 +215,7 @@ describe("site build helpers", () => {
       commands: 1500,
     };
     const html = landing(stats, "http://127.0.0.1:4173");
-    expect(html).toContain("Raycast extensions, inside your app.");
+    expect(html).toContain("Raycast &amp; Alfred, inside your app.");
     expect(html).toContain('href="http://127.0.0.1:4173/demo/"');
     expect(html).toContain('<iframe src="http://127.0.0.1:4173/demo/?embed=1"');
     expect(html).toContain('href="http://127.0.0.1:4173/docs/"');
@@ -283,7 +313,7 @@ describe("site build helpers", () => {
       expect(demo).toContain("Browser demo · alpha");
       const landingHtml = await readFile(`${result.www}/index.html`, "utf8");
       expect(landingHtml).toContain('href="http://127.0.0.1:4173/demo/"');
-      expect(landingHtml).toContain("Raycast extensions, inside your app.");
+      expect(landingHtml).toContain("Raycast &amp; Alfred, inside your app.");
       expectLandingSnippets(landingHtml);
       expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
       expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);

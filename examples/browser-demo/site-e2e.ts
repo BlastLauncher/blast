@@ -181,7 +181,7 @@ try {
         githubApiRequests.push(request.url());
     });
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
-    await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
+    await page.getByRole("heading", { name: "Raycast & Alfred, inside your app." }).waitFor();
     await page.evaluate(() => document.fonts?.ready);
     const expectNotice = async (target: DemoPage) => {
       const notice = target.locator(".proxy-notice");
@@ -315,6 +315,23 @@ try {
         docsLayout.current !== "Quickstart"
       )
         throw new Error(`/docs/quickstart/ at 360px: ${JSON.stringify(docsLayout)}`);
+
+      // 0214: the Alfred chapter (wide object table, long identifiers) fits 360px too.
+      await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/alfred/`, { waitUntil: "load" });
+      await docsPage.evaluate(() => document.fonts?.ready);
+      const alfred360 = await docsPage.evaluate(() => ({
+        doc: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth,
+        title: document.querySelector("article h1")?.textContent,
+        current: document.querySelector('.sidebar a[aria-current="page"]')?.textContent,
+      }));
+      if (
+        alfred360.doc > 360 ||
+        alfred360.body > 360 ||
+        alfred360.title !== "Alfred workflows" ||
+        alfred360.current !== "Alfred workflows"
+      )
+        throw new Error(`/docs/alfred/ at 360px: ${JSON.stringify(alfred360)}`);
 
       await docsPage.goto(`http://127.0.0.1:${wwwPort}/docs/embedding/`, { waitUntil: "load" });
       await docsPage.evaluate(() => document.fonts?.ready);

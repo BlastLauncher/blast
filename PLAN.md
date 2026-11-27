@@ -5,8 +5,7 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M22: Deeper Alfred workflow coverage (#47) — additional utilities/actions/outputs,
-File Filter, and core Automation Tasks.
+M23: Docs and landing page refresh for Alfred workflow status (#47 closed, #139 follow-ups).
 
 ## Milestones
 
@@ -36,12 +35,12 @@ File Filter, and core Automation Tasks.
 - [x] M20 Landing polish: landing page current for alpha.10 and mobile polish (0204)
 - [x] M21 Alfred workflow compatibility: decision 0021, `@blastlauncher/alfred`,
       protocol v1 runtime, host/CLI/serve/TUI integration, `alfred:analyze` (0205–0210)
+- [x] M22 Deeper Alfred workflow coverage: 11 object types, File Filter,
+      35 core Automation Tasks, per-task coverage reporting (0211–0213)
 
-### M22 — Deeper Alfred workflow coverage
+### M23 — Docs and landing page refresh
 
-- [x] 0211 Additional Alfred utilities, actions, outputs, and Image View
-- [x] 0212 Alfred File Filter (`input.filefilter`) with Spotlight + portable fallback
-- [x] 0213 Core Alfred Automation Tasks (`automation.task`) and task-level coverage reporting
+- [x] 0214 Update docs, README, and landing page for Alfred workflow status
 
 ## Later (not scheduled)
 

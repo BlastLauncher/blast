@@ -1,9 +1,10 @@
 # Blast
 
-Raycast extensions in any app. Blast is an embeddable engine that runs the
-launcher flow (command search, preference and argument prompts, dependency
-installs, and each command's UI) and hands your app views to draw and
-capability requests to answer. You draw the pixels; Blast runs the extension.
+Raycast extensions and Alfred workflows in any app. Blast is an embeddable
+engine that runs the launcher flow (command search, preference and argument
+prompts, dependency installs, and each command's UI) and hands your app views
+to draw and capability requests to answer. You draw the pixels; Blast runs the
+extension or workflow.
 
 **Try it in a browser** (no install):
 [blast.yukai.dev/demo](https://blast.yukai.dev/demo/).
@@ -51,6 +52,9 @@ See the [quickstart](./docs/quickstart.md) and
 
 ## What Blast handles
 
+- Runs unmodified Raycast extensions and Alfred workflows (unpacked folders or
+  `.alfredworkflow` archives) on the same views and brokered capabilities; see
+  [Alfred workflows](./docs/alfred.md).
 - Lists every opened extension's commands as a Raycast-style root view.
 - Prompts for missing preferences and arguments, and installs dependencies.
 - Runs each command in its own Node.js process, brokering privileged calls.
@@ -70,6 +74,13 @@ the [sandboxed sweep](./compat/SWEEP.md) renders 91.4% of 5,759 commands,
 [curated smoke](./compat/SMOKE.md) renders 237/253, and
 [dependency smoke](./compat/SMOKE-DEPS.md) renders 51/52.
 
+[Alfred workflows](./docs/alfred.md) are measured with `bun run alfred:analyze`
+against 242 real workflows: 39 object types and 35 core Automation Tasks are
+supported, 242/242 parse with valid manifests, 223/242 expose runnable entries,
+177/242 are fully supported, and 97.7% of execution objects (3,959/4,051) are
+covered. Remaining gaps are tracked in
+[#139](https://github.com/BlastLauncher/blast/issues/139).
+
 > **Alpha:** `3.0.0-alpha.10` is `latest` on npm
 > (`npm install @blastlauncher/<package>`); `@next` receives canaries from `main`
 > merges that touch packages or release inputs. Reference clients: browser
@@ -81,6 +92,7 @@ the [sandboxed sweep](./compat/SWEEP.md) renders 91.4% of 5,759 commands,
 | -------------------------------- | ------------------------------------------------------ |
 | `host` (`@blastlauncher/engine`) | Engine, bundling, sessions, dependencies, capabilities |
 | `runtime`                        | React reconciler and `@raycast/api` implementation     |
+| `alfred`                         | Alfred workflow loader, object graph, and runner       |
 | `protocol`                       | Message types, capability catalog, and schema          |
 | `client-core`                    | Framework-free views, ranking, selection, and input    |
 | `serve`                          | `blast serve` over stdio                               |
