@@ -10,6 +10,7 @@ export const output = join(root, ".cache/release");
 export const packages = [
   "protocol",
   "runtime",
+  "alfred",
   "host",
   "client-core",
   "web",

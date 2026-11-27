@@ -19,9 +19,14 @@ const isDirectory = (path: string) => {
   }
 };
 
+/** An extension source besides a directory: an Alfred workflow archive. */
+const isWorkflowArchive = (path: string) => path.toLowerCase().endsWith(".alfredworkflow");
+
 /**
  * `<dir> <command>` keeps opening one command directly; a second argument
- * that is an existing directory makes it a root over both extensions.
+ * that is an existing directory or an `.alfredworkflow` file makes it a root
+ * over both extensions. A source is a Raycast extension directory, an Alfred
+ * workflow directory or an `.alfredworkflow` file.
  */
 export function parseCliArgs(
   argv: readonly string[],
@@ -48,7 +53,7 @@ export function parseCliArgs(
   if (!positional.length && flags.has("--no-builtin"))
     return { kind: "usage", error: "Missing <extensionDir>" };
   const [extensionDir, command] = positional;
-  if (positional.length === 2 && !directory(command!)) {
+  if (positional.length === 2 && !directory(command!) && !isWorkflowArchive(command!)) {
     if (popup) return { kind: "usage", error: "--popup opens the root, not one command" };
     return { kind: "command", extensionDir: extensionDir!, command: command!, native };
   }

@@ -22,7 +22,7 @@ extension code (unmodified, bundled)
 | `packages/runtime`     | reconciler, `@raycast/api` shim, entry      | protocol, react                            |
 | `packages/serve`       | versioned embedder stdio, view patching     | host, client-core, protocol, native        |
 | `packages/shared-deps` | optional shared libraries and resolver      | pinned portable npm libraries              |
-| `packages/host`        | engine, bundling, sessions, broker, root    | protocol, client-core, esbuild             |
+| `packages/host`        | engine, bundling, sessions, broker, root    | protocol, client-core, alfred, esbuild     |
 | `packages/client-core` | framework-free view model and input reducer | protocol                                   |
 | `packages/native`      | optional OS handlers and browser bridge     | protocol                                   |
 | `packages/cli`         | `blast` debug CLI and headless handlers     | host, native, protocol, serve, shared-deps |
@@ -31,7 +31,8 @@ extension code (unmodified, bundled)
 | `packages/cors-proxy`  | optional Cloudflare Worker proxy for web    | nothing                                    |
 | `packages/alfred`      | Alfred workflows, graph, `main` child       | protocol (decision 0021)                   |
 
-`host` only spawns `runtime`; it never imports runtime source. See
+`host` only spawns `runtime` and `@blastlauncher/alfred/main`; it never imports
+runtime source. See
 [embedding.md](embedding.md) for the embedder API and protocol,
 [capabilities.md](capabilities.md) for the broker and native handlers, and
 [cli.md](cli.md) / [tui.md](tui.md) for clients. `native.startBrowserBridge`
@@ -91,7 +92,14 @@ OAuth tokens, and own-provider AI win. Unregistered capabilities are denied
 `openExtension` returns a handle with `manifest()`, `watch()`,
 `dependencies`, `preferences()`, `savePreferences()` (splits extension and
 command scopes), and `launch()` (waits for installs, rejects missing required
-values with `MissingLaunchValuesError`, returns `{ session, close }`).
+values with `MissingLaunchValuesError`, returns `{ session, close }`), and
+`assetsDir()` for icons. An Alfred workflow directory (`info.plist`, no
+`package.json`) or `.alfredworkflow` archive (`isAlfredWorkflowPath`) gets the
+same handle: archives extract once per content hash into `<dataDir>/workflows/`
+(`prepareAlfredWorkflow`), the manifest comes from `info.plist`, nothing is
+installed, and `launch()` runs `@blastlauncher/alfred/main` via `startCommand`'s
+`runtimeEntry` (no standby pool) on `<workflowDir>/info.plist`, whose directory
+is also `assetsDir()` and `assetsPath` (decision 0021).
 `blast deps` installs `--omit=peer` under `<dataDir>/deps/` and repairs required
 non-supplied peers in up to two passes (preferring lock pins, recording
 additions in the install key, and warning on conflicts or unresolved peers).
@@ -143,6 +151,7 @@ metadata.
 
 ## Debugging extensions
 
-`bun run blast run <extensionDir> <command>` is the headless debug client; flags
+`bun run blast run <extensionDir> <command>` is the headless debug client (Alfred
+workflows too); flags
 and script commands live in [cli.md](cli.md). Benchmarks and baseline numbers
 live in [performance.md](performance.md) (`bun run bench`).

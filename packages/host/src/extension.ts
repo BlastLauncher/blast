@@ -8,7 +8,13 @@ import {
   preferenceValues,
 } from "@blastlauncher/protocol/preference-fields";
 import { createSessionBroker } from "./client.ts";
-import { parseManifest, missingRequired, type ExtensionManifest } from "./extension-manifest.ts";
+import { createAlfredExtensionHandle, isAlfredWorkflowPath } from "./alfred.ts";
+import {
+  parseManifest,
+  missingRequired,
+  type ExtensionCommand,
+  type ExtensionManifest,
+} from "./extension-manifest.ts";
 import {
   checkExtensionDependencies,
   installExtensionDependencies,
@@ -94,16 +100,83 @@ export type DebounceScheduler = {
 };
 
 /** Opens an extension without starting a command or installing dependencies. */
-export function openExtension(options: OpenExtensionOptions) {
+export function openExtension(options: OpenExtensionOptions): ExtensionHandle {
   return createExtensionHandle(options);
 }
 
-/** Internal constructor shared with the engine's live handler registry. */
+/**
+ * Internal constructor shared with the engine's live handler registry. An
+ * Alfred workflow (directory or `.alfredworkflow` archive) gets the same
+ * handle shape over the Alfred runtime (decision 0021).
+ */
 export function createExtensionHandle(
   options: OpenExtensionOptions,
   engineHandlers: () => Record<string, CapabilityHandler> = () => ({}),
   defaultInstallDependencies = false,
   runtimePool?: RuntimePool,
+): ExtensionHandle {
+  if (isAlfredWorkflowPath(options.extensionDir))
+    return createAlfredExtensionHandle(options, engineHandlers);
+  return createRaycastExtensionHandle(
+    options,
+    engineHandlers,
+    defaultInstallDependencies,
+    runtimePool,
+  );
+}
+
+type CommandManifest = (
+  name: string,
+) => Promise<{ extension: ExtensionManifest; command: ExtensionCommand }>;
+
+/** Stored preference reads and writes, the same for every kind of extension. */
+export function preferenceAccess(commandManifest: CommandManifest, dataDir: string) {
+  const read = async (
+    extension: ExtensionManifest,
+    command: ExtensionCommand,
+    name: string,
+    scope?: "extension" | "command",
+  ) => {
+    const store = createPreferenceStore({ extensionName: extension.name, dataDir });
+    const stored = await store.read();
+    const values =
+      scope === "extension"
+        ? stored.extension
+        : preferenceValues(stored.extension, stored.commands, name);
+    const fields = preferenceFields(extension.preferences, command.preferences);
+    return {
+      extension: extension.preferences,
+      command: command.preferences,
+      values,
+      missing: missingPreferences(fields, values),
+    };
+  };
+  return {
+    read,
+    async preferences(name: string, scope?: "extension" | "command") {
+      const { extension, command } = await commandManifest(name);
+      return read(extension, command, name, scope);
+    },
+    async savePreferences(name: string, values: StorageItems, scope?: "extension" | "command") {
+      const { extension, command } = await commandManifest(name);
+      const isExtension = (key: string) =>
+        scope === "extension" ||
+        (extension.preferences.some((p) => p.name === key) &&
+          !command.preferences.some((p) => p.name === key));
+      await createPreferenceStore({ extensionName: extension.name, dataDir }).save(
+        Object.fromEntries(Object.entries(values).filter(([key]) => isExtension(key))),
+        name,
+        Object.fromEntries(Object.entries(values).filter(([key]) => !isExtension(key))),
+      );
+    },
+  };
+}
+
+function createRaycastExtensionHandle(
+  options: OpenExtensionOptions,
+  engineHandlers: () => Record<string, CapabilityHandler>,
+  defaultInstallDependencies: boolean,
+  runtimePool: RuntimePool | undefined,
 ) {
   const extensionDir = resolve(options.extensionDir);
   const manifestPath = join(extensionDir, "package.json");
@@ -178,30 +251,7 @@ export function createExtensionHandle(
     if (!command) throw new Error(`Unknown extension command: ${name}`);
     return { extension, command };
   };
-  const readPreferences = async (
-    extension: ExtensionManifest,
-    command: ExtensionManifest["commands"][number],
-    name: string,
-    scope?: "extension" | "command",
-  ) => {
-    const store = createPreferenceStore({ extensionName: extension.name, dataDir });
-    const stored = await store.read();
-    const values =
-      scope === "extension"
-        ? stored.extension
-        : preferenceValues(stored.extension, stored.commands, name);
-    const fields = preferenceFields(extension.preferences, command.preferences);
-    return {
-      extension: extension.preferences,
-      command: command.preferences,
-      values,
-      missing: missingPreferences(fields, values),
-    };
-  };
-  const preferences = async (name: string, scope?: "extension" | "command") => {
-    const { extension, command } = await commandManifest(name);
-    return readPreferences(extension, command, name, scope);
-  };
+  const stored = preferenceAccess(commandManifest, dataDir);
   // A failed install remains observable to its caller but does not poison the
   // queue: commands may still bundle against the shared dependency fallback.
   const serialize = <T>(operation: () => Promise<T>): Promise<T> => {
@@ -218,7 +268,7 @@ export function createExtensionHandle(
     await queue;
     const { extension, command } = await commandManifest(name);
     const [prefs, initialDependencyStatus] = await Promise.all([
-      readPreferences(extension, command, name),
+      stored.read(extension, command, name),
       checkExtensionDependencies({ ...dependencyOptions }),
     ]);
     const args = missingRequired(command.arguments, launchOptions.argumentValues ?? {});
@@ -338,6 +388,8 @@ export function createExtensionHandle(
   };
   return {
     manifest,
+    /** Where the manifest's icons and the command's assets resolve. */
+    assetsDir: () => join(extensionDir, "assets"),
     watch(listener: (update: ExtensionManifest | Error) => void) {
       ensureOpen();
       if (!sharedWatcher) {
@@ -384,19 +436,8 @@ export function createExtensionHandle(
           }),
         ),
     },
-    preferences,
-    async savePreferences(name: string, values: StorageItems, scope?: "extension" | "command") {
-      const { extension, command } = await commandManifest(name);
-      const isExtension = (key: string) =>
-        scope === "extension" ||
-        (extension.preferences.some((p) => p.name === key) &&
-          !command.preferences.some((p) => p.name === key));
-      await createPreferenceStore({ extensionName: extension.name, dataDir }).save(
-        Object.fromEntries(Object.entries(values).filter(([key]) => isExtension(key))),
-        name,
-        Object.fromEntries(Object.entries(values).filter(([key]) => !isExtension(key))),
-      );
-    },
+    preferences: stored.preferences,
+    savePreferences: stored.savePreferences,
     launch(name: string, launchOptions?: ExtensionLaunchOptions) {
       const pending = launch(name, launchOptions);
       launches.add(pending);
@@ -414,4 +455,4 @@ export function createExtensionHandle(
   };
 }
 
-export type ExtensionHandle = ReturnType<typeof createExtensionHandle>;
+export type ExtensionHandle = ReturnType<typeof createRaycastExtensionHandle>;
