@@ -34,19 +34,21 @@ const PREWARM_SETTLE_MS = 400;
 function waitForFirstScene(session: Session): Promise<void> {
   return new Promise<void>((done, reject) => {
     let settled = false;
-    const stop = session.scenes((scene) => {
-      if (scene.root && !settled) {
-        settled = true;
-        stop();
-        done();
-      }
+    let stop: (() => void) | undefined;
+    const finish = (settle: () => void) => {
+      if (settled) return;
+      settled = true;
+      stop?.();
+      settle();
+    };
+    stop = session.scenes((scene) => {
+      if (scene.root) finish(done);
     });
+    if (settled) stop();
     void session.exited.then((exit) => {
-      if (!settled) {
-        settled = true;
-        stop();
-        reject(exit.error ?? new Error(`Runtime exited before first scene (code ${exit.code})`));
-      }
+      finish(() =>
+        reject(exit.error ?? new Error(`Runtime exited before first scene (code ${exit.code})`)),
+      );
     });
   });
 }

@@ -155,7 +155,9 @@ test("abort before bundling and during plugin resolution preserves the caller's 
 
 test("engine deadlines inherit through handles and launch overrides win", async () => {
   const extensionDir = await graph();
-  const engine = createEngine({ timeoutMs: 1 });
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-bundle-engine-"));
+  directories.push(dataDir);
+  const engine = createEngine({ dataDir, timeoutMs: 1 });
   const handle = engine.openExtension({ extensionDir });
   try {
     await expect(handle.launch("index")).rejects.toBeInstanceOf(BundleTimeoutError);

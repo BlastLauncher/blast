@@ -6,9 +6,9 @@
 // Output is deterministic: object keys sorted, one view per file, no paths,
 // ids from the engine's own counters and a throwaway data directory.
 
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { availableParallelism, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyViewPatch, type ViewPatchOp } from "../packages/protocol/src/index.ts";
@@ -38,6 +38,32 @@ type View = {
 };
 
 const VIEW_TIMEOUT_MS = 30_000;
+
+/** Each fixture runs `blast serve` plus runtime/esbuild children; leave core headroom. */
+export function defaultFixtureConcurrency(cpus = availableParallelism()): number {
+  return Math.max(1, Math.min(4, Math.floor(cpus / 4)));
+}
+
+function parseConcurrencyArg(argv: string[]): number | undefined {
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]!;
+    const raw =
+      arg === "--concurrency"
+        ? argv[++i]
+        : arg.startsWith("--concurrency=")
+          ? arg.slice("--concurrency=".length)
+          : undefined;
+    if (raw === undefined) continue;
+    if (!/^[1-9]\d*$/.test(raw)) {
+      throw new Error(`Invalid --concurrency value: ${raw}`);
+    }
+    return Number(raw);
+  }
+  return undefined;
+}
+// Resolve the real Node binary once so overriding XDG_DATA_HOME per scenario
+// cannot trigger version-manager shims (e.g. mise) to reinstall Node into temp dirs.
+const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 
 class ServeSession {
   private readonly child: ChildProcessWithoutNullStreams;
@@ -79,7 +105,7 @@ class ServeSession {
   }
 
   static async start(root: string, dataDirectory: string): Promise<ServeSession> {
-    const child = spawn("node", [join(root, "packages/serve/src/main.ts")], {
+    const child = spawn(nodePath, [join(root, "packages/serve/src/main.ts")], {
       cwd: root,
       env: { ...process.env, XDG_DATA_HOME: dataDirectory },
       stdio: ["pipe", "pipe", "pipe"],
@@ -351,19 +377,31 @@ export async function readFixtures(directory: string): Promise<Record<string, st
   return Object.fromEntries(entries);
 }
 
-export async function generateFixtures(root: string): Promise<Record<FixtureName, string>> {
+export async function generateFixtures(
+  root: string,
+  concurrency = defaultFixtureConcurrency(),
+): Promise<Record<FixtureName, string>> {
   const dataDirectory = await mkdtemp(join(tmpdir(), "blast-mac-fixtures-"));
   try {
     const entries: Array<[FixtureName, string]> = [];
-    for (const name of FIXTURE_NAMES) {
-      const serve = await ServeSession.start(root, dataDirectory);
-      try {
-        entries.push([name, renderFixture(await scenarios[name](serve, dataDirectory))]);
-        await serve.shutdown();
-      } finally {
-        await serve.close();
+    let next = 0;
+    const worker = async () => {
+      while (next < FIXTURE_NAMES.length) {
+        const name = FIXTURE_NAMES[next++]!;
+        const scenarioDir = join(dataDirectory, name);
+        await mkdir(scenarioDir, { recursive: true });
+        const serve = await ServeSession.start(root, scenarioDir);
+        try {
+          const rendered = renderFixture(await scenarios[name](serve, scenarioDir));
+          await serve.shutdown();
+          entries.push([name, rendered]);
+        } finally {
+          await serve.close();
+        }
       }
-    }
+    };
+    const workers = Math.max(1, Math.min(concurrency, FIXTURE_NAMES.length));
+    await Promise.all(Array.from({ length: workers }, worker));
     return Object.fromEntries(entries) as Record<FixtureName, string>;
   } finally {
     await rm(dataDirectory, { recursive: true, force: true });
@@ -372,7 +410,8 @@ export async function generateFixtures(root: string): Promise<Record<FixtureName
 
 async function main(): Promise<void> {
   const directory = join(repositoryRoot, FIXTURE_DIRECTORY);
-  const expected = await generateFixtures(repositoryRoot);
+  const concurrency = parseConcurrencyArg(process.argv.slice(2)) ?? defaultFixtureConcurrency();
+  const expected = await generateFixtures(repositoryRoot, concurrency);
   if (process.argv.includes("--check")) {
     const problems = compareFixtures(expected, await readFixtures(directory));
     for (const problem of problems) console.error(`mac-fixtures: ${problem}`);

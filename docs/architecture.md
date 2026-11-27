@@ -3,186 +3,145 @@
 Current shape only; history lives in git. Decisions: `docs/decisions/`.
 
 ```
-client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
+client (embedder UI; reference clients: CLI, OpenTUI terminal, web)
    │  scene → view model, events, timing rules  (packages/client-core)
    │  in-process API or NDJSON stdio (packages/serve)
-host ── bundles extension (esbuild), spawns runtime, capability broker
+host ── bundles extension (esbuild), spawns runtime, brokers capabilities
    │  NDJSON over stdio  (packages/protocol)
 runtime (one Node process per command or provider)
-   ├─ React reconciler → scene snapshots / patches
+   ├─ React reconciler → scene + scene.patch updates
    └─ @raycast/api shim → capability requests for privileged calls
 extension code (unmodified, bundled)
 ```
 
 ## Packages
 
-| Package                | Owns                                                                                                                           | Depends on                               |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
-| `packages/protocol`    | message types, validation, NDJSON framing                                                                                      | nothing                                  |
-| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                   | protocol, react                          |
-| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                                | host, client-core, protocol, native      |
-| `packages/shared-deps` | optional shared extension libraries and resolver                                                                               | pinned portable npm libraries            |
-| `packages/host`        | engine: bundling, process lifecycle, broker, registry, root view over opened extensions                                        | protocol, client-core, esbuild           |
-| `packages/client-core` | framework-free Raycast client controller (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, prompt) | protocol                                 |
-| `packages/native`      | optional OS clipboard, open, file manager, trash                                                                               | protocol                                 |
-| `packages/cli`         | `blast` debug CLI and headless capability answers                                                                              | host, protocol                           |
-| `packages/tui`         | Bun terminal client: keys → controller, view → OpenTUI                                                                         | client-core, cli, host, protocol, native |
+| Package                | Owns                                        | Depends on                                 |
+| ---------------------- | ------------------------------------------- | ------------------------------------------ |
+| `packages/protocol`    | messages, validation, NDJSON framing, diffs | nothing                                    |
+| `packages/runtime`     | reconciler, `@raycast/api` shim, entry      | protocol, react                            |
+| `packages/serve`       | versioned embedder stdio, view patching     | host, client-core, protocol, native        |
+| `packages/shared-deps` | optional shared libraries and resolver      | pinned portable npm libraries              |
+| `packages/host`        | engine, bundling, sessions, broker, root    | protocol, client-core, esbuild             |
+| `packages/client-core` | framework-free view model and input reducer | protocol                                   |
+| `packages/native`      | optional OS handlers and browser bridge     | protocol                                   |
+| `packages/cli`         | `blast` debug CLI and headless handlers     | host, native, protocol, serve, shared-deps |
+| `packages/tui`         | Bun OpenTUI client and tmux palette         | client-core, cli, host, protocol, native   |
+| `packages/web`         | browser runtime and sandbox host (`mount`)  | client-core, protocol                      |
+| `packages/cors-proxy`  | optional Cloudflare Worker proxy for web    | nothing                                    |
 
-`host` only spawns `runtime`, never imports it. See `docs/capabilities.md` for capabilities/storage and `docs/embedding.md` for embedding; `examples/go-embedder` is a minimal non-JS embedder. `native.startBrowserBridge` serves real browser tabs/content over the loopback companion-extension protocol (0018).
+`host` only spawns `runtime`; it never imports runtime source. See
+[embedding.md](embedding.md) for the embedder API and protocol,
+[capabilities.md](capabilities.md) for the broker and native handlers, and
+[cli.md](cli.md) / [tui.md](tui.md) for clients. `native.startBrowserBridge`
+serves browser tabs and content over a loopback WebSocket (decision 0018).
 
 ## Message flow
 
-1. host → `init` (protocol version, command, preferences, environment: identity, owner/author, paths, appearance, text size; runtime derives `entryPoint*` before importing the command)
-2. runtime → `ready`, then initial `scene` and incremental `scene.patch` updates (full `scene` on root kind or root-id changes; decision 0019)
-3. host → `event` for user input (handler reference + args)
-4. runtime → `capability.request` / `capability.cancel`; host → `capability.progress` / `capability.result`
-5. host → `shutdown`, or the process exits/crashes and the host reports it
+1. `host → init` (version 1, command, preferences, `environment` including
+   `availableAPIs`). Runtime populates `environment` before importing code.
+2. `runtime → ready`, then initial `scene` and incremental `scene.patch`
+   updates (full `scene` on root kind or root-id changes; decision 0019).
+3. `host → event` (`node`, `handler`, `args`) for user input.
+4. `runtime → capability.request` / `capability.cancel`;
+   `host → capability.progress` / `capability.result`.
+5. `host → shutdown`, or the process exits and the host reports `exited`.
 
 ## Scene conventions
 
-View and menu-bar commands have a `Navigation` root with ordered `Navigation.Entry` children.
-Only the active entry exposes view contents and handlers; covered views stay
-mounted. `Navigation.props.pop` requests back above depth one (decision 0001),
-and `props.popToRoot` records the options of the latest `popToRoot()` call —
-Blast has no client search-bar state, so `clearSearchBar` is a request for
-clients. The standalone `clearSearchBar()` similarly records its options in
-`Navigation.props.clearSearchBar`. `props.closeMainWindow` records the latest
-`closeMainWindow()` request
-(its options, or an empty object) the same way. Feedback children follow the
-entries: `Toast`, `HUD`, and the first queued `Alert`, with action handlers on
-`Toast.Action` / `Alert.Action` children (decision 0001). No-view commands mount
-this scene only when showing feedback or closing the window. Promise-returning
-view exports run to completion with feedback mounted (decision 0001).
+View and menu-bar commands render a `Navigation` root with `Navigation.Entry`
+children. Only the active entry exposes views and handlers; covered entries
+stay mounted. `Navigation.props.pop`, `popToRoot`, `clearSearchBar`, and
+`closeMainWindow` record client requests (`Toast`, `HUD`, and the first queued
+`Alert` follow the entries; decision 0001). No-view commands mount a scene only
+for feedback or window close; promise-returning views stay mounted to completion.
 
-Host element `type`s are the public Raycast paths: `List`, `List.Item`,
-`List.Section`, `List.EmptyView`, `ActionPanel`, `ActionPanel.Section`,
-`Action`, `Action.CopyToClipboard`, `Detail`, and the metadata views
-(`Detail.Metadata.*`, `List.Item.Detail` with its `List.Item.Detail.Metadata.*`).
-
-Element-valued props (`actions`, `detail`, …) cannot live inside a node's
-serializable props, so the shim renders each one as a host child of type
-`Slot` with `props: { name: "<propName>" }` wrapping the element:
+Host element `type`s match public Raycast paths (`List`, `List.Item`,
+`ActionPanel`, `Detail`, `Form`, etc.). Element-valued props (`actions`,
+`detail`, …) render as `Slot` children with `props: { name }` after regular
+children:
 
 ```
 List
-├─ List.Item
-│  ├─ Slot name="actions"  → ActionPanel → Action…
-│  └─ Slot name="detail"   → List.Item.Detail …
-└─ …
+└─ List.Item
+   ├─ Slot name="actions"  → ActionPanel → Action…
+   └─ Slot name="detail"   → List.Item.Detail …
 ```
 
-`Slot` is Blast-only; regular children come first, then the `Slot` children in
-a stable order. Clients resolve a prop element by taking the `Slot` child with
-the matching `name`.
-
-Image-likes (`Image.ImageLike`), color-likes (`Color.ColorLike`) and shortcuts
-(`Keyboard.Shortcut`) cross the wire exactly as authored: a string stays a
-string, an `Icon` keeps its name, and an object keeps `source` (including the
-`{ light, dark }` pair), `fallback`, `mask`, `tintColor` or `fileIcon` as
-passed, `null` included. The shim never resolves an image or picks a platform,
-so a shortcut keeps whichever of `{ modifiers, key }` or `{ macOS, Windows }`
-the extension passed.
-
-`environment` is fully populated before the extension is imported:
-`appearance` (headless default `"dark"`), `textSize` (`"medium"`),
-`ownerOrAuthorName` (`owner` ?? `author`), `entryPointName` /
-`entryPointMode` from the launched command, `entryPointType` always
-`"command"`. `canAccess(AI)` / `canAccess(BrowserExtension)` use the host-supplied
-`init.environment.availableAPIs` list (absent means neither is available); other
-implemented APIs are accessible and stubs are inaccessible.
+Image-likes, color-likes, and shortcuts cross the wire as authored (`null`
+included); the shim never resolves icons or picks a platform. `environment` is
+populated before import (`appearance` defaults to `"dark"`, `textSize` to
+`"medium"`, `entryPointType` to `"command"`, and `canAccess` reads
+`init.environment.availableAPIs`).
 
 ## Host sessions
 
-Bundling reports `bundleMs`; `timeoutMs` (engine/extension/launch/bundle options, default 60_000; 0 disables) and a bundle/launch `signal` cancel esbuild work.
+`createEngine` groups extension handles, capability `handlers`, `dataDir`,
+`installer`, and `inheritEnv`, and owns a single-slot standby runtime pool
+(warmed with `--prewarm` on `engine.root()`, keyed by `(nodePath, env)`, claimed
+once and never reused, bypassed on explicit `env`, killed on `engine.close()`;
+decision 0019). Commands see only an allowlisted env (`PATH`, `HOME`, `USER`,
+`LANG`, `LC_ALL`, `TZ`, `TMPDIR`, `TEMP`, `TMP`) unless `inheritEnv` opts in.
 
-`createEngine({ dataDir?, installer?, handlers?, inheritEnv? })` groups extension handles: `register(handlers)` returns unregister (later wins, future launches), and `engine.openExtension` inherits its options; standalone `openExtension` works too. Commands get only an allowlisted host environment (`PATH`, `HOME`, locale, temp dirs); `inheritEnv` (names, or name→value pairs) is the embedder's opt-in for more, e.g. the TUI's tmux variables.
-Handlers resolve engine → extension → launch, then session storage, OAuth tokens and own-provider AI win. Unregistered capabilities are denied (decision 0010).
+Handlers resolve engine → extension → launch, then session-scoped storage,
+OAuth tokens, and own-provider AI win. Unregistered capabilities are denied
+(decision 0010); thrown handlers return `failed`.
 
-`openExtension({ extensionDir, dataDir?, installer?, handlers? })` returns a handle:
-`manifest()` (validated commands, arguments, preference schemas), `watch(listener)`
-(debounced updates or errors; returns unsubscribe), serialized
-`dependencies.check()` / `install({ onLog })`, `preferences(command)` (schemas,
-values, missing required) and `savePreferences(command, values)` (scope split),
-and `launch(command, { argumentValues?, handlers?, launchContext? })`, which waits
-for installs, rejects missing values with `MissingLaunchValuesError` and returns
-`{ session, close }`; `startLaunchFlow(handle, command, { views })` does it with
-prompts as views (form, install toast, Retry); `close()` ends sessions.
+`openExtension` returns a handle with `manifest()`, `watch()`,
+`dependencies`, `preferences()`, `savePreferences()` (splits extension and
+command scopes), and `launch()` (waits for installs, rejects missing required
+values with `MissingLaunchValuesError`, returns `{ session, close }`).
+`blast deps` installs `--omit=peer` under `<dataDir>/deps/` and repairs required
+non-supplied peers in up to two passes (preferring lock pins, recording
+additions in the install key, and warning on conflicts or unresolved peers).
 
-`blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`. It repairs required non-supplied peers in two passes, preferring lock pins; conflicts warn and additions enter the key.
-Bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
-inside the extension directory), then matching installs, then the optional `@blastlauncher/shared-deps` allowlist.
+`bundleCommand` runs esbuild (`timeoutMs` default 60,000, 0 disables; `signal`
+cancels) and resolves in order: tsconfig `baseUrl`/`paths` inside the extension
+dir, `<dataDir>/deps/` installs, then `@blastlauncher/shared-deps`.
+`<outDir>/assets` symlinks `<extensionDir>/assets` (read-only copy fallback); the
+extension dir is never written. When `cacheDir` and `outDir` are omitted, builds
+go under `os.tmpdir()/blast/builds` (removed by the caller); with `cacheDir`
+(`<dataDir>/bundles/`), one slot per command is reused until the manifest,
+tsconfig aliases, dependency install, bundler, or any input file changes.
 
-`bundleCommand({ extensionDir, command, outDir?, dataDir?, cacheDir? })` returns the entry path, extension/command names, manifest mode and argument declarations. Pass those to `startCommand({ ...bundled, argumentValues, launchContext, broker })`; the values reach the command as its launch props. The host resolves `@blastlauncher/runtime/main` and spawns an explicit Node binary (`nodePath`, default `node`), never importing runtime source. `createEngine` owns a single-slot standby runtime pool (`runtime-pool.ts`, warmed with `--prewarm` on `engine.root()`, keyed by `nodePath`/`env`, never reused across commands, bypassed on explicit `env`, killed on `engine.close()`; decision 0019).
+`startCommand` spawns Node (`nodePath`, default `node`) running
+`@blastlauncher/runtime/main`, uses `<dataDir>/compile-cache/` unless `env` is
+set, and applies `scene.patch` via `createScenePatchApplier` (mismatch throws
+`PROTOCOL_ERROR` and kills the child; `session.scenes()` replays reconstructed
+scenes). `shutdown({ timeoutMs })` sends `shutdown`, then `SIGTERM`, then
+`SIGKILL`. `bundleModelProvider` / `startModelProvider` run `ai.modelProvider`
+in `model-provider` mode (decision 0006).
 
-`bundleModelProvider({ extensionDir, outDir? })` resolves `ai.modelProvider`
-from the manifest. `startModelProvider({ ...bundled, preferences?, broker? })`
-uses the same runtime lifecycle in `model-provider` mode, without rendering.
-Its `getModels()` returns model metadata; `stream(model, request, { signal? })`
-yields JSON stream parts. Attachment bytes, ArrayBuffers and URLs have explicit
-wire encodings (decision 0006). Abort stops publication and iteration; shutdown
-also terminates producers that do not cooperate. `blast models` and
-`blast complete` expose this API. AI.ask with `{ id }` lazily starts the calling
-extension's provider, reuses it until command exit and streams each text chunk.
-AI.refreshModels re-lists that provider, or does nothing when none is declared.
-Both own-extension operations need no grant (decision 0006).
-
-Startup resolves after the version handshake. Both the Node host and `packages/web` apply `scene.patch` via `createScenePatchApplier` (terminating with `PROTOCOL_ERROR` on mismatch; `blast serve` still emits whole views/scenes). `session.scenes(callback)` subscribes and replays the latest reconstructed scene; its return value unsubscribes. `latestScene`, `logs`, `sendEvent(node, handler, args)` and `exited` support headless clients. Runtime errors appear in logs; fatal and protocol errors also appear in `exited.error`.
-`shutdown({ timeoutMs })` sends shutdown, then SIGTERM after the timeout, then SIGKILL after another timeout. Exit resolves after stdio closes.
-
-Broker grants are explicit; missing handlers return `denied`, thrown handlers
-return `failed`. Preferences and environment can be supplied at startup. The
-build directory mirrors Raycast: `<outDir>/assets` links to
-`<extensionDir>/assets` (a read-only copy where symlinks are unavailable), so
-`environment.assetsPath` and `__dirname`-relative asset paths both resolve, and
-`bundleCommand` returns the link as `assetsPath`. The extension directory is
-never written. The host creates a stable support directory at
-`<dataDir>/support/<escaped-extension>/` before spawning, using the
-same data root as local storage; `--data-dir` applies to both. Callers can also
-supply explicit environment paths. Synchronous `Cache` stores strings under
-`<supportPath>/cache/<namespace?>` with atomic replacement and byte-based LRU
-eviction. Subscriptions notify matching cache instances within the process.
-Callers own bundle output directories (default: a unique directory below `os.tmpdir()/blast/builds`) and remove them after sessions exit.
-With `cacheDir` (extension launches use `<dataDir>/bundles/`) the cache owns the build: one slot per command, reused across processes until the manifest, tsconfig aliases, dependency install, bundler, or a file esbuild read changes. Without an explicit `env`, the runtime child uses Node's compile cache in `<dataDir>/compile-cache/`.
+The host creates `<dataDir>/support/<escaped-extension>/` before spawn. `Cache`
+stores strings under `<supportPath>/cache/<namespace?>` with atomic writes,
+byte-based LRU eviction, and in-process subscriber notifications.
 
 ## Local storage
 
-`LocalStorage` in the runtime is a capability client: `storage.get|set|remove|all|clear`
-carry a key and a value — never an extension name, which the host takes from the
-session. The host answers them with `createStorageHandlers({ extensionName, dataDir })`:
-one JSON file per extension
-at `<dataDir>/storage/<extension>.json` (default `<dataDir>`:
-`$XDG_DATA_HOME/blast`). `blast run` installs those handlers for the session's
-own extension by default — storage needs no `--grant` — and `--data-dir` moves
-the root. Writes are atomic (temp file + rename) and serialized, and a store the
-host cannot read fails the request rather than overwriting it.
+`LocalStorage` (`storage.*`) saves one JSON file per extension at
+`<dataDir>/storage/<extension>.json` (default `<dataDir>`:
+`$XDG_DATA_HOME/blast`). Extension names come from the session, never capability
+params. Writes are atomic and serialized; unreadable stores fail instead of
+overwriting.
 
-Dropdowns use `storage.get|set` with scope `blast:internal` and keys prefixed
-`blast:dropdown:` containing command name, component type and dropdown id
-(`default` when omitted). The host stores this scope under `<dataDir>/internal/`,
-separate from extension LocalStorage, so even identical keys cannot collide;
-LocalStorage all/clear do not expose or erase dropdown choices. Controlled
-values take precedence. Restoration validates options declared in children;
-options hidden inside custom components are not yet discoverable.
+Dropdowns, field `storeValue`, form drafts, and alert `rememberUserChoice` use
+scope `blast:internal` under `<dataDir>/internal/`, isolated from extension
+`LocalStorage`.
 
 ## Forms
 
-Form fields expose runtime-owned `value` and `onChange`; `Action.SubmitForm`
-collects the mounted fields by id. Controlled fields follow their supplied
-value; uncontrolled fields retain edits until unmount. Form actions use the
-`actions` Slot. Picker options are carried in the scene; no OS dialog opens.
-PasswordField keeps its value runtime-side: the scene carries a boolean
-`hasValue` (never the value or its length), while `onChange`, focus/blur
-events and submit deliver the raw value to the extension. Refs expose `focus()` (one `focused` scene field, ordered blur/focus events)
-and `reset()` (default or empty value, with onChange). `storeValue` saves edits in
-`blast:internal` under command/field keys; stored values override defaults,
-controlled values win, and late reads cannot overwrite edits. Root `enableDrafts`
-forms save command drafts, loaded into init before launch, restoring fields and
-`LaunchProps.draftValues` (tagged ISO dates become Dates). Successful SubmitForm
-clears drafts; failed submits retain them. Pushed/nested forms do not draft.
-Shutdown waits for form write acknowledgements. Passwords never persist. List/Grid scenes
-carry pagination `pageSize`/`hasMore`; Quick Look props carry file metadata.
+Form fields have runtime-owned `value` and `onChange`; `Action.SubmitForm`
+collects mounted fields by id. `PasswordField` keeps its value runtime-side
+(the scene sends only `hasValue: boolean`). Refs support `focus()` and `reset()`.
+`storeValue` and root `enableDrafts` persist via `blast:internal` (passwords
+never persist; successful submit clears drafts; pushed forms do not draft).
+`startCommand` loads stored drafts into `init.command.draftValues` to hydrate
+fields and `LaunchProps.draftValues`; shutdown waits for pending form writes.
+List/Grid pagination carries `pageSize`/`hasMore`; Quick Look props carry file
+metadata.
 
 ## Debugging extensions
 
-`bun run blast run <extensionDir> <command>` is the headless debug client; flags, capability answers, scripts and exit codes are in `docs/cli.md`.
-Performance benchmarks and the recorded baseline live in `docs/performance.md` (`bun run bench`).
+`bun run blast run <extensionDir> <command>` is the headless debug client; flags
+and script commands live in [cli.md](cli.md). Benchmarks and baseline numbers
+live in [performance.md](performance.md) (`bun run bench`).

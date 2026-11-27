@@ -16,6 +16,7 @@ import {
   MissingDependencyError,
   startCommand,
 } from "./index.ts";
+import { waitForScene } from "./test-helper.ts";
 
 const directories: string[] = [];
 afterEach(async () => {
@@ -273,23 +274,14 @@ test("installed utils hooks run with runtime API and React, without installed pe
     dataDir: options.dataDir,
   });
   try {
-    await new Promise<void>((done, reject) => {
-      const timeout = setTimeout(() => reject(new Error("Installed utils did not render")), 5_000);
-      let unsubscribe: (() => void) | undefined;
-      unsubscribe = session.scenes((scene) => {
+    await waitForScene(
+      session,
+      (scene) => {
         const json = JSON.stringify(scene);
-        if (json.includes("cached promise resolved") && json.includes("fetch resolved offline")) {
-          clearTimeout(timeout);
-          unsubscribe?.();
-          done();
-        }
-      });
-      void session.exited.then((exit) => {
-        clearTimeout(timeout);
-        unsubscribe?.();
-        reject(exit.error ?? new Error("Exited before utils hooks resolved"));
-      });
-    });
+        return json.includes("cached promise resolved") && json.includes("fetch resolved offline");
+      },
+      { label: "installed utils to render" },
+    );
   } finally {
     await session.shutdown();
   }
@@ -434,10 +426,7 @@ test("CLI installs a real file package offline, reuses it and runs without touch
     dataDir: options.dataDir,
   });
   try {
-    const scene = await new Promise((done, reject) => {
-      session.scenes(done);
-      void session.exited.then((exit) => reject(exit.error ?? new Error("Exited before scene")));
-    });
+    const scene = await waitForScene(session, () => true);
     expect(JSON.stringify(scene)).toContain("Installed offline dependency");
   } finally {
     await session.shutdown();

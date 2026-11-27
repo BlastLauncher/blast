@@ -1,8 +1,10 @@
-import { spawnSync } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { parseArgs } from "node:util";
+import { parseArgs, promisify } from "node:util";
 import { packages, root } from "./build.ts";
+
+const execFileAsync = promisify(execFile);
 
 export type ReleasePackage = {
   id: string;
@@ -107,10 +109,12 @@ export async function buildPublishPlan(
 ): Promise<PublishPlanEntry[]> {
   validatePrereleaseVersion(version);
   const ordered = orderByDependencies(source);
-  const plan: PublishPlanEntry[] = [];
-  for (const pkg of ordered)
-    plan.push({ ...pkg, alreadyPublished: await versionExists(pkg.name, version) });
-  return plan;
+  return Promise.all(
+    ordered.map(async (pkg) => ({
+      ...pkg,
+      alreadyPublished: await versionExists(pkg.name, version),
+    })),
+  );
 }
 
 /** npm's trusted publishing (GitHub Actions OIDC) needs npm 11.5.1 or later. */
@@ -178,6 +182,30 @@ export async function readReleasePackages(): Promise<ReleasePackage[]> {
     result.push(pkg);
   }
   return result;
+}
+
+export async function npmVersionExistsAsync(
+  packageName: string,
+  version: string,
+): Promise<boolean> {
+  try {
+    const { stdout } = await execFileAsync(
+      "npm",
+      ["view", `${packageName}@${version}`, "version"],
+      {
+        cwd: root,
+        encoding: "utf8",
+      },
+    );
+    return stdout.trim() === version;
+  } catch (error) {
+    const stderr = String((error as { stderr?: unknown }).stderr ?? "").trim();
+    if (/\bE404\b|\b404\b/.test(stderr)) return false;
+    throw new Error(
+      `Unable to query npm for ${packageName}@${version}: ${stderr || "npm failed"}`,
+      { cause: error },
+    );
+  }
 }
 
 export function npmVersionExists(packageName: string, version: string): boolean {
@@ -262,8 +290,8 @@ async function main() {
     return;
   }
   if (mode !== "plan") throw new Error(`Unknown release mode: ${mode}`);
-  const plan = await buildPublishPlan(version, await readReleasePackages(), async (name, value) =>
-    npmVersionExists(name, value),
+  const plan = await buildPublishPlan(version, await readReleasePackages(), (name, value) =>
+    npmVersionExistsAsync(name, value),
   );
   const publish = plan.filter((entry) => !entry.alreadyPublished).map((entry) => entry.name);
   const lines = [

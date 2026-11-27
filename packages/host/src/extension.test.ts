@@ -1,5 +1,4 @@
 import { expect, test } from "bun:test";
-import type { SceneMessage } from "@blastlauncher/protocol";
 import { cp, mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -13,6 +12,7 @@ import {
   type DebounceScheduler,
   type ExtensionWatcherFactory,
 } from "./index.ts";
+import { waitForScene } from "./test-helper.ts";
 
 async function fixture(
   installer?: DependencyInstaller,
@@ -364,14 +364,7 @@ test("launch can install through the injected installer and streams progress", a
     });
     try {
       expect(logs).toContain("installing example");
-      await new Promise<void>((resolve, reject) => {
-        opened.session.scenes((scene) => {
-          if (JSON.stringify(scene).includes('"installed"')) resolve();
-        });
-        void opened.session.exited.then((exit) =>
-          reject(exit.error ?? new Error(`exited with code ${exit.code}`)),
-        );
-      });
+      await waitForScene(opened.session, (scene) => JSON.stringify(scene).includes('"installed"'));
     } finally {
       await opened.close();
     }
@@ -391,12 +384,7 @@ test("extension launch renders props and preferences; closing keeps the cached b
         launchContext: { source: "embedder" },
         fallbackText: "fallback query",
       });
-      const scene = await new Promise<SceneMessage>((resolve, reject) => {
-        opened.session.scenes(resolve);
-        void opened.session.exited.then((exit) =>
-          reject(exit.error ?? new Error("Exited before scene")),
-        );
-      });
+      const scene = await waitForScene(opened.session, () => true);
       const serialized = JSON.stringify(scene);
       expect(serialized).toContain("Engine fixture");
       const list = scene.root!.children[0]!.children[0]!;

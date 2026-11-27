@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { ControllerView } from "@blastlauncher/client-core";
 import { createEngine, type ExtensionWatcherFactory } from "./index.ts";
+import { waitForSubscription } from "./test-helper.ts";
 
 const fixtures = new URL("../../../fixtures/extensions/", import.meta.url);
 const hello = new URL("hello-list", fixtures).pathname;
@@ -28,18 +29,9 @@ function until(
   match: (view: ControllerView) => boolean,
   ms = 10_000,
 ): Promise<ControllerView> {
-  return new Promise((resolve, reject) => {
-    let stop: (() => void) | undefined;
-    const timer = setTimeout(() => {
-      stop?.();
-      reject(new Error("Timed out waiting for a view"));
-    }, ms);
-    stop = root.subscribe((view) => {
-      if (!match(view)) return;
-      clearTimeout(timer);
-      queueMicrotask(() => stop?.());
-      resolve(view);
-    });
+  return waitForSubscription((listener) => root.subscribe(listener), match, {
+    timeoutMs: ms,
+    label: "a view",
   });
 }
 const items = (view: ControllerView) => view.rows.filter((r) => r.kind === "item").map((r) => r.id);

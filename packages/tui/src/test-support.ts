@@ -45,19 +45,44 @@ export function waitScene(
   session: Session,
   predicate: (scene: SceneMessage) => boolean,
 ): Promise<void> {
+  return waitSceneMatch(session, (scene) => (predicate(scene) ? true : undefined), "scene").then(
+    () => undefined,
+  );
+}
+
+/**
+ * Resolves with `pick`'s first defined result for the latest or a later scene,
+ * unsubscribing synchronously even when `session.scenes()` replays immediately.
+ */
+export function waitSceneMatch<T>(
+  session: Session,
+  pick: (scene: SceneMessage) => T | undefined,
+  what: string,
+  timeoutMs = WAIT_TIMEOUT_MS,
+): Promise<T> {
   return new Promise((resolve, reject) => {
+    let settled = false;
     let stop: (() => void) | undefined;
-    const timer = setTimeout(() => {
+    const finish = (complete: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
       stop?.();
-      reject(timedOut("scene timeout", session));
-    }, WAIT_TIMEOUT_MS);
-    stop = session.scenes((scene) => {
-      if (predicate(scene)) {
-        clearTimeout(timer);
-        queueMicrotask(() => stop?.());
-        resolve();
-      }
-    });
+      complete();
+    };
+    const timer = setTimeout(() => {
+      finish(() => reject(timedOut(`Timed out waiting for ${what}`, session)));
+    }, timeoutMs);
+    try {
+      stop = session.scenes((scene) => {
+        const match = pick(scene);
+        if (match !== undefined) finish(() => resolve(match));
+      });
+    } catch (error) {
+      finish(() => reject(error));
+      return;
+    }
+    if (settled) stop();
   });
 }
 

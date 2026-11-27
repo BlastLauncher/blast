@@ -86,7 +86,7 @@ test("terminal resize relays out List, Grid, Detail and Form without losing stat
     name: string;
     scene: () => SceneMessage;
     beforeResize: (terminal: Awaited<ReturnType<typeof testRender>>) => Promise<void>;
-    after: (frame: string) => void;
+    expected: string;
   }> = [
     {
       name: "List",
@@ -94,7 +94,7 @@ test("terminal resize relays out List, Grid, Detail and Form without losing stat
       beforeResize: async (terminal) => {
         await act(async () => terminal.mockInput.pressArrow("down"));
       },
-      after: (frame) => expect(frame).toContain("› two"),
+      expected: "› two",
     },
     {
       name: "Grid",
@@ -102,13 +102,13 @@ test("terminal resize relays out List, Grid, Detail and Form without losing stat
       beforeResize: async (terminal) => {
         await act(async () => terminal.mockInput.pressArrow("right"));
       },
-      after: (frame) => expect(frame).toContain("two"),
+      expected: "two",
     },
     {
       name: "Detail",
       scene: detailScene,
       beforeResize: async () => {},
-      after: (frame) => expect(frame).toContain("Keep me"),
+      expected: "Keep me",
     },
     {
       name: "Form",
@@ -116,7 +116,7 @@ test("terminal resize relays out List, Grid, Detail and Form without losing stat
       beforeResize: async (terminal) => {
         await act(async () => terminal.mockInput.typeText("Ada"));
       },
-      after: (frame) => expect(frame).toContain("Ada"),
+      expected: "Ada",
     },
   ];
 
@@ -132,10 +132,14 @@ test("terminal resize relays out List, Grid, Detail and Form without losing stat
       );
       await item.beforeResize(terminal);
       await act(async () => terminal.resize(42, 10));
-      await waitForFrame(terminal, (frame) => {
-        item.after(frame);
-        return terminal.captureSpans().cols === 42 && terminal.captureSpans().rows === 10;
-      });
+      const resized = await waitForFrame(
+        terminal,
+        (frame) =>
+          frame.includes(item.expected) &&
+          terminal.captureSpans().cols === 42 &&
+          terminal.captureSpans().rows === 10,
+      );
+      expect(resized).toContain(item.expected);
       expect(terminal.captureSpans().cols).toBe(42);
       expect(terminal.captureSpans().rows).toBe(10);
     } finally {

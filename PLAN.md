@@ -54,7 +54,7 @@ M18 in progress: faster CI, release and verify; docs trimmed and rewritten.
 ### M18 — Faster loop, readable docs
 
 - [ ] 0198 Measure and cut CI, release and local verify time
-- [ ] 0199 Trim and rewrite the docs for readability
+- [x] 0199 Trim and rewrite the docs for readability
 
 ## Later (not scheduled)
 

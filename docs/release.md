@@ -11,6 +11,13 @@ the `next` npm dist-tag **without** creating a git tag or GitHub release.
 Concurrency is serialized (`cancel-in-progress: false`), so rapid merges publish
 atomically and never leave `@next` half-published.
 
+Two jobs gate `publish` in parallel: `verify-ci` reuses CI's `verify` check run
+for the exact same commit SHA via `scripts/release/wait-ci-verify.ts` (waiting
+on `push`, failing fast if CI failed, and falling back to a local
+`bun run verify` if CI did not run or was cancelled), while `build` plans the
+publish set in parallel, builds the tarballs, runs `release:smoke`, and runs
+the `@blastlauncher/web` browser e2e with a cached Playwright Chromium binary.
+
 ## Tagged prereleases (manual)
 
 Run **v3 prerelease** from the repository's GitHub Actions tab and enter a

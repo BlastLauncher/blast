@@ -157,6 +157,7 @@ export function firstSceneOrExit(
         finish({ kind: "empty-menu-bar" }, scene);
       }
     });
+    if (settled) unsubscribe();
     void session.exited.then((exit) => {
       finish(exitProbe(exit));
     });
@@ -285,6 +286,7 @@ export async function probePrimaryAction(
         armQuiet();
       }
     });
+    if (settled) unsubscribe();
     unsubscribeLog = session.onLog((log) => {
       const capability = capabilityDenied(log.message.replace(/^EVENT_ERROR: /, ""));
       if (capability) finish({ primary: true, events: dispatched.events.length, capability });

@@ -18,6 +18,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundleCommand, createBroker, linkAssets, startCommand, type Session } from "./index.ts";
+import { waitForScene, waitForSubscription } from "./test-helper.ts";
 
 const extensionDir = fileURLToPath(
   new URL("../../../fixtures/extensions/host-session", import.meta.url),
@@ -39,30 +40,13 @@ async function start(command = "session", broker = createBroker()) {
   return session;
 }
 function scene(session: Session, title?: string): Promise<SceneMessage> {
-  if (
-    session.latestScene?.root &&
-    (title === undefined ||
-      session.latestScene.root.children[0]!.children[0]!.props.navigationTitle === title)
-  )
-    return Promise.resolve(session.latestScene);
-  return new Promise((resolve, reject) => {
-    let unsubscribe: () => void;
-    const accept = (snapshot: SceneMessage) => {
-      if (
-        snapshot.root &&
-        (title === undefined ||
-          snapshot.root.children[0]!.children[0]!.props.navigationTitle === title)
-      ) {
-        resolve(snapshot);
-        unsubscribe?.();
-      }
-    };
-    unsubscribe = session.scenes(accept);
-    void session.exited.then((exit) => {
-      unsubscribe();
-      reject(exit.error ?? new Error("Exited before scene"));
-    });
-  });
+  return waitForScene(
+    session,
+    (snapshot) =>
+      snapshot.root !== null &&
+      (title === undefined ||
+        snapshot.root.children[0]!.children[0]!.props.navigationTitle === title),
+  );
 }
 function find(node: SceneNode, title: string): SceneNode | undefined {
   if (node.props.title === title) return node;
@@ -590,4 +574,37 @@ test("manifest preference defaults reach the runtime, with command and explicit 
       bundleCommand({ extensionDir: dir, command: "no-view", outDir: join(dir, "build") }),
     ).rejects.toThrow();
   }
+});
+
+test("synchronous replay subscriptions unsubscribe cleanly and roll back if replay throws", async () => {
+  const listeners = new Set<(value: number) => void>();
+  const subscribe = (listener: (value: number) => void) => {
+    listeners.add(listener);
+    listener(1);
+    return () => {
+      listeners.delete(listener);
+    };
+  };
+  expect(await waitForSubscription(subscribe, (value) => value === 1)).toBe(1);
+  expect(listeners.size).toBe(0);
+
+  const session = await start();
+  const initial = await waitForScene(session);
+  expect(initial.root).not.toBeNull();
+  // A second waitForScene hits the synchronous replay path when latestScene is already set.
+  const replayed = await waitForScene(session);
+  expect(replayed.revision).toBe(initial.revision);
+
+  // If a subscriber throws during synchronous replay, it must not stay registered.
+  let calls = 0;
+  expect(() =>
+    session.scenes(() => {
+      calls++;
+      throw new Error("replay boom");
+    }),
+  ).toThrow("replay boom");
+  expect(calls).toBe(1);
+  action(session, replayed, "Increment");
+  await waitForScene(session, (next) => next.revision > replayed.revision);
+  expect(calls).toBe(1);
 });

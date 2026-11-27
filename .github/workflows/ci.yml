@@ -7,12 +7,34 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      macos: ${{ steps.filter.outputs.macos }}
+      go: ${{ steps.filter.outputs.go }}
+      python: ${{ steps.filter.outputs.python }}
+      tmux: ${{ steps.filter.outputs.tmux }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: bun scripts/ci-changes.ts
+
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -24,12 +46,14 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.2
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y tmux
+      - name: Ensure tmux
+        run: command -v tmux >/dev/null || (sudo apt-get update && sudo apt-get install -y tmux)
       - run: bun install --frozen-lockfile
       - run: bun run verify
 
   tmux-plugin:
+    needs: changes
+    if: needs.changes.outputs.tmux == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -40,12 +64,14 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.2
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y tmux
+      - name: Ensure tmux
+        run: command -v tmux >/dev/null || (sudo apt-get update && sudo apt-get install -y tmux)
       - run: bun install --frozen-lockfile
       - run: bun run example:tmux:e2e
 
   go-example:
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -64,6 +90,8 @@ jobs:
         working-directory: examples/go-embedder
 
   python-example:
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -81,6 +109,8 @@ jobs:
       - run: bun run example:python
 
   macos-example:
+    needs: changes
+    if: needs.changes.outputs.macos == 'true'
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
@@ -96,6 +126,11 @@ jobs:
           xcode_path=$(ls -d /Applications/Xcode_26.6*.app | head -n 1)
           sudo xcode-select -s "$xcode_path"
           swift --version
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: examples/macos-launcher/.build
+          key: swift-${{ runner.os }}-xcode26.6-${{ hashFiles('examples/macos-launcher/Package.swift', 'examples/macos-launcher/Sources/**', 'examples/macos-launcher/Tests/**') }}
+          restore-keys: swift-${{ runner.os }}-xcode26.6-
       - run: bun install --frozen-lockfile
       - run: swift test
         working-directory: examples/macos-launcher
