@@ -1,24 +1,26 @@
 # Embedding Blast
 
-Blast is an engine, not a launcher. It runs unmodified Raycast extension commands and gives an embedder views to draw plus
-requests for granted capabilities. The embedder owns windows, pixels, input devices and policy; the engine owns the launcher
-flow (decision 0014): command search, launch prompts, dependency installs and each command's views.
+Blast runs unmodified Raycast extension commands and hands your app views to
+draw plus capability requests to answer. You own windows, pixels, input, and
+policy; the engine owns the launcher flow (decision 0014): command search,
+[launch prompts](launch-prompts.md), dependency installs, and command views.
 
-A **view** is the serializable `ControllerView` model (`kind`, `title`, `search`, `rows`, `form`, `actions`, `feedback`, …)
-with ranking, selection, shortcuts and pagination already applied. **Input** is semantic (`search`, `move`, `primary`,
-`openActions`, `back`, …). A **session** is one launched command. A **capability** is an OS or service operation named in the
-catalog, either answered by Blast (storage, OAuth, provider AI) or forwarded to you.
+A **view** is the `ControllerView` model (`kind`, `title`, `search`, `rows`,
+`form`, `actions`, `feedback`, …) with ranking, selection, shortcuts, and
+pagination applied. **Input** is semantic (`search`, `move`, `primary`,
+`openActions`, `back`, …). A **session** is one launched command. A
+**capability** is an operation in the catalog, answered by Blast or your app.
 
 Install from npm (`latest` is `3.0.0-alpha.10`; `@next` follows `main`), e.g.
-`npm install @blastlauncher/engine@next`; the [quickstart](quickstart.md) runs
-each path end to end.
+`npm install @blastlauncher/engine`. See [quickstart.md](quickstart.md) for
+end-to-end setups.
 
 ## Over stdio, in any language
 
-Start `blast serve` (`@blastlauncher/serve`, bin `blast-serve`; e.g.
-`npx -p @blastlauncher/serve@next blast-serve`) and exchange
-newline-delimited JSON. Stdout carries protocol output only. Ask for views in
-the hello, open extensions, then open the root and draw what it sends:
+Start `blast serve` (`@blastlauncher/serve`, bin `blast-serve`, e.g.
+`npx -p @blastlauncher/serve blast-serve`) and exchange NDJSON on stdin/stdout
+(protocol 2; stdout is protocol-only). Ask for views in `hello`, open
+extensions, and open the [root view](root-view.md):
 
 ```text
 ← {"type":"hello","protocol":2,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
@@ -37,40 +39,50 @@ the hello, open extensions, then open the root and draw what it sends:
 → {"type":"event","event":"session.exited","session":"3","code":0}
 ```
 
-Each root and session sends one full `root.view` / `session.view` (`revision: 1`), then incremental `root.view.patch` / `session.view.patch` events (`revision`, `baseRevision`, `ops`: `set`, `delete`, `splice` over object-key paths). `revision` increments by 1 per event; no-op updates send nothing. On a `baseRevision` mismatch, send `root.resync {root}` or `session.resync {session}` and ignore patches until the next full view (decision 0020). `@blastlauncher/protocol` exports `diffView` and `applyViewPatch`.
+Per root and per session, serve sends one full `root.view` / `session.view`
+(`revision: 1`), then `root.view.patch` / `session.view.patch` (`revision`
+increases by 1 per event, `baseRevision`, `ops`: `set`, `delete`, `splice` over
+object-key paths). No-op updates emit nothing. On a `baseRevision` mismatch,
+send `root.resync {root}` or `session.resync {session}` and drop patches until
+the next full view (decision 0020). `@blastlauncher/protocol` exports `diffView`
+and `applyViewPatch`.
 
-Send input to the session from `root.launched` until its `session.exited`, then to the root again. The root lists every opened extension's commands; launching runs [launch prompts](launch-prompts.md) for missing preferences, arguments and dependencies as that session's views ([root-view.md](root-view.md)). The [Go](../examples/go-embedder/) and [Python](../examples/python-embedder/) examples are complete standard-library clients of this flow.
+Send input to the session from `root.launched` until `session.exited`, then
+return to the root's last view. The [Go](../examples/go-embedder/) and
+[Python](../examples/python-embedder/) examples implement this full flow with
+only their standard libraries.
 
-The hello's `views` (`platform`: `macOS`, `Windows` or `Linux`; optional `appearance`: `light` or `dark`) apply to the root and every launch that does not pass its own; `"views":false` or omitting it leaves views off by default. Raw `session.scene` events are off unless the hello passes `"scenes":true`. Icons in rows, grid cells, menu rows and the empty view carry `iconLabel` (text fallback) plus optional `iconSource` (`builtin` name, `url`, absolute `file` path under the extension's `assets/`, or `fileIcon`), `iconTint` and `iconMask`, already resolved for the appearance. `blast serve` installs missing dependencies by default (`--dependencies manual` to opt out).
+`hello.views` (`platform`: `macOS`, `Windows`, or `Linux`; optional
+`appearance`: `light` or `dark`) sets defaults for `root.open` and launches
+(`false` or omitted leaves views off). Icons carry `iconLabel` plus optional
+`iconSource` (`builtin`, `url`, `file`, `fileIcon`), `iconTint`, and
+`iconMask`, resolved for `appearance`. `blast serve` installs missing
+dependencies by default (`--dependencies manual` to opt out) and accepts
+`--native`.
 
 ### Client rules
 
-- Request ids are yours and unique while outstanding. Responses may arrive out
-  of order, and events may precede their response. Extension, root and session
-  keys are opaque: use the ones the server returns.
-- A line the server cannot accept gets a protocol `{"type":"error","error":{…}}`
-  with no request id, so the request it carried never gets a response. Fail
-  every outstanding request when one arrives (the Go and Python examples do).
-- Send every field an input requires: a cleared search is
-  `{"type":"search","text":""}`, never a missing `text` (that line is
-  rejected). The view echoes the authoritative search text.
-- `engine.shutdown` finishes pending work and exits 0; EOF does the same.
-  Malformed lines recover at the next newline; a protocol version mismatch
-  exits 2. Lines are capped at 8 MiB.
+- Keep request ids unique while outstanding; responses may arrive out of order
+  and interleave with events. Extension, root, and session keys are opaque.
+- A rejected line returns `{"type":"error","error":{…}}` with no request id;
+  fail all outstanding requests when one arrives.
+- Include every required input field (e.g. `{"type":"search","text":""}`).
+- `engine.shutdown` or EOF finishes pending work and exits 0; version mismatch
+  exits 2. Lines cap at 8 MiB and malformed lines recover at the next newline.
 
-Capability forwarding uses `capability.request {id,session,name,params}` and
-an answering `capability.result` (`ok:true,value` or `ok:false,error`);
-progress uses `capability.progress`, cancellation `capability.cancel`.
-Unregistered or ungranted capabilities are denied. Every message is in the
-[schema](../packages/protocol/schema/embedder-v2.schema.json).
+Capability forwarding uses `capability.request {id,session,name,params}`,
+`capability.result` (`ok:true,value` or `ok:false,error`), `capability.progress`,
+and `capability.cancel`. Every message is in
+[embedder-v2.schema.json](../packages/protocol/schema/embedder-v2.schema.json).
 
 ### Lower level: one command, or raw scenes
 
-`extension.launch {extension, command}` runs one command without the root;
-add `"prompts":true` to get the launch prompts instead of `missing_values` or
-`missing_dependencies` errors, and `views` to override the hello's.
-`extension.configure {extension, command}` shows a command's preferences form.
-Pass `"scenes":true` in `hello` to opt into raw `session.scene` debugging events:
+`extension.launch {extension, command}` runs a command directly (`prompts: true`
+enables launch prompts instead of `missing_values` or `missing_dependencies`
+errors; `views` overrides `hello.views`; `bundleTimeoutMs` overrides bundle
+timeout). `extension.configure {extension, command}` opens preferences.
+`session.log` is always sent; `"scenes":true` in `hello` adds raw
+`session.scene` events, and `session.event` dispatches scene handlers:
 
 ```text
 → {"type":"event","event":"session.scene","session":"3","scene":{…}}
@@ -78,15 +90,10 @@ Pass `"scenes":true` in `hello` to opt into raw `session.scene` debugging events
 ← {"type":"request","id":"6","method":"session.event","params":{"session":"3","node":"5","handler":"onAction","args":[]}}
 ```
 
-Scenes are replayed to new listeners and contain no private capability
-values. Use `session.event` to route a scene node event; `session.input` only
-when views are enabled.
-
 ## In-process JS/TS
 
-The published package is `@blastlauncher/engine` (workspace package
-`@blastlauncher/host`). It runs on Node 24, Bun or Electron, and offers the
-same root:
+`@blastlauncher/engine` (workspace `@blastlauncher/host`) runs on Node 24, Bun,
+or Electron:
 
 ```js
 import { createEngine } from "@blastlauncher/engine";
@@ -94,44 +101,36 @@ const engine = createEngine({ handlers: { "clipboard.copy": (params) => copy(par
 engine.openExtension({ extensionDir: "./my-extension" });
 const root = engine.root({ views: { platform: "macOS" } });
 root.subscribe((view) => draw(view));
-await root.ready(); // manifests of the extensions opened so far are read
+await root.ready(); // manifests of extensions opened so far are read
 root.input({ type: "search", text: "ap" });
 ```
 
-`engine.root` returns `{ view, subscribe, input, ready, close }`; after a
-`primary` the view is the launch prompt's, then the running command's, until
-its session ends. `startLaunchFlow(extension, command, { views })` runs the
-same prompts for one command ([launch-prompts.md](launch-prompts.md)).
-
-For full control, `extension.launch(command)` returns `{ session, close }`;
+`engine.root` returns `{ view, subscribe, input, ready, close }`.
+`startLaunchFlow` runs prompts for one command ([launch-prompts.md](launch-prompts.md)).
+For manual control, `extension.launch(command)` returns `{ session, close }`;
 feed `session.scenes` to `createController({ platform })` from
-`@blastlauncher/client-core`, draw its views and apply the events and effects
-it returns (`packages/host/src/root.ts` does exactly this). `openExtension`
-also exposes `manifest()`, dependency checks and installs, and preferences.
+`@blastlauncher/client-core`. `openExtension` also exposes `manifest()`,
+`watch()`, `dependencies`, and `preferences()`.
 
 ## Capability contract
 
-`packages/protocol/src/capabilities.ts` is the catalog: each name declares its
-scope, summary, JSON-schema-like `params` and `result`, and triggering API
-symbols. Grant handlers receive `(params, context)`, may be async, can report
-`context.progress(value)`, and should honor `context.signal`. Start from
-`createNativeHandlers()` in `@blastlauncher/native` for optional clipboard,
-open, file-manager and trash handlers; otherwise register only your own grants.
-
-The protocol is version 2. Additive changes stay on version 2; breaking changes
-use a new schema and negotiation version. `bun run protocol:check` verifies the
-checked-in schema.
+`packages/protocol/src/capabilities.ts` defines every capability (`scope`,
+`params`, `result`, triggering symbols). Grant handlers `(params, context)` may
+be async, report `context.progress(value)`, and honor `context.signal`. Start
+from `createNativeHandlers()` in `@blastlauncher/native` for optional desktop
+handlers. `bun run protocol:check` verifies the checked-in protocol schema.
 
 ## In a web page
 
-Pass `fetchProxy: "https://proxy.example/v1"` to `mount()` and `prewarm()`, or `fetch-proxy="…"` on `<blast-extension>`, to route sandbox fetch, XHR and Node HTTP requests through a proxy for APIs without CORS.
-Without it, normal CORS applies. HTTPS is required (HTTP loopback for tests); proxied requests omit browser credentials.
-The operator sees request contents, including API keys: deploy your own from `packages/cors-proxy`.
-
-`@blastlauncher/web` runs extensions in the browser runtime, inside a
-cross-origin sandbox you host, with one `mount()` call; see its [README](../packages/web/README.md).
+`@blastlauncher/web` runs extensions in a cross-origin sandbox via `mount()`;
+see [its README](../packages/web/README.md). Pass `fetchProxy` (or
+`fetch-proxy` on `<blast-extension>`) to route sandbox HTTP requests through an
+HTTPS proxy (HTTP loopback for tests; proxied requests omit browser credentials).
+Deploy your own from `packages/cors-proxy`.
 
 ## Network proxy
 
-The live demo forwards extension requests through our Cloudflare proxy. The Worker does not log or store requests or responses.
-The operator can see request contents; destination services receive them under their own policies. Do not enter secret keys, tokens or private data. [Worker source](https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy).
+The live demo forwards requests through our Cloudflare proxy. The Worker does
+not log or store requests or responses. The operator sees request contents;
+destination services apply their own policies. Do not enter secrets or private
+data ([Worker source](https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy)).
