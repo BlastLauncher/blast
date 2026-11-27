@@ -2,7 +2,17 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
+import {
+  type BriefOptions,
+  UsageError,
+  briefTask,
+  cleanReport,
+  cleanTasks,
+  findingItems,
+  parseBriefArgs,
+  parseCleanArgs,
+} from "./tasks-ops.ts";
 import {
   type CommandResult,
   type CommandRunner,
@@ -1191,5 +1201,256 @@ describe("CLI usage and --help", () => {
       expect(result.status).toBe(2);
       expect(result.stderr).toContain(`usage: tasks:${sub}`);
     }
+  });
+});
+
+const started = () => {
+  const root = repo({ "tasks/0001-land.md": task("0001", "doing") });
+  git(root, "branch", "task/0001-land");
+  return root;
+};
+const brief = (root: string, options: BriefOptions) => briefTask(root, "0001", options, real);
+const shared = (text: string, start: string, land = false) => {
+  if (land) {
+    expect(text).not.toContain("git reset --hard");
+    expect(text).toContain("never run `git reset`, `git switch` or `git checkout` there");
+  } else {
+    expect(text).toContain(`\`git reset --hard ${start} && bun install --frozen-lockfile\``);
+    expect(text).toContain("any commit and has no `node_modules`");
+  }
+  expect(text).toContain("Do not modify `main`, `task/0001-land`");
+  expect(text).toContain("never run two `bun run verify` at once");
+  expect(text).toContain("Run long commands in the foreground and wait");
+  expect(text).toContain("Keep extra disk usage under 2 GB and delete your scratch files.");
+};
+
+describe("tasks:brief", () => {
+  test("worker: opener, every rule, start branch, avoided files and the Handoff final message", () => {
+    const text = brief(started(), {
+      role: "worker",
+      diskGb: 2,
+      avoid: ["scripts/verify.ts", "a.ts"],
+    });
+    expect(text.split("\n")[0]).toBe(
+      "Follow AGENTS.md. You are the Worker for `tasks/0001-land.md`.",
+    );
+    shared(text, "task/0001-land");
+    expect(text).toContain("Commit in logical commits on your own branch. Do not push.");
+    expect(text).toContain("`task/0001-land` is checked out in `.cache/tasks/0001-land`");
+    expect(text).toContain("A parallel task owns `scripts/verify.ts`, `a.ts`: do not edit them.");
+    expect(text).toContain("never end your turn with uncommitted work");
+    expect(text).toContain("final message is only the Handoff block");
+    expect(text).not.toContain("findings");
+  });
+
+  test("worker round 2 starts from the previous branch and numbers the findings", () => {
+    const root = started();
+    writeFileSync(join(root, "findings.md"), "1. a.ts:3 drops X\n   when Y\n2) b.ts:9 leaks Z\n");
+    const text = brief(root, {
+      role: "worker",
+      from: "t3/r1",
+      round: "2",
+      findings: "findings.md",
+      diskGb: 2,
+    });
+    expect(text.split("\n")[0]).toBe(
+      "Follow AGENTS.md. You are the Worker for `tasks/0001-land.md`, round 2.",
+    );
+    shared(text, "t3/r1");
+    expect(text).toContain("Do not modify `main`, `task/0001-land`, `t3/r1`;");
+    expect(text).toContain(
+      "Fix these review findings:\n1. a.ts:3 drops X\n   when Y\n2. b.ts:9 leaks Z",
+    );
+  });
+
+  test("reviewer: diff against the task branch, no edits, findings-list final message", () => {
+    const root = started();
+    writeFileSync(join(root, "f.txt"), "- first\n- second\n");
+    const text = brief(root, {
+      role: "reviewer",
+      from: "t3/w",
+      findings: "f.txt",
+      avoid: ["x.ts"],
+      diskGb: 2,
+    });
+    expect(text.split("\n")[0]).toBe(
+      "Follow AGENTS.md. You are the Reviewer for `tasks/0001-land.md`.",
+    );
+    shared(text, "t3/w");
+    expect(text).toContain(
+      "Review `git diff task/0001-land...t3/w` against `tasks/0001-land.md` Acceptance",
+    );
+    expect(text).toContain("Do not fix, commit or push.");
+    expect(text).toContain("A parallel task owns `x.ts`: report any change to them as a finding.");
+    expect(text).toContain(
+      "numbered findings list (each with `file:line` and a failure scenario) or `no findings`",
+    );
+    expect(text).toContain("the `bun run verify` summary line");
+    expect(text).toContain("previous round are fixed:\n1. first\n2. second");
+  });
+
+  test("land: tasks:merge and tasks:land steps in the foreground, one macos-example rerun", () => {
+    const text = brief(started(), { role: "land", from: "t3/w", diskGb: 2 });
+    expect(text.split("\n")[0]).toBe(
+      "Follow AGENTS.md. You are the Land agent for `tasks/0001-land.md`.",
+    );
+    shared(text, "t3/w", true);
+    expect(text).toContain("`gh run rerun <run-id> --failed` once");
+    expect(text).toContain("Push and merge only through `tasks:land`.");
+    expect(text).toContain("work in `.cache/tasks/0001-land` from any checkout");
+    expect(text).toContain(
+      "lists `chore(0001): done`, run `bun run tasks:merge 0001 --branch t3/w`",
+    );
+    expect(text).toContain("2. Run `bun run tasks:land 0001`.");
+    expect(text).toContain("`link_pull_request`");
+    expect(text).toContain('`macos-example` with "not acquired by Runner", run `gh run rerun');
+    expect(text).toContain("4. Stop on anything else");
+    expect(text).toContain("final message is `PR <url>, head <sha>, checks <state>`");
+  });
+
+  test("finds the task from tasks/ before tasks:start and fails for an unknown id", () => {
+    const root = repo({ "tasks/0001-land.md": task("0001", "todo") });
+    expect(brief(root, { role: "worker" })).toContain("git reset --hard task/0001-land &&");
+    expect(() => briefTask(root, "0009", { role: "worker" }, real)).toThrow("task 0009 has no");
+  });
+
+  test("findingItems strips list markers and keeps unmarked lines as items", () => {
+    expect(findingItems("plain one\n\nplain two\n")).toEqual(["plain one", "plain two"]);
+    expect(findingItems("Notes:\n* a\n  more\n")).toEqual(["Notes:", "a\n   more"]);
+  });
+
+  test("unknown roles, missing --from and bad flags are usage errors", () => {
+    const root = started();
+    expect(() => parseBriefArgs(["0001", "--role", "boss"])).toThrow(UsageError);
+    expect(() => parseBriefArgs(["0001"])).toThrow("--role is required");
+    expect(() => parseBriefArgs(["--role", "worker"])).toThrow("missing <id>");
+    expect(() => parseBriefArgs(["0001", "--role", "worker", "--disk", "0"])).toThrow(UsageError);
+    expect(() => parseBriefArgs(["0001", "--role", "worker", "--nope"])).toThrow(UsageError);
+    for (const role of ["reviewer", "land"] as const)
+      expect(() => brief(root, { role })).toThrow(
+        new UsageError(`--role ${role} requires --from <branch>`),
+      );
+    expect(() => brief(root, { role: "land", from: "w", findings: "f" })).toThrow(UsageError);
+    expect(
+      parseBriefArgs(["0001", "--role", "worker", "--avoid", "a", "--avoid", "b", "--round", "3"]),
+    ).toEqual({
+      id: "0001",
+      options: { role: "worker", avoid: ["a", "b"], round: "3" },
+    });
+  });
+
+  test("the CLI prints usage and exits 2 on a usage error", () => {
+    for (const args of [
+      ["brief", "0001", "--role", "boss"],
+      ["brief", "0001", "--role", "reviewer"],
+      ["clean", "--force"],
+    ]) {
+      const result = Bun.spawnSync(["bun", join(import.meta.dir, "tasks.ts"), ...args], {
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      expect(result.exitCode).toBe(2);
+      expect(result.stderr.toString()).toContain(`usage: tasks:${args[0]}`);
+    }
+  });
+});
+
+/** A primary checkout on a merged side branch, plus one worktree or branch per case. */
+function cluttered() {
+  const root = repo({ "a.txt": "a\n" });
+  git(root, "checkout", "-q", "-b", "primary-side");
+  worktree(root, "merged-wt", "main");
+  git(root, "branch", "merged-bare", "main");
+  const dupA = worktree(root, "dup-a", "main");
+  commit(dupA, { "dup.txt": "dup\n" }, "dup work");
+  git(root, "branch", "t3/dup-b", "dup-a");
+  commit(worktree(root, "unique-wt", "main"), { "u.txt": "u\n" }, "unique work");
+  const dirty = worktree(root, "dirty", "main");
+  writeFileSync(join(dirty, "scratch.txt"), "keep\n");
+  rmSync(worktree(root, "gone", "main"), { recursive: true, force: true });
+  const parent = mkdtempSync(join(tmpdir(), "blast-detached-"));
+  roots.push(parent);
+  git(root, "worktree", "add", "-q", "--detach", join(parent, "detached"), "main");
+  const running = join(root, ".cache", "tasks", "0001-run");
+  git(root, "worktree", "add", "-q", "-b", "task/0001-run", running, "main");
+  commit(running, { "run.txt": "run\n" }, "task work");
+  git(root, "branch", "t3/run-twin", "task/0001-run");
+  git(
+    root,
+    "worktree",
+    "add",
+    "-q",
+    "-b",
+    "task/0002-done",
+    join(root, ".cache", "tasks", "0002-done"),
+    "main",
+  );
+  return { root, dirty };
+}
+const names = (entries: ReturnType<typeof cleanTasks>) =>
+  entries.map(
+    (e) =>
+      `${e.kind} ${e.kind === "worktree" ? basename(e.name) : e.name}: ${e.reason}${e.kept ? ` ${e.kept}` : ""}`,
+  );
+const branches = (root: string) =>
+  git(root, "for-each-ref", "--format=%(refname:short)", "refs/heads").split("\n");
+const worktreeNames = (root: string) =>
+  git(root, "worktree", "list", "--porcelain")
+    .split("\n")
+    .filter((line) => line.startsWith("worktree "))
+    .map((line) => basename(line.slice(9)));
+const EXPECTED = [
+  "worktree gone: pruned",
+  "worktree 0002-done: merged",
+  "worktree detached: merged",
+  "worktree merged-wt: merged",
+  "branch gone: merged",
+  "branch merged-bare: merged",
+  "branch merged-wt: merged",
+  "branch t3/dup-b: duplicate dup-a",
+  "branch t3/run-twin: duplicate task/0001-run",
+  "branch task/0002-done: merged",
+];
+
+describe("tasks:clean", () => {
+  test("dry run lists merged, duplicate and pruned entries and changes nothing", () => {
+    const { root } = cluttered();
+    const before = [branches(root), worktreeNames(root)];
+    const entries = cleanTasks(root, false, real);
+    expect(names(entries).toSorted()).toEqual(EXPECTED.toSorted());
+    expect([branches(root), worktreeNames(root)]).toEqual(before);
+    expect(cleanReport(entries, false)).toContain(
+      "dry run: would remove 4 worktree(s) and 6 branch(es)",
+    );
+    expect(cleanReport([], true)).toBe("removed 0 worktree(s) and 0 branch(es)");
+  });
+
+  test("--apply removes exactly the listed entries and never touches kept work", () => {
+    const { root, dirty } = cluttered();
+    const listed = names(cleanTasks(root, false, real));
+    expect(names(cleanTasks(root, true, real))).toEqual(listed);
+    expect(branches(root).toSorted()).toEqual(
+      ["dirty", "dup-a", "main", "primary-side", "task/0001-run", "unique-wt"].toSorted(),
+    );
+    expect(worktreeNames(root).toSorted()).toEqual(
+      [basename(root), "0001-run", "dirty", "dup-a", "unique-wt"].toSorted(),
+    );
+    expect(git(root, "branch", "--show-current")).toBe("primary-side");
+    expect(readFileSync(join(dirty, "scratch.txt"), "utf8")).toBe("keep\n");
+    expect(cleanTasks(root, false, real)).toEqual([]);
+  });
+
+  test("never removes the checkout it runs from, and fails without origin/main", () => {
+    const root = repo({ "a.txt": "a\n" });
+    const here = worktree(root, "here", "main");
+    expect(names(cleanTasks(here, false, real))).toEqual([]);
+    git(root, "update-ref", "-d", "refs/remotes/origin/main");
+    expect(() => cleanTasks(root, false, real)).toThrow("origin/main does not exist");
+  });
+
+  test("parseCleanArgs defaults to a dry run", () => {
+    expect(parseCleanArgs([])).toBe(false);
+    expect(parseCleanArgs(["--apply"])).toBe(true);
+    expect(() => parseCleanArgs(["--yes"])).toThrow(UsageError);
   });
 });
