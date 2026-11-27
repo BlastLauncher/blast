@@ -9,6 +9,14 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { TASK_FILE, parseFrontmatter } from "./check-workflow.ts";
+import {
+  BriefUsageError,
+  briefTask,
+  cleanTasks,
+  formatCleanReport,
+  parseBriefArgs,
+  parseCleanArgs,
+} from "./tasks-ops.ts";
 
 export type CommandResult = { status: number; stdout: string; stderr: string };
 export type RunnerOptions = { inherit?: boolean };
@@ -899,6 +907,25 @@ export function usageText(command?: string): string {
         "`git fetch origin main:main` when safe), then removes the task worktree and",
         "merged worker worktrees.",
       ].join("\n");
+    case "brief":
+      return [
+        "usage: tasks:brief <id> --role worker|reviewer|land [--from <branch>] [--round <n>] [--findings <file>] [--avoid <path>]... [--disk <GB>]",
+        "",
+        "Print a short delegation brief for a worker, reviewer, or land child.",
+        "  --from <branch>   Source/worker branch (required for reviewer and land).",
+        "  --round <n>       Round number (positive integer).",
+        "  --findings <file> File of findings to number and include.",
+        "  --avoid <path>    Path owned by a parallel task (repeatable).",
+        "  --disk <GB>       Extra disk budget in GB (default: 1).",
+      ].join("\n");
+    case "clean":
+      return [
+        "usage: tasks:clean [--apply]",
+        "",
+        "List (dry run by default) and with --apply remove worktrees and local",
+        "branches merged into origin/main, same-commit duplicates of kept branches,",
+        "or prunable worktrees whose directory is gone.",
+      ].join("\n");
     default:
       return [
         "usage: tasks.ts <command> [args]",
@@ -908,6 +935,8 @@ export function usageText(command?: string): string {
         "  start <id> [--co-author <value>]",
         "  merge <id> [--branch <b>] [--plan <text>] [--co-author <value>] [--resume]",
         "  land  <id> [--timeout-ms <ms>] [--poll-ms <ms>]",
+        "  brief <id> --role worker|reviewer|land [--from <branch>] [--round <n>] [--findings <file>] [--avoid <path>]... [--disk <GB>]",
+        "  clean [--apply]",
         "",
         "Run `bun run tasks:<command> --help` for details.",
       ].join("\n");
@@ -943,8 +972,10 @@ function parseId(rest: string[]): string | undefined {
 }
 
 if (import.meta.main) {
+  let activeCommand: string | undefined;
   try {
     const [command, ...rest] = process.argv.slice(2);
+    activeCommand = command;
     const root = process.cwd();
     if (!command) usage(undefined, 2);
     if (command === "--help" || command === "-h" || command === "help") {
@@ -999,6 +1030,12 @@ if (import.meta.main) {
       if (timeoutArg !== undefined) landOptions.timeoutMs = timeoutArg;
       if (pollArg !== undefined) landOptions.pollMs = pollArg;
       console.log(landTask(root, id, landOptions));
+    } else if (command === "brief") {
+      const parsed = parseBriefArgs(args);
+      console.log(briefTask(root, parsed.id, parsed.options, realRunner));
+    } else if (command === "clean") {
+      const cleanOptions = parseCleanArgs(args);
+      console.log(formatCleanReport(cleanTasks(root, cleanOptions, realRunner)));
     } else {
       usage(
         command === "start" || command === "merge" || command === "land" ? command : undefined,
@@ -1007,6 +1044,10 @@ if (import.meta.main) {
     }
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
+    if (error instanceof BriefUsageError) {
+      console.error(usageText(activeCommand));
+      process.exit(2);
+    }
     process.exit(1);
   }
 }
