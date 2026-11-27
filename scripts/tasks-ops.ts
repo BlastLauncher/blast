@@ -87,7 +87,11 @@ export function briefTask(
   const keep = `Do not modify ${code(["main", taskBranch, start])}; \`${taskBranch}\` is checked out in \`.cache/tasks/${slug}\`.`;
 
   const rules = [
-    `- First run \`git reset --hard ${start} && bun install --frozen-lockfile\`: your worktree may start on any commit and has no \`node_modules\`.`,
+    // Land agents run in the shared primary checkout, which stays on `main`:
+    // resetting it to the worker branch would move the user's `main`.
+    role === "land"
+      ? "- Work in the checkout you start in, on `main`; never run `git reset`, `git switch` or `git checkout` there. `bun install --frozen-lockfile` first if `node_modules` is missing."
+      : `- First run \`git reset --hard ${start} && bun install --frozen-lockfile\`: your worktree may start on any commit and has no \`node_modules\`.`,
     {
       worker: `- Commit in logical commits on your own branch. Do not push. ${keep}`,
       reviewer: `- Review \`git diff ${taskBranch}...${start}\` against \`${taskPath}\` Acceptance and AGENTS.md; check generated artifacts, not only verify. Do not fix, commit or push. ${keep}`,
@@ -123,7 +127,7 @@ export function briefTask(
       `Steps (\`tasks:merge\` and \`tasks:land\` work in \`.cache/tasks/${slug}\` from any checkout):`,
       `1. Unless \`git log --format=%s origin/main..${taskBranch}\` lists \`chore(${id}): done\`, run \`bun run tasks:merge ${id} --branch ${start}\`.`,
       `2. Run \`bun run tasks:land ${id}\`. Once the PR exists (\`gh pr view ${taskBranch} --json url\`), link it with \`link_pull_request\`.`,
-      `3. If the only failed check is \`macos-example\` with "not acquired by Runner", rerun that check once, then run \`bun run tasks:land ${id}\` again.`,
+      `3. If the only failed check is \`macos-example\` with "not acquired by Runner", run \`gh run rerun <run-id> --failed\` once (the run id is in the check's URL), then run \`bun run tasks:land ${id}\` again.`,
       "4. Stop on anything else (verify failure, merge conflict, another failed check) and report it; do not fix it.",
     );
   }

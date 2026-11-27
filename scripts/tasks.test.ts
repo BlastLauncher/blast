@@ -1210,9 +1210,14 @@ const started = () => {
   return root;
 };
 const brief = (root: string, options: BriefOptions) => briefTask(root, "0001", options, real);
-const shared = (text: string, start: string) => {
-  expect(text).toContain(`\`git reset --hard ${start} && bun install --frozen-lockfile\``);
-  expect(text).toContain("any commit and has no `node_modules`");
+const shared = (text: string, start: string, land = false) => {
+  if (land) {
+    expect(text).not.toContain("git reset --hard");
+    expect(text).toContain("never run `git reset`, `git switch` or `git checkout` there");
+  } else {
+    expect(text).toContain(`\`git reset --hard ${start} && bun install --frozen-lockfile\``);
+    expect(text).toContain("any commit and has no `node_modules`");
+  }
   expect(text).toContain("Do not modify `main`, `task/0001-land`");
   expect(text).toContain("never run two `bun run verify` at once");
   expect(text).toContain("Run long commands in the foreground and wait");
@@ -1289,7 +1294,8 @@ describe("tasks:brief", () => {
     expect(text.split("\n")[0]).toBe(
       "Follow AGENTS.md. You are the Land agent for `tasks/0001-land.md`.",
     );
-    shared(text, "t3/w");
+    shared(text, "t3/w", true);
+    expect(text).toContain("`gh run rerun <run-id> --failed` once");
     expect(text).toContain("Push and merge only through `tasks:land`.");
     expect(text).toContain("work in `.cache/tasks/0001-land` from any checkout");
     expect(text).toContain(
@@ -1297,7 +1303,7 @@ describe("tasks:brief", () => {
     );
     expect(text).toContain("2. Run `bun run tasks:land 0001`.");
     expect(text).toContain("`link_pull_request`");
-    expect(text).toContain('`macos-example` with "not acquired by Runner", rerun that check once');
+    expect(text).toContain('`macos-example` with "not acquired by Runner", run `gh run rerun');
     expect(text).toContain("4. Stop on anything else");
     expect(text).toContain("final message is `PR <url>, head <sha>, checks <state>`");
   });
