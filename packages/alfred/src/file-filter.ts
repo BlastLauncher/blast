@@ -178,6 +178,10 @@ export function buildMdfindQuery(query: string, config: FileFilterConfig): strin
   }
   for (const field of config.fields ?? []) {
     if (!ATTRIBUTE.test(field.field)) continue;
+    // Default Alfred File Filters list `{query}` fields (`kMDItemDisplayName`,
+    // `kMDItemAlternateNames`, `kMDItemFinderComment`) for the live search text,
+    // which is already matched by `kMDItemFSName` above; never emit literal `{query}`.
+    if (field.value.includes("{query}")) continue;
     const op = field.not ? "!=" : "==";
     const tests = fieldValues(field).map((value) => {
       const inner = escapeValue(value);
@@ -210,9 +214,10 @@ function fieldMatches(field: FileFilterField, path: string, isDirectory: boolean
   return field.not ? !hit : hit;
 }
 
-/** Fields the walk can judge from a path alone; anything else Spotlight-only is skipped. */
+/** Fields the walk can judge from a path alone; anything else Spotlight-only or `{query}` is skipped. */
 const walkable = (field: FileFilterField): boolean =>
-  NAME_FIELDS.has(field.field) || TYPE_FIELDS.has(field.field) || field.field === "kMDItemPath";
+  !field.value.includes("{query}") &&
+  (NAME_FIELDS.has(field.field) || TYPE_FIELDS.has(field.field) || field.field === "kMDItemPath");
 
 function sortMatches(
   matches: FileFilterMatch[],

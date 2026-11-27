@@ -721,10 +721,13 @@ describe("File Filter", () => {
       filtering: false,
     });
     const c = join(found.dir, "sub", "c.png");
+    const subDir = join(found.dir, "sub");
+    const home = homedir();
+    const expectedSub = subDir.startsWith(`${home}/`) ? `~${subDir.slice(home.length)}` : subDir;
     const item = find(session.root, (node) => node.props.title === "c.png")!;
     expect(item.type).toBe("List.Item");
     expect(item.props.icon).toEqual({ fileIcon: c });
-    expect(item.props.subtitle).toBe(join(found.dir, "sub"));
+    expect(item.props.subtitle).toBe(expectedSub);
     expect(actionTitles(session)).toEqual([
       "Continue",
       "Alt thing",

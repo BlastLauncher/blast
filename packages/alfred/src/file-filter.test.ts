@@ -152,6 +152,17 @@ describe("buildMdfindQuery", () => {
       }),
     ).toBe("(kMDItemFSName != '*a*'cd && kMDItemFSName != '*b*'cd)");
   });
+
+  test("skips default Alfred {query} template fields instead of emitting literal {query}", () => {
+    expect(
+      buildMdfindQuery("cat", {
+        fields: [
+          { field: "kMDItemDisplayName", value: "{query}", split: true, words: true },
+          { field: "kMDItemDisplayName", not: true, value: ".app" },
+        ],
+      }),
+    ).toBe("kMDItemFSName == '*cat*'cd && (kMDItemDisplayName != '*.app*'cd)");
+  });
 });
 
 describe("fileFilterConfig", () => {
