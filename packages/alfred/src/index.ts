@@ -1,6 +1,7 @@
 export * from "./archive.ts";
 export * from "./catalogs.ts";
 export * from "./expressions.ts";
+export * from "./file-filter.ts";
 export * from "./graph.ts";
 export * from "./manifest.ts";
 export * from "./placeholders.ts";
