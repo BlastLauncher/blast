@@ -1,9 +1,9 @@
 # Quickstart
 
 Blast runs unmodified Raycast extensions and hands your app views to draw.
-The engine owns the launcher flow: it lists the commands of every extension
-you open as a root view, asks for missing preferences and arguments, installs
-dependencies, and runs the command. You draw views and forward input.
+The engine owns the launcher flow: it lists opened extensions in a root view,
+prompts for missing preferences and arguments, installs dependencies, and runs
+commands. You draw views and forward input.
 
 ## Try it
 
@@ -21,7 +21,7 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/raycast/exten
 git -C raycast-extensions sparse-checkout set extensions/android-versions
 ```
 
-The packages are prereleases on npm: `latest` is the newest tagged alpha and `@next` follows `main`.
+`3.0.0-alpha.10` is `latest` on npm; `@next` follows `main`.
 
 ## Embed in JS/TS
 
@@ -29,7 +29,7 @@ Requires Node.js 24. Next to `raycast-extensions`:
 
 ```sh
 mkdir quickstart-js && cd quickstart-js && npm init -y
-npm install @blastlauncher/engine@next
+npm install @blastlauncher/engine
 ```
 
 Save this as `index.mjs`:
@@ -41,7 +41,7 @@ engine.openExtension({ extensionDir: "../raycast-extensions/extensions/android-v
 const root = engine.root({ views: { platform: "macOS" } });
 root.subscribe((view) => console.log(`${view.title}: ${view.rows.map((row) => row.title)}`));
 await root.ready();
-root.input({ type: "primary" }); // run the selected command; its views follow
+root.input({ type: "primary" }); // launch the selected command; its views follow
 // Draw `view` in your UI and send input, e.g. root.input({ type: "search", text: "android" }).
 ```
 
@@ -49,17 +49,16 @@ root.input({ type: "primary" }); // run the selected command; its views follow
 node index.mjs   # Ctrl-C to stop; the command keeps running like in an app
 ```
 
-It prints the root list (`Commands: Android Versions,Search Android Version`,
-a section and its command), then the command's list
-(`Search Android Version: Android 15,Android 14,…`). Grant capabilities with
-`createEngine({ handlers: { "clipboard.copy": (params) => … } })`.
+It prints the root list (`Commands: Android Versions,Search Android Version`),
+then the command's list (`Search Android Version: Android 15,Android 14,…`). Grant
+capabilities with `createEngine({ handlers: { "clipboard.copy": (params) => … } })`.
 
 ## Embed in any language
 
 Start the stdio server from `quickstart-js` and send one JSON object per line:
 
 ```sh
-npx -p @blastlauncher/serve@next blast-serve
+npx -p @blastlauncher/serve blast-serve
 ```
 
 ```json
@@ -68,18 +67,16 @@ npx -p @blastlauncher/serve@next blast-serve
 {"type":"request","id":"2","method":"root.open","params":{}}
 ```
 
-The server answers with an initial `root.view` (`revision: 1`) carrying the
-command list, incremental `root.view.patch` updates thereafter, and
-`{"root":"1"}`. Send `root.input` with `{"type":"primary"}` to launch the
-selected command; draw `session.view` and apply `session.view.patch` for the
-session named in `root.launched` and send it `session.input` until
-`session.exited`. The
-[Go](../examples/go-embedder/) and [Python](../examples/python-embedder/)
-examples are complete standard-library clients. Run the Python one against an
-installed server, from `quickstart-js`:
+The server answers with an initial `root.view` (`revision: 1`), then
+`root.view.patch` updates, and `{"root":"1"}`. Send `root.input` with
+`{"type":"primary"}` to launch the selected command; draw `session.view` and
+apply `session.view.patch` for the session named in `root.launched` until
+`session.exited`. The [Go](../examples/go-embedder/) and
+[Python](../examples/python-embedder/) examples are complete standard-library
+clients. Run the Python client from `quickstart-js`:
 
 ```sh
-npm install @blastlauncher/serve@next
+npm install @blastlauncher/serve
 curl -O https://raw.githubusercontent.com/BlastLauncher/blast/main/examples/python-embedder/embedder.py
 python3 -I embedder.py -serve node_modules/@blastlauncher/serve/dist/main.js \
   ../raycast-extensions/extensions/android-versions
@@ -87,11 +84,10 @@ python3 -I embedder.py -serve node_modules/@blastlauncher/serve/dist/main.js \
 
 ## Embed in a web page
 
-No build step: `npm install @blastlauncher/web@next` ships the browser bundle
-and the sandbox page. Serve its `assets/` directory on your page's origin (here
-at `/blast/`) and its `sandbox/` directory on a second origin you control.
-Extensions run in that sandbox origin, away from your page's data, and are
-fetched from GitHub, so nothing else is installed.
+No build step: `npm install @blastlauncher/web` ships the browser bundle and
+sandbox page. Serve `assets/` on your page's origin (here at `/blast/`) and
+`sandbox/` on a second origin you control. Extensions run in that sandbox
+origin, isolated from your page's data, and are fetched from GitHub:
 
 ```html
 <div id="app"></div>
@@ -104,11 +100,11 @@ fetched from GitHub, so nothing else is installed.
 </script>
 ```
 
-Options, theming and custom renderers:
+Options, theming, and custom renderers:
 [`@blastlauncher/web`](../packages/web/README.md).
 
-Contributors: `bun run release:build` builds the same packages as tarballs
-from a checkout ([release](./release.md)).
+Contributors: `bun run release:build` builds the packages as tarballs from a
+checkout ([release](./release.md)).
 
-Next: the [embedding guide](./embedding.md), [capabilities](./capabilities.md)
+Next: the [embedding guide](./embedding.md), [capabilities](./capabilities.md),
 and [examples](../examples/).

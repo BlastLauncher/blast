@@ -4,135 +4,97 @@ The machine-readable source of truth is `CAPABILITIES` in
 `packages/protocol/src/capabilities.ts`; this page is its human view.
 
 Privileged `@raycast/api` calls become `capability.request { name, params }`
-messages (decision 0001). The host broker denies by default; a missing handler
-answers `denied`, a throwing one `failed`. This file lists what each family
-does; `docs/cli.md` lists the headless answers and flags.
+messages (decision 0001). The host broker denies by default: a missing handler
+returns `denied`, a throwing one returns `failed`. Engine → extension → launch
+registrations override in that order; session-scoped handlers win last.
 
 ## Session-scoped (no grant)
 
-The engine supplies these defaults for the session's own extension: `storage.*` (LocalStorage, see `docs/architecture.md`), internal
-`blast:internal` storage (dropdown/field `storeValue`, form drafts),
+The engine answers these for the session's own extension: `storage.*`
+(LocalStorage, see [architecture.md](architecture.md)), internal
+`blast:internal` storage (dropdowns, `storeValue`, drafts, remembered alerts),
 `oauth.tokens.*`, and the extension's own AI model provider (`ai.ask` with a
 `{ id }` model, `ai.models.refresh`; decision 0006).
 
-Headless answers belong to `@blastlauncher/cli`, not the engine. The CLI and TUI
-register `createHeadlessHandlers` explicitly for neutral applications, selection,
-window and clipboard reads, metadata and preference requests. Without registered
-handlers these client capabilities are denied. Engine → extension → launch
-registrations override in that order; session-scoped handlers apply last.
+Headless defaults (`createHeadlessHandlers`) belong to `@blastlauncher/cli`, not
+the engine. The CLI and TUI register them explicitly for neutral applications,
+selection, window/clipboard reads, metadata, and preference requests. See
+[cli.md](cli.md) for CLI flags.
 
 ## Requests a client must answer or grant
 
-`ai.ask` returns a supplied full-text answer as one runtime `data` chunk; abort
-stops waiting and suppresses late data. `browser.tabs` / `browser.content` use
-supplied tabs and content or a live browser companion. These capabilities are denied by default. The CLI
-opts in with `--ai-answer`, `--browser-tabs`, or `--browser-bridge [port]`. AI.experimental_decide requests
-`ai.decide` (denied by default); `--ai-decide <file.json>` supplies typed answers
-validated by the runtime. Its AbortSignal stops waiting. Supplied `--browser-tabs` content is returned as is,
-without format conversion, and CSS selectors are unsupported in the headless host.
-Embedders answering `browser.content` must select `tabId` (the active tab when
-omitted), apply `cssSelector` for HTML/text, and convert to the requested
-`format` (default markdown). `@blastlauncher/native`'s `startBrowserBridge` implements
-this over the loopback companion-extension protocol (decision 0018); the runtime forwards
-those options and rejects markdown with a selector before dispatch.
+`ai.ask` returns a supplied answer (or streams from the extension's own
+provider); abort stops waiting and suppresses late chunks. `ai.decide` answers
+`AI.experimental_decide` (denied unless supplied). `browser.tabs` and
+`browser.content` are denied by default. Embedders answering `browser.content`
+must select `tabId` (active tab when omitted), apply `cssSelector` for HTML or
+text, and convert to `format` (default markdown; runtime rejects markdown with a
+selector). `startBrowserBridge` in `@blastlauncher/native` serves real browsers
+over a loopback WebSocket (decision 0018).
 
 `OAuth.PKCEClient` generates S256 PKCE requests and delegates authorization to
-`oauth.authorize` (denied unless a client answers it; CLI: `--oauth-code <code>`).
-`oauth.tokens.get|set|remove` need no grant within the session extension. Provider
-IDs (default: provider name) key token sets in `<dataDir>/oauth/storage/<extension>.json`;
-writes are atomic, serialized within the host, and mode 0600. CLI capability output
-redacts token payloads. No browser or redirect server runs in the headless host.
+`oauth.authorize` (denied unless handled). `oauth.tokens.get|set|remove` need no
+grant within the session extension and persist in
+`<dataDir>/oauth/storage/<extension>.json` (atomic, serialized, mode 0600).
 
-`WindowManagement` brokers `window.desktops|list|active|setBounds`. The broker
-requires grants; the headless client installs read handlers returning one empty
-desktop, no windows, and a rejection for no active window. `window.setBounds`
-and `Action.InstallMCPServer` (`mcp.install`) require explicit grants.
-`getDefaultApplication(path)` requests `applications.default`; headless rejects
-because it has no application association database. `captureException` and
-`captureMemorySnapshot` emit runtime error/debug logs without network reporting.
-Manifest preference defaults reach `getPreferenceValues()`, with command defaults
-and then caller-supplied preferences taking precedence. The TUI loads saved
-extension and command values from `<dataDir>/preferences/<encoded-name>.json`
-(plaintext, mode 0600). Required values without defaults prompt before launch
-(the engine's launch prompt); Ctrl-E opens the selected command's Configure
-form. `preferences.open` returns to the root and opens that form (both scopes
-show every extension and command preference). The launch prompt installs
-dependencies under `<dataDir>/deps/`, showing npm progress, and offers Retry
-on failure.
+`WindowManagement` requests `window.desktops|list|active|setBounds`;
+`Action.InstallMCPServer` requests `mcp.install`; `getDefaultApplication`
+requests `applications.default`. `captureException` and `captureMemorySnapshot`
+emit runtime logs without network reporting.
 
-`open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
-as a file) and `open.path` for files, so a client can grant opening links
-without granting file opens.
+Manifest preference defaults reach `getPreferenceValues()`, overridden by
+command defaults and caller-supplied values. The engine's launch prompt and TUI
+save preferences in `<dataDir>/preferences/<encoded-name>.json` (plaintext, mode
+0600). `preferences.open` is denied by the engine unless the embedder handles it
+(the TUI returns to the root and opens Configure; `blast run` answers and
+prints it).
 
-The terminal client registers the same headless handlers as `blast run`, with
-client handlers for `clipboard.copy|paste|read|clear` and `open.url`. Clipboard
-content (text, HTML, file path) stays in memory for one session; paste records
-content there, and nonzero history offsets return empty text. Nothing reaches
-the system clipboard or another application. URL opens append to the session's
-`effects.urls` record without launching a browser. Other effects remain denied.
+`open(target, application?)` requests `open.url` for URLs (`file:` URLs count as
+files) and `open.path` for files, so clients can grant URLs without file opens.
 
-`clipboard.paste` handlers receive `closeMainWindow` (default `true`). When it
-is true, the embedder closes or hides its launcher before posting ⌘V; when false,
-it keeps the launcher visible while still delivering the keystroke to the
-previously focused application. Native embedders can provide
-`createNativeHandlers({ beforePaste })`; the awaited hook receives the boolean
-after the clipboard is written and before the keystroke is posted.
+`clipboard.paste` handlers receive `closeMainWindow` (default `true`). When
+true, the embedder hides its launcher before posting ⌘V; when false, it stays
+visible. Native embedders can pass `createNativeHandlers({ beforePaste })` to
+run an awaited hook between writing the clipboard and posting the keystroke.
 
 ## Optional native desktop handlers
 
 `createNativeHandlers()` from `@blastlauncher/native` supplies application,
-selection and window handlers when the embedder registers them. It runs fixed
-scripts through `execFile` with argument arrays; it installs no tools or daemons.
-Missing executables fail with the required tool and capability name.
+selection, clipboard, open, finder, trash, and window handlers. It runs fixed
+executables via `execFile` with argument arrays and installs no daemons; missing
+tools fail naming the required executable and capability.
 
-- macOS: AppKit/JXA discovers applications, associations and the frontmost app;
-  Finder/JXA reads selected files. Window operations prefer an installed, running
-  [`yabai`](https://github.com/asmvik/yabai/blob/master/doc/yabai.asciidoc), including
-  its required accessibility permissions. If yabai is missing, reads use Core
-  Graphics and moves, resizes and fullscreen use System Events accessibility.
-  The fallback exposes one `User` desktop per display (desktop IDs are stable
-  `screen:<display UUID>` values); Mission Control Spaces cannot be distinguished.
-  Without Accessibility permission, reads still work and capability flags are
-  false; setBounds fails naming the permission. Flags are also false when Accessibility cannot identify
-  a window, and moving a window to another display is unsupported. The fallback's
-  positionable and resizable flags use readable attributes when System Events does
-  not expose settable checks. Space IDs from
-  yabai are Mission Control indices (refresh after rearranging Spaces); screen IDs
-  are display UUIDs. Numeric moves and resizes require windows that the selected
-  backend can move/resize. Exit native fullscreen before requesting numeric bounds.
-- Windows: PowerShell `Get-StartApps` supplies launch identities as
-  `shell:AppsFolder\<AppID>`; `AssocQueryString` resolves default executables.
-  `SHAssocEnumHandlers` lists handlers for a file extension. Explorer selection
-  comes from the frontmost Explorer window. Window reads and bounds use
-  user32 and `IVirtualDesktopManager`; desktop enumeration and generic fullscreen
-  are unsupported. Windows can restrict moving another process's window between
-  virtual desktops; these failures propagate.
-- Linux: application discovery reads XDG `.desktop` entries in precedence order,
-  honoring hidden overrides and MIME associations. Application paths are desktop
-  files (opening with one uses `gio launch`); gio handles `Exec` templates.
-  `xdg-mime` resolves MIME types/default handlers. X11 frontmost lookup uses
-  `xdotool` and `/proc`; windows use `wmctrl`, `xdotool`, and `xprop` with an EWMH
-  window manager. Desktops span the X screen, identified by `DISPLAY`. Text reads
-  use the primary selection (`xclip`, or `wl-paste --primary` on Wayland).
-  File-manager selection is unsupported. Wayland window/frontmost operations
-  reject explicitly, even when an XWayland `DISPLAY` is present.
+- **macOS:** AppKit/JXA discovers apps, associations, and the frontmost app;
+  Finder/JXA reads selected files. Window ops prefer running
+  [`yabai`](https://github.com/asmvik/yabai/blob/master/doc/yabai.asciidoc),
+  falling back to Core Graphics reads (`screen:<display UUID>` desktops) and
+  System Events moves/resizes (requires Accessibility permission; cross-display
+  moves and Mission Control Spaces are unsupported in fallback; exit native
+  fullscreen before numeric bounds).
+- **Windows:** PowerShell `Get-StartApps` lists `shell:AppsFolder\<AppID>` apps;
+  `AssocQueryString` and `SHAssocEnumHandlers` resolve file associations;
+  Explorer gives selection; user32 and `IVirtualDesktopManager` drive windows
+  (desktop enumeration and generic fullscreen are unsupported).
+- **Linux:** XDG `.desktop` entries, `gio launch`, and `xdg-mime` handle apps.
+  X11 uses `xdotool`, `wmctrl`, `xprop`, and `/proc` with an EWMH window
+  manager; text selection uses primary selection (`xclip`, or
+  `wl-paste --primary` on Wayland). File-manager selection is unsupported, and
+  Wayland window/frontmost ops reject even under XWayland.
 
-On macOS and Windows, selected text requires temporarily clearing the clipboard,
-sending Copy to the focused app, waiting up to one second, reading text and
-restoring the captured formats in a `finally` block. This needs automation /
-accessibility permission and an app that handles Copy. It can briefly expose
-selected text on the clipboard; clipboard managers, delayed providers, concurrent
-clipboard writes and focus changes can interfere. Selection reads are serialized
-within one handler registry. An empty selection returns an empty string.
+On macOS and Windows, `selection.text` temporarily clears the clipboard, sends
+Copy to the focused app, waits up to 1 s, reads text, and restores captured
+formats in `finally`. This needs Accessibility permission and an app that
+handles Copy; clipboard managers or focus changes can interfere. Selection reads
+are serialized per registry, and empty selections return `""`.
 
-Alerts with `rememberUserChoice` expose a `rememberChoice` checkbox value and
-`onRememberUserChoiceChange(boolean)` handler. Clients draw the checkbox and
-dispatch its changes before the Alert.Action event. Checked answers persist in
-`blast:internal` under `blast:alert:` keys scoped to command and alert text/actions;
-subsequent calls return the saved answer and run its callback without a scene.
-LocalStorage cannot read or clear these choices. Embedders can reset them by
-removing the command's `blast:alert:` keys from internal storage.
+## Alerts and form feedback
 
-Action.SubmitForm exposes `submissionFailureCount`, incremented on each sync or
-async `false` result. Embedders observe changes to show failure feedback and
-honor their user's Reduce Motion setting. Drafts remain intact on failure.
+Alerts with `rememberUserChoice` expose `rememberChoice` and
+`onRememberUserChoiceChange(boolean)`; clients dispatch changes before the
+`Alert.Action` event. Checked choices persist in `blast:internal` under
+`blast:alert:` keys and auto-invoke on later calls without showing a scene.
+Embedders can reset choices by deleting those keys from internal storage.
+
+`Action.SubmitForm` exposes `submissionFailureCount`, incremented on sync or
+async `false` results so embedders can show failure feedback while honoring
+Reduce Motion. Drafts remain intact on failure.

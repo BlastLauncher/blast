@@ -5,8 +5,7 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M17 done: latest `@raycast/api`, scene patches, perf baseline, embedder
-protocol 2, and `3.0.0-alpha.10` as npm `latest`. Next milestone not planned yet.
+M18 in progress: faster CI, release and verify; docs trimmed and rewritten.
 
 ## Milestones
 
@@ -51,6 +50,11 @@ protocol 2, and `3.0.0-alpha.10` as npm `latest`. Next milestone not planned yet
 - [x] 0196 Swift, Go and Python examples speak embedder protocol 2
 - [x] 0197 Runtime scene patches always on, including the browser host
 - [x] 0195 Release `alpha.10` and move the npm `latest` tag
+
+### M18 — Faster loop, readable docs
+
+- [ ] 0198 Measure and cut CI, release and local verify time
+- [x] 0199 Trim and rewrite the docs for readability
 
 ## Later (not scheduled)
 
