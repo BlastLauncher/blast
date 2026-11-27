@@ -61,15 +61,15 @@ checkout, and `tasks:merge` reliably picks the worker branch.
 
 ## Acceptance
 
-- [ ] Tests (temp git repos, as `scripts/tasks.test.ts` does today, plus fake
+- [x] Tests (temp git repos, as `scripts/tasks.test.ts` does today, plus fake
       runners where faster) show: start/merge/land leave the primary
       checkout's HEAD, branch and working tree unchanged; merge picks the
       Handoff branch; same-commit duplicates are counted once; a PLAN line
       added on the worker branch is ticked; `--resume` finishes a failed done
       step; PLAN checkbox-only conflicts resolve and other conflicts still stop.
-- [ ] `bun run tasks:start`, `tasks:merge`, `tasks:land` usage text and
+- [x] `bun run tasks:start`, `tasks:merge`, `tasks:land` usage text and
       `--help` describe the new behaviour.
-- [ ] `bun run verify` passes; tests stay deterministic and use no network.
+- [x] `bun run verify` passes; tests stay deterministic and use no network.
 
 ## Out of scope
 
@@ -82,8 +82,16 @@ checkout, and `tasks:merge` reliably picks the worker branch.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/5d7e9cec @ cd6ba868 (plus this handoff commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 32.9s
 Done:
+- Moved `tasks:start`, `tasks:merge` and `tasks:land` in `scripts/tasks.ts` into a per-task gitignored worktree at `<primary>/.cache/tasks/<NNNN-slug>`, leaving the primary checkout's HEAD, branch and working tree untouched (moving only an untracked/newly-staged task file out of the invoking checkout on start).
+- Updated `mergeTask` to find the task worktree by id from any checkout, select worker branches in order (`--branch` -> task Handoff `Branch/commit:` -> worktree scan with same-commit branches deduplicated and preferring the commit's Handoff branch), check/tick `PLAN.md` after merging, run `bun install --frozen-lockfile` when `node_modules` is absent or `bun.lock` changed, and support `--resume` to finish checks and `chore(NNNN): done` after an existing worker merge commit.
+- Updated `landTask` to find the task worktree from any checkout, auto-resolve `PLAN.md` checkbox-only conflicts (`resolvePlanCheckboxConflict`) while still aborting on any other conflict, merge the PR with `gh pr merge --merge` (omitting `--delete-branch` so `gh` never attempts `git checkout main` or `git branch -D` against a worktree-attached branch), update local `main` without switching checkouts (fast-forwarding clean primary `main`, otherwise `git fetch origin main:main` when safe, reporting which happened), and remove the task and merged worker worktrees and branches (plus best-effort remote task branch deletion).
+- Added per-command `--help`/`-h` and updated usage text (`usageText`) across `start`, `merge`, `land`, `next`, and top-level `scripts/tasks.ts`; checked `docs/` (no other docs describe the old checkout behaviour, and `AGENTS.md` is deferred to 0203).
+- Expanded `scripts/tasks.test.ts` (40 tests, temp git repos + fake runners, zero network) covering all new paths and safety checks.
 Not done / risks:
+- `resolvePlanCheckboxConflict` intentionally resolves only same-line-count hunks where differing lines have identical text after `- [ ]`/`- [x]` (so two-sided `--plan` appends at the end of a milestone still stop for manual resolution rather than risking resurrecting deleted lines).
+- Post-merge `git push origin --delete <taskBranch>` is best-effort (non-fatal if GitHub already auto-deletes head branches on merge).
+- Infrastructure-cancelled CI retries / verify lock (0202) and `tasks:brief`, `tasks:clean`, `AGENTS.md` (0203) remain out of scope as specified.
 ```
