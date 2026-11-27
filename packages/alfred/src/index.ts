@@ -3,6 +3,8 @@ export * from "./graph.ts";
 export * from "./manifest.ts";
 export * from "./placeholders.ts";
 export * from "./plist.ts";
+export * from "./runtime.ts";
+export * from "./scene.ts";
 export * from "./script-filter.ts";
 export * from "./scripts.ts";
 export * from "./workflow.ts";

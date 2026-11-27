@@ -47,6 +47,9 @@
       "dependencies": {
         "@blastlauncher/protocol": "workspace:*",
       },
+      "devDependencies": {
+        "@blastlauncher/client-core": "workspace:*",
+      },
     },
     "packages/cli": {
       "name": "@blastlauncher/cli",
