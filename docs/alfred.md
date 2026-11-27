@@ -32,19 +32,21 @@ that, External Triggers. A Keyword's text arrives as the `query` argument
 `SUPPORTED_OBJECT_TYPES` in `@blastlauncher/alfred` is the source of truth;
 `support.test.ts` checks it against the graph executor.
 
-| Group          | Types                                                                                                                  |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Inputs         | Keyword, Script Filter, List Filter, External Trigger                                                                  |
-| User interface | Text View, Grid View                                                                                                   |
-| Actions        | Run Script, Open URL, Open File, Reveal in Finder                                                                      |
-| Outputs        | Copy to Clipboard, Post Notification, Large Type, Write Text File, Call External Trigger                               |
-| Utilities      | Junction, Arg and Vars, Conditional, Filter, Replace, Split, Transform, JSON Config, Delay, Debug, Hide Alfred, Dialog |
+| Group          | Types                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Inputs         | Keyword, Script Filter, List Filter, External Trigger                                                                                                  |
+| User interface | Text View, Grid View, Image View                                                                                                                       |
+| Actions        | Run Script, Run NSAppleScript, Open URL, Open File, Reveal in Finder, Launch Apps/Files, Default Web Search                                            |
+| Automation     | Run Shortcut                                                                                                                                           |
+| Outputs        | Copy to Clipboard, Post Notification, Large Type, Write Text File, Call External Trigger, Play Sound, Speak                                            |
+| Utilities      | Junction, Arg and Vars, Conditional, Filter, Replace, Split, Join, Transform, JSON Config, Delay, Debug, Hide Alfred, Dialog, Random, Expression, File |
 
 Hotkey, Universal Action, File Action, Fallback Search, Snippet and Remote
 triggers (`PASSIVE_TRIGGER_TYPES`) are ignored: only Alfred can fire them, and
 the objects they lead to stay reachable from other entries. Anything else
 (File Filter, Automation Tasks, …) stops its branch with a named warning
-toast; the host never crashes.
+toast; the host never crashes. Expression evaluates arithmetic (`+ - * / % ^`,
+`pi`, `e`, `sqrt`, `min`, …) with its own parser, never JavaScript `eval`.
 
 Script Filters follow Alfred's JSON and legacy XML output, `rerun`, `cache`
 (with `loosereload`), `variables`, modifiers, `autocomplete`, `quicklookurl`,
@@ -88,8 +90,9 @@ placeholder), `open.url`, `open.path` and `finder.show`. See
 
 ## Platform notes
 
-- AppleScript and JavaScript for Automation scripts need macOS; elsewhere they
-  fail with a named reason.
+- AppleScript and JavaScript for Automation scripts, Run NSAppleScript and Run
+  Shortcut (`shortcuts run`) need macOS; elsewhere they fail with a named
+  reason. Play Sound (`afplay`) and Speak (`say`) only log a warning there.
 - Interpreters use Alfred's fixed paths (`/usr/bin/php`, `/usr/bin/python3`,
   …). One that is missing (newer macOS ships no PHP or Python 2) is looked up
   on the script's `PATH`, then `/opt/homebrew/bin` and `/usr/local/bin` on

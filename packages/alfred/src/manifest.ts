@@ -52,6 +52,7 @@ const UI_TYPES = new Set([
   LIST_FILTER,
   "alfred.workflow.userinterface.text",
   "alfred.workflow.userinterface.grid",
+  "alfred.workflow.userinterface.image",
   "alfred.workflow.output.largetype",
   "alfred.workflow.utility.dialog",
 ]);

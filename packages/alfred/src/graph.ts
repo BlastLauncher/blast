@@ -5,6 +5,8 @@
 
 import { randomUUID } from "node:crypto";
 import { appendFile, mkdir, stat, writeFile } from "node:fs/promises";
+import { fileUti, webSearchUrl } from "./catalogs.ts";
+import { evaluateExpression, formatExpressionResult } from "./expressions.ts";
 import { homedir } from "node:os";
 import { basename, dirname, extname, isAbsolute, join } from "node:path";
 import {
@@ -55,6 +57,22 @@ export type GraphViewHandoff = {
 
 export type GraphDialog = { title: string; text: string; buttons: string[] };
 
+export type GraphSound = {
+  /** A system sound name (`Glass`) or a path inside the workflow folder. */
+  soundName: string;
+  systemSound: boolean;
+  workflowDir?: string;
+};
+
+export type GraphShortcutRequest = {
+  name: string;
+  input: string;
+  inputMode: number;
+  /** `0` ignores the Shortcut's output; anything else passes it on. */
+  outputMode: number;
+  signal?: AbortSignal;
+};
+
 export type GraphHost = {
   /** Brokered capability request (decision 0021); rejects when denied. */
   request(capability: GraphCapability, params: Record<string, unknown>): Promise<unknown>;
@@ -66,6 +84,10 @@ export type GraphHost = {
   /** Index of the chosen button, or `undefined` when dismissed. */
   showDialog?(dialog: GraphDialog): Promise<number | undefined>;
   hideAlfred?(): void | Promise<void>;
+  playSound?(sound: GraphSound): void | Promise<void>;
+  speak?(text: string): void | Promise<void>;
+  /** The Shortcut's text output. */
+  runShortcut?(request: GraphShortcutRequest): Promise<string>;
   log?(level: "debug" | "warn", message: string): void;
 };
 
@@ -136,7 +158,12 @@ const VIEW_TYPES = new Set([
   "input.listfilter",
   "userinterface.text",
   "userinterface.grid",
+  "userinterface.image",
 ]);
+
+// Alfred wraps NSAppleScript objects in `on alfred_script(q)`; osascript runs
+// `on run argv`, so a runner calls the handler with the argument.
+const APPLESCRIPT_RUNNER = "\n\non run argv\n\treturn alfred_script(item 1 of argv)\nend run\n";
 
 function integer(value: PlistValue | undefined, fallback = 0): number {
   if (typeof value === "number" && Number.isInteger(value)) return value;
@@ -427,6 +454,53 @@ export async function executeWorkflowGraph(
       return [{ ...pass(flow)[0]!, ...(perButton ? { output } : {}) }];
     },
 
+    "utility.joinargs": async ({ config, flow }) => {
+      // An absent delimiter joins with newlines; an explicit empty one concatenates.
+      const delimiter =
+        typeof config.delimiter === "string" ? unescapeDelimiter(config.delimiter) : "\n";
+      const arg = Array.isArray(flow.arg) ? flow.arg.join(delimiter) : flow.arg;
+      return [{ arg, variables: flow.variables }];
+    },
+
+    "utility.random": async ({ config, flow }) => {
+      const random = options.random ?? Math.random;
+      const type = integer(config.type);
+      let arg: string;
+      if (type === 1) {
+        arg = (options.uuid ?? (() => randomUUID().toUpperCase()))();
+      } else if (type === 2) {
+        const words = plistString(config.words)
+          .split(/\r?\n/)
+          .map((word) => word.trim())
+          .filter(Boolean);
+        if (words.length === 0) throw new Error("Random has no words to pick from");
+        arg = words[Math.min(words.length - 1, Math.floor(random() * words.length))]!;
+      } else if (type === 0) {
+        const a = integer(config.min, 0);
+        const b = integer(config.max, 100);
+        const [low, high] = a <= b ? [a, b] : [b, a];
+        arg = String(low + Math.min(high - low, Math.floor(random() * (high - low + 1))));
+      } else {
+        throw new Error(`unknown random type ${type}`);
+      }
+      return [{ arg, variables: flow.variables }];
+    },
+
+    "utility.expression": async ({ config, flow, expand }) => {
+      const text = await expand(plistString(config.expression) || "{query}");
+      return [{ arg: formatExpressionResult(evaluateExpression(text)), variables: flow.variables }];
+    },
+
+    "utility.file": async ({ config, flow, expand }) => {
+      const path = expandPath((await expand(plistString(config.path) || "{query}")).trim());
+      const info = path === "" ? undefined : await stat(path).catch(() => undefined);
+      if (!info) throw new Error(`no file at ${JSON.stringify(path)}`);
+      const uti = fileUti(path, info.isDirectory());
+      const name = plistString(config.fileutivariablename).trim();
+      const variables = name ? { ...flow.variables, [name]: uti } : flow.variables;
+      return [{ arg: config.outputfileuti === true ? uti : path, variables }];
+    },
+
     "action.script": async ({ object, config, flow }) => {
       const run = await host.runScript({
         object,
@@ -486,6 +560,65 @@ export async function executeWorkflowGraph(
           await host.request("finder.show", { path: expandPath(path.trim()) });
       }
       return pass(flow);
+    },
+
+    "action.launchfiles": async ({ config, flow, expand }) => {
+      const paths = Array.isArray(config.paths)
+        ? config.paths.map((path) => plistString(path))
+        : [];
+      for (const path of paths) {
+        const expanded = (await expand(path)).trim();
+        if (expanded !== "") await host.request("open.path", { path: expandPath(expanded) });
+      }
+      return pass(flow);
+    },
+
+    "action.applescript": async ({ object, config, flow }) => {
+      const source = plistString(config.applescript);
+      const script = /^\s*on\s+alfred_script\b/im.test(source)
+        ? source + APPLESCRIPT_RUNNER
+        : source;
+      const run = await host.runScript({
+        object,
+        config: { ...config, type: 6, script, scriptargtype: 1 },
+        query: queryText(flow.arg),
+        variables: flow.variables,
+        ...(signal ? { signal } : {}),
+      });
+      if (signal?.aborted) throw abortError();
+      if (run.exitCode !== 0) {
+        const detail = run.stderr?.trim() ? `: ${run.stderr.trim().slice(-500)}` : "";
+        throw new Error(`AppleScript exited with ${run.exitCode ?? "a signal"}${detail}`);
+      }
+      // osascript ends the handler's result with a newline.
+      return [{ arg: run.stdout.replace(/\r?\n$/, ""), variables: flow.variables }];
+    },
+
+    "action.systemwebsearch": async ({ config, flow }) => {
+      const browser = plistString(config.browser);
+      for (const item of items(flow.arg)) {
+        const url = webSearchUrl(config.searcher, item);
+        await host.request("open.url", { url, ...(browser ? { application: browser } : {}) });
+      }
+      return pass(flow);
+    },
+
+    "automation.runshortcut": async ({ config, flow, expand }) => {
+      if (!host.runShortcut) throw new Error("this host cannot run Shortcuts");
+      const name =
+        (await expand(plistString(config.shortcut))).trim() || queryText(flow.arg).trim();
+      if (name === "") throw new Error("Run Shortcut has no shortcut name");
+      const outputMode = integer(config.outputmode);
+      const output = await host.runShortcut({
+        name,
+        input: queryText(flow.arg),
+        inputMode: integer(config.inputmode),
+        outputMode,
+        ...(signal ? { signal } : {}),
+      });
+      if (signal?.aborted) throw abortError();
+      if (outputMode === 0) return pass(flow);
+      return [{ arg: output.replace(/\r?\n$/, ""), variables: flow.variables }];
     },
 
     "output.clipboard": async ({ config, flow, expand }) => {
@@ -552,6 +685,29 @@ export async function executeWorkflowGraph(
         await writeFile(path, text);
       }
       return [{ arg: path, variables: flow.variables }];
+    },
+
+    "output.playsound": async ({ config, flow, expand }) => {
+      if (!host.playSound) throw new Error("this host cannot play sounds");
+      const rawSound = plistString(config.soundname) || plistString(config.sound);
+      const soundName = (await expand(rawSound)).trim();
+      if (soundName === "") throw new Error("Play Sound has no sound");
+      // Without the flag, a bare name (`Glass`) is a system sound and a path is a file.
+      const systemSound =
+        typeof config.systemsound === "boolean" ? config.systemsound : !/[./]/.test(soundName);
+      await host.playSound({
+        soundName,
+        systemSound,
+        ...(workflow.dir ? { workflowDir: workflow.dir } : {}),
+      });
+      return pass(flow);
+    },
+
+    "output.speak": async ({ config, flow, expand }) => {
+      if (!host.speak) throw new Error("this host cannot speak");
+      const text = await expand(plistString(config.text) || "{query}");
+      if (text.trim() !== "") await host.speak(text);
+      return pass(flow);
     },
 
     "output.callexternaltrigger": async ({ config, flow, expand }) => {

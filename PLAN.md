@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M21: Alfred workflow compatibility (#47) — first-class engine support for
-unpacked workflows and `.alfredworkflow` archives in a dedicated runtime.
+M22: Deeper Alfred workflow coverage (#47) — additional utilities/actions/outputs,
+File Filter, and core Automation Tasks.
 
 ## Milestones
 
@@ -34,15 +34,14 @@ unpacked workflows and `.alfredworkflow` archives in a dedicated runtime.
 - [x] M18 Faster loop, readable docs: CI/verify speedups, docs trim, perf numbers (0198–0200)
 - [x] M19 Loop feedback: worktree-only task scripts, verify lock, briefs & clean (0201–0203)
 - [x] M20 Landing polish: landing page current for alpha.10 and mobile polish (0204)
+- [x] M21 Alfred workflow compatibility: decision 0021, `@blastlauncher/alfred`,
+      protocol v1 runtime, host/CLI/serve/TUI integration, `alfred:analyze` (0205–0210)
 
-### M21 — Alfred workflow compatibility
+### M22 — Deeper Alfred workflow coverage
 
-- [x] 0205 Decision 0021, `@blastlauncher/alfred` package, plist parser, and archive extractor
-- [x] 0206 Workflow IR, `info.plist` → `ExtensionManifest` mapper, and Script Filter output parser
-- [x] 0207 Alfred script runner, dynamic placeholders, and workflow graph execution engine
-- [x] 0208 `@blastlauncher/alfred/main` protocol v1 runtime and scene renderer (List, Detail, Grid, Alert, modifiers, rerun, cache)
-- [x] 0209 Host, CLI, TUI, `blast serve`, and release integration + docs
-- [x] 0210 Real-world Alfred workflow verification, edge-case fixes, and measured coverage
+- [x] 0211 Additional Alfred utilities, actions, outputs, and Image View
+- [ ] 0212 Alfred File Filter (`input.filefilter`) with Spotlight + portable fallback
+- [ ] 0213 Core Alfred Automation Tasks (`automation.task`) and task-level coverage reporting
 
 ## Later (not scheduled)
 
