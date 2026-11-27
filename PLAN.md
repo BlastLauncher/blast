@@ -38,7 +38,7 @@ unpacked workflows and `.alfredworkflow` archives in a dedicated runtime.
 ### M21 — Alfred workflow compatibility
 
 - [x] 0205 Decision 0021, `@blastlauncher/alfred` package, plist parser, and archive extractor
-- [ ] 0206 Workflow IR, `info.plist` → `ExtensionManifest` mapper, and Script Filter output parser
+- [x] 0206 Workflow IR, `info.plist` → `ExtensionManifest` mapper, and Script Filter output parser
 - [ ] 0207 Alfred script runner, dynamic placeholders, and workflow graph execution engine
 - [ ] 0208 `@blastlauncher/alfred/main` protocol v1 runtime and scene renderer (List, Detail, Grid, Alert, modifiers, rerun, cache)
 - [ ] 0209 Host, CLI, TUI, `blast serve`, and release integration + docs
