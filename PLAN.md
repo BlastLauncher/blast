@@ -41,7 +41,7 @@ File Filter, and core Automation Tasks.
 
 - [x] 0211 Additional Alfred utilities, actions, outputs, and Image View
 - [x] 0212 Alfred File Filter (`input.filefilter`) with Spotlight + portable fallback
-- [ ] 0213 Core Alfred Automation Tasks (`automation.task`) and task-level coverage reporting
+- [x] 0213 Core Alfred Automation Tasks (`automation.task`) and task-level coverage reporting
 
 ## Later (not scheduled)
 
