@@ -42,6 +42,9 @@
         "@blastlauncher/protocol": "workspace:*",
       },
     },
+    "packages/alfred": {
+      "name": "@blastlauncher/alfred",
+    },
     "packages/cli": {
       "name": "@blastlauncher/cli",
       "dependencies": {
@@ -163,6 +166,8 @@
     },
   },
   "packages": {
+    "@blastlauncher/alfred": ["@blastlauncher/alfred@workspace:packages/alfred"],
+
     "@blastlauncher/cli": ["@blastlauncher/cli@workspace:packages/cli"],
 
     "@blastlauncher/client-core": ["@blastlauncher/client-core@workspace:packages/client-core"],
