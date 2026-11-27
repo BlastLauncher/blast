@@ -22,7 +22,7 @@ import {
 import type { GraphScriptRequest, GraphScriptResult } from "./graph.ts";
 import { startAlfredRuntime } from "./runtime.ts";
 import { queryText } from "./scripts.ts";
-import { writeWorkflow, type FixtureEdge, type FixtureObject } from "./test-workflow.ts";
+import { writeWorkflow, type FixtureEdge, type FixtureObject } from "./workflow-test-helper.ts";
 
 let root = "";
 beforeAll(async () => {

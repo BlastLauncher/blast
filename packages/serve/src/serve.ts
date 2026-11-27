@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   createEngine,
   BundleTimeoutError,
@@ -45,7 +44,6 @@ const engineVersion = (() => {
 let defaultViews: EmbedderViews | undefined;
 // Opt-in raw `session.scene` debugging events (`hello.scenes === true`; decision 0020).
 let sendScenes = false;
-const extensionDirs = new Map<string, string>();
 const extensions = new Map<string, ExtensionHandle>();
 const watches = new Map<string, () => void>();
 const sessions = new Map<string, { close(): Promise<void> }>();
@@ -233,7 +231,6 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     }
     const key = id();
     extensions.set(key, extension);
-    extensionDirs.set(key, message.params.dir);
     return { extension: key };
   }
   if (message.method === "root.open") {
@@ -347,7 +344,6 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
       await extension.close();
       extensionSessions.delete(p.extension);
       extensions.delete(p.extension);
-      extensionDirs.delete(p.extension);
       watches.delete(p.extension);
       return null;
   }
@@ -454,11 +450,10 @@ async function stream(
 ): Promise<void> {
   liveSessions.set(key, opened.session);
   started?.(key);
+  // Raycast `assets/`, or an Alfred workflow's own directory.
+  const assetsDir = extensions.get(extensionKey)?.assetsDir();
   const controller = views
-    ? createController({
-        ...views,
-        assetsDir: join(extensionDirs.get(extensionKey) ?? "", "assets"),
-      })
+    ? createController({ ...views, ...(assetsDir === undefined ? {} : { assetsDir }) })
     : undefined;
   let viewStream: ViewStream | undefined;
   if (controller) {

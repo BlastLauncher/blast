@@ -30,9 +30,9 @@ try {
       ),
     );
   const slim = tarballs.filter((file) =>
-    /^blastlauncher-(engine|runtime|protocol|client-core|web)-/.test(file),
+    /^blastlauncher-(engine|alfred|runtime|protocol|client-core|web)-/.test(file),
   );
-  if (slim.length !== 5) throw new Error("Missing slim engine tarballs");
+  if (slim.length !== 6) throw new Error("Missing slim engine tarballs");
   install(slim);
   const lock = JSON.parse(await readFile(join(smoke, "package-lock.json"), "utf8"));
   for (const name of ["shared-deps", "cli", "serve"])

@@ -26,7 +26,6 @@ export function createEngine(
 ) {
   const registrations = new Set<Record<string, CapabilityHandler>>();
   const extensions = new Set<ExtensionHandle>();
-  const directories = new Map<ExtensionHandle, string>();
   const roots = new Set<Root>();
   const changes = new Set<Parameters<RootSource["onChange"]>[0]>();
   const runtimePool = createRuntimePool();
@@ -87,12 +86,10 @@ export function createEngine(
           await close();
         } finally {
           extensions.delete(extension);
-          directories.delete(extension);
           for (const listener of changes) listener({ type: "close", handle: extension });
         }
       };
       extensions.add(extension);
-      directories.set(extension, resolve(extensionOptions.extensionDir));
       for (const listener of changes) listener({ type: "open", handle: extension });
       return extension;
     },
@@ -115,7 +112,6 @@ export function createEngine(
             changes.add(listener);
             return () => changes.delete(listener);
           },
-          dirOf: (handle) => directories.get(handle),
         },
         rootOptions,
       );

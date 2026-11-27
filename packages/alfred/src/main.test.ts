@@ -16,7 +16,7 @@ import {
   type SceneMessage,
   type SceneNode,
 } from "@blastlauncher/protocol";
-import { writeWorkflow } from "./test-workflow.ts";
+import { writeWorkflow } from "./workflow-test-helper.ts";
 
 // The real entrypoint under real Node: no Bun, no build step (decision 0021).
 const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();

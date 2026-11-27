@@ -25,6 +25,8 @@ import {
   installExtensionDependencies,
   createSessionBroker,
   defaultDataDir,
+  isAlfredWorkflowPath,
+  loadAlfredCommand,
   bundleModelProvider,
   startModelProvider,
   startCommand,
@@ -41,9 +43,10 @@ const EXIT_FAILURE = 1;
 const EXIT_USAGE = 2;
 const EXIT_CRASH = 3;
 
-const USAGE = `Run a Raycast extension command headlessly.
+const USAGE = `Run a Raycast extension or Alfred workflow command headlessly.
 
 Usage: blast run <extensionDir> <command> [options]
+       (<extensionDir> may be an Alfred workflow directory or .alfredworkflow file)
        blast deps <extensionDir> [--data-dir <dir>]
        blast models <extensionDir>
        blast complete <extensionDir> <modelId> <prompt>
@@ -582,6 +585,46 @@ process.stdout.on("error", (error: NodeJS.ErrnoException) => {
   process.exit(EXIT_OK);
 });
 
+/** Bundles a Raycast command after checking its dependencies, like `extension.launch`. */
+async function bundleRaycastCommand(
+  options: RunOptions,
+  deadline: Promise<never>,
+): Promise<BundledCommand> {
+  const dependencies = await checkExtensionDependencies({
+    extensionDir: options.extensionDir,
+    dataDir: options.dataDir,
+  });
+  if (dependencies.unresolved.length && (dependencies.needed || !dependencies.installable))
+    throw new DependenciesRequiredError(dependencies);
+  try {
+    return await Promise.race([
+      bundleCommand({
+        extensionDir: options.extensionDir,
+        command: options.command,
+        ...(options.bundleTimeoutMs === undefined ? {} : { timeoutMs: options.bundleTimeoutMs }),
+        dataDir: options.dataDir,
+      }),
+      deadline,
+    ]);
+  } catch (bundleError) {
+    if (!(bundleError instanceof MissingDependencyError)) throw bundleError;
+    const manifest = JSON.parse(
+      await readFile(join(options.extensionDir, "package.json"), "utf8"),
+    ) as { dependencies?: Record<string, unknown> };
+    const status = await checkExtensionDependencies({
+      extensionDir: options.extensionDir,
+      dataDir: options.dataDir,
+    });
+    throw new DependenciesRequiredError({
+      unresolved: bundleError.packages,
+      installable: bundleError.packages.every((name) =>
+        Object.hasOwn(manifest.dependencies ?? {}, name),
+      ),
+      pinned: status.pinned,
+    });
+  }
+}
+
 async function run(options: RunOptions): Promise<number> {
   const output = createOutput(options.json);
   let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
@@ -605,42 +648,22 @@ async function run(options: RunOptions): Promise<number> {
     }
     const steps =
       options.scriptSource === undefined ? undefined : parseScript(options.scriptSource);
-    let bundled: BundledCommand;
+    // An Alfred workflow runs its `info.plist` in place (an archive from the
+    // extraction cache): there is no bundle directory to clean up.
+    const alfred = isAlfredWorkflowPath(options.extensionDir);
+    let bundled: Omit<BundledCommand, "bundleMs"> & { runtimeEntry?: string };
     try {
-      const dependencies = await checkExtensionDependencies({
-        extensionDir: options.extensionDir,
-        dataDir: options.dataDir,
-      });
-      if (dependencies.unresolved.length && (dependencies.needed || !dependencies.installable))
-        throw new DependenciesRequiredError(dependencies);
-      try {
+      if (alfred) {
         bundled = await Promise.race([
-          bundleCommand({
+          loadAlfredCommand({
             extensionDir: options.extensionDir,
             command: options.command,
-            ...(options.bundleTimeoutMs === undefined
-              ? {}
-              : { timeoutMs: options.bundleTimeoutMs }),
             dataDir: options.dataDir,
           }),
           deadline,
         ]);
-      } catch (bundleError) {
-        if (!(bundleError instanceof MissingDependencyError)) throw bundleError;
-        const manifest = JSON.parse(
-          await readFile(join(options.extensionDir, "package.json"), "utf8"),
-        ) as { dependencies?: Record<string, unknown> };
-        const status = await checkExtensionDependencies({
-          extensionDir: options.extensionDir,
-          dataDir: options.dataDir,
-        });
-        throw new DependenciesRequiredError({
-          unresolved: bundleError.packages,
-          installable: bundleError.packages.every((name) =>
-            Object.hasOwn(manifest.dependencies ?? {}, name),
-          ),
-          pinned: status.pinned,
-        });
+      } else {
+        bundled = await bundleRaycastCommand(options, deadline);
       }
     } catch (error) {
       if (error instanceof RunError) throw error;
@@ -657,8 +680,10 @@ async function run(options: RunOptions): Promise<number> {
         options.json ? JSON.stringify({ type: "log", level: "warn", message }) : `# log ${message}`,
       );
     }
-    outDir = dirname(bundled.entry);
-    cleanupDirectory = outDir;
+    if (!alfred) {
+      outDir = dirname(bundled.entry);
+      cleanupDirectory = outDir;
+    }
     const argumentValues = parseArgumentValues(
       options.argumentSpecs,
       bundled.arguments,
