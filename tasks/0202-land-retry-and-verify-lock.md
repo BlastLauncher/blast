@@ -66,7 +66,7 @@ take turns instead of starving each other.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/fix-verify-lock-retry @ aba8a570
+Branch/commit: t3/fix-verify-lock-retry @ 41aa1ec6
 Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 90.3s` (`BLAST_VERIFY_JOBS=1 bun run verify -- --seed=17`; 1,287 passed / 1 skipped).
 Done:
 - `tasks:land` retries an unchanged cancelled workflow once, ignores the old cancelled check while the rerun is pending, restricts fallback runs by workflow and head SHA, and stops on a distinct or confirmed second cancel.
