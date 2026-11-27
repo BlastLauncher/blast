@@ -7,6 +7,7 @@ export const SUPPORTED_OBJECT_TYPES: readonly string[] = [
   "input.keyword",
   "input.scriptfilter",
   "input.listfilter",
+  "input.filefilter",
   "trigger.external",
   "userinterface.text",
   "userinterface.grid",

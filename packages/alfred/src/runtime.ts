@@ -1,13 +1,13 @@
 // The Alfred workflow runtime child (decision 0021): speaks protocol v1 like
 // `@blastlauncher/runtime`, but instead of rendering React it drives a
-// workflow's object graph and keeps a stack of Alfred views (Script Filter,
-// List Filter, Text, Grid, Image, Large Type, dialogs) that `scene.ts` draws.
+// workflow's object graph and keeps a stack of Alfred views (Script, List and
+// File Filters, Text, Grid, Image, Large Type, dialogs) that `scene.ts` draws.
 // All I/O is injected so tests run it in-process.
 
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
-import { basename, dirname, isAbsolute, join } from "node:path";
+import { basename, dirname, isAbsolute, join, sep } from "node:path";
 import {
   parseHostMessage,
   PROTOCOL_VERSION,
@@ -17,6 +17,12 @@ import {
   type RuntimeMessage,
   type SceneNode,
 } from "@blastlauncher/protocol";
+import {
+  fileFilterConfig,
+  searchFiles as defaultSearchFiles,
+  type FileFilterMatch,
+  type FileFilterOptions,
+} from "./file-filter.ts";
 import {
   executeWorkflowGraph,
   type GraphArg,
@@ -28,6 +34,7 @@ import {
   type GraphViewHandoff,
 } from "./graph.ts";
 import {
+  FILE_FILTER,
   LIST_FILTER,
   SCRIPT_FILTER,
   resolveWorkflowTemplate,
@@ -82,6 +89,8 @@ export type AlfredRuntimeOptions = {
   system?: Pick<GraphHost, "playSound" | "speak" | "runShortcut">;
   /** Clock for Script Filter result caching; defaults to `Date.now`. */
   now?(): number;
+  /** Replaces File Filter search (`file-filter.ts`), e.g. for deterministic tests. */
+  searchFiles?(options: FileFilterOptions): Promise<FileFilterMatch[]>;
 };
 
 export type AlfredRuntimeController = (() => void) & {
@@ -448,6 +457,8 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
         return push(scriptFilterEntry(object, config, query, variables));
       case LIST_FILTER:
         return push(listFilterEntry(object, config, query, variables));
+      case FILE_FILTER:
+        return push(fileFilterEntry(object, config, query, variables));
       case "alfred.workflow.userinterface.text":
         return push(textEntry(object, config, input, variables));
       case "alfred.workflow.userinterface.grid":
@@ -721,6 +732,156 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
       activate() {},
       deactivate() {},
       dispose() {},
+    };
+  }
+
+  // File Filter ----------------------------------------------------------------
+
+  function fileFilterEntry(
+    object: AlfredObject,
+    config: PlistDict,
+    initialQuery: string,
+    variables: Record<string, string>,
+  ): Entry {
+    const search = options.searchFiles ?? defaultSearchFiles;
+    const scope = workflowVariables({ workflow: wf(), preferences, variables });
+    const filter = fileFilterConfig(config, (text) => resolveWorkflowTemplate(text, wf(), scope));
+    const requiresQuery = integer(config.argumenttype, 1) === 0;
+    let query = initialQuery;
+    let matches: FileFilterMatch[] = [];
+    let loading = false;
+    let error: string | undefined;
+    let cancelDebounce: (() => void) | undefined;
+    let started = false;
+    const run = (text: string) =>
+      loader(async (signal) => {
+        loading = true;
+        invalidate();
+        try {
+          matches = await search({ ...filter, query: text, signal });
+          error = undefined;
+        } catch (searchError) {
+          if (signal.aborted || stopping) return;
+          matches = [];
+          error = errorMessage(searchError);
+        }
+        if (signal.aborted || stopping) return;
+        loading = false;
+        invalidate();
+      });
+    let current: ReturnType<typeof run> | undefined;
+    const stop = (): void => {
+      cancelDebounce?.();
+      cancelDebounce = undefined;
+      current?.stop();
+      current = undefined;
+    };
+    const schedule = (text: string, ms: number): void => {
+      stop();
+      loading = false;
+      if (requiresQuery && text.trim() === "") {
+        matches = [];
+        error = undefined;
+        invalidate();
+        return;
+      }
+      const start = (): void => {
+        cancelDebounce = undefined;
+        current = run(text);
+        current.start();
+      };
+      if (ms === 0) start();
+      else cancelDebounce = later(ms, start);
+    };
+    const setQuery = (text: string): void => {
+      query = text;
+      invalidate();
+      if (started) schedule(text, AUTOMATIC_QUEUE_DELAY_MS);
+    };
+
+    const home = homedir();
+    const connections = outgoing(object.uid);
+    const itemCallbacks = callbacks(object.uid, setQuery);
+    const reveal = (path: string) => () =>
+      void request("finder.show", { path }).catch(failed("Cannot reveal file"));
+    const openFile = (path: string) => () =>
+      void request("open.path", { path }).catch(failed("Cannot open file"));
+    const itemModel = (match: FileFilterMatch): ItemModel => {
+      const folder = dirname(match.path);
+      const shown =
+        folder === home || folder.startsWith(home + sep) ? `~${folder.slice(home.length)}` : folder;
+      // `itemActions` contributes the modifier connections, as for any result.
+      const mods = itemActions(
+        { title: match.name, arg: match.path, valid: true, type: "file" },
+        { connections, variables, callbacks: itemCallbacks },
+      ).filter((action) => action.key.startsWith("mod:"));
+      return {
+        key: match.path,
+        title: match.name,
+        subtitle: shown,
+        icon: { fileIcon: match.path },
+        actions: [
+          {
+            key: "primary",
+            title: "Continue",
+            run: () => act(object.uid, match.path, variables, 0),
+          },
+          ...mods,
+          {
+            key: "copy",
+            title: "Copy Path",
+            shortcut: { modifiers: ["cmd"], key: "c" },
+            run: () => copy(match.path),
+          },
+          {
+            key: "reveal",
+            title: "Reveal in Finder",
+            shortcut: { modifiers: ["cmd", "shift"], key: "f" },
+            run: reveal(match.path),
+          },
+          {
+            key: "open",
+            title: "Open File",
+            shortcut: { modifiers: ["cmd"], key: "o" },
+            run: openFile(match.path),
+          },
+          {
+            key: "largetype",
+            title: "Show Large Type",
+            shortcut: { modifiers: ["cmd"], key: "l" },
+            run: () => push(largeTypeEntry(match.path)),
+          },
+        ],
+      };
+    };
+
+    const heading = title(config.title, variables);
+    const subtext = title(config.subtext, variables);
+    return {
+      key: nextKey(),
+      view: () => ({
+        kind: "list",
+        navigationTitle: heading || wf().name,
+        searchBarPlaceholder: subtext || heading || "Search files…",
+        isLoading: loading || cancelDebounce !== undefined,
+        // Spotlight already matched the query; the client must not filter again.
+        filtering: false,
+        searchText: query,
+        onSearchTextChange: setQuery,
+        items: matches.map(itemModel),
+        empty: error
+          ? { title: "File search failed", description: error }
+          : requiresQuery && query.trim() === ""
+            ? { title: heading || "Type to search", ...(subtext ? { description: subtext } : {}) }
+            : { title: "No Results" },
+      }),
+      activate() {
+        if (started) return;
+        started = true;
+        schedule(query, 0);
+      },
+      deactivate() {},
+      dispose: stop,
     };
   }
 
@@ -1078,7 +1239,11 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
     const object = workflow.objects.find((candidate) => candidate.uid === uid);
     if (!object) throw new Error(`alfred: workflow has no command ${JSON.stringify(command.name)}`);
     const query = command.arguments?.query ?? command.fallbackText ?? "";
-    if (object.type === SCRIPT_FILTER || object.type === LIST_FILTER) {
+    if (
+      object.type === SCRIPT_FILTER ||
+      object.type === LIST_FILTER ||
+      object.type === FILE_FILTER
+    ) {
       openView({ object, input: query, variables: {}, configOverrides: {} });
       return;
     }

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { missingPreferences } from "@blastlauncher/protocol/preference-fields";
 import {
+  FILE_FILTER,
   mapUserConfigToPreferences,
   resolveWorkflowTemplate,
   workflowToManifest,
@@ -299,6 +300,50 @@ describe("workflowToManifest", () => {
       manifest.commands.map((command) => [command.name, command.mode]),
     );
     expect(modes).toEqual({ pic: "view", say: "no-view" });
+  });
+
+  test("a File Filter is a view command, and reachable UI for keywords", () => {
+    const { manifest, entryUids } = workflowToManifest(
+      workflow({
+        objects: [
+          {
+            uid: "FF",
+            type: FILE_FILTER,
+            config: {
+              keyword: "Find Images",
+              title: "Find images",
+              subtext: "Search {var:where}",
+              argumenttype: 1,
+              scopes: ["~/Pictures"],
+              types: ["public.image"],
+            },
+          },
+          {
+            uid: "K",
+            type: "alfred.workflow.input.keyword",
+            config: { keyword: "pick", argumenttype: 2 },
+          },
+          { uid: "FED", type: FILE_FILTER, config: {} },
+        ],
+        variables: { where: "Pictures" },
+        connections: { K: [{ destinationuid: "FED" }] },
+      }),
+      { existingFiles: new Set(["FF.png"]) },
+    );
+    expect(entryUids).toEqual({ "find-images": "FF", pick: "K" });
+    expect(manifest.commands[0]).toEqual({
+      name: "find-images",
+      title: "Find images",
+      subtitle: "Search Pictures",
+      description: "",
+      mode: "view",
+      arguments: [],
+      preferences: [],
+      icon: "FF.png",
+    });
+    // A keyword that hands off to a File Filter needs a view too.
+    expect(manifest.commands[1]!.mode).toBe("view");
+    expect(manifest.commands[1]!.icon).toBeUndefined();
   });
 
   test("falls back to root inputs, then external triggers", () => {

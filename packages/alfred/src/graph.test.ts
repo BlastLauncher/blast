@@ -853,6 +853,7 @@ describe("traversal", () => {
           ],
           ["SF", "input.scriptfilter"],
           ["LF", "input.listfilter"],
+          ["FF", "input.filefilter"],
           ["TXT", "userinterface.text"],
           ["GRID", "userinterface.grid"],
           ["IMG", "userinterface.image"],
@@ -863,6 +864,7 @@ describe("traversal", () => {
           ["JSON", "SF"],
           ["SF", "COPY"],
           ["IN", "LF"],
+          ["IN", "FF"],
           ["IN", "TXT"],
           ["IN", "GRID"],
           ["IN", "IMG"],
@@ -881,12 +883,19 @@ describe("traversal", () => {
           configOverrides: { keyword: "z" },
         },
       ],
-      ...["LF", "TXT", "GRID", "IMG"].map((uid): Call => [
+      ...["LF", "FF", "TXT", "GRID", "IMG"].map((uid): Call => [
         "view",
         { uid, input: ["/pics/a.png", "/pics/b.png"], variables: {}, configOverrides: {} },
       ]),
     ]);
-    expect(result.views.map((view) => view.object.uid)).toEqual(["SF", "LF", "TXT", "GRID", "IMG"]);
+    expect(result.views.map((view) => view.object.uid)).toEqual([
+      "SF",
+      "LF",
+      "FF",
+      "TXT",
+      "GRID",
+      "IMG",
+    ]);
   });
 
   test("unsupported objects warn and stop only their branch", async () => {
