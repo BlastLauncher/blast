@@ -87,6 +87,58 @@ export type AlfredRuntimeController = (() => void) & {
 /** Alfred's "automatic" queue delay between keystrokes and a Script Filter run. */
 export const AUTOMATIC_QUEUE_DELAY_MS = 250;
 
+/**
+ * The most items one view puts into a scene. Real List Filters carry tens of
+ * thousands of items, which serialize past the NDJSON line cap, so longer
+ * lists are filtered here and only the best matches are sent.
+ */
+export const MAX_SCENE_ITEMS = 200;
+
+/**
+ * Alfred-style filtering: every word of `query` must appear (case-insensitively)
+ * in the title, subtitle or `match` text. Unless `fixedOrder`, titles that
+ * start with the query come first, then titles containing it, then the rest;
+ * the order within each group is kept.
+ */
+export function filterItems(
+  items: ScriptFilterItem[],
+  query: string,
+  fixedOrder = false,
+): ScriptFilterItem[] {
+  const needle = query.trim().toLowerCase();
+  const words = needle.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return items;
+  const matches = items.filter((item) => {
+    const haystack = [item.title, item.subtitle ?? "", item.match ?? ""].join("\n").toLowerCase();
+    return words.every((word) => haystack.includes(word));
+  });
+  if (fixedOrder) return matches;
+  const rank = (item: ScriptFilterItem): number => {
+    const title = item.title.toLowerCase();
+    return title.startsWith(needle) ? 0 : title.includes(needle) ? 1 : 2;
+  };
+  return matches
+    .map((item, index) => ({ item, index, rank: rank(item) }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map((entry) => entry.item);
+}
+
+/**
+ * Items for one scene. Up to {@link MAX_SCENE_ITEMS} go out whole and the
+ * client filters them (`capped: false`); beyond that the runtime filters by
+ * `query` when the view filters at all, sends the first matches, and the
+ * client must forward search text instead of filtering (`capped: true`).
+ */
+export function sceneItems(
+  items: ScriptFilterItem[],
+  query: string,
+  options: { filter: boolean; fixedOrder?: boolean },
+): { items: ScriptFilterItem[]; capped: boolean } {
+  if (items.length <= MAX_SCENE_ITEMS) return { items, capped: false };
+  const matches = options.filter ? filterItems(items, query, options.fixedOrder) : items;
+  return { items: matches.slice(0, MAX_SCENE_ITEMS), capped: true };
+}
+
 type Entry = {
   key: string;
   view(): ViewModel;
@@ -116,6 +168,7 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
   let initialized = false;
   let workflow: AlfredWorkflow | undefined;
   let supportPath = "";
+  let theme: "dark" | "light" = "dark";
   let preferences: Record<string, VariableValue> = {};
 
   const stack: Entry[] = [];
@@ -263,6 +316,7 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
       env: buildWorkflowEnv({
         workflow: current,
         supportPath,
+        theme,
         preferences,
         variables: scriptRequest.variables,
       }),
@@ -434,6 +488,7 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
     const argumentType = integer(config.argumenttype, 1);
     // Without an argument the script never sees the query, so Blast filters.
     const clientFilter = config.alfredfiltersresults === true || argumentType === 2;
+    const fixedOrder = config.fixedorder === true;
     const delayMode = integer(config.queuedelaymode, 0);
     const delay =
       delayMode === 1
@@ -569,15 +624,17 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
                 ...(subtext ? { description: subtext } : {}),
               }
             : { title: "No Results" };
+        const shown = sceneItems(output.items, query, { filter: clientFilter, fixedOrder });
         return {
           kind: "list",
           navigationTitle: placeholder || wf().name,
           searchBarPlaceholder: subtext || placeholder || "Search…",
-          isLoading: loading,
-          filtering: clientFilter,
+          // A pending debounce is a run about to start, not an empty result.
+          isLoading: loading || cancelDebounce !== undefined,
+          filtering: clientFilter && !shown.capped,
           searchText: query,
           onSearchTextChange: setQuery,
-          items: itemModels(output.items, object, vars, setQuery),
+          items: itemModels(shown.items, object, vars, setQuery),
           empty,
         };
       },
@@ -632,21 +689,25 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
       invalidate();
     };
     const heading = title(config.title, variables);
+    const fixedOrder = config.fixedorder === true;
     return {
       key: nextKey(),
-      view: () => ({
-        kind: "list",
-        navigationTitle: heading || wf().name,
-        searchBarPlaceholder: title(config.subtext, variables) || heading || "Search…",
-        isLoading: false,
-        filtering: true,
-        searchText: query,
-        onSearchTextChange: setQuery,
-        items: itemModels(items, object, variables, setQuery),
-        empty: error
-          ? { title: "List Filter failed", description: error }
-          : { title: "No Results" },
-      }),
+      view: () => {
+        const shown = sceneItems(items, query, { filter: true, fixedOrder });
+        return {
+          kind: "list",
+          navigationTitle: heading || wf().name,
+          searchBarPlaceholder: title(config.subtext, variables) || heading || "Search…",
+          isLoading: false,
+          filtering: !shown.capped,
+          searchText: query,
+          onSearchTextChange: setQuery,
+          items: itemModels(shown.items, object, variables, setQuery),
+          empty: error
+            ? { title: "List Filter failed", description: error }
+            : { title: "No Results" },
+        };
+      },
       activate() {},
       deactivate() {},
       dispose() {},
@@ -803,26 +864,35 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
       loading = false;
       invalidate();
     });
+    const filterable = config.filterable !== false;
     return {
       key: nextKey(),
-      view: () => ({
-        kind: "grid",
-        navigationTitle: wf().name,
-        searchBarPlaceholder: "Search…",
-        columns: integer(config.columncount, 0) || 3,
-        isLoading: loading,
-        filtering: config.filterable !== false,
-        searchText: query,
-        onSearchTextChange: setQuery,
-        items: itemModels(
-          output.items,
-          object,
-          { ...variables, ...output.variables },
-          setQuery,
-          true,
-        ),
-        empty: error ? { title: "Grid View failed", description: error } : { title: "No Results" },
-      }),
+      view: () => {
+        const shown = sceneItems(output.items, query, {
+          filter: filterable,
+          fixedOrder: config.fixedorder === true,
+        });
+        return {
+          kind: "grid",
+          navigationTitle: wf().name,
+          searchBarPlaceholder: "Search…",
+          columns: integer(config.columncount, 0) || 3,
+          isLoading: loading,
+          filtering: filterable && !shown.capped,
+          searchText: query,
+          onSearchTextChange: setQuery,
+          items: itemModels(
+            shown.items,
+            object,
+            { ...variables, ...output.variables },
+            setQuery,
+            true,
+          ),
+          empty: error
+            ? { title: "Grid View failed", description: error }
+            : { title: "No Results" },
+        };
+      },
       activate() {
         if (scripted && loading) script.start();
       },
@@ -935,6 +1005,7 @@ export function startAlfredRuntime(options: AlfredRuntimeOptions): AlfredRuntime
     const dir = basename(command.entry) === "info.plist" ? dirname(command.entry) : command.entry;
     workflow = await loadWorkflow(dir);
     supportPath = message.environment.supportPath;
+    theme = message.environment.appearance === "light" ? "light" : "dark";
     if (supportPath) await mkdir(join(supportPath, "cache"), { recursive: true });
     preferences = {};
     for (const [name, value] of Object.entries(message.preferences)) {

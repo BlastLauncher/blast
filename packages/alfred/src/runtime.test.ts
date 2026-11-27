@@ -20,7 +20,7 @@ import {
   type SceneNode,
 } from "@blastlauncher/protocol";
 import type { GraphScriptRequest, GraphScriptResult } from "./graph.ts";
-import { startAlfredRuntime } from "./runtime.ts";
+import { filterItems, MAX_SCENE_ITEMS, startAlfredRuntime } from "./runtime.ts";
 import { queryText } from "./scripts.ts";
 import { writeWorkflow, type FixtureEdge, type FixtureObject } from "./workflow-test-helper.ts";
 
@@ -57,6 +57,9 @@ async function launch(
     capability?: Capability;
     now?: () => number;
     variables?: Record<string, string>;
+    appearance?: "light" | "dark";
+    /** Spawn the workflow's real scripts instead of `scripts`. */
+    realScripts?: boolean;
   },
 ) {
   const dir = await writeWorkflow(
@@ -68,6 +71,7 @@ async function launch(
   const messages: RuntimeMessage[] = [];
   const scripts: { uid: string; query: string; request: GraphScriptRequest }[] = [];
   const capabilities: { name: string; params: JsonValue }[] = [];
+  const roots: SceneNode[] = [];
   const applier = createScenePatchApplier();
   const controller = createController({ platform: "macOS" });
   let scene: SceneMessage | undefined;
@@ -95,7 +99,10 @@ async function launch(
       const value = parsed.message;
       if (value.type === "scene") scene = applier.reset(value);
       else if (value.type === "scene.patch") scene = applier.apply(value);
-      if (value.type === "scene" || value.type === "scene.patch") handle(controller.scene(scene));
+      if (value.type === "scene" || value.type === "scene.patch") {
+        roots.push(scene!.root);
+        handle(controller.scene(scene));
+      }
       if (value.type === "capability.request") {
         capabilities.push({ name: value.name, params: value.params });
         const answer = options.capability?.(value.name, value.params) ?? null;
@@ -121,12 +128,16 @@ async function launch(
       exitCode = code;
     },
     log() {},
-    async runScript(request) {
-      scripts.push({ uid: request.object.uid, query: queryText(request.query), request });
-      const script = options.scripts?.[request.object.uid];
-      if (!script) return text("");
-      return script(request);
-    },
+    ...(options.realScripts
+      ? {}
+      : {
+          async runScript(request: GraphScriptRequest) {
+            scripts.push({ uid: request.object.uid, query: queryText(request.query), request });
+            const script = options.scripts?.[request.object.uid];
+            if (!script) return text("");
+            return script(request);
+          },
+        }),
     ...(options.now ? { now: options.now } : {}),
   });
   send({
@@ -147,7 +158,7 @@ async function launch(
       assetsPath: dir,
       supportPath: join(dir, "support"),
       isDevelopment: true,
-      appearance: "dark",
+      appearance: options.appearance ?? "dark",
       textSize: "medium",
     },
   });
@@ -155,6 +166,7 @@ async function launch(
   const session = {
     dir,
     messages,
+    roots,
     scripts,
     capabilities,
     get exitCode() {
@@ -472,6 +484,50 @@ describe("Script Filter", () => {
     }
   });
 
+  test("a pending initial debounce shows loading, never an empty No Results", async () => {
+    const session = await launch(
+      [
+        scriptFilter({
+          queuedelaymode: 2,
+          queuedelaycustom: 1,
+          queuedelayimmediatelyinitially: false,
+        }),
+      ],
+      [],
+      { command: "sf", scripts: { sf: () => json({ items: [{ title: "Done" }] }) } },
+    );
+    await session.until(() => session.root !== null, "first scene");
+    expect(session.scripts).toHaveLength(0);
+    expect(find(session.root, (node) => node.type === "List")!.props.isLoading).toBe(true);
+    expect(session.view().loading).toBe(true);
+    await session.until(() => titles(session.view())[0] === "Done", "results");
+    const lists = session.roots.map((root) => find(root, (node) => node.type === "List")!);
+    const firstWithItems = lists.findIndex((list) => list.children.length > 0);
+    expect(firstWithItems).toBeGreaterThan(0);
+    for (const list of lists.slice(0, firstWithItems)) expect(list.props.isLoading).toBe(true);
+    expect(session.view().loading).toBe(false);
+  });
+
+  test.skipIf(process.platform === "win32")(
+    "scripts see the host appearance as alfred_theme_background",
+    async () => {
+      const script = `printf '{"items":[{"title":"%s"}]}' "$alfred_theme_background"`;
+      for (const [appearance, background] of [
+        ["light", "rgba(255,255,255,0.98)"],
+        ["dark", "rgba(30,30,30,0.95)"],
+      ] as const) {
+        const session = await launch([scriptFilter({ type: 0, scriptargtype: 1, script })], [], {
+          command: "sf",
+          appearance,
+          realScripts: true,
+        });
+        await session.until(() => titles(session.view()).length === 1, `${appearance} results`);
+        expect(titles(session.view())).toEqual([background]);
+        session.send({ type: "shutdown" });
+      }
+    },
+  );
+
   test("shutdown cancels an in-flight script", async () => {
     let signal: AbortSignal | undefined;
     const session = await launch([scriptFilter()], [], {
@@ -519,6 +575,82 @@ describe("List Filter", () => {
     session.input({ type: "primary" });
     await session.until(() => session.scripts.length === 1, "downstream run");
     expect(session.scripts[0]!.query).toBe("b");
+  });
+
+  test(`more than MAX_SCENE_ITEMS items are filtered in the runtime and capped`, async () => {
+    const pad = (n: number) => String(n).padStart(3, "0");
+    // Letters only, so digit searches match titles alone: 0 → "aa", 7 → "ah".
+    const code = (n: number) =>
+      String.fromCharCode(97 + Math.floor(n / 26), 97 + (n % 26));
+    const items = JSON.stringify(
+      Array.from({ length: 500 }, (_, n) => ({
+        title: `Item ${pad(n)}`,
+        subtitle: `code ${code(n)}`,
+        arg: pad(n),
+      })),
+    );
+    const session = await launch(
+      [
+        ["lf", "input.listfilter", { keyword: "lf", items }],
+        ["run", "action.script"],
+      ],
+      [["lf", "run"]],
+      { command: "lf" },
+    );
+    await session.until(() => titles(session.view()).length > 0, "items");
+    const list = () => find(session.root, (node) => node.type === "List")!;
+    expect(list().props.filtering).toBe(false);
+    expect(list().children).toHaveLength(MAX_SCENE_ITEMS);
+    expect(titles(session.view())).toHaveLength(MAX_SCENE_ITEMS);
+    expect(titles(session.view())[0]).toBe("Item 000");
+    // Every message stays far below the 8 MiB NDJSON line cap.
+    const largest = Math.max(...session.messages.map((m) => JSON.stringify(m).length));
+    expect(largest).toBeLessThan(256 * 1024);
+
+    // Title prefix matches rank first; the rest keep their order.
+    session.input({ type: "search", text: "item 42" });
+    await session.until(() => titles(session.view())[0] === "Item 420", "filtered");
+    expect(titles(session.view())).toEqual([
+      ...Array.from({ length: 10 }, (_, n) => `Item 42${n}`),
+      "Item 042",
+      "Item 142",
+      "Item 242",
+      "Item 342",
+      "Item 442",
+    ]);
+    expect(list().props.filtering).toBe(false);
+
+    // Subtitles match too, and every word must appear.
+    session.input({ type: "search", text: "CODE AH" });
+    await session.until(() => titles(session.view()).length === 1, "subtitle match");
+    expect(titles(session.view())).toEqual(["Item 007"]);
+    session.input({ type: "search", text: "item zzz" });
+    await session.until(() => titles(session.view()).length === 0, "no match");
+
+    session.input({ type: "search", text: "499" });
+    await session.until(() => titles(session.view())[0] === "Item 499", "last item");
+    session.input({ type: "primary" });
+    await session.until(() => session.scripts.length === 1, "downstream run");
+    expect(session.scripts[0]!.query).toBe("499");
+  });
+
+  test("fixedorder keeps Alfred's order when filtering", () => {
+    const items = ["Banana split", "Apple", "Banana"].map((title) => ({
+      title,
+      valid: true,
+      type: "default" as const,
+    }));
+    expect(filterItems(items, "ban").map((item) => item.title)).toEqual([
+      "Banana split",
+      "Banana",
+    ]);
+    expect(filterItems(items, "an").map((item) => item.title)).toEqual(["Banana split", "Banana"]);
+    expect(filterItems(items, "banana", true).map((item) => item.title)).toEqual([
+      "Banana split",
+      "Banana",
+    ]);
+    expect(filterItems(items, "split ban").map((item) => item.title)).toEqual(["Banana split"]);
+    expect(filterItems(items, "  ")).toBe(items);
   });
 });
 
