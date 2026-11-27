@@ -103,12 +103,12 @@ first-class across every Blast surface.
 
 ## Acceptance
 
-- [ ] `packages/host/src/alfred.test.ts` tests `createEngine` / `openExtension` / `engine.root()` / `startLaunchFlow` on both an unpacked Alfred workflow dir and a `.alfredworkflow` ZIP archive: manifest & icon resolution (`assetsDir()`), required preference prompt & persistence, Script Filter search & action → capability broker (`clipboard.copy`, `open.url`), and Keyword execution.
-- [ ] `packages/cli/src/cli-alfred.test.ts` runs `blast run <workflowDir> <cmd>` and `blast run <file.alfredworkflow> <cmd>` with `--script`, `--grant`, and `--json`, verifying scenes, search, actions, and capability grants end-to-end.
-- [ ] `packages/serve/src/views.test.ts` (or a new `packages/serve/src/alfred.test.ts`) tests `extension.open` + `root.open` + `root.input` launching an Alfred `.alfredworkflow` over embedder protocol 2 (`root.view`, `session.view`, `session.view.patch`, `capability.request`).
-- [ ] `packages/tui/src/cli.test.ts` tests `.alfredworkflow` file arguments in root mode, multi-source root mode, and single-command mode.
-- [ ] `bun run release:build --version 0.0.0-dev` succeeds (including `@blastlauncher/alfred`) and leaves no tracked/untracked dirt.
-- [ ] `bun run verify` passes (including `check:workflow` line limits).
+- [x] `packages/host/src/alfred.test.ts` tests `createEngine` / `openExtension` / `engine.root()` / `startLaunchFlow` on both an unpacked Alfred workflow dir and a `.alfredworkflow` ZIP archive: manifest & icon resolution (`assetsDir()`), required preference prompt & persistence, Script Filter search & action → capability broker (`clipboard.copy`, `open.url`), and Keyword execution.
+- [x] `packages/cli/src/cli-alfred.test.ts` runs `blast run <workflowDir> <cmd>` and `blast run <file.alfredworkflow> <cmd>` with `--script`, `--grant`, and `--json`, verifying scenes, search, actions, and capability grants end-to-end.
+- [x] `packages/serve/src/views.test.ts` (or a new `packages/serve/src/alfred.test.ts`) tests `extension.open` + `root.open` + `root.input` launching an Alfred `.alfredworkflow` over embedder protocol 2 (`root.view`, `session.view`, `session.view.patch`, `capability.request`).
+- [x] `packages/tui/src/cli.test.ts` tests `.alfredworkflow` file arguments in root mode, multi-source root mode, and single-command mode.
+- [x] `bun run release:build --version 0.0.0-dev` succeeds (including `@blastlauncher/alfred`) and leaves no tracked/untracked dirt.
+- [x] `bun run verify` passes (including `check:workflow` line limits).
 
 ## Out of scope
 
@@ -118,8 +118,34 @@ first-class across every Blast surface.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/alfred-host-cli-serve-tui @ 440b6a09 (code and docs; this Handoff commit follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 39.8s — 1502 pass, 1 skip, 0 fail
 Done:
+- host: `alfred.ts` (`isAlfredWorkflowPath`, `prepareAlfredWorkflow`, `readAlfredManifest`,
+  `alfredCommand`/`loadAlfredCommand`, `createAlfredExtensionHandle`); `createExtensionHandle`
+  delegates workflows; `ExtensionHandle.assetsDir()`; `StartOptions.runtimeEntry` (bypasses the
+  pool); preference read/save shared via `preferenceAccess`; root uses `assetsDir()`
+  (`RootSource.dirOf` and the engine's directory map removed); `@blastlauncher/alfred` dep + bun.lock.
+- serve: session controllers take `assetsDir()` (the `extensionDirs` map is gone). cli: `blast run`
+  runs workflows via `loadAlfredCommand`, same UsageError mapping, no cleanup dir. tui: `.alfredworkflow`
+  args are sources.
+- release: `alfred` packed before `host`; smoke's slim install includes it. `test-workflow.ts` renamed
+  `workflow-test-helper.ts` (now holds the ZIP fixture writer) so it is not published.
+- tests: host `alfred.test.ts`, cli `cli-alfred.test.ts`, serve `alfred.test.ts`, tui `cli.test.ts`; the
+  shared fixture is `writeAlfredFixture` in host `test-helper.ts`. Docs: architecture, cli, tui.
+- `bun run release:build --version 0.0.0-dev` succeeded (11 tarballs incl. alfred); `.cache/release`
+  removed afterwards; `git status` clean.
 Not done / risks:
+- `dependencies.check()`/`install()` return a full `DependencyInstallStatus` (needed false, unresolved [],
+  installable false, pinned true): the task's `{ installed, packages }` shape does not match the real
+  `install()` type, so the type wins.
+- `assetsDir()` of an archive is its extraction only after `manifest()`/`launch()` (the archive path
+  before); root and serve only read it after that. An open handle keeps its first extraction; old
+  `<dataDir>/workflows/<hash>` dirs are never collected.
+- Alfred `launch()` ignores `timeoutMs`, `signal` and `installDependencies` (nothing to bundle or
+  install). `blast run` applies workflow preference defaults only, as for Raycast.
+- New npm package `@blastlauncher/alfred` needs the same first-publish trusted-publisher bootstrap
+  as the others before a prerelease can publish it. `scripts/release/smoke.ts` was updated but not
+  run (network).
+- No new external dependencies.
 ```
