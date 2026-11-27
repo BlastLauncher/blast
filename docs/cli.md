@@ -69,14 +69,15 @@ crash, bundle failure (`MISSING_DEPENDENCY`), or protocol error.
   `title`, `favicon`, `content`). Content defaults to the first active tab or
   `tabId` and returns as supplied; CSS selectors reject in the headless host.
 - `--ai-answer <text>` — enables `AI` (even for `""`) and returns one chunk.
-- `--ai-decide <file.json>` — object keyed by question ID matching `noul`,
-  `choice` (`choice`, `confidence`, `probabilities`), or `score` (`score`,
-  `confidence`, `legend`, `probabilities`), with probabilities covering all
-  options and summing to 1. Without it, `ai.decide` is denied even with
-  `--grant`.
+- `--ai-decide <file.json>` — object keyed by question ID:
+  `{ "type": "noul", "noul": 0.8 }`, `choice` (`choice`, `confidence`,
+  `probabilities`), or `score` (`score`, `confidence`, `legend`,
+  `probabilities`), with probabilities covering all options and summing to 1.
+  Without it, `ai.decide` is denied even with `--grant`.
 
-Flags for AI and browser also set `environment.canAccess`; bare `--grant` does
-not. Extension-provided AI model selectors reject with an explicit error.
+Only `--ai-answer`, `--browser-tabs`, and `--browser-bridge` set
+`environment.canAccess`; `--ai-decide` and bare `--grant` do not.
+Extension-provided AI model selectors reject with an explicit error.
 
 ## Scripts
 

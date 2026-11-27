@@ -40,11 +40,12 @@ extensions, and open the [root view](root-view.md):
 ```
 
 Per root and per session, serve sends one full `root.view` / `session.view`
-(`revision: 1`), then `root.view.patch` / `session.view.patch` (`revision`,
-`baseRevision`, `ops`: `set`, `delete`, `splice` over object-key paths).
-No-op updates emit nothing. On a `baseRevision` mismatch, send `root.resync` or
-`session.resync` and drop patches until the next full view (decision 0020).
-`@blastlauncher/protocol` exports `diffView` and `applyViewPatch`.
+(`revision: 1`), then `root.view.patch` / `session.view.patch` (`revision`
+increases by 1 per event, `baseRevision`, `ops`: `set`, `delete`, `splice` over
+object-key paths). No-op updates emit nothing. On a `baseRevision` mismatch,
+send `root.resync {root}` or `session.resync {session}` and drop patches until
+the next full view (decision 0020). `@blastlauncher/protocol` exports `diffView`
+and `applyViewPatch`.
 
 Send input to the session from `root.launched` until `session.exited`, then
 return to the root's last view. The [Go](../examples/go-embedder/) and
@@ -52,9 +53,8 @@ return to the root's last view. The [Go](../examples/go-embedder/) and
 only their standard libraries.
 
 `hello.views` (`platform`: `macOS`, `Windows`, or `Linux`; optional
-`appearance`: `light` or `dark`) sets defaults for `root.open` and launches;
-omitting it or passing `false` leaves views off. Raw `session.scene` events are
-off unless `hello` passes `"scenes":true`. Icons carry `iconLabel` plus optional
+`appearance`: `light` or `dark`) sets defaults for `root.open` and launches
+(`false` or omitted leaves views off). Icons carry `iconLabel` plus optional
 `iconSource` (`builtin`, `url`, `file`, `fileIcon`), `iconTint`, and
 `iconMask`, resolved for `appearance`. `blast serve` installs missing
 dependencies by default (`--dependencies manual` to opt out) and accepts
@@ -62,8 +62,8 @@ dependencies by default (`--dependencies manual` to opt out) and accepts
 
 ### Client rules
 
-- Keep request ids unique while outstanding; responses and events interleave.
-  Extension, root, and session keys are opaque.
+- Keep request ids unique while outstanding; responses may arrive out of order
+  and interleave with events. Extension, root, and session keys are opaque.
 - A rejected line returns `{"type":"error","error":{…}}` with no request id;
   fail all outstanding requests when one arrives.
 - Include every required input field (e.g. `{"type":"search","text":""}`).
@@ -77,11 +77,12 @@ and `capability.cancel`. Every message is in
 
 ### Lower level: one command, or raw scenes
 
-`extension.launch {extension, command}` runs one command directly (`prompts:
-true` enables launch prompts; `views` overrides `hello.views`; `bundleTimeoutMs`
-overrides bundle timeout). `extension.configure {extension, command}` opens a
-preferences form. Pass `"scenes":true` in `hello` for raw `session.scene` and
-`session.log` debugging events, and send `session.event` for scene handlers:
+`extension.launch {extension, command}` runs a command directly (`prompts: true`
+enables launch prompts instead of `missing_values` or `missing_dependencies`
+errors; `views` overrides `hello.views`; `bundleTimeoutMs` overrides bundle
+timeout). `extension.configure {extension, command}` opens preferences.
+`session.log` is always sent; `"scenes":true` in `hello` adds raw
+`session.scene` events, and `session.event` dispatches scene handlers:
 
 ```text
 → {"type":"event","event":"session.scene","session":"3","scene":{…}}
@@ -129,8 +130,7 @@ Deploy your own from `packages/cors-proxy`.
 
 ## Network proxy
 
-The live demo forwards extension requests through our Cloudflare proxy. The
-Worker does not log or store requests or responses. The operator can see request
-contents; destination services receive them under their own policies. Do not
-enter secret keys, tokens, or private data.
-[Worker source](https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy).
+The live demo forwards requests through our Cloudflare proxy. The Worker does
+not log or store requests or responses. The operator sees request contents;
+destination services apply their own policies. Do not enter secrets or private
+data ([Worker source](https://github.com/blastlauncher/blast/tree/main/packages/cors-proxy)).

@@ -7,12 +7,12 @@ bun run tui --version
 ```
 
 The root view lists commands from every given extension plus the built-in `tmux`
-and `tpm` extensions (`--no-builtin` omits built-ins). One directory plus a
-`<command>` name (not a directory) opens that command directly. `--popup`
-quits when a command closes the window; `--popup-daemon` detaches inside its
-inner tmux server (`@blastlauncher/tui` installs `blast-tui`, Bun required).
-`--native` enables real OS handlers; without it, clipboard ops are session-local
-and `open.url` only records URLs.
+extension (and `tpm` when TPM is detected; `--no-builtin` omits built-ins). One
+directory plus a `<command>` name (not a directory) opens that command directly.
+`--popup` quits when a command closes the window; `--popup-daemon` detaches
+inside its inner tmux server (`@blastlauncher/tui` installs `blast-tui`, Bun
+required). `--native` enables real OS handlers; without it, clipboard ops are
+session-local and `open.url` only records URLs.
 
 ## tmux palette
 
@@ -33,19 +33,19 @@ rename, kill), config reload, and TPM plugin management (`install`, `update`,
 
 ## Keys
 
-| Key             | Effect                                                                       |
-| --------------- | ---------------------------------------------------------------------------- |
-| typing          | search text (client filtering or List search handler)                        |
-| ↑ / ↓           | move selection (List also maps `Ctrl-P`/`Ctrl-K` up, `Ctrl-N`/`Ctrl-J` down) |
-| ← / →           | move within a Grid row; open (`→`) or close (`←`) a menu-bar Submenu         |
-| Enter           | run primary action (`Ctrl-Enter` / `Cmd-Enter` runs second action)           |
-| Ctrl-A          | open the action panel; type to filter, `Enter` runs or opens submenu         |
-| Ctrl-P          | open search-bar dropdown accessory; type to filter options                   |
-| Ctrl-E          | open **Configure &lt;command&gt;** at the root                               |
-| Esc             | close alert/dropdown/submenu/panel, else pop view, else quit at root         |
-| Ctrl-C          | quit (copy actions run from the action panel)                                |
-| Enter / Esc     | confirm / dismiss an open Alert                                              |
-| Ctrl-T / Ctrl-Y | toast primary / secondary action                                             |
+| Key             | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| typing          | search text (client filtering or List search handler)                                           |
+| ↑ / ↓           | move selection (List also maps `Ctrl-K` up, `Ctrl-P` up if no dropdown, `Ctrl-N`/`Ctrl-J` down) |
+| ← / →           | move within a Grid row; open (`→`) or close (`←`) a menu-bar Submenu                            |
+| Enter           | run primary action (`Ctrl-Enter` / `Cmd-Enter` runs second action)                              |
+| Ctrl-A          | open the action panel; type to filter, `Enter` runs or opens submenu                            |
+| Ctrl-P          | open search-bar dropdown when present (wins over List `Ctrl-P` up)                              |
+| Ctrl-E          | open **Configure &lt;command&gt;** at the root                                                  |
+| Esc             | close alert/dropdown/submenu/panel, else pop view, else quit at root                            |
+| Ctrl-C          | quit (copy actions run from the action panel)                                                   |
+| Enter / Esc     | confirm / dismiss an open Alert                                                                 |
+| Ctrl-T / Ctrl-Y | toast primary / secondary action                                                                |
 
 ## Launcher
 
@@ -58,7 +58,9 @@ rename, kill), config reload, and TPM plugin management (`install`, `update`,
   progress toast and Retry on error.
 - `Esc` at a command's root, a finished `no-view` command, or the crash screen
   (`R` relaunches) returns to the root with selection kept. In `--popup` mode,
-  `closeMainWindow()` or a finished `no-view` command exits `0`.
+  `closeMainWindow()` or a finished `no-view` command exits `0`. `Ctrl-C` quits
+  from anywhere; the process exits `1` only if the last launched command crashed
+  (direct-command mode exits `1` on crash).
 - Saved preferences live in `<dataDir>/preferences/<encoded-name>.json`
   (plaintext, mode 0600; `<dataDir>` defaults to `$XDG_DATA_HOME/blast`).
 
@@ -74,19 +76,24 @@ frame, 10k-item keystroke latency, and cold/warm `--popup` startup using
 - `List` and `Grid` share selection, filtering, and pagination (`onLoadMore`
   fires once per item-count change at the last item/row when `hasMore` is set).
   Grid uses `columns` (default 5) and ignores `aspectRatio`, `fit`, and `inset`.
+  `List.EmptyView` and `Grid.EmptyView` show icon, title, and description,
+  falling back to `No results` when omitted.
 - `List.Dropdown` / `Grid.Dropdown` (`searchBarAccessory`) opens with `Ctrl-P`;
   the runtime owns the selected value.
 - `menu-bar` commands render `MenuBarExtra` as a navigable menu; items without
-  `onAction` render dimmed. `no-view` commands show feedback only and quit
-  after their HUD (`2.5 s`).
+  `onAction` render dimmed. `no-view` commands show feedback only and close
+  after their HUD (`2.5 s`), returning to the root (or quitting in `--popup`
+  or direct-command mode).
 - `Detail` and `List.Item.Detail` render terminal Markdown (headings, emphasis,
   lists, quotes, code, links) followed by metadata.
 - Raycast `Icon.*` names map to compact glyphs (`✓`, `⚙`, `★`, …); unknown
   icons and images fall back to a short label, `◇`, or `▣` (images are never
   fetched). `NO_COLOR` disables all color attributes.
-- Errors show the message, last log line, and `R Relaunch · Esc/B Back`.
-  Unknown nodes show `Unsupported view: <type>` (`Unsupported field: <type>` in
-  forms) and log once on stderr.
+- Non-animated toasts auto-dismiss after `3 s`; `animated` toasts stay until
+  updated, and a HUD line shows for `2.5 s`. Errors show the message, last log
+  line, and `R Relaunch · Esc/B Back`. Unknown nodes show
+  `Unsupported view: <type>` (`Unsupported field: <type>` in forms) and log once
+  on stderr.
 
 ## Forms
 

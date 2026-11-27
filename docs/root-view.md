@@ -24,9 +24,9 @@ on that session; other launch errors stay on the root with a failure toast.
 `back` at the command's root closes it; after `session.exited` the root resumes
 with its search cleared.
 
-The actions panel (`⌘⇧,`) includes Configure Command, which opens the command's
-preferences form as a session (`extension.configure`). `root.close` releases the
-root.
+The actions panel includes Configure Command (`⌘⇧,`, or `Ctrl+Shift+,` off
+macOS), which opens the command's preferences form as a session
+(`extension.configure`). `root.close` releases the root.
 
 ## In process
 
@@ -41,4 +41,4 @@ root.input({ type: "primary" });
 every extension opened on the engine. After `primary`, `view` becomes the launch
 prompt's, then the running command's, until its session ends and the root list
 returns. Hosts that key sessions themselves (like `blast serve`) pass
-`launch(target)` and return an `{ exited }` promise.
+`launch(target)`, resolving to `{ exited }` where `exited` is a promise.

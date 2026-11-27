@@ -38,7 +38,7 @@ serves browser tabs and content over a loopback WebSocket (decision 0018).
 
 ## Message flow
 
-1. `host → init` (version 1, command, preferences, `environment`,
+1. `host → init` (version 1, command, preferences, `environment` including
    `availableAPIs`). Runtime populates `environment` before importing code.
 2. `runtime → ready`, then initial `scene` and incremental `scene.patch`
    updates (full `scene` on root kind or root-id changes; decision 0019).
@@ -87,12 +87,22 @@ Handlers resolve engine → extension → launch, then session-scoped storage,
 OAuth tokens, and own-provider AI win. Unregistered capabilities are denied
 (decision 0010); thrown handlers return `failed`.
 
+`openExtension` returns a handle with `manifest()`, `watch()`,
+`dependencies`, `preferences()`, `savePreferences()` (splits extension and
+command scopes), and `launch()` (waits for installs, rejects missing required
+values with `MissingLaunchValuesError`, returns `{ session, close }`).
+`blast deps` installs `--omit=peer` under `<dataDir>/deps/` and repairs required
+non-supplied peers in up to two passes (preferring lock pins, recording
+additions in the install key, and warning on conflicts or unresolved peers).
+
 `bundleCommand` runs esbuild (`timeoutMs` default 60,000, 0 disables; `signal`
 cancels) and resolves in order: tsconfig `baseUrl`/`paths` inside the extension
-dir, `<dataDir>/deps/` installs (`blast deps`), then `@blastlauncher/shared-deps`.
+dir, `<dataDir>/deps/` installs, then `@blastlauncher/shared-deps`.
 `<outDir>/assets` symlinks `<extensionDir>/assets` (read-only copy fallback); the
-extension dir is never written. With `cacheDir` (`<dataDir>/bundles/`),
-unchanged builds reuse one slot per command.
+extension dir is never written. When `cacheDir` and `outDir` are omitted, builds
+go under `os.tmpdir()/blast/builds` (removed by the caller); with `cacheDir`
+(`<dataDir>/bundles/`), one slot per command is reused until the manifest,
+tsconfig aliases, dependency install, bundler, or any input file changes.
 
 `startCommand` spawns Node (`nodePath`, default `node`) running
 `@blastlauncher/runtime/main`, uses `<dataDir>/compile-cache/` unless `env` is
@@ -125,6 +135,8 @@ collects mounted fields by id. `PasswordField` keeps its value runtime-side
 (the scene sends only `hasValue: boolean`). Refs support `focus()` and `reset()`.
 `storeValue` and root `enableDrafts` persist via `blast:internal` (passwords
 never persist; successful submit clears drafts; pushed forms do not draft).
+`startCommand` loads stored drafts into `init.command.draftValues` to hydrate
+fields and `LaunchProps.draftValues`; shutdown waits for pending form writes.
 List/Grid pagination carries `pageSize`/`hasMore`; Quick Look props carry file
 metadata.
 

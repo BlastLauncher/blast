@@ -45,7 +45,9 @@ emit runtime logs without network reporting.
 Manifest preference defaults reach `getPreferenceValues()`, overridden by
 command defaults and caller-supplied values. The engine's launch prompt and TUI
 save preferences in `<dataDir>/preferences/<encoded-name>.json` (plaintext, mode
-0600); `preferences.open` opens the Configure form.
+0600). `preferences.open` is denied by the engine unless the embedder handles it
+(the TUI returns to the root and opens Configure; `blast run` answers and
+prints it).
 
 `open(target, application?)` requests `open.url` for URLs (`file:` URLs count as
 files) and `open.path` for files, so clients can grant URLs without file opens.
