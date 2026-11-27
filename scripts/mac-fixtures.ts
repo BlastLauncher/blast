@@ -6,7 +6,7 @@
 // Output is deterministic: object keys sorted, one view per file, no paths,
 // ids from the engine's own counters and a throwaway data directory.
 
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -38,6 +38,10 @@ type View = {
 };
 
 const VIEW_TIMEOUT_MS = 30_000;
+const FIXTURE_CONCURRENCY = 4;
+// Resolve the real Node binary once so overriding XDG_DATA_HOME per scenario
+// cannot trigger version-manager shims (e.g. mise) to reinstall Node into temp dirs.
+const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 
 class ServeSession {
   private readonly child: ChildProcessWithoutNullStreams;
@@ -79,7 +83,7 @@ class ServeSession {
   }
 
   static async start(root: string, dataDirectory: string): Promise<ServeSession> {
-    const child = spawn("node", [join(root, "packages/serve/src/main.ts")], {
+    const child = spawn(nodePath, [join(root, "packages/serve/src/main.ts")], {
       cwd: root,
       env: { ...process.env, XDG_DATA_HOME: dataDirectory },
       stdio: ["pipe", "pipe", "pipe"],
@@ -355,15 +359,25 @@ export async function generateFixtures(root: string): Promise<Record<FixtureName
   const dataDirectory = await mkdtemp(join(tmpdir(), "blast-mac-fixtures-"));
   try {
     const entries: Array<[FixtureName, string]> = [];
-    for (const name of FIXTURE_NAMES) {
-      const serve = await ServeSession.start(root, dataDirectory);
-      try {
-        entries.push([name, renderFixture(await scenarios[name](serve, dataDirectory))]);
-        await serve.shutdown();
-      } finally {
-        await serve.close();
+    let next = 0;
+    const worker = async () => {
+      while (next < FIXTURE_NAMES.length) {
+        const name = FIXTURE_NAMES[next++]!;
+        const scenarioDir = join(dataDirectory, name);
+        await mkdir(scenarioDir, { recursive: true });
+        const serve = await ServeSession.start(root, scenarioDir);
+        try {
+          const rendered = renderFixture(await scenarios[name](serve, scenarioDir));
+          await serve.shutdown();
+          entries.push([name, rendered]);
+        } finally {
+          await serve.close();
+        }
       }
-    }
+    };
+    await Promise.all(
+      Array.from({ length: Math.min(FIXTURE_CONCURRENCY, FIXTURE_NAMES.length) }, worker),
+    );
     return Object.fromEntries(entries) as Record<FixtureName, string>;
   } finally {
     await rm(dataDirectory, { recursive: true, force: true });
