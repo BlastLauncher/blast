@@ -71,9 +71,9 @@ Compatibility is measured against the latest `@raycast/api`, not claimed:
 The curated [smoke](./compat/SMOKE.md) renders 237/253 commands; dependency
 smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
 
-> **Alpha:** `3.0.0-alpha.9` is published on npm under `next`
-> (`npm install @blastlauncher/<package>@next`); `latest` still points at
-> Blast v1. Reference clients: the browser demo, the TUI, the Go and Python
+> **Alpha:** `3.0.0-alpha.10` is published on npm as `latest`
+> (`npm install @blastlauncher/<package>`); `@next` also carries a canary from
+> every `main` merge. Reference clients: the browser demo, the TUI, the Go and Python
 > embedders, the AppKit and web launchers.
 
 ## Packages

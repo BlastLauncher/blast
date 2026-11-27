@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M17 in progress: current and measured — latest `@raycast/api`, scene-patch
-decision, perf baseline, embedder view patches, a fresh `latest` release.
+M17 done: latest `@raycast/api`, scene patches, perf baseline, embedder
+protocol 2, and `3.0.0-alpha.10` as npm `latest`. Next milestone not planned yet.
 
 ## Milestones
 
@@ -90,3 +90,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-19: `@blastlauncher/native` hosts a loopback companion-extension WebSocket server for real `BrowserExtension` tabs and content (`0018`).
 - 2026-11-26: Runtime sends opt-in `scene.patch` updates; the engine keeps one pre-warmed standby runtime (`0019`).
 - 2026-11-26: Embedder protocol 2 replaces 1: full view, then generic set/delete/splice patches with strict revisions; scenes on request (`0020`).
+- 2026-11-27: `3.0.0-alpha.10` published; npm `latest` now tracks v3 on every package, including `cli` and `runtime`.
