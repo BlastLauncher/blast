@@ -73,3 +73,5 @@ Trigger changes (every check still runs for its own inputs and fails safe to all
 
 - `macos-example`, `go-example`, `python-example`, `tmux-plugin`: gated by `changes` (`scripts/ci-changes.ts`) via job `if:` (skipped jobs report `skipped`, passing required checks and avoiding macOS runner capacity queues on unrelated PRs).
 - `ci.yml` concurrency cancels superseded `pull_request` runs only, never `push` to `main`, so `prerelease.yml`'s `verify-ci` can reuse `main`'s CI `verify` check instead of duplicating it.
+- Local `bun run verify` serializes across worktrees via a lock file (`blast-verify.lock`) under `git rev-parse --git-common-dir` so concurrent checkouts take turns instead of starving each other (reclaiming stale locks automatically; set `BLAST_VERIFY_LOCK=0` to skip).
+- `tasks:land` retries infrastructure-cancelled CI jobs once (`gh run rerun <id> --failed`) when the only non-passing checks are `cancel` and the PR head has not changed; any `fail`, second `cancel`, or changed head still stops immediately.
