@@ -39,7 +39,7 @@ File Filter, and core Automation Tasks.
 
 ### M22 — Deeper Alfred workflow coverage
 
-- [ ] 0211 Additional Alfred utilities, actions, outputs, and Image View
+- [x] 0211 Additional Alfred utilities, actions, outputs, and Image View
 - [ ] 0212 Alfred File Filter (`input.filefilter`) with Spotlight + portable fallback
 - [ ] 0213 Core Alfred Automation Tasks (`automation.task`) and task-level coverage reporting
 
