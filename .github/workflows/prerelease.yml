@@ -26,12 +26,39 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      checks: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - id: ci
+        name: Reuse CI verify for this commit when available
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bun scripts/release/wait-ci-verify.ts --output "$GITHUB_OUTPUT"
+      - if: steps.ci.outputs.run_local == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - if: steps.ci.outputs.run_local == 'true'
+        name: Ensure tmux
+        run: command -v tmux >/dev/null || (sudo apt-get update && sudo apt-get install -y tmux)
+      - if: steps.ci.outputs.run_local == 'true'
+        run: bun install --frozen-lockfile
+      - if: steps.ci.outputs.run_local == 'true'
+        run: bun run verify
+
   build:
-    # Playwright 1.58 does not support ubuntu-26.04 yet (see site.yml); keep
-    # this job on 24.04 until `npx playwright install --with-deps chromium`
-    # accepts latest.
+    # Playwright 1.58 targets ubuntu-24.04 (which already ships Chromium's
+    # runtime shared libraries, so only the browser binary needs caching).
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
     permissions:
       contents: read
     outputs:
@@ -59,15 +86,20 @@ jobs:
           else
             bun scripts/release/prerelease.ts plan --version "$VERSION" --output "$GITHUB_OUTPUT"
           fi
-      - run: bun run verify
       - env:
           VERSION: ${{ steps.plan.outputs.version }}
         run: bun run release:build --version "$VERSION"
       - run: bun run release:smoke
+      - id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-1.58.0
       - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         env:
           PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
-        run: npx --yes playwright@1.58.0 install --with-deps chromium
+        run: .cache/browser-demo/deps/node_modules/.bin/playwright install chromium
       - name: Web tarball browser e2e
         env:
           PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
@@ -85,7 +117,7 @@ jobs:
 
   publish:
     if: ${{ (github.event_name == 'push' || inputs.dry_run == false) && needs.build.outputs.publish_packages != '' }}
-    needs: build
+    needs: [verify-ci, build]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
