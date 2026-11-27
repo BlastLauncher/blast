@@ -5,6 +5,7 @@
 
 import { randomUUID } from "node:crypto";
 import { appendFile, mkdir, stat, writeFile } from "node:fs/promises";
+import { automationTask, taskSettings } from "./automation-tasks.ts";
 import { fileUti, webSearchUrl } from "./catalogs.ts";
 import { evaluateExpression, formatExpressionResult } from "./expressions.ts";
 import { homedir } from "node:os";
@@ -34,7 +35,13 @@ export type GraphCapability =
   | "clipboard.read"
   | "open.url"
   | "open.path"
-  | "finder.show";
+  | "finder.show"
+  | "trash"
+  | "applications.frontmost"
+  | "browser.tabs"
+  | "window.active"
+  | "window.desktops"
+  | "window.setBounds";
 
 export type GraphScriptRequest = {
   object: AlfredObject;
@@ -196,7 +203,17 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-/** Alfred's comparison modes 0–6: ==, !=, <, >, regex, <=, >=. */
+/**
+ * Truthiness as `NSString.boolValue` reads it, which Alfred's "is true" uses:
+ * `true`/`yes`/`y`/`t` or a non-zero number (checkbox variables are `1`/`0`).
+ */
+export function isTrue(input: string): boolean {
+  const text = input.trim().toLowerCase();
+  if (["true", "yes", "y", "t"].includes(text)) return true;
+  return text !== "" && Number.isFinite(+text) && +text !== 0;
+}
+
+/** Conditional match modes: 0 ==, 1 !=, 2 >, 3 <, 4 regex, 5 is true, 6 is false. */
 export function compareCondition(
   input: string,
   mode: number,
@@ -204,24 +221,32 @@ export function compareCondition(
   caseSensitive: boolean,
 ): boolean {
   if (mode === 4) return new RegExp(match, caseSensitive ? "" : "i").test(input);
+  if (mode === 5) return isTrue(input);
+  if (mode === 6) return !isTrue(input);
   const a = caseSensitive ? input : input.toLowerCase();
   const b = caseSensitive ? match : match.toLowerCase();
   if (mode === 0) return a === b;
   if (mode === 1) return a !== b;
   const numeric = a.trim() !== "" && b.trim() !== "" && Number.isFinite(+a) && Number.isFinite(+b);
   const order = numeric ? Math.sign(+a - +b) : a < b ? -1 : a > b ? 1 : 0;
-  switch (mode) {
-    case 2:
-      return order < 0;
-    case 3:
-      return order > 0;
-    case 5:
-      return order <= 0;
-    case 6:
-      return order >= 0;
-    default:
-      throw new Error(`unknown match mode ${mode}`);
-  }
+  if (mode === 2) return order > 0;
+  if (mode === 3) return order < 0;
+  throw new Error(`unknown match mode ${mode}`);
+}
+
+/** Filter match modes: 0 ==, 1 !=, 2 regex. */
+export function compareFilter(
+  input: string,
+  mode: number,
+  match: string,
+  caseSensitive: boolean,
+): boolean {
+  if (mode === 2) return new RegExp(match, caseSensitive ? "" : "i").test(input);
+  const a = caseSensitive ? input : input.toLowerCase();
+  const b = caseSensitive ? match : match.toLowerCase();
+  if (mode === 0) return a === b;
+  if (mode === 1) return a !== b;
+  throw new Error(`unknown filter mode ${mode}`);
 }
 
 function unescapeDelimiter(text: string): string {
@@ -344,7 +369,7 @@ export async function executeWorkflowGraph(
     "utility.filter": async ({ config, flow, expand }) => {
       const input = await expand(plistString(config.inputstring) || "{query}");
       const match = await expand(plistString(config.matchstring));
-      const ok = compareCondition(
+      const ok = compareFilter(
         input,
         integer(config.matchmode),
         match,
@@ -602,6 +627,28 @@ export async function executeWorkflowGraph(
         await host.request("open.url", { url, ...(browser ? { application: browser } : {}) });
       }
       return pass(flow);
+    },
+
+    "automation.task": async ({ object, config, flow, expand }) => {
+      const taskuid = plistString(config.taskuid).trim();
+      const task = taskuid ? automationTask(taskuid) : undefined;
+      if (!task) {
+        const which = taskuid ? ` task ${taskuid}` : "";
+        warn(
+          `alfred: ${object.type} (${object.uid})${which} is not supported; that branch stops here`,
+        );
+        return undefined;
+      }
+      const arg = await task({
+        settings: taskSettings(config),
+        arg: flow.arg,
+        expand: (template) => expand(template),
+        request: (capability, params) => host.request(capability, params),
+        homeDir: home,
+        now: options.now ?? (() => new Date()),
+        random: options.random ?? Math.random,
+      });
+      return [{ arg, variables: flow.variables }];
     },
 
     "automation.runshortcut": async ({ config, flow, expand }) => {

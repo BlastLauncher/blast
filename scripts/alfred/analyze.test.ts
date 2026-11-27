@@ -9,6 +9,9 @@ import {
 import { analyzeWorkflowDirectory, formatAnalysis, type CorpusAnalysis } from "./analyze.ts";
 
 // Synthetic workflows only: the corpus itself is never committed.
+const TASK = "alfred.workflow.automation.task";
+const EXISTS = "com.alfredapp.automation.core/files-and-folders/path.exists";
+const QUIT = "com.alfredapp.automation.core/macOS/app.quit";
 let scratch = "";
 let corpus = "";
 let analysis: CorpusAnalysis;
@@ -16,7 +19,8 @@ let analysis: CorpusAnalysis;
 beforeAll(async () => {
   scratch = await mkdtemp(join(tmpdir(), "blast-alfred-analyze-"));
   corpus = join(scratch, "corpus");
-  // Fully supported, unpacked; the hotkey is a passive trigger.
+  // Fully supported, unpacked; the hotkey is a passive trigger and the
+  // Automation Task's `taskuid` is implemented.
   await writeWorkflow(
     join(corpus, "supported"),
     [
@@ -24,11 +28,13 @@ beforeAll(async () => {
       ["hot", "trigger.hotkey"],
       ["run", "action.script"],
       ["clip", "output.clipboard"],
+      ["exists", "automation.task", { taskuid: EXISTS, tasksettings: {} }],
     ],
     [
       ["kw", "run"],
       ["hot", "run"],
       ["run", "clip"],
+      ["clip", "exists"],
     ],
     { name: "Supported" },
   );
@@ -54,7 +60,8 @@ beforeAll(async () => {
       ["kw", "input.keyword", { keyword: "p" }],
       ["term", "action.terminalcommand"],
       ["task", "automation.task"],
-      ["task2", "automation.task"],
+      ["task2", "automation.task", { taskuid: QUIT }],
+      ["task3", "automation.task", { taskuid: EXISTS }],
     ],
     [["kw", "task"]],
     { name: "Partial" },
@@ -101,7 +108,7 @@ describe("analyzeWorkflowDirectory", () => {
       ok: true,
       name: "Supported",
       commands: 1,
-      objects: { total: 4, supported: 3, passive: 1, unsupported: 0 },
+      objects: { total: 5, supported: 4, passive: 1, unsupported: 0 },
       fullySupported: true,
     });
     expect(byPath["downloads/a.alfredworkflow"]).toMatchObject({
@@ -114,12 +121,9 @@ describe("analyzeWorkflowDirectory", () => {
     expect(byPath["nested/deeper/partial"]).toMatchObject({
       ok: true,
       commands: 1,
-      objects: { total: 4, supported: 1, passive: 0, unsupported: 3 },
-      unsupportedTypes: [
-        "alfred.workflow.action.terminalcommand",
-        "alfred.workflow.automation.task",
-        "alfred.workflow.automation.task",
-      ],
+      objects: { total: 5, supported: 2, passive: 0, unsupported: 3 },
+      // Without a `taskuid` the bare type is the label.
+      unsupportedTypes: ["alfred.workflow.action.terminalcommand", TASK, `${TASK}:${QUIT}`],
       fullySupported: false,
     });
     expect(byPath["hotkey-only"]).toMatchObject({ ok: true, commands: 0, fullySupported: false });
@@ -135,12 +139,13 @@ describe("analyzeWorkflowDirectory", () => {
       parsed: 4,
       runnable: 3,
       fullySupported: 2,
-      objects: { total: 12, supported: 7, passive: 2, unsupported: 3 },
-      // 7 supported of 10 executable objects; passive triggers are excluded.
-      coverage: 70,
+      objects: { total: 14, supported: 9, passive: 2, unsupported: 3 },
+      // 9 supported of 12 executable objects; passive triggers are excluded.
+      coverage: 75,
       topUnsupported: [
-        { type: "alfred.workflow.automation.task", count: 2 },
         { type: "alfred.workflow.action.terminalcommand", count: 1 },
+        { type: TASK, count: 1 },
+        { type: `${TASK}:${QUIT}`, count: 1 },
       ],
     });
   });
@@ -149,9 +154,9 @@ describe("analyzeWorkflowDirectory", () => {
     const text = formatAnalysis(analysis, 1);
     expect(text).toContain("Workflows:            6");
     expect(text).toContain("Fully supported:      2 (33%)");
-    expect(text).toContain("Execution coverage:   70%");
-    expect(text).toContain("    2  alfred.workflow.automation.task");
-    expect(text).not.toContain("alfred.workflow.action.terminalcommand");
+    expect(text).toContain("Execution coverage:   75%");
+    expect(text).toContain("    1  alfred.workflow.action.terminalcommand");
+    expect(text).not.toContain(TASK);
     expect(text).toContain("corrupt.alfredworkflow:");
   });
 
