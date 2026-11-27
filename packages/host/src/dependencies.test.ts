@@ -25,12 +25,12 @@ async function bundle(command: string, extensionDir = fixture) {
 }
 async function execute(entry: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(nodePath, [
-      "--input-type=module",
-      "-e",
-      "(await import(process.argv[1])).default()",
-      entry,
-    ]);
+    const child = spawn(
+      nodePath,
+      ["--input-type=module", "-e", "(await import(process.argv[1])).default()", entry],
+      // Parallel test workers inherit FORCE_COLOR=1, which makes Node colorize booleans.
+      { env: { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0" } },
+    );
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk) => {

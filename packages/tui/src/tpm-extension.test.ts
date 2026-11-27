@@ -12,7 +12,8 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { openExtension, type ExtensionHandle } from "@blastlauncher/host";
-import type { JsonValue, SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import type { JsonValue, SceneNode } from "@blastlauncher/protocol";
+import { waitSceneMatch } from "./test-support.ts";
 import { detectTpmPluginsDir } from "./tpm.ts";
 
 const extensionDir = resolve(import.meta.dir, "../extensions/tpm");
@@ -32,20 +33,7 @@ function sceneMatching<T>(
   pick: (root: SceneNode | null | undefined) => T | undefined,
   what: string,
 ): Promise<T> {
-  return new Promise((done, fail) => {
-    let stop: (() => void) | undefined;
-    const timer = setTimeout(() => {
-      stop?.();
-      fail(new Error(`Timed out waiting for ${what}`));
-    }, 10_000);
-    stop = opened.session.scenes((scene: SceneMessage) => {
-      const match = pick(scene.root);
-      if (match === undefined) return;
-      clearTimeout(timer);
-      queueMicrotask(() => stop?.());
-      done(match);
-    });
-  });
+  return waitSceneMatch(opened.session, (scene) => pick(scene.root), what, 10_000);
 }
 
 function fire(opened: Opened, node: SceneNode, prop: string, args: JsonValue[] = []) {

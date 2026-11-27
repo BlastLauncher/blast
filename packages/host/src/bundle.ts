@@ -26,6 +26,7 @@ import {
   type SharedDependencies,
   type SharedDependencyLoader,
 } from "./dependencies.ts";
+import { defaultNodePath } from "./session.ts";
 import { loadTsconfigAliases } from "./tsconfig-paths.ts";
 import { parsePreferences, preferenceDefaults } from "@blastlauncher/protocol/preference-fields";
 export {
@@ -49,9 +50,11 @@ function nodeBuiltins(): Set<string> {
   return (builtins ??= new Set<string>(
     process.versions.bun
       ? JSON.parse(
-          execFileSync("node", ["-p", "JSON.stringify(require('node:module').builtinModules)"], {
-            encoding: "utf8",
-          }),
+          execFileSync(
+            defaultNodePath(),
+            ["-p", "JSON.stringify(require('node:module').builtinModules)"],
+            { encoding: "utf8" },
+          ),
         )
       : builtinModules,
   ));

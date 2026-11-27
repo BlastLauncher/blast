@@ -3,7 +3,8 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { openExtension, type ExtensionHandle } from "@blastlauncher/host";
-import type { JsonValue, SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import type { JsonValue, SceneNode } from "@blastlauncher/protocol";
+import { waitSceneMatch } from "./test-support.ts";
 
 const extensionDir = resolve(import.meta.dir, "../extensions/tmux");
 const available = spawnSync("tmux", ["-V"]).status === 0;
@@ -87,20 +88,7 @@ function sceneMatching<T>(
   pick: (root: SceneNode | null | undefined) => T | undefined,
   what: string,
 ): Promise<T> {
-  return new Promise((done, fail) => {
-    let stop: (() => void) | undefined;
-    const timer = setTimeout(() => {
-      stop?.();
-      fail(new Error(`Timed out waiting for ${what}`));
-    }, 10_000);
-    stop = opened.session.scenes((scene: SceneMessage) => {
-      const found = pick(scene.root);
-      if (found === undefined) return;
-      clearTimeout(timer);
-      queueMicrotask(() => stop?.());
-      done(found);
-    });
-  });
+  return waitSceneMatch(opened.session, (scene) => pick(scene.root), what, 10_000);
 }
 
 /** Resolves with the first scene (latest or later) that contains a `type` node. */

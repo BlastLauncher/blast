@@ -436,6 +436,9 @@ function waitForChecks(
   fail(`checks did not complete before timeout: ${pending.join(", ") || "no checks reported"}`);
 }
 
+/** Default PR check polling interval (ms) for `tasks:land`. */
+export const DEFAULT_LAND_POLL_MS = 5_000;
+
 /** Pushes the task branch, opens or reuses its PR, waits for green checks,
  * merges it and cleans up. Returns the PR URL. */
 export function landTask(root: string, id: string, options: LandOptions = {}): string {
@@ -445,7 +448,7 @@ export function landTask(root: string, id: string, options: LandOptions = {}): s
     now: options.now ?? (() => Date.now()),
     log: options.log ?? ((line: string) => console.log(line)),
     timeoutMs: options.timeoutMs ?? 1_800_000,
-    pollMs: options.pollMs ?? 20_000,
+    pollMs: options.pollMs ?? DEFAULT_LAND_POLL_MS,
   };
   const taskBranch = requireTaskBranchClean(runner, root);
   const done = doneTask(runner, root, id);
@@ -507,7 +510,7 @@ export function landTask(root: string, id: string, options: LandOptions = {}): s
 
 function usage(): never {
   console.error(
-    "usage: tasks.ts next [--json] | start <id> [--co-author <value>] | merge <id> [--branch <b>] [--plan <text>] [--co-author <value>] | land <id> [--timeout-ms <ms>]",
+    "usage: tasks.ts next [--json] | start <id> [--co-author <value>] | merge <id> [--branch <b>] [--plan <text>] [--co-author <value>] | land <id> [--timeout-ms <ms>] [--poll-ms <ms>]",
   );
   process.exit(2);
 }
@@ -554,7 +557,14 @@ if (import.meta.main) {
       const timeoutArg = timeoutIndex >= 0 ? Number(args[timeoutIndex + 1]) : undefined;
       if (timeoutArg !== undefined && !(Number.isInteger(timeoutArg) && timeoutArg > 0))
         fail("--timeout-ms must be a positive integer");
-      console.log(landTask(root, id, timeoutArg === undefined ? {} : { timeoutMs: timeoutArg }));
+      const pollIndex = args.indexOf("--poll-ms");
+      const pollArg = pollIndex >= 0 ? Number(args[pollIndex + 1]) : undefined;
+      if (pollArg !== undefined && !(Number.isInteger(pollArg) && pollArg > 0))
+        fail("--poll-ms must be a positive integer");
+      const landOptions: LandOptions = {};
+      if (timeoutArg !== undefined) landOptions.timeoutMs = timeoutArg;
+      if (pollArg !== undefined) landOptions.pollMs = pollArg;
+      console.log(landTask(root, id, landOptions));
     } else usage();
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

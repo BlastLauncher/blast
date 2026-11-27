@@ -8,7 +8,7 @@ import {
 import type { DependencyInstaller } from "./install-dependencies.ts";
 import { createRoot, type Root, type RootOptions, type RootSource } from "./root.ts";
 import { createRuntimePool } from "./runtime-pool.ts";
-import { runtimeEnvironment } from "./session.ts";
+import { defaultNodePath, runtimeEnvironment } from "./session.ts";
 import { defaultDataDir } from "./storage.ts";
 
 /** Shared defaults and capability registrations for a group of extensions. */
@@ -38,7 +38,7 @@ export function createEngine(
       prewarmTimer = undefined;
       if (closing) return;
       runtimePool.prewarm({
-        nodePath: "node",
+        nodePath: defaultNodePath(),
         env: {
           ...runtimeEnvironment(process.env, options.inheritEnv),
           NODE_ENV: "production",

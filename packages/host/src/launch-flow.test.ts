@@ -8,7 +8,9 @@ import {
   preferenceFile,
   startLaunchFlow,
   type DependencyInstaller,
+  type Session,
 } from "./index.ts";
+import { waitForScene, waitForSubscription } from "./test-helper.ts";
 
 const views = { platform: "Linux" } as const;
 const cleanups: (() => Promise<void>)[] = [];
@@ -43,31 +45,17 @@ function until(
   flow: { subscribe(listener: (view: ControllerView) => void): () => void },
   match: (view: ControllerView) => boolean,
 ): Promise<ControllerView> {
-  return new Promise((resolve, reject) => {
-    let stop: (() => void) | undefined;
-    const timer = setTimeout(() => {
-      stop?.();
-      reject(new Error("Timed out waiting for a view"));
-    }, 10_000);
-    stop = flow.subscribe((view) => {
-      if (!match(view)) return;
-      clearTimeout(timer);
-      queueMicrotask(() => stop?.());
-      resolve(view);
-    });
-  });
+  return waitForSubscription((listener) => flow.subscribe(listener), match, { label: "a view" });
 }
 const isForm = (view: ControllerView) => view.kind === "form";
 const toast = (style: string) => (view: ControllerView) => view.feedback.toast?.style === style;
 const fieldIds = (view: ControllerView) => view.form?.fields.map((field) => field.id);
 
-async function sceneText(opened: { session: { scenes(l: (scene: unknown) => void): () => void } }) {
-  return new Promise<string>((resolve) => {
-    opened.session.scenes((scene) => {
-      const text = JSON.stringify(scene);
-      if (text.includes("Engine fixture")) resolve(text);
-    });
-  });
+async function sceneText(opened: { session: Session }) {
+  const scene = await waitForScene(opened.session, (next) =>
+    JSON.stringify(next).includes("Engine fixture"),
+  );
+  return JSON.stringify(scene);
 }
 
 test("launch flow: missing preferences and arguments become a form, then the command runs", async () => {

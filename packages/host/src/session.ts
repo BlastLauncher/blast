@@ -13,7 +13,7 @@ import {
   type LogMessage,
   type SceneMessage,
 } from "@blastlauncher/protocol";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -85,6 +85,24 @@ export type Session = {
   exited: Promise<Exit>;
 };
 
+let resolvedNodePath: string | undefined;
+/**
+ * Default Node.js executable for runtime children. Under Node, reuse
+ * `process.execPath` directly; under Bun, resolve `"node"` once so version
+ * manager shims (mise, nvm, volta) are not re-invoked per launch.
+ */
+export function defaultNodePath(): string {
+  if (resolvedNodePath !== undefined) return resolvedNodePath;
+  if (!process.versions.bun) return (resolvedNodePath = process.execPath);
+  try {
+    const out = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
+    if (out) return (resolvedNodePath = out);
+  } catch {
+    // Fall back to PATH lookup if resolution fails.
+  }
+  return (resolvedNodePath = "node");
+}
+
 /** Resolves after the version handshake. Startup failures reject only after child cleanup. */
 export async function startCommand(options: StartOptions): Promise<Session> {
   const ai = options.mode === "model-provider" ? undefined : createAIRouter(options);
@@ -100,7 +118,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
         name.replaceAll(".", "%2e"),
       ),
     );
-  const childNodePath = options.nodePath ?? "node";
+  const childNodePath = options.nodePath ?? defaultNodePath();
   const childEnv = options.env ?? {
     ...runtimeEnvironment(process.env, options.inheritEnv),
     // Production React/reconciler bundles avoid dev-mode fiber checks (~2.8x faster commits).
@@ -290,7 +308,13 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     stderr += message;
     addLog({ type: "log", level: "error", message });
   });
-  child.stdin.on("error", fail);
+  let shutdown: Promise<Exit> | undefined;
+  child.stdin.on("error", (error: NodeJS.ErrnoException) => {
+    // Once shutdown has begun (or a no-view command exits on its own right as
+    // shutdown writes), EPIPE on stdin only means the child already closed it.
+    if (shutdown && (error.code === "EPIPE" || error.code === "ERR_STREAM_DESTROYED")) return;
+    fail(error);
+  });
   child.on("error", fail);
   child.on("close", async (code, signal) => {
     closed = true;
@@ -313,7 +337,6 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       throw exit.error ?? new Error("Runtime exited before ready");
     }),
   ]);
-  let shutdown: Promise<Exit> | undefined;
   return {
     get latestScene() {
       return latestScene;
@@ -329,7 +352,14 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     },
     scenes(callback) {
       if (!closed) listeners.add(callback);
-      if (latestScene) callback(latestScene);
+      if (latestScene) {
+        try {
+          callback(latestScene);
+        } catch (error) {
+          listeners.delete(callback);
+          throw error;
+        }
+      }
       return () => {
         listeners.delete(callback);
       };
@@ -340,6 +370,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     },
     shutdown({ timeoutMs = 1000 } = {}) {
       if (shutdown || closed) return shutdown ?? exited;
+      shutdown = exited;
       send({ type: "shutdown" });
       timers.add(
         setTimeout(() => {
@@ -347,7 +378,6 @@ export async function startCommand(options: StartOptions): Promise<Session> {
           timers.add(setTimeout(() => child.kill("SIGKILL"), timeoutMs));
         }, timeoutMs),
       );
-      shutdown = exited;
       return shutdown;
     },
     exited,
