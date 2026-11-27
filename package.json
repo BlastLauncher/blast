@@ -35,6 +35,7 @@
     "corpus:tui-smoke": "bun scripts/corpus/tui-smoke-run.ts",
     "corpus:sweep": "bun scripts/corpus/sweep-run.ts",
     "check:workflow": "bun scripts/check-workflow.ts",
+    "alfred:analyze": "bun scripts/alfred/analyze.ts",
     "tasks:next": "bun scripts/tasks.ts next",
     "tasks:start": "bun scripts/tasks.ts start",
     "tasks:merge": "bun scripts/tasks.ts merge",
