@@ -73,6 +73,18 @@ describe("docs site", () => {
     expect(docs.get("docs/index.html")).toContain("<h1");
   });
 
+  test("the Alfred chapter sits after tui and the overview names both sources", () => {
+    expect(slugs.indexOf("alfred")).toBe(slugs.indexOf("tui") + 1);
+    expect(slugs.indexOf("architecture")).toBe(slugs.indexOf("alfred") + 1);
+    const index = docs.get("docs/index.html")!;
+    expect(index).toContain("Blast runs unmodified Raycast extensions and Alfred workflows");
+    expect(index).toContain('href="/docs/alfred/"');
+    const alfred = docs.get("docs/alfred/index.html")!;
+    expect(alfred).toContain('href="https://github.com/BlastLauncher/blast/issues/139"');
+    // Chapter links inside alfred.md resolve to sibling pages, not GitHub blobs.
+    expect(alfred).toContain('href="/docs/embedding/"');
+  });
+
   test("the sidebar lists all chapters in order and marks exactly the current page", () => {
     for (const [path, html] of pages) {
       const sidebar = sidebarOf(html);
