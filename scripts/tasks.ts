@@ -259,7 +259,21 @@ function selectWorkerBranch(
 ): string {
   if (explicitBranch) return explicitBranch;
   const fromTaskHandoff = handoffBranch(task.text);
-  if (fromTaskHandoff && fromTaskHandoff !== taskBranch) return fromTaskHandoff;
+  if (fromTaskHandoff && fromTaskHandoff !== taskBranch) {
+    // A Handoff line can be stale. Trust it only for a branch forked from this
+    // task branch: it contains the task branch's first own commit (the start
+    // commit), which `main` or another task's old worker never does.
+    const own = runner("git", ["rev-list", "--reverse", `main..${taskBranch}`], wtPath);
+    const start = own.status === 0 ? own.stdout.split("\n")[0]?.trim() : "";
+    const forked =
+      branchHead(runner, wtPath, fromTaskHandoff) !== "" &&
+      runner("git", ["merge-base", "--is-ancestor", start || taskBranch, fromTaskHandoff], wtPath)
+        .status === 0;
+    if (forked) return fromTaskHandoff;
+    console.log(
+      `Handoff branch ${fromTaskHandoff} is not forked from ${taskBranch}; scanning worktrees instead.`,
+    );
+  }
 
   const slug = task.file.slice(5, -3);
   const allWts = worktrees(runner, wtPath);

@@ -514,6 +514,33 @@ describe("tasks:merge", () => {
     expect(git(taskWt, "show", "-s", "--format=%s", "HEAD")).toBe("chore(0001): done");
   });
 
+  test("ignores a stale Handoff branch that was not forked from the task branch", () => {
+    const { root, taskWt } = startedTask();
+    // The real worker, found by the scan through the task slug in its name.
+    const workerPath = worktree(root, "t3/0001-merge-worker", "task/0001-merge");
+    commit(workerPath, { "work.txt": "real\n" }, "feat(0001): work");
+    // A stale branch that exists and has unrelated commits, but never contained the task branch.
+    const stalePath = worktree(root, "t3/stale", "main");
+    commit(stalePath, { "stale.txt": "unrelated\n" }, "feat(0099): unrelated");
+    commit(
+      taskWt,
+      {
+        "tasks/0001-merge.md": task(
+          "0001",
+          "doing",
+          "[]",
+          "```\nBranch/commit: t3/stale @ abc123\n```\n",
+        ),
+      },
+      "chore(0001): stale handoff",
+    );
+
+    mergeTask(root, "0001", {}, simulated().runner);
+    expect(readFileSync(join(taskWt, "work.txt"), "utf8")).toBe("real\n");
+    expect(existsSync(join(taskWt, "stale.txt"))).toBe(false);
+    expect(git(taskWt, "show", "-s", "--format=%s", "HEAD^")).toContain("t3/0001-merge-worker");
+  });
+
   test("counts branches at the same commit once and prefers the Handoff branch name", () => {
     const { root, taskWt } = startedTask();
     const workerPath = worktree(root, "z-worker", "task/0001-merge");
