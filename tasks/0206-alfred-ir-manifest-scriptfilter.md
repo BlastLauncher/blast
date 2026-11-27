@@ -125,8 +125,17 @@ Script Filter JSON + legacy XML output parser (`script-filter.ts`) to
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/alfred-ir-manifest-scriptfilter @ 8e3da221 (Handoff commit follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 37.2s
 Done:
+- packages/alfred depends only on @blastlauncher/protocol (workspace:*); bun.lock updated, frozen install passes.
+- workflow.ts: AlfredWorkflow IR, parseWorkflow (rejects non-dict roots, defaults optional sections), loadWorkflow, decodeModifierMask, normalizeModifierKey, parseListFilterItems (JSON string or array).
+- manifest.ts: AlfredManifest (structural ExtensionManifest), resolveWorkflowTemplate ({var:} / {const:}), mapUserConfigToPreferences (all 6 types plus fallback; required "" default omitted), workflowToManifest (entry selection plus fallbacks, unique slugs, keyword args, reachable-UI mode, icons).
+- script-filter.ts: parseScriptFilterOutput for JSON (clamped rerun/cache, canonical mods, stringified variables) and legacy XML (own small reader: attributes, CDATA, entities, <subtitle mod>, <mod>, <icon>, <text>).
+- Tests: workflow.test.ts, manifest.test.ts, script-filter.test.ts; index.ts re-exports all three. Node 24 import check exits 0.
 Not done / risks:
+- normalizeModifierKey returns undefined for empty or unknown tokens; script-filter drops such mods rather than failing the whole output.
+- UI type strings userinterface.grid and utility.dialog are taken from this task as written; not checked against real workflows yet (0207/0208 corpus should confirm).
+- Choices the task did not specify: object-level `disabled` is not modeled (connection `disabled` is); keyword argumenttype missing or unknown → optional query; command subtitle = resolved subtext, description = workflow description; checkbox defaults expand to "1"/"0" in {var:}.
+- Legacy XML keeps unknown or invalid entity references verbatim instead of failing; legacy <text type="largetype"> (Alfred's documented spelling) and "largetext" both map to text.largetext.
 ```
