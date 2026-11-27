@@ -1,7 +1,7 @@
 ---
 id: "0199"
 title: Trim and rewrite the docs for readability
-status: doing
+status: review
 milestone: M18
 depends: []
 ---
@@ -40,15 +40,15 @@ true of the code today.
 
 ## Acceptance
 
-- [ ] Each of `README.md` and `docs/*.md` (not `docs/decisions/`) is shorter
+- [x] Each of `README.md` and `docs/*.md` (not `docs/decisions/`) is shorter
       or equal in lines; `docs/architecture.md` ≤ 150 lines.
-- [ ] No prose line over 100 columns outside code fences and tables
+- [x] No prose line over 100 columns outside code fences and tables
       (report the check command you used and its output in Handoff).
-- [ ] `git grep -n '\.md#'` links all resolve to existing headings (say how
+- [x] `git grep -n '\.md#'` links all resolve to existing headings (say how
       you checked).
-- [ ] No stale claims: `git grep -n -i 'embedder-v1\|protocol 1\|alpha\.9\|scenePatches'`
+- [x] No stale claims: `git grep -n -i 'embedder-v1\|protocol 1\|alpha\.9\|scenePatches'`
       in `README.md` and `docs/` (excluding `docs/decisions/`) is empty.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -62,8 +62,13 @@ true of the code today.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/trim-rewrite-docs @ faa46665 (plus handoff commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 140.2s
 Done:
+- Trimmed and rewrote `README.md` (115 lines, was 116), `docs/architecture.md` (135 lines, was 188), `docs/capabilities.md` (98, was 138), `docs/cli.md` (111, was 119), `docs/embedding.md` (136, was 137), `docs/launch-prompts.md` (41, was 45), `docs/quickstart.md` (110, was 114), `docs/root-view.md` (44, was 45), `docs/tui.md` (104, was 116), and `docs/walkthroughs/*.md` (24 each, was 24).
+- Removed duplicated API/flag details from `docs/architecture.md` and `docs/capabilities.md` in favor of links, and verified kept claims against code and `docs/decisions/` (updated TUI key docs to `Ctrl-A` action panel / `Ctrl-P`/`Ctrl-K`/`Ctrl-N`/`Ctrl-J` list movement / `Ctrl-E` configure, `hello.scenes`, `*.view.patch` + resync, always-on `scene.patch`, standby runtime pool, and `3.0.0-alpha.10` as npm `latest`).
+- Width & line-count check: Python script scanning `README.md`, `docs/*.md`, and `docs/walkthroughs/*.md` outside fenced code blocks and `|` tables reported `bad_counts: []` and `bad_lines: []` (> 100 cols).
+- Anchor & stale-term check: `git grep -n '\.md#' -- README.md 'docs/' ':!docs/decisions/'` returned only `README.md:47:[tmux palette](./docs/tui.md#tmux-palette)` (plus `examples/browser-demo/README.md:47` linking `docs/embedding.md#network-proxy`), verified against `## tmux palette` / `## Network proxy` and `bun test examples/browser-demo/docs-site.test.ts`; `git grep -n -i 'embedder-v1\|protocol 1\|alpha\.9\|scenePatches' -- README.md 'docs/' ':!docs/decisions/'` returned nothing.
 Not done / risks:
+- `docs/performance.md` and `docs/release.md` were left untouched (owned by parallel task 0198).
 ```
