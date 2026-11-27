@@ -124,6 +124,17 @@ describe("parseWorkflow", () => {
     });
   });
 
+  test("keeps Alfred 5 inboundconfig only when present", () => {
+    const workflow = parseWorkflow({
+      objects: [
+        { uid: "A", type: "t", inboundconfig: { externalid: "go" } },
+        { uid: "B", type: "t", inboundconfig: "bogus" },
+      ],
+    });
+    expect(workflow.objects[0]!.inboundConfig).toEqual({ externalid: "go" });
+    expect("inboundConfig" in workflow.objects[1]!).toBe(false);
+  });
+
   test("rejects non-dictionary roots and malformed objects", () => {
     expect(() => parseWorkflow([])).toThrow("root must be a dictionary, found an array");
     expect(() => parseWorkflow("plist")).toThrow("root must be a dictionary, found string");
