@@ -77,11 +77,11 @@ as commands in `workflowToManifest`, supporting mid-graph `openView` handoffs
 
 ## Acceptance
 
-- [ ] `packages/alfred/src/file-filter.test.ts` tests `matchesUti` (exact + supertypes + folders), `buildMdfindQuery` (escaping, UTIs, `not` exclusions, date ranges), `searchFilesPortable` (scopes, UTIs, exclusions, date range, sort modes, limit, `AbortSignal`), and `searchFiles` fallback behavior.
-- [ ] `packages/alfred/src/manifest.test.ts` tests `input.filefilter` entry mapping (`mode: "view"`, slug, icons, reachable UI).
-- [ ] `packages/alfred/src/runtime.test.ts` tests `input.filefilter` both as a top-level command and via mid-graph handoff with dynamic `scopes` override (verifying `List.Item` rendering with `fileIcon`, search updates, primary downstream routing, and `Reveal in Finder` / `Open File` capabilities).
-- [ ] `packages/alfred/src/support.test.ts` passes with `alfred.workflow.input.filefilter` included (39 supported object types).
-- [ ] `docs/alfred.md` is updated (≤ 120 lines) and `bun run verify` passes.
+- [x] `packages/alfred/src/file-filter.test.ts` tests `matchesUti` (exact + supertypes + folders), `buildMdfindQuery` (escaping, UTIs, `not` exclusions, date ranges), `searchFilesPortable` (scopes, UTIs, exclusions, date range, sort modes, limit, `AbortSignal`), and `searchFiles` fallback behavior.
+- [x] `packages/alfred/src/manifest.test.ts` tests `input.filefilter` entry mapping (`mode: "view"`, slug, icons, reachable UI).
+- [x] `packages/alfred/src/runtime.test.ts` tests `input.filefilter` both as a top-level command and via mid-graph handoff with dynamic `scopes` override (verifying `List.Item` rendering with `fileIcon`, search updates, primary downstream routing, and `Reveal in Finder` / `Open File` capabilities).
+- [x] `packages/alfred/src/support.test.ts` passes with `alfred.workflow.input.filefilter` included (39 supported object types).
+- [x] `docs/alfred.md` is updated (≤ 120 lines) and `bun run verify` passes.
 
 ## Out of scope
 
@@ -90,8 +90,32 @@ as commands in `workflowToManifest`, supporting mid-graph `openView` handoffs
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/d87ded59 @ b1859f4f (this Handoff is the next commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 40.9s
 Done:
+- catalogs.ts: 10 more extensions (webp, svg, tiff/tif, bmp, heic, csv, xml,
+  yaml/yml, app), `utiTree` conformance and `matchesUti` (exact, supertypes,
+  folders; `.app` folders are application bundles, also for File Utility).
+- file-filter.ts: `fileFilterConfig`, `resolveScopes`, `buildMdfindQuery`
+  (escapes \ ' " *; attribute names validated), `searchFilesPortable`
+  (BFS, sorted, depth 8 / 20k entries, hidden and bundles skipped, abortable),
+  `searchFiles` (mdfind -0 -onlyin per scope; injectable runner/platform;
+  falls back on error or on 0 results for an existing scope).
+- FILE_FILTER is an entry/view/UI type, `input.filefilter` a graph view type
+  and the 39th supported type; runtime `fileFilterEntry` (injectable
+  `searchFiles`) handles load() and openView() with config overrides.
+- Items: basename, `~`-shortened folder, `{ fileIcon }`; Continue, modifier
+  connections, Copy Path ⌘C, Reveal in Finder ⌘⇧F, Open File ⌘O, Large Type ⌘L.
+- Tests: file-filter, manifest, runtime (top level + JSON Config handoff),
+  graph handoff, support; analyze.test.ts now uses action.terminalcommand
+  as its unsupported example. docs/alfred.md is 120 lines.
 Not done / risks:
+- `runningsubtext` is ignored; queries match file names by substring
+  (kMDItemFSName), not Alfred's own ranking. Spotlight-only field filters
+  (e.g. kMDItemAuthors) are skipped by the portable walk.
+- An empty mdfind answer for an existing scope triggers the walk, so a
+  genuinely empty home-folder search walks up to 20k entries; mdfind output
+  is capped at 2000 paths before sorting.
+- Real mdfind was smoke-tested by hand on macOS (Node 24, /System/Applications);
+  tests always inject the runner. Diff is ~650 product/docs + ~640 test lines.
 ```
