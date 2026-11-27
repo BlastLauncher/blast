@@ -90,12 +90,12 @@ extractor.
 
 ## Acceptance
 
-- [ ] `docs/decisions/0021-alfred-workflows.md` exists, is ≤ 60 lines, and passes `bun run check:workflow`.
-- [ ] `packages/alfred/package.json` exists with zero external dependencies and `bun.lock` is updated cleanly (`bun install --frozen-lockfile` succeeds).
-- [ ] `packages/alfred/src/plist.test.ts` tests XML plist parsing (all types, entities, CDATA, comments, self-closing tags, realistic Alfred `info.plist`), binary `bplist00` parsing (all marker types, dates, UTF-16BE, nested containers), and malformed/cyclic rejection.
-- [ ] `packages/alfred/src/archive.test.ts` tests stored and deflated ZIP entries, executable bit preservation, CRC32 mismatch rejection, path traversal and symlink rejection, zip-bomb limits, `__MACOSX/` skipping, and idempotent atomic extraction.
-- [ ] `node -e 'import("./packages/alfred/src/index.ts").then(m => { if (!m.parsePlist || !m.extractWorkflowArchive) process.exit(1); })'` exits 0 on Node 24 without a build step.
-- [ ] `bun run verify` passes.
+- [x] `docs/decisions/0021-alfred-workflows.md` exists, is ≤ 60 lines, and passes `bun run check:workflow`.
+- [x] `packages/alfred/package.json` exists with zero external dependencies and `bun.lock` is updated cleanly (`bun install --frozen-lockfile` succeeds).
+- [x] `packages/alfred/src/plist.test.ts` tests XML plist parsing (all types, entities, CDATA, comments, self-closing tags, realistic Alfred `info.plist`), binary `bplist00` parsing (all marker types, dates, UTF-16BE, nested containers), and malformed/cyclic rejection.
+- [x] `packages/alfred/src/archive.test.ts` tests stored and deflated ZIP entries, executable bit preservation, CRC32 mismatch rejection, path traversal and symlink rejection, zip-bomb limits, `__MACOSX/` skipping, and idempotent atomic extraction.
+- [x] `node -e 'import("./packages/alfred/src/index.ts").then(m => { if (!m.parsePlist || !m.extractWorkflowArchive) process.exit(1); })'` exits 0 on Node 24 without a build step.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -106,8 +106,18 @@ extractor.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/alfred-foundation @ 9f57bc2f (implementation; Handoff committed on top)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 42.4s — 1365 pass, 1 skip, 0 fail
 Done:
+- docs/decisions/0021-alfred-workflows.md (54 lines) records the five required decisions; docs/architecture.md package table lists packages/alfred.
+- New zero-dependency @blastlauncher/alfred workspace package (bun.lock updated; `bun install --frozen-lockfile` clean); index.ts re-exports plist and archive.
+- plist.ts: parsePlist auto-detects bplist00 vs XML (string or bytes, BOM stripped). XML: all value types, entities incl. astral refs, CDATA, comments, DOCTYPE with internal subset, self-closing tags, line/column errors. Binary: trailer/offset-table validation, all listed markers (UID → { CF$UID }, set → array, 16-byte ints), bounds checks, cycle detection, depth limit 512, per-ref memoisation so shared-subtree DAGs cannot blow up.
+- archive.ts: readZipEntries (EOCD behind comments, CD + local header cross-check, stored/deflate, CRC-32, maxOutputLength-capped inflate) rejecting encryption, other methods, ZIP64, multi-disk, duplicates, symlinks, unsafe names; extractWorkflowArchive with 256 MiB / 10,000-entry defaults, __MACOSX skip, exec-bit chmod, content-hashed temp dir + .blast-extracted + atomic rename, race-safe.
+- 65 tests (plist.test.ts 40, archive.test.ts 25) with in-test bplist and ZIP writers; Node 24 import check exits 0.
 Not done / risks:
+- Binary null (0x00) and fill markers throw: PlistValue has no null. Integers outside the safe range throw instead of losing precision.
+- Memoised binary objects are shared by reference when the plist reuses a ref; callers must not mutate results expecting independent copies.
+- Names are decoded as UTF-8 regardless of the ZIP UTF-8 flag (CP437 names decode lossily). Names with "." or empty segments are rejected (strict).
+- Execute bits are honoured only for Unix (3) and macOS (19) "made by" hosts; symlink mode is rejected whatever the host. Setuid/setgid/sticky are dropped.
+- A leftover cache dir without the marker is deleted and replaced; stray `.<hash>-*` temp dirs from a crashed process are not garbage-collected.
 ```
