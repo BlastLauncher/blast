@@ -65,7 +65,7 @@ M20: landing page current for alpha.10 and polished on mobile.
 
 ### M20 — Landing polish
 
-- [ ] 0204 Landing page current for alpha.10, and polished on mobile
+- [x] 0204 Landing page current for alpha.10, and polished on mobile
 
 ## Later (not scheduled)
 
