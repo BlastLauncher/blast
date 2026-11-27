@@ -30,8 +30,10 @@ depends: ["0198"]
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/0200-ci-numbers
+Verify: run by tasks:merge
 Done:
-Not done / risks:
+- Measured after numbers from PR #124 and the first `main` CI and prerelease runs.
+- PLAN.md: M18 marked done in Current focus.
+Not done / risks: one sample per number; later runs will vary.
 ```

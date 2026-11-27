@@ -5,7 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M18 in progress: faster CI, release and verify; docs trimmed and rewritten.
+M18 done: CI 123 → 99 s, release 243 → 160 s, local verify 88 → ~33 s; docs rewritten.
+Next milestone not planned yet.
 
 ## Milestones
 
@@ -55,6 +56,7 @@ M18 in progress: faster CI, release and verify; docs trimmed and rewritten.
 
 - [x] 0198 Measure and cut CI, release and local verify time
 - [x] 0199 Trim and rewrite the docs for readability
+- [ ] 0200 Measured CI and release numbers in `docs/performance.md`
 
 ## Later (not scheduled)
 
