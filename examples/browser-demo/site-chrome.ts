@@ -123,6 +123,7 @@ export function siteHeaderHtml(urls: {
         <a href="${escapeHtml(urls.docsUrl)}">Docs</a>
         <a href="${escapeHtml(urls.demoUrl)}" class="opt">Demo</a>
         <a href="${coverageUrl}" class="opt">Coverage</a>
+        <a href="${escapeHtml(urls.homeUrl)}slop/">Slop</a>
         <a href="${repoUrl}">GitHub</a>
       </nav>
     </div>

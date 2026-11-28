@@ -20,7 +20,7 @@ const slugs = docChapters.map((chapter) => chapter.slug);
 const docs = renderDocs(await loadDocs());
 const pages = [...docs].filter(([path]) => path.endsWith(".html"));
 /** Pages buildSite writes outside docs/ that the docs header links to. */
-const otherSitePages = new Set(["/", "/demo/"]);
+const otherSitePages = new Set(["/", "/demo/", "/slop/"]);
 
 const textOf = (html: string) =>
   html
@@ -273,6 +273,7 @@ describe("docs site", () => {
       expect(html).toContain('<a href="/docs/">Docs</a>');
       expect(html).toContain('<a href="/demo/" class="opt">Demo</a>');
       expect(html).toContain("Coverage</a>");
+      expect(html).toContain('<a href="/slop/">Slop</a>');
       expect(html).toContain(`<a href="${repoUrl}">GitHub</a>`);
       expect(html).not.toMatch(/<script\b[^>]*\bsrc=/i);
       expect(html).not.toMatch(/(src|href)="https?:\/\/(?!github\.com)[^"]*\.(css|js|woff2?)"/);
