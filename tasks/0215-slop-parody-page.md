@@ -21,10 +21,10 @@ shared header nav links to it from every page.
 
 ## Acceptance
 
-- [ ] `buildSite` writes `www/slop/index.html`; a test asserts it.
-- [ ] `siteHeaderHtml` renders a `Slop` link to `/slop/` on landing, docs and slop pages.
-- [ ] The slop page has no external `src`/`href` requests except links.
-- [ ] `bun run verify` passes.
+- [x] `buildSite` writes `www/slop/index.html`; a test asserts it.
+- [x] `siteHeaderHtml` renders a `Slop` link to `/slop/` on landing, docs and slop pages.
+- [x] The slop page has no external `src`/`href` requests except links.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -33,8 +33,12 @@ shared header nav links to it from every page.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: task/0215-slop-parody-page @ 270f4abf
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 39.0s
 Done:
-Not done / risks:
+- `examples/browser-demo/slop.ts`: self-contained parody page (gradients, fake stats, testimonials, pricing, FAQ), real header, links back to the real landing.
+- `buildSite` writes `www/slop/index.html`.
+- `siteHeaderHtml` adds a `Slop` nav link (visible on mobile too) on landing, docs, and slop.
+- Tests: slop page content/no external loads, landing+docs nav link, build output.
+Not done / risks: no new dependencies. The site smoke/e2e do not visit /slop/.
 ```
