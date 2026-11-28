@@ -12,6 +12,7 @@ import {
   showcaseDirectory,
   siteCatalog,
 } from "./site.ts";
+import { slopPage } from "./slop.ts";
 import { demoPage } from "./template.ts";
 
 const showcaseCommands = [
@@ -227,6 +228,24 @@ describe("site build helpers", () => {
     expect(html).toContain("1,250");
     expect(html).toContain("1,500");
   });
+  test("slop parody shares the header nav, links back to the real page, and loads nothing external", () => {
+    const html = slopPage("http://127.0.0.1:4173");
+    expect(html).toContain('<nav aria-label="Main">');
+    expect(html).toContain('<a href="http://127.0.0.1:4173/slop/">Slop</a>');
+    expect(html).toContain('href="http://127.0.0.1:4173/">Take me to the real site</a>');
+    expect(html).toContain("What does Blast actually do?");
+    expect(html).not.toMatch(/<(script|img|iframe)\b/i);
+    expect(html).not.toMatch(/<link\b[^>]*href="https?:/i);
+    expect(html).not.toMatch(/url\(["']?https?:/i);
+  });
+  test("landing header links to the slop parody", () => {
+    const html = landing({
+      coverage: { covered: 1, total: 1, percent: "100%" },
+      rendered: 1,
+      commands: 1,
+    });
+    expect(html).toContain('<a href="/slop/">Slop</a>');
+  });
   test("landing releaseVersion matches README.md and docs/quickstart.md", async () => {
     for (const rel of ["../../README.md", "../../docs/quickstart.md"]) {
       const markdown = await readFile(new URL(rel, import.meta.url), "utf8");
@@ -286,6 +305,8 @@ describe("site build helpers", () => {
       ]);
       expect(JSON.parse(wwwBuild)).toEqual({ sha: "test-sha" });
       expect(JSON.parse(sandboxBuild)).toEqual({ sha: "test-sha" });
+      const slop = await readFile(`${result.www}/slop/index.html`, "utf8");
+      expect(slop).toContain("AI-Powered Launcher Synergy");
       const demo = await readFile(`${result.www}/demo/index.html`, "utf8");
       expect(demo).toContain("https://blastlauncher.github.io/blast-sandbox/");
       expect(demo.includes("window.__BLAST_FETCH_PROXY__=")).toBe(Boolean(fetchProxy));

@@ -41,6 +41,7 @@ M23: Docs and landing page refresh for Alfred workflow status (#47 closed, #139 
 ### M23 — Docs and landing page refresh
 
 - [x] 0214 Update docs, README, and landing page for Alfred workflow status
+- [x] 0215 Parody landing page at /slop/ with a navbar link
 
 ## Later (not scheduled)
 

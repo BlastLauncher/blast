@@ -6,6 +6,7 @@ import { sandboxPage } from "../../packages/web/sandbox/page.ts";
 import { demoPage } from "./template.ts";
 import { enrichCatalog, type Catalog, type CatalogExtension, type SweepResult } from "./root.ts";
 import { landing } from "./landing.ts";
+import { slopPage } from "./slop.ts";
 import { writeDocs } from "./docs-site.ts";
 export { landing };
 
@@ -204,6 +205,8 @@ export async function buildSite(
     ".button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ff6338;outline-offset:3px}\n",
   );
   await writeDocs(www);
+  await mkdir(join(www, "slop"), { recursive: true });
+  await writeFile(join(www, "slop", "index.html"), slopPage(site.origin));
   await writeFile(join(www, "tui-player.js"), await buildTuiPlayer());
   await cp(join(projectRoot, "examples/browser-demo/recordings/tui.cast"), join(www, "tui.cast"));
   await cp(join(projectRoot, "examples/browser-demo/fonts"), join(www, "fonts"), {
