@@ -33,12 +33,13 @@ shared header nav links to it from every page.
 ## Handoff
 
 ```
-Branch/commit: task/0215-slop-parody-page @ 270f4abf
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 39.0s
+Branch/commit: task/0215-slop-parody-page @ 4f753c5a
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 41.7s
 Done:
 - `examples/browser-demo/slop.ts`: self-contained parody page (gradients, fake stats, testimonials, pricing, FAQ), real header, links back to the real landing.
 - `buildSite` writes `www/slop/index.html`.
 - `siteHeaderHtml` adds a `Slop` nav link (visible on mobile too) on landing, docs, and slop.
 - Tests: slop page content/no external loads, landing+docs nav link, build output.
+- Review round 1 (Gemini 4 Neon): WCAG contrast stops, forced-colors fallback, marquee duplicate hidden from AT and wrapped under reduced motion, announcement landmark, clearly fictional company names, copy polish, real gradient border.
 Not done / risks: no new dependencies. The site smoke/e2e do not visit /slop/.
 ```
