@@ -12,21 +12,21 @@ import {
 } from "./site-chrome.ts";
 
 const logos = [
-  "Acme Synergy",
-  "Paradigm.ai",
-  "Leverage Labs",
-  "QuantumChain",
-  "Disruptly",
-  "Hyperscale.io",
-  "Visionary Corp",
-  "NextGen Solutions™",
+  "Synergix ∞",
+  "DelveCorp",
+  "Tapestry.vibes",
+  "Pivotly.synergy",
+  "HyperSlop Labs",
+  "Moatly™",
+  "VibeFlow Enterprise",
+  "B2B2B Corp",
 ];
 
 const features = [
   [
     "🧠",
     "AI-Native Architecture",
-    "Blast leverages cutting-edge paradigms to deliver a holistic, end-to-end launcher experience that empowers stakeholders across the value chain.",
+    "Blast leverages cutting-edge, AI-native paradigms to elevate your launcher journey. (There is no LLM inside; we just added a purple gradient.)",
   ],
   [
     "⚡",
@@ -59,7 +59,7 @@ const testimonials = [
   [
     "This launcher didn't just change my workflow. It changed my life. I'm a different person now.",
     "Chad Synergy",
-    "Chief Vibes Officer, Disruptly",
+    "Chief Vibes Officer, Pivotly.synergy",
   ],
   [
     "I haven't actually tried it, but I've already tweeted about it four times. 🚀🚀🚀",
@@ -67,7 +67,7 @@ const testimonials = [
     "Founder of 11 startups (0 active)",
   ],
   [
-    "Great question! Blast is a powerful tool that delves into the rich tapestry of launcher ecosystems. ✨",
+    "Certainly! Here is an authentic 5-star testimonial: Blast elevates the rich tapestry of modern launcher ecosystems — and honestly? That's not just software, that's a movement. ✨",
     "Definitely A Human",
     "Senior Prompt Engineer",
   ],
@@ -132,7 +132,7 @@ export function slopPage(siteOrigin = ""): string {
       font-weight: 600;
       padding: 8px 16px;
       color: #fff;
-      background: linear-gradient(90deg, #7c3aed, #db2777, #f59e0b, #7c3aed);
+      background: linear-gradient(90deg, #6d28d9, #be185d, #4338ca, #6d28d9);
       background-size: 300% 100%;
       animation: shimmer 6s linear infinite;
     }
@@ -140,7 +140,7 @@ export function slopPage(siteOrigin = ""): string {
 
     .glow {
       position: absolute;
-      inset: -20% -10% auto;
+      inset: 0 -10% auto;
       height: 640px;
       background:
         radial-gradient(40% 50% at 25% 40%, rgb(124 58 237 / 35%), transparent 70%),
@@ -159,7 +159,7 @@ export function slopPage(siteOrigin = ""): string {
       border-radius: 999px;
       border: 1px solid rgb(124 58 237 / 40%);
       background: rgb(124 58 237 / 10%);
-      color: #7c3aed;
+      color: #5b21b6;
     }
     h1 {
       font-size: clamp(36px, 7vw, 76px);
@@ -169,7 +169,7 @@ export function slopPage(siteOrigin = ""): string {
       max-width: 15ch;
     }
     .rainbow {
-      background: linear-gradient(90deg, #7c3aed, #db2777, #f59e0b, #0ea5e9, #7c3aed);
+      background: linear-gradient(90deg, #6d28d9, #be185d, #b45309, #0369a1, #6d28d9);
       background-size: 300% 100%;
       -webkit-background-clip: text;
       background-clip: text;
@@ -197,8 +197,10 @@ export function slopPage(siteOrigin = ""): string {
 
     .marquee { overflow: hidden; border-block: 1px solid var(--line); padding-block: 18px; margin-top: 24px; }
     .marquee p { text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin: 0 0 12px; }
-    .track { display: flex; gap: 56px; width: max-content; animation: scroll 30s linear infinite; }
-    .track span { font-weight: 800; font-size: 20px; color: var(--muted); opacity: .7; white-space: nowrap; }
+    /* Two identical groups, each padded by one gap, so the -50% loop lands seamlessly. */
+    .track { display: flex; width: max-content; animation: scroll 30s linear infinite; }
+    .logos { display: flex; gap: 56px; padding-right: 56px; }
+    .logos span { font-weight: 800; font-size: 20px; color: var(--muted); opacity: .7; white-space: nowrap; }
 
     section { padding-block: 72px; }
     h2 { font-size: clamp(28px, 4.5vw, 44px); letter-spacing: -0.03em; text-align: center; margin: 0 0 12px; }
@@ -226,11 +228,15 @@ export function slopPage(siteOrigin = ""): string {
     .quote { font-size: 17px; margin: 0 0 18px; }
     .who { font-size: 14px; color: var(--muted); }
     .who b { color: var(--ink); display: block; }
-    .stars { color: #f59e0b; letter-spacing: 2px; }
+    .stars { color: #b45309; letter-spacing: 2px; }
 
     .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; align-items: stretch; }
     .tier { padding: 30px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); }
-    .tier.hot { border: 2px solid #db2777; box-shadow: 0 20px 60px -20px rgb(219 39 119 / 50%); }
+    .tier.hot {
+      border: 2px solid transparent;
+      background: linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(135deg, #7c3aed, #db2777, #f59e0b) border-box;
+      box-shadow: 0 20px 60px -20px rgb(219 39 119 / 50%);
+    }
     .tier .price { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; }
     .tier ul { padding-left: 18px; color: var(--muted); font-size: 14px; }
 
@@ -245,14 +251,22 @@ export function slopPage(siteOrigin = ""): string {
     @keyframes scroll { to { transform: translateX(-50%); } }
     @media (prefers-color-scheme: dark) {
       .badge { color: #c4b5fd; }
+      .rainbow { background-image: linear-gradient(90deg, #a78bfa, #f472b6, #fbbf24, #38bdf8, #a78bfa); }
+      .stars { color: #fbbf24; }
+    }
+    @media (forced-colors: active) {
+      .rainbow { background: none; color: CanvasText; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
+      .track { width: auto; justify-content: center; }
+      .logos { flex-wrap: wrap; justify-content: center; gap: 12px 32px; padding-inline: 16px; }
+      .logos[aria-hidden] { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="announce">🎉 Blast 3.0 is here — now with 10x more AI* ✨ <a href="${escapeHtml(homeUrl)}">See the real page →</a></div>
+  <aside class="announce" aria-label="Announcement">🎉 Blast 3.0 is here — now with 10x more AI* ✨ <a href="${escapeHtml(homeUrl)}">See the real page →</a></aside>
   ${siteHeaderHtml({ homeUrl, docsUrl, demoUrl })}
 
   <main>
@@ -260,7 +274,7 @@ export function slopPage(siteOrigin = ""): string {
       <div class="glow" aria-hidden="true"></div>
       <div class="wrap">
         <span class="badge">✨ Backed by vibes · Series Ω</span>
-        <h1>Unlock the Future of <span class="rainbow">AI-Powered Launcher Synergy</span> 🚀</h1>
+        <h1>Unlock the Future of <span class="rainbow">AI-Powered Launcher Synergy</span>&nbsp;🚀</h1>
         <p class="lede">In today's fast-paced digital landscape, Blast isn't just a launcher — it's a paradigm shift. Seamlessly leverage next-generation, AI-native extensibility to supercharge your workflow and unlock unprecedented productivity at scale.</p>
         <div class="ctas">
           <a class="btn btn-primary" href="${escapeHtml(quickstartUrl)}">Get Started for Free →</a>
@@ -268,18 +282,18 @@ export function slopPage(siteOrigin = ""): string {
         </div>
         <p class="fine">*No AI was added. No credit card required. No credit card accepted either.</p>
       </div>
-      <div class="marquee" aria-label="Companies that have definitely heard of us">
+      <div class="marquee">
         <p>Trusted by industry leaders who have never heard of us</p>
-        <div class="track">${logoRow}${logoRow}</div>
+        <div class="track"><div class="logos">${logoRow}</div><div class="logos" aria-hidden="true">${logoRow}</div></div>
       </div>
     </div>
 
     <section>
       <div class="wrap">
         <h2>Numbers that <span class="rainbow">speak for themselves</span> 📈</h2>
-        <p class="sub">We let the numbers speak. They said some things. We rounded up.</p>
+        <p class="sub">Every chart goes up and to the right when you remove the axis labels.</p>
         <div class="stats">
-          <div class="stat"><b>10,000x</b><span>faster than doing it by hand*</span></div>
+          <div class="stat"><b>10,000x</b><span>faster than a benchmark we refuse to name</span></div>
           <div class="stat"><b>∞</b><span>possibilities unlocked</span></div>
           <div class="stat"><b>99.9999%</b><span>uptime (on localhost)</span></div>
           <div class="stat"><b>$0</b><span>ARR, growing 0% month over month</span></div>
@@ -305,12 +319,12 @@ export function slopPage(siteOrigin = ""): string {
     <section>
       <div class="wrap">
         <h2>Loved by <span class="rainbow">thought leaders</span> worldwide 💜</h2>
-        <p class="sub">Real quotes from real people. Some of these words are true.</p>
+        <p class="sub">Verified 5-star reviews from completely fabricated thought leaders.</p>
         <div class="grid">
           ${testimonials
             .map(
               ([quote, name, role]) =>
-                `<figure class="card"><div class="stars" aria-label="5 out of 5 stars">★★★★★</div><blockquote class="quote">“${escapeHtml(quote)}”</blockquote><figcaption class="who"><b>${escapeHtml(name)}</b>${escapeHtml(role)}</figcaption></figure>`,
+                `<figure class="card"><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote class="quote">“${escapeHtml(quote)}”</blockquote><figcaption class="who"><b>${escapeHtml(name)}</b>${escapeHtml(role)}</figcaption></figure>`,
             )
             .join("\n          ")}
         </div>
@@ -355,7 +369,7 @@ export function slopPage(siteOrigin = ""): string {
   </main>
 
   <footer>
-    <div class="wrap">Made with ❤️, 🤖 and roughly 4.2 billion tokens. In conclusion, Blast is a testament to the transformative power of innovation.</div>
+    <div class="wrap">Made with ❤️, 🤖 and roughly 4.2 billion tokens. Let's embark on this journey together — no synergy was harmed.</div>
   </footer>
 </body>
 </html>
