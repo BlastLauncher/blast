@@ -1,5 +1,5 @@
-// A parody of the landing page, written in the voice people accuse the project of
-// having. Same chrome, zero external requests; the joke sits on top of the real header.
+// A parody of the landing page in full AI-slop voice: what the site would look like if
+// it chased hype instead of evidence. Same chrome, zero external requests.
 
 import { escapeHtml } from "./highlight.ts";
 import {
@@ -88,7 +88,7 @@ const faqs = [
   ],
   [
     "Why does this page exist?",
-    "People kept saying it. So we built the version they were imagining, and put the real one one click away.",
+    "Every launcher landing page drifts toward this one. We got here early, on purpose, and kept the real page one click away.",
   ],
 ] as const;
 
